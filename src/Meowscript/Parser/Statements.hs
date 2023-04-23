@@ -6,34 +6,27 @@ module Meowscript.Parser.Statements
 
 import Meowscript.Core.AST
 import Meowscript.Parser.Core
+import Meowscript.Parser.Expr
 import qualified Data.Text as Text
 import Text.Megaparsec ((<|>), (<?>))
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
 
--- Placeholders. Replace 'dummy' with proper functions whenever you see it.
-dummy :: Parser Expr
-dummy = return $ EPrim MeowLonely
-dummyStmt :: Parser Statement
-dummyStmt = return $ SExpr [EPrim MeowLonely]
-
 condition :: Parser Expr
-condition = (lexeme . bars) (whitespace >> dummy)
+condition = (lexeme . bars) (whitespace >> parseExpr)
 
 parseIf :: Parser Statement
-parseIf = (lexeme . meowDiv "if") $ do
+parseIf = (lexeme . meowDiv "mew?") $ do
     whitespace
     cond <- condition
     whitespace
-    ifBody <- Mega.manyTill dummyStmt (keyword "else")
-    elseBody <- Mega.many dummyStmt
-    return $ SIfElse cond ifBody elseBody
+    ifBody <- Mega.between whitespace (MChar.string "else") exprStmt
+    SIfElse cond ifBody <$> exprStmt
 
 parseWhile :: Parser Statement
-parseWhile = (lexeme . meowDiv "roll") $ do
+parseWhile = (lexeme . meowDiv "meowmeow") $ do
     whitespace
     cond <- condition
     whitespace
-    body <- Mega.many dummyStmt
-    return $ SWhile cond body
+    SWhile cond <$> exprStmt
