@@ -16,7 +16,7 @@ import qualified Text.Megaparsec.Char.Lexer as Lexer
 dummy :: Parser Expr
 dummy = return $ EPrim MeowLonely
 dummyStmt :: Parser Statement
-dummyStmt = return $ SPrim MeowLonely
+dummyStmt = return $ SExpr [EPrim MeowLonely]
 
 condition :: Parser Expr
 condition = (lexeme . bars) (whitespace >> dummy)

@@ -38,6 +38,8 @@ operators =
         , InfixL (EBinop MeowDiv <$ trySymbol "/") ]
       , [ InfixL (EBinop MeowAdd <$ trySymbol "+")
         , InfixL (EBinop MeowSub <$ trySymbol "-") ]
+      , [ InfixL (EBinop MeowPoke   <$ trySymbol "poke!" )
+        , InfixL (EBinop MeowConcat <$ trySymbol ".."    ) ]
       , [ InfixL (EBinop (MeowCompare [LT])     <$ trySymbol "<" )
         , InfixL (EBinop (MeowCompare [GT])     <$ trySymbol ">" )
         , InfixL (EBinop (MeowCompare [LT, EQ]) <$ trySymbol "<=")
@@ -46,7 +48,5 @@ operators =
         , InfixL (EBinop (MeowCompare [LT, GT]) <$ trySymbol "!=") ]
       , [ InfixL (EBinop MeowAnd    <$ trySymbol "nya"      ) ]
       , [ InfixL (EBinop MeowOr     <$ trySymbol "nyo"      ) ]
-      , [ InfixL (EBinop MeowPoke   <$ trySymbol "poke!"    )
-        , InfixL (EBinop MeowConcat <$ trySymbol ".."       ) ]
       , [ InfixL (EBinop MeowAssign <$ trySymbol "=^.x.^="  ) ]
     ]
