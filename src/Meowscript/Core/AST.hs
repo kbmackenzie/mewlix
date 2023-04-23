@@ -35,11 +35,12 @@ data Expr =
       EPrim Prim
     | EUnop Unop Expr 
     | EBinop Binop Expr Expr
+    | EReturn Expr
     | EWhitespace
     deriving (Eq, Show, Ord)
 
 data Statement =
-      SExpr Expr
+      SExpr [Expr]
     | SWhile Expr [Statement]
     | SIfElse Expr [Statement] [Statement] 
     | SFuncDef Text.Text Args [Statement]
