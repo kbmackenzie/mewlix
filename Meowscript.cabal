@@ -32,7 +32,6 @@ library
       Meowscript.Parser.Core
       Meowscript.Parser.Expr
       Meowscript.Parser.Func
-      Meowscript.Parser.Operators
       Meowscript.Parser.Statements
   other-modules:
       Paths_Meowscript
