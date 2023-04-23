@@ -24,11 +24,8 @@ exprTerm = (lexeme' . parens) parseExpr
 parseExpr :: Parser Expr
 parseExpr = makeExprParser exprTerm operators
 
-exprStmt :: Parser Statement
-exprStmt = SExpr <$> manyExpr
-
--- todo: a [Statement] method
--- applicative maybe? ><
+exprStmt :: Parser [Statement]
+exprStmt = (: []) <$> (SExpr <$> manyExpr)
 
 operators :: [[Operator Parser Expr]]
 operators =
