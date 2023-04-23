@@ -13,6 +13,7 @@ import Text.Megaparsec ((<|>), (<?>))
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
+import Meowscript.Parser.Statements (manyStatements)
 
 funDiv :: Parser a -> Parser a
 funDiv = meowDiv "purr"
@@ -33,4 +34,4 @@ funDef = (lexeme . funDiv) $ do
     name <- funName
     args <- funArgs
     whitespace
-    SFuncDef name args <$> exprStmt
+    SFuncDef name args <$> manyStatements

@@ -19,13 +19,13 @@ manyExpr = Mega.sepEndBy (whitespace >> parseExpr) MChar.newline --(symbol ";")
 exprTerm :: Parser Expr
 exprTerm = (lexeme' . parens) parseExpr
     <|> (EPrim <$> lexeme' parsePrim)
-    <|> (EWhitespace <$ whitespace)
+--    <|> (EWhitespace <$ whitespace <|> Mega.empty)
 
 parseExpr :: Parser Expr
 parseExpr = makeExprParser exprTerm operators
 
-exprStmt :: Parser [Statement]
-exprStmt = (: []) <$> (SExpr <$> manyExpr)
+exprStmt :: Parser Statement
+exprStmt = SExpr <$> manyExpr
 
 operators :: [[Operator Parser Expr]]
 operators =
