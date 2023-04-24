@@ -29,6 +29,10 @@ library
       Meowscript
       Meowscript.Core.AST
       Meowscript.Core.Evaluate
+      Meowscript.Core.Expressions
+      Meowscript.Core.Functions
+      Meowscript.Core.Messages
+      Meowscript.Core.Statements
       Meowscript.Parser.Core
       Meowscript.Parser.Expr
       Meowscript.Parser.Statements

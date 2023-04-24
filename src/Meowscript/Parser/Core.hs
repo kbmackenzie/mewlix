@@ -105,7 +105,14 @@ reservedKeywords =
     , "gift"
     , "rest"
     , "run"
-    , "away" ]
+    , "away"
+    , "poke"
+    , "nudge"
+    , "peek"
+    , "sneak"
+    , "lonely"
+    , "yummy"
+    , "icky" ]
 
 validAtomChar :: Char -> Bool
 validAtomChar c = isAlphaNum c || c `elem` ['.', '[', ']', '_']
@@ -159,13 +166,13 @@ parseFloat :: Parser Prim
 parseFloat = do
     let readDouble = Lexer.float
     x <- Lexer.signed whitespace readDouble
-    (return . MeowNumber) x
+    (return . MeowDouble) x
 
 parseBool :: Parser Prim
 parseBool =  do
     x <- Mega.choice
-        [ True <$ keyword "good"
-        , False <$ keyword "stinky" ]
+        [ True <$ keyword "yummy"
+        , False <$ keyword "icky" ]
     (return . MeowBool) x
 
 parseLonely :: Parser Prim

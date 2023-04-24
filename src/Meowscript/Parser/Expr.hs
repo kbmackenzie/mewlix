@@ -25,16 +25,19 @@ parseExpr' = lexeme (whitespace >> parseExpr)
 operators :: [[Operator Parser Expr]]
 operators =
     [
-        [ Prefix  (EUnop MeowYarn    <$ trySymbol "~~"   ) ]
+        [ Prefix  (EUnop MeowYarn    <$ trySymbol "~~"  ) ]
       , [ Prefix  (EUnop MeowNegate  <$ symbol "-"      )
         , Prefix  (EUnop MeowNot     <$ trySymbol "paw" ) ]
-      , [ Postfix (EUnop MeowYarnLen <$ symbol "~?"   ) ]
       , [ InfixL (EBinop MeowMul <$ symbol "*")
         , InfixL (EBinop MeowDiv <$ symbol "/") ]
       , [ InfixL (EBinop MeowAdd <$ symbol "+")
         , InfixL (EBinop MeowSub <$ symbol "-") ]
-      , [ InfixL (EBinop MeowPoke   <$ trySymbol "poke!" )
-        , InfixL (EBinop MeowConcat <$ trySymbol ".."    ) ]
+      , [ Prefix (EUnop MeowPoke   <$ trySymbol "poke"  )
+        , Prefix (EUnop MeowNudge  <$ trySymbol "nudge" )
+        , Prefix (EUnop MeowPeek   <$ trySymbol "peek"  )
+        , Prefix (EUnop MeowSneak  <$ trySymbol "sneak" )
+        , Postfix (EUnop MeowLen   <$ symbol "~?"     )
+        , InfixL (EBinop MeowConcat <$ trySymbol ".."   ) ]
       , [ InfixL (EBinop (MeowCompare [LT, EQ]) <$ trySymbol "<=")
         , InfixL (EBinop (MeowCompare [GT, EQ]) <$ trySymbol ">=")
         , InfixL (EBinop (MeowCompare [LT])     <$ symbol "<" )

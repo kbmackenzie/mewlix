@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Main (main) where
 
@@ -45,18 +46,15 @@ exprMany = Mega.parse (Mega.between whitespace Mega.eof parseMany)
 aaab :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) Statement
 aaab = Mega.parse root 
 
-parseS :: IO Statement
-parseS = do
-    let path = "C:\\Users\\ianvi\\Desktop\\example1_expr.txt"
-    txt <- TextIO.readFile path
-    let exp' = aaab "" txt
-    {-let x = case exp' of
-            (Right e) -> show e
-            (Left e) -> show e-}
+parseS :: Text.Text -> IO Statement
+parseS txt = do
+    let !exp' = aaab "" txt
     return $ fromRight (SAll []) exp'
 
 main :: IO ()
 main = do
-    (tok, time) <- stopWatch parseS
+    let path = "C:\\Users\\ianvi\\Desktop\\example1_expr.txt"
+    !txt <- TextIO.readFile path
+    (tok, time) <- stopWatch (parseS txt)
     print tok
     print time

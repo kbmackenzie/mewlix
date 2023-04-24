@@ -1,25 +1,13 @@
---{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-
 module Meowscript.Core.AST
 ( Prim(..)
 , Expr(..)
 , Unop(..)
 , Binop(..)
-, Evaluate(..)
 , Statement(..)
-, Environment
 , Args
 ) where
 
 import qualified Data.Text as Text
-import qualified Data.Map as Map
-import qualified Control.Monad.Reader as Reader
-import Data.Char (GeneralCategory(SpacingCombiningMark))
-import Data.ByteString.Short (ShortByteString)
---import qualified Text.Megaparsec as Mega
---import qualified Text.Megaparsec.Char as MChar
---import qualified Text.Megaparsec.Char.Lexer as Lexer
 
 type Args = [Text.Text]
 
@@ -28,10 +16,21 @@ data Prim =
     | MeowAtom Text.Text
     | MeowBool Bool
     | MeowInt Int
-    | MeowNumber Double
+    | MeowDouble Double
     | MeowLonely
     | MeowFunc Args [Statement]
-    deriving (Eq, Show, Ord)
+    | MeowCall Text.Text [Expr]
+    deriving (Eq, Ord)
+
+instance Show Prim where
+    show (MeowString x) = Text.unpack x
+    show (MeowAtom x) = Text.unpack x
+    show (MeowBool x) = if x then "yummy" else "icky"
+    show (MeowInt x) = show x
+    show (MeowDouble x) = show x
+    show MeowLonely = "lonely"
+    show (MeowFunc _ _) = "<function>"
+    show (MeowCall _ _) = "<function-call>"
 
 data Expr =
       EPrim Prim
@@ -53,11 +52,14 @@ data Statement =
     deriving (Eq, Show, Ord)
 
 data Unop =
-      MeowNot 
-    | MeowYarn 
-    | MeowYarnLen 
-    | MeowCall 
+      MeowYarn 
+    | MeowLen 
+    | MeowPoke 
+    | MeowNudge
     | MeowNegate
+    | MeowNot 
+    | MeowPeek
+    | MeowSneak
     deriving (Eq, Show, Ord)
 
 data Binop =
@@ -69,18 +71,5 @@ data Binop =
     | MeowOr 
     | MeowCompare [Ordering]
     | MeowAssign 
-    | MeowPoke 
     | MeowConcat 
     deriving (Eq, Show, Ord)
-
-
-{- Variable context and evaluation monad. -}
-
-type Environment = Map.Map Text.Text Prim
-
-newtype Evaluate a = Evaluate { unEval :: Reader.ReaderT Environment IO a }
-  deriving ( Monad
-           , Functor
-           , Applicative
-           , Reader.MonadReader Environment
-           , Reader.MonadIO)
