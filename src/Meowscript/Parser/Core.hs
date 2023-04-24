@@ -93,7 +93,16 @@ stmtEnd :: Parser Char
 stmtEnd = lexeme (MChar.char ';' <|> MChar.char '\n')
 
 reservedKeywords :: [Text.Text]
-reservedKeywords = [ "purr", "paw", "hiss!", "mew?", "meow", "leave" ]
+reservedKeywords =
+    [ "purr"
+    , "paw"
+    , "hiss!"
+    , "mew?"
+    , "meow"
+    , "scratch"
+    , "leave"
+    , "bring"
+    , "gift" ]
 
 validAtomChar :: Char -> Bool
 validAtomChar c = isAlphaNum c || c `elem` ['.', '[', ']', '_']

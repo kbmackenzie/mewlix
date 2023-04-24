@@ -17,7 +17,7 @@ import Control.Monad (void)
 import Text.Megaparsec.Char.Lexer (nonIndented)
 
 root :: Parser Statement
-root = SAll <$> Mega.many statements
+root = SAll <$> Mega.between whitespace Mega.eof (Mega.many statements)
 
 statements :: Parser Statement
 statements = Mega.choice
@@ -25,13 +25,14 @@ statements = Mega.choice
     , Mega.try parseWhile
     , Mega.try parseIfElse
     , Mega.try parseFunc
+    , Mega.try parseReturn
     , exprS
     , fail "Invalid token!" ]
 
 asLeave :: ([Statement] -> Statement) -> [Statement] -> Parser Statement
 asLeave f xs = do
     whitespace
-    void $ MChar.string "leave"
+    void $ keyword "leave"
     return (f xs)
 
 condition :: Parser Expr
@@ -48,7 +49,7 @@ asIf e = asLeave (SOnlyIf e)
 
 parseIf :: Parser Statement
 parseIf = lexeme $ Lexer.indentBlock whitespaceLn $ do
-    void $ MChar.string "mew?"
+    void $ keyword "mew?"
     whitespace
     c <- condition
     return (Lexer.IndentMany Nothing (asIf c) statements)
@@ -61,7 +62,7 @@ asWhile e = asLeave (SWhile e)
 
 parseWhile:: Parser Statement
 parseWhile = lexeme $ Lexer.indentBlock whitespaceLn $ do
-    void $ MChar.string "meowwww"
+    void $ keyword "scratch"
     whitespace
     c <- condition
     return (Lexer.IndentMany Nothing (asWhile c) statements)
@@ -75,7 +76,7 @@ bAsIf e xs = return $ SIfElse e xs
 
 bAsElse :: ([Statement] -> Statement) -> [Statement] -> Parser Statement
 bAsElse f xs = do
-    void $ MChar.string "leave"
+    void $ keyword "leave"
     return (f xs)
 
 parseIfElse :: Parser Statement
@@ -85,14 +86,14 @@ parseIfElse = do
 
 parseBIf :: Parser ([Statement] -> Statement)
 parseBIf = lexeme $ Lexer.indentBlock whitespaceLn $ do
-    void $ MChar.string "mew?"
+    void $ keyword "mew?"
     whitespace
     c <- condition
     return (Lexer.IndentMany Nothing (bAsIf c) statements)
 
 parseBElse :: ([Statement] -> Statement) -> Parser Statement
 parseBElse f = lexeme $ Lexer.indentBlock whitespaceLn $ do
-    void $ MChar.string "hiss!"
+    void $ keyword "hiss!"
     return (Lexer.IndentMany Nothing (bAsElse f) statements)
 
 
@@ -113,7 +114,16 @@ asFunc name args = asLeave (SFuncDef name args)
 
 parseFunc :: Parser Statement
 parseFunc = lexeme $ Lexer.indentBlock whitespaceLn $ do
-    void $ MChar.string "purr"
+    void $ keyword "purr"
     name <- funName
     args <- funArgs
     return (Lexer.IndentMany Nothing (asFunc name args) statements)
+
+
+{- Return -}
+
+parseReturn :: Parser Statement
+parseReturn = do
+    whitespace
+    void $ keyword "bring gift"
+    SReturn <$> parseExpr'
