@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-} 
 
 module Meowscript.Parser.Statements
-( --condition
-root
+( root
+, statements
 ) where
 
 import Meowscript.Core.AST
@@ -24,7 +24,9 @@ statements = Mega.choice
     [ Mega.try parseIf
     , Mega.try parseWhile
     , Mega.try parseIfElse
-    , exprS ]
+    , Mega.try parseFunc
+    , exprS
+    , fail "Invalid token!" ]
 
 asBlock :: [Statement] -> Parser Statement
 asBlock xs = return $ SAll xs
@@ -99,3 +101,28 @@ dummyComb :: [Int] -> Parser Int
 dummyComb xs = do
     let x = sum xs
     return x
+
+
+
+funName :: Parser Text.Text
+funName = atomName <$> lexeme (whitespace >> parseAtom)
+
+funArgs :: Parser [Text.Text]
+funArgs = (lexeme . bars) $ do
+    whitespace
+    args <- Mega.sepBy (whitespace >> parseAtom) (MChar.char ',')
+    whitespace
+    return $ atomName <$> args
+
+asFunc :: Text.Text -> [Text.Text] -> [Statement] -> Parser Statement
+asFunc name args xs = do
+    whitespace
+    void $ MChar.string "leave"
+    return $ SFuncDef name args xs
+
+parseFunc :: Parser Statement
+parseFunc = lexeme $ Lexer.indentBlock whitespaceLn $ do
+    void $ MChar.string "purr"
+    name <- funName
+    args <- funArgs
+    return (Lexer.IndentMany Nothing (asFunc name args) statements)

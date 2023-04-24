@@ -35,10 +35,10 @@ operators =
         , InfixL (EBinop MeowSub <$ trySymbol "-") ]
       , [ InfixL (EBinop MeowPoke   <$ trySymbol "poke!" )
         , InfixL (EBinop MeowConcat <$ trySymbol ".."    ) ]
-      , [ InfixL (EBinop (MeowCompare [LT])     <$ trySymbol "<" )
-        , InfixL (EBinop (MeowCompare [GT])     <$ trySymbol ">" )
-        , InfixL (EBinop (MeowCompare [LT, EQ]) <$ trySymbol "<=")
-        , InfixL (EBinop (MeowCompare [GT, EQ]) <$ trySymbol ">=") ]
+      , [ InfixL (EBinop (MeowCompare [LT, EQ]) <$ trySymbol "<=")
+        , InfixL (EBinop (MeowCompare [GT, EQ]) <$ trySymbol ">=")
+        , InfixL (EBinop (MeowCompare [LT])     <$ trySymbol "<" )
+        , InfixL (EBinop (MeowCompare [GT])     <$ trySymbol ">" ) ]
       , [ InfixL (EBinop (MeowCompare [EQ])     <$ trySymbol "==")
         , InfixL (EBinop (MeowCompare [LT, GT]) <$ trySymbol "!=") ]
       , [ InfixL (EBinop MeowAnd    <$ trySymbol "nya"      ) ]
