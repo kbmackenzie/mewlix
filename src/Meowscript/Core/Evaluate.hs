@@ -1,6 +1,7 @@
 module Meowscript.Core.Evaluate
 ( Environment
 , Evaluator
+, ReturnValue
 ) where
 
 import Meowscript.Core.AST
@@ -13,3 +14,5 @@ import Control.Monad.Except (ExceptT)
 
 type Environment = Map.Map Text.Text Prim
 type Evaluator a = ReaderT Environment (ExceptT Text.Text IO) a
+
+type ReturnValue a = Maybe a

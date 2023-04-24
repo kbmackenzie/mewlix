@@ -36,7 +36,6 @@ import qualified Text.Megaparsec.Char.Lexer as Lexer
 import Data.Void (Void)
 import Control.Monad (void)
 import Data.Char (isAlphaNum)
-import Text.Megaparsec.Char.Lexer (nonIndented)
 
 type Parser = Mega.Parsec Void Text.Text
 

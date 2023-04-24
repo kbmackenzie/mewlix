@@ -2,6 +2,8 @@
 
 module Meowscript.Core.Expressions
 ( evaluate
+, asBool
+, asString
 ) where
 
 import Meowscript.Core.AST

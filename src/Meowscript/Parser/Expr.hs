@@ -11,8 +11,7 @@ import Text.Megaparsec ((<|>))
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
-import Control.Monad (void, liftM)
-import qualified Data.Text as Text
+import Control.Monad (void)
 
 exprTerm :: Parser Expr
 exprTerm = (lexeme . parens) parseExpr
