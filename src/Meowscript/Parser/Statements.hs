@@ -34,17 +34,17 @@ asLeave f xs = do
     void $ MChar.string "leave"
     return (f xs)
 
-asIf :: Expr -> [Statement] -> Parser Statement
-asIf e = asLeave (SOnlyIf e)
-
-asWhile :: Expr -> [Statement] -> Parser Statement
-asWhile e = asLeave (SWhile e)
-
 condition :: Parser Expr
 condition = (lexeme . bars) parseExpr'
 
 exprS :: Parser Statement
 exprS = SExpr <$> parseExpr'
+
+
+{- If -}
+
+asIf :: Expr -> [Statement] -> Parser Statement
+asIf e = asLeave (SOnlyIf e)
 
 parseIf :: Parser Statement
 parseIf = lexeme $ Lexer.indentBlock whitespaceLn $ do
@@ -52,6 +52,23 @@ parseIf = lexeme $ Lexer.indentBlock whitespaceLn $ do
     whitespace
     c <- condition
     return (Lexer.IndentMany Nothing (asIf c) statements)
+
+
+{- While -}
+
+asWhile :: Expr -> [Statement] -> Parser Statement
+asWhile e = asLeave (SWhile e)
+
+parseWhile:: Parser Statement
+parseWhile = lexeme $ Lexer.indentBlock whitespaceLn $ do
+    void $ MChar.string "meowwww"
+    whitespace
+    c <- condition
+    return (Lexer.IndentMany Nothing (asWhile c) statements)
+
+
+
+{- If Else -}
 
 bAsIf :: Expr -> [Statement] -> Parser ([Statement] -> Statement)
 bAsIf e xs = return $ SIfElse e xs
@@ -79,27 +96,7 @@ parseBElse f = lexeme $ Lexer.indentBlock whitespaceLn $ do
     return (Lexer.IndentMany Nothing (bAsElse f) statements)
 
 
-parseWhile:: Parser Statement
-parseWhile = lexeme $ Lexer.indentBlock whitespaceLn $ do
-    void $ MChar.string "meowwww"
-    whitespace
-    c <- condition
-    return (Lexer.IndentMany Nothing (asWhile c) statements)
-
-
-dummyN :: Parser Int
-dummyN = let p = return (Lexer.IndentMany Nothing dummyComb dummy)
-         in Lexer.indentBlock whitespaceLn p
-
-dummy :: Parser Int
-dummy = return 0
-
-dummyComb :: [Int] -> Parser Int
-dummyComb xs = do
-    let x = sum xs
-    return x
-
-
+{- Functions -}
 
 funName :: Parser Text.Text
 funName = atomName <$> lexeme (whitespace >> parseAtom)

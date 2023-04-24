@@ -31,7 +31,6 @@ library
       Meowscript.Core.Evaluate
       Meowscript.Parser.Core
       Meowscript.Parser.Expr
-      Meowscript.Parser.Func
       Meowscript.Parser.Statements
   other-modules:
       Paths_Meowscript

@@ -93,7 +93,7 @@ stmtEnd :: Parser Char
 stmtEnd = lexeme (MChar.char ';' <|> MChar.char '\n')
 
 validAtomChar :: Char -> Bool
-validAtomChar c = isAlphaNum c || c `elem` ['.', '[', ']']
+validAtomChar c = isAlphaNum c || c `elem` ['.', '[', ']', '_']
 
 parseAtom :: Parser Prim
 parseAtom = do
