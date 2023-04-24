@@ -25,20 +25,20 @@ parseExpr' = lexeme (whitespace >> parseExpr)
 operators :: [[Operator Parser Expr]]
 operators =
     [
-        [ Prefix  (EUnop MeowNegate  <$ trySymbol "-"      )
+        [ Prefix  (EUnop MeowNegate  <$ symbol "-"      )
         , Prefix  (EUnop MeowNot     <$ trySymbol "hiss" ) ]
       , [ Prefix  (EUnop MeowYarn    <$ trySymbol "~~"   ) ]
-      , [ Postfix (EUnop MeowYarnLen <$ trySymbol "~?"   ) ]
-      , [ InfixL (EBinop MeowMul <$ trySymbol "*")
-        , InfixL (EBinop MeowDiv <$ trySymbol "/") ]
-      , [ InfixL (EBinop MeowAdd <$ trySymbol "+")
-        , InfixL (EBinop MeowSub <$ trySymbol "-") ]
+      , [ Postfix (EUnop MeowYarnLen <$ symbol "~?"   ) ]
+      , [ InfixL (EBinop MeowMul <$ symbol "*")
+        , InfixL (EBinop MeowDiv <$ symbol "/") ]
+      , [ InfixL (EBinop MeowAdd <$ symbol "+")
+        , InfixL (EBinop MeowSub <$ symbol "-") ]
       , [ InfixL (EBinop MeowPoke   <$ trySymbol "poke!" )
         , InfixL (EBinop MeowConcat <$ trySymbol ".."    ) ]
       , [ InfixL (EBinop (MeowCompare [LT, EQ]) <$ trySymbol "<=")
         , InfixL (EBinop (MeowCompare [GT, EQ]) <$ trySymbol ">=")
-        , InfixL (EBinop (MeowCompare [LT])     <$ trySymbol "<" )
-        , InfixL (EBinop (MeowCompare [GT])     <$ trySymbol ">" ) ]
+        , InfixL (EBinop (MeowCompare [LT])     <$ symbol "<" )
+        , InfixL (EBinop (MeowCompare [GT])     <$ symbol ">" ) ]
       , [ InfixL (EBinop (MeowCompare [EQ])     <$ trySymbol "==")
         , InfixL (EBinop (MeowCompare [LT, GT]) <$ trySymbol "!=") ]
       , [ InfixL (EBinop MeowAnd    <$ trySymbol "nya"      ) ]

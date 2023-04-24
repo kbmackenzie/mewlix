@@ -28,20 +28,17 @@ statements = Mega.choice
     , exprS
     , fail "Invalid token!" ]
 
-asBlock :: [Statement] -> Parser Statement
-asBlock xs = return $ SAll xs
+asLeave :: ([Statement] -> Statement) -> [Statement] -> Parser Statement
+asLeave f xs = do
+    whitespace
+    void $ MChar.string "leave"
+    return (f xs)
 
 asIf :: Expr -> [Statement] -> Parser Statement
-asIf e xs = do
-    whitespace
-    void $ MChar.string "leave"
-    return $ SOnlyIf e xs
+asIf e = asLeave (SOnlyIf e)
 
 asWhile :: Expr -> [Statement] -> Parser Statement
-asWhile e xs = do
-    whitespace
-    void $ MChar.string "leave"
-    return $ SWhile e xs
+asWhile e = asLeave (SWhile e)
 
 condition :: Parser Expr
 condition = (lexeme . bars) parseExpr'
@@ -115,10 +112,7 @@ funArgs = (lexeme . bars) $ do
     return $ atomName <$> args
 
 asFunc :: Text.Text -> [Text.Text] -> [Statement] -> Parser Statement
-asFunc name args xs = do
-    whitespace
-    void $ MChar.string "leave"
-    return $ SFuncDef name args xs
+asFunc name args = asLeave (SFuncDef name args)
 
 parseFunc :: Parser Statement
 parseFunc = lexeme $ Lexer.indentBlock whitespaceLn $ do
