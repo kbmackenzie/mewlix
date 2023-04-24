@@ -18,7 +18,6 @@ import Data.Either (fromRight, fromLeft)
 import Control.Monad (void)
 import Data.Char (isAlphaNum)
 import Control.StopWatch (stopWatch)
-import Data.Either (fromRight)
 
 exprTest :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) Expr
 exprTest = Mega.parse (Mega.between whitespace Mega.eof parseExpr)
@@ -51,10 +50,15 @@ parseS txt = do
     let !exp' = aaab "" txt
     return $ fromRight (SAll []) exp'
 
+parseE :: Text.Text -> IO ()
+parseE txt = do
+    let !exp' = aaab "" txt
+    print exp'
+
 main :: IO ()
 main = do
     let path = "C:\\Users\\ianvi\\Desktop\\example1_expr.txt"
     !txt <- TextIO.readFile path
-    (tok, time) <- stopWatch (parseS txt)
+    (tok, time) <- stopWatch (parseE txt)
     print tok
     print time

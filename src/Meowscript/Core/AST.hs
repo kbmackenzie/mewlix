@@ -19,7 +19,6 @@ data Prim =
     | MeowDouble Double
     | MeowLonely
     | MeowFunc Args [Statement]
-    | MeowCall Text.Text [Expr]
     deriving (Eq, Ord)
 
 instance Show Prim where
@@ -29,13 +28,13 @@ instance Show Prim where
     show (MeowInt x) = show x
     show (MeowDouble x) = show x
     show MeowLonely = "lonely"
-    show (MeowFunc _ _) = "<function>"
-    show (MeowCall _ _) = "<function-call>"
+    show x@(MeowFunc _ _) = show x -- "<function>"
 
 data Expr =
       EPrim Prim
     | EUnop Unop Expr 
     | EBinop Binop Expr Expr
+    | ECall [Expr] Expr
     | EWhitespace
     deriving (Eq, Show, Ord)
 

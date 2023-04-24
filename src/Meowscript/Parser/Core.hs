@@ -19,7 +19,7 @@
  , parseStr
  , validAtomChar
  , parseAtom
- , atomName
+ , atomText
  , parseInt
  , parseFloat
  , parseBool
@@ -118,15 +118,14 @@ validAtomChar :: Char -> Bool
 validAtomChar c = isAlphaNum c || c `elem` ['.', '[', ']', '_']
 
 parseAtom :: Parser Prim
-parseAtom = do
+parseAtom = MeowAtom <$> atomText
+    
+atomText :: Parser Text.Text
+atomText = do
     x <- Mega.takeWhile1P (Just "atom") validAtomChar
     if x `elem` reservedKeywords
     then fail "Variable name cannot be a keyword!"
-    else (return . MeowAtom) x
-
-atomName :: Prim -> Text.Text
-atomName (MeowAtom name) = name
-atomName _ = Text.empty
+    else return x
 
 parsePrim :: Parser Prim
 parsePrim = Mega.choice

@@ -11,6 +11,8 @@ import Text.Megaparsec ((<|>))
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
+import Control.Monad (void, liftM)
+import qualified Data.Text as Text
 
 exprTerm :: Parser Expr
 exprTerm = (lexeme . parens) parseExpr
@@ -25,7 +27,8 @@ parseExpr' = lexeme (whitespace >> parseExpr)
 operators :: [[Operator Parser Expr]]
 operators =
     [
-        [ Prefix  (EUnop MeowYarn    <$ trySymbol "~~"  ) ]
+        [ Postfix functionCall ]
+      , [ Prefix  (EUnop MeowYarn    <$ trySymbol "~~"  ) ]
       , [ Prefix  (EUnop MeowNegate  <$ symbol "-"      )
         , Prefix  (EUnop MeowNot     <$ trySymbol "paw" ) ]
       , [ InfixL (EBinop MeowMul <$ symbol "*")
@@ -48,3 +51,10 @@ operators =
       , [ InfixL (EBinop MeowOr     <$ trySymbol "push"     ) ]
       , [ InfixL (EBinop MeowAssign <$ trySymbol "=^.x.^="  ) ]
     ]
+
+functionCall :: Parser (Expr -> Expr)
+functionCall = lexeme $ do
+    void $ MChar.char '('
+    x <- Mega.sepBy (whitespace >> lexeme parseExpr) (MChar.char ',')
+    void $ MChar.char ')'
+    return (ECall x)
