@@ -2,9 +2,10 @@
 
  module Meowscript.Parser.Core
  ( Parser
+ , lexemeLn
+ , whitespaceLn
  , lexeme
  , whitespace
- , whitespace'
  , symbol
  , trySymbol
  , parens
@@ -13,7 +14,6 @@
  , keyword
  , meowDiv
  , stmtEnd
- , lexeme'
  , parseStr
  , validAtomChar
  , parseAtom
@@ -34,6 +34,7 @@ import qualified Text.Megaparsec.Char.Lexer as Lexer
 import Data.Void (Void)
 import Control.Monad (void)
 import Data.Char (isAlphaNum)
+import Text.Megaparsec.Char.Lexer (nonIndented)
 
 type Parser = Mega.Parsec Void Text.Text
 
@@ -43,24 +44,30 @@ lineComment = Lexer.skipLineComment "--"
 blockComment :: Parser ()
 blockComment = Lexer.skipBlockComment "<(=^.x.^= )~" "~( =^.x.^=)>"
 
-whitespace :: Parser ()
-whitespace = Lexer.space MChar.space1 lineComment blockComment
+nonIndented :: Parser a -> Parser a
+nonIndented = Lexer.nonIndented whitespaceLn
 
--- Like 'whitespace', but doesn't skip newlines.
-whitespace' :: Parser ()
-whitespace' = Lexer.space (void $ Mega.some (MChar.char ' ' <|> MChar.char '\t')) lineComment blockComment
+indented :: Parser (Lexer.IndentOpt Parser a b) -> Parser a
+indented = Lexer.indentBlock whitespaceLn
+
+whitespaceLn :: Parser ()
+whitespaceLn = Lexer.space MChar.space1 lineComment blockComment
+
+-- Like 'whitespaceLn', but doesn't skip newlines.
+whitespace :: Parser ()
+whitespace = Lexer.space (void $ Mega.some (MChar.char ' ' <|> MChar.char '\t')) lineComment blockComment
+
+lexemeLn :: Parser a -> Parser a
+lexemeLn = Lexer.lexeme whitespaceLn
 
 lexeme :: Parser a -> Parser a
 lexeme = Lexer.lexeme whitespace
-
-lexeme' :: Parser a -> Parser a
-lexeme' = Lexer.lexeme whitespace'
 
 symbol :: Text.Text -> Parser Text.Text
 symbol = Lexer.symbol whitespace
 
 trySymbol :: Text.Text -> Parser Text.Text
-trySymbol s = lexeme' $ Mega.try $ do
+trySymbol s = lexeme $ Mega.try $ do
     MChar.string s
 
 parens :: Parser a -> Parser a

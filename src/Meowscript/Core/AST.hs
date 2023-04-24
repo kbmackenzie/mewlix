@@ -40,7 +40,7 @@ data Expr =
 
 data Statement =
       SExpr [Expr]
-    | SWhile Expr [Statement]
+    | SWhile Expr [Statement] Text.Text
     | SOnlyIf Expr [Statement]
     | SIfElse Expr [Statement] [Statement] 
     | SFuncDef Text.Text Args [Statement]

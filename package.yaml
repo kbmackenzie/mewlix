@@ -23,7 +23,7 @@ dependencies:
 - base >= 4.7 && < 5
 - text
 - containers
-- megaparsec
+- megaparsec >= 9.3.0
 - parser-combinators
 - mtl
 - stopwatch

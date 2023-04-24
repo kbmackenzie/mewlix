@@ -2,8 +2,6 @@
 
 module Meowscript.Parser.Expr
 ( parseExpr
-, manyExpr
-, exprStmt
 ) where
 
 import Meowscript.Core.AST
@@ -13,19 +11,12 @@ import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 
-manyExpr :: Parser [Expr]
-manyExpr = Mega.sepEndBy (whitespace >> parseExpr) MChar.newline --(symbol ";")
-
 exprTerm :: Parser Expr
-exprTerm = (lexeme' . parens) parseExpr
-    <|> (EPrim <$> lexeme' parsePrim)
---    <|> (EWhitespace <$ whitespace <|> Mega.empty)
+exprTerm = (lexeme . parens) parseExpr
+    <|> (EPrim <$> lexeme parsePrim)
 
 parseExpr :: Parser Expr
 parseExpr = makeExprParser exprTerm operators
-
-exprStmt :: Parser Statement
-exprStmt = SExpr <$> manyExpr
 
 operators :: [[Operator Parser Expr]]
 operators =

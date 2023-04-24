@@ -42,7 +42,7 @@ library
       base >=4.7 && <5
     , bytestring
     , containers
-    , megaparsec
+    , megaparsec >=9.3.0
     , mtl
     , parser-combinators
     , stopwatch
@@ -61,7 +61,7 @@ executable Meowscript-exe
     , base >=4.7 && <5
     , bytestring
     , containers
-    , megaparsec
+    , megaparsec >=9.3.0
     , mtl
     , parser-combinators
     , stopwatch
@@ -81,7 +81,7 @@ test-suite Meowscript-test
     , base >=4.7 && <5
     , bytestring
     , containers
-    , megaparsec
+    , megaparsec >=9.3.0
     , mtl
     , parser-combinators
     , stopwatch
