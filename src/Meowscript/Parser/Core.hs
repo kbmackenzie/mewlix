@@ -102,7 +102,10 @@ reservedKeywords =
     , "scratch"
     , "leave"
     , "bring"
-    , "gift" ]
+    , "gift"
+    , "rest"
+    , "run"
+    , "away" ]
 
 validAtomChar :: Char -> Bool
 validAtomChar c = isAlphaNum c || c `elem` ['.', '[', ']', '_']

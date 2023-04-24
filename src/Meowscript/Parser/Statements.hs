@@ -26,6 +26,8 @@ statements = Mega.choice
     , Mega.try parseIfElse
     , Mega.try parseFunc
     , Mega.try parseReturn
+    , Mega.try parseContinue
+    , Mega.try parseBreak
     , exprS
     , fail "Invalid token!" ]
 
@@ -127,3 +129,18 @@ parseReturn = do
     whitespace
     void $ keyword "bring gift"
     SReturn <$> parseExpr'
+
+{- Continue -}
+parseContinue :: Parser Statement
+parseContinue = do
+    whitespace
+    void $ keyword "rest"
+    return SContinue
+
+{- Break -}
+
+parseBreak :: Parser Statement
+parseBreak = do
+    whitespace
+    void $ keyword "run away"
+    return SBreak

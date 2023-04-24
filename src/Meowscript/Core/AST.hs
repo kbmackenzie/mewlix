@@ -15,6 +15,8 @@ module Meowscript.Core.AST
 import qualified Data.Text as Text
 import qualified Data.Map as Map
 import qualified Control.Monad.Reader as Reader
+import Data.Char (GeneralCategory(SpacingCombiningMark))
+import Data.ByteString.Short (ShortByteString)
 --import qualified Text.Megaparsec as Mega
 --import qualified Text.Megaparsec.Char as MChar
 --import qualified Text.Megaparsec.Char.Lexer as Lexer
@@ -45,6 +47,8 @@ data Statement =
     | SIfElse Expr [Statement] [Statement] 
     | SFuncDef Text.Text Args [Statement]
     | SReturn Expr
+    | SContinue
+    | SBreak
     | SAll [Statement]
     deriving (Eq, Show, Ord)
 
