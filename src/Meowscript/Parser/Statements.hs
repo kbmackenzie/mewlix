@@ -23,16 +23,23 @@ statements :: Parser Statement
 statements = Mega.choice
     [ Mega.try parseIf
     , Mega.try parseWhile
+    , Mega.try parseIfElse
     , exprS ]
 
 asBlock :: [Statement] -> Parser Statement
 asBlock xs = return $ SAll xs
 
 asIf :: Expr -> [Statement] -> Parser Statement
-asIf e xs = return $ SOnlyIf e xs
+asIf e xs = do
+    whitespace
+    void $ MChar.string "leave"
+    return $ SOnlyIf e xs
 
 asWhile :: Expr -> [Statement] -> Parser Statement
-asWhile e xs = return $ SWhile e xs
+asWhile e xs = do
+    whitespace
+    void $ MChar.string "leave"
+    return $ SWhile e xs
 
 condition :: Parser Expr
 condition = (lexeme . bars) parseExpr'
@@ -42,13 +49,40 @@ exprS = SExpr <$> parseExpr'
 
 parseIf :: Parser Statement
 parseIf = lexeme $ Lexer.indentBlock whitespaceLn $ do
-    void $ MChar.string "meowmeow"
+    void $ MChar.string "mew?"
     whitespace
     c <- condition
     return (Lexer.IndentMany Nothing (asIf c) statements)
 
+bAsIf :: Expr -> [Statement] -> Parser ([Statement] -> Statement)
+bAsIf e xs = return $ SIfElse e xs
+
+bAsElse :: ([Statement] -> Statement) -> [Statement] -> Parser Statement
+bAsElse f xs = do
+    void $ MChar.string "leave"
+    return (f xs)
+
+parseIfElse :: Parser Statement
+parseIfElse = do
+    x <- parseBIf
+    parseBElse x
+
+parseBIf :: Parser ([Statement] -> Statement)
+parseBIf = lexeme $ Lexer.indentBlock whitespaceLn $ do
+    void $ MChar.string "mew?"
+    whitespace
+    c <- condition
+    return (Lexer.IndentMany Nothing (bAsIf c) statements)
+
+parseBElse :: ([Statement] -> Statement) -> Parser Statement
+parseBElse f = lexeme $ Lexer.indentBlock whitespaceLn $ do
+    void $ MChar.string "hiss!"
+    return (Lexer.IndentMany Nothing (bAsElse f) statements)
+
+
 parseWhile:: Parser Statement
 parseWhile = lexeme $ Lexer.indentBlock whitespaceLn $ do
+    void $ MChar.string "meowwww"
     whitespace
     c <- condition
     return (Lexer.IndentMany Nothing (asWhile c) statements)
