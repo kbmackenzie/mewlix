@@ -4,6 +4,7 @@
 module Main (main) where
 
 import Meowscript.Parser.Expr
+import Meowscript
 import Meowscript.Core.AST
 import Meowscript.Parser.Core
 import Meowscript.Parser.Statements
@@ -55,10 +56,17 @@ parseE txt = do
     let !exp' = aaab "" txt
     print exp'
 
-main :: IO ()
-main = do
+main' :: IO ()
+main' = do 
     let path = "C:\\Users\\ianvi\\Desktop\\example1_expr.txt"
     !txt <- TextIO.readFile path
     (tok, time) <- stopWatch (parseE txt)
     print tok
     print time
+
+main :: IO ()
+main = do 
+    let path = "C:\\Users\\ianvi\\Desktop\\example1_expr.txt"
+    main'
+    x <- runBasic path
+    print x

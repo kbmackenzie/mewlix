@@ -37,7 +37,8 @@ data Expr =
     | EUnop Unop Expr 
     | EBinop Binop Expr Expr
     | ECall [Expr] Expr
-    | EWhitespace
+    | ERead
+    | EWrite Expr
     deriving (Eq, Show, Ord)
 
 data Statement =

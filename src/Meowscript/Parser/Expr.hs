@@ -26,7 +26,7 @@ parseExpr' = lexeme (whitespace >> parseExpr)
 operators :: [[Operator Parser Expr]]
 operators =
     [
-        [ Postfix functionCall ]
+        [ Postfix $ Mega.try functionCall ]
       , [ Prefix  (EUnop MeowYarn    <$ trySymbol "~~"  ) ]
       , [ Prefix  (EUnop MeowNegate  <$ symbol "-"      )
         , Prefix  (EUnop MeowNot     <$ trySymbol "paw" ) ]

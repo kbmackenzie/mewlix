@@ -97,7 +97,6 @@ reservedKeywords =
     , "paw"
     , "hiss!"
     , "mew?"
-    , "meow"
     , "scratch"
     , "leave"
     , "bring"

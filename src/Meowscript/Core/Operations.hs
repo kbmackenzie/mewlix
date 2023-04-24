@@ -1,9 +1,13 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings #-} 
 
-module Meowscript.Core.Expressions
-( evaluate
+module Meowscript.Core.Operations
+( binop
+, unop
+, binopVar
+, unopVar
 , asBool
 , asString
+, lookUpSafe
 ) where
 
 import Meowscript.Core.AST
@@ -11,25 +15,17 @@ import Meowscript.Core.Evaluate
 import Meowscript.Core.Messages
 import qualified Data.Text as Text
 import qualified Data.Map as Map
-import Control.Monad.Reader (ask, local)
+import Control.Monad.Reader (ask, local, liftIO)
 import Control.Monad.Except (throwError)
-
-evaluate :: Expr -> Evaluator Prim
-evaluate (EPrim x) = return x
-evaluate (EBinop op expA expB) = do
-    a <- evaluate expA
-    b <- evaluate expB
-    binop op a b
-evaluate (EUnop op expA) = do
-    a <- evaluate expA
-    unop op a
-evaluate _ = throwError "Cannot evaluate empty expression!"
-
 
 {- Binary Operations -}
 binop :: Binop -> Prim -> Prim -> Evaluator Prim
 
-binop MeowAssign a b = unopVar (meowAssign a) b
+binop MeowAssign a b = do
+    b' <- lookUpSafe b
+    x <- meowAssign a b'
+    local (const x) $ return b'
+    
 binop op a b =
     let fn = case op of
             MeowAdd -> meowAdd
@@ -42,7 +38,6 @@ binop op a b =
             MeowConcat -> meowConcat
     in binopVar fn a b
     
-
 {- Unary Operations -}
 unop :: Unop -> Prim -> Evaluator Prim
 
@@ -69,17 +64,22 @@ unop op a =
 meowLookup :: Text.Text -> Evaluator Prim
 meowLookup x = do
     env <- ask
+    liftIO $ print env
     let x' = x `Map.lookup` env
     case x' of
         Nothing -> throwError $ Text.concat [ "Variable not in scope: ", showT x ]
         (Just a) -> return a
 
+lookUpSafe :: Prim -> Evaluator Prim
+lookUpSafe (MeowAtom x) = meowLookup x
+lookUpSafe y = return y
+
 {- Assignment -}
-meowAssign :: Prim -> Prim -> Evaluator Prim
+meowAssign :: Prim -> Prim -> Evaluator Environment
 meowAssign (MeowAtom key) value = do
     env <- ask
-    let fn = const $ Map.insert key value env
-    local fn (return value)
+    let env' = Map.insert key value env
+    local (const env') (return env')
 meowAssign x y = throwError $ binopError "Invalid assignment!" "" x y
 
 {- Wrappers for evaluating variables.
@@ -294,4 +294,3 @@ meowSneak x = let a = asString x
                   a' = if Text.null a then a
                        else (Text.pack . (: []) . Text.last) a
               in (return . MeowString) a'
-

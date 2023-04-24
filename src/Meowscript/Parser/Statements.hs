@@ -15,7 +15,7 @@ import qualified Text.Megaparsec.Char.Lexer as Lexer
 import Control.Monad (void)
 
 root :: Parser Statement
-root = SAll <$> Mega.between whitespace Mega.eof (Mega.many statements)
+root = SAll <$> Mega.between whitespaceLn Mega.eof (Mega.many (lexemeLn statements))
 
 statements :: Parser Statement
 statements = Mega.choice
@@ -39,7 +39,7 @@ condition :: Parser Expr
 condition = (lexeme . bars) parseExpr'
 
 exprS :: Parser Statement
-exprS = SExpr <$> parseExpr'
+exprS = whitespace >> SExpr <$> parseExpr'
 
 
 {- If -}
@@ -123,14 +123,14 @@ parseFunc = lexeme $ Lexer.indentBlock whitespaceLn $ do
 {- Return -}
 
 parseReturn :: Parser Statement
-parseReturn = do
+parseReturn = lexeme $ do
     whitespace
     void $ keyword "bring gift"
     SReturn <$> parseExpr'
 
 {- Continue -}
 parseContinue :: Parser Statement
-parseContinue = do
+parseContinue = lexeme $ do
     whitespace
     void $ keyword "rest"
     return SContinue
@@ -138,7 +138,7 @@ parseContinue = do
 {- Break -}
 
 parseBreak :: Parser Statement
-parseBreak = do
+parseBreak = lexeme $ do
     whitespace
     void $ keyword "run away"
     return SBreak
