@@ -2,6 +2,8 @@
 
  module Meowscript.Parser.Core
  ( Parser
+ , indented
+ , notIndented
  , lexemeLn
  , whitespaceLn
  , lexeme
@@ -44,8 +46,8 @@ lineComment = Lexer.skipLineComment "--"
 blockComment :: Parser ()
 blockComment = Lexer.skipBlockComment "<(=^.x.^= )~" "~( =^.x.^=)>"
 
-nonIndented :: Parser a -> Parser a
-nonIndented = Lexer.nonIndented whitespaceLn
+notIndented :: Parser a -> Parser a
+notIndented = Lexer.nonIndented whitespaceLn
 
 indented :: Parser (Lexer.IndentOpt Parser a b) -> Parser a
 indented = Lexer.indentBlock whitespaceLn

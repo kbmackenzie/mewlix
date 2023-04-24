@@ -1,13 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-} 
 
 module Meowscript.Parser.Statements
-( condition
-, manyStatements
-, parseStatement
-, parseOnlyIf
-, parseIfElse
-, parseIf
-, parseWhile
+( --condition
+root
 ) where
 
 import Meowscript.Core.AST
@@ -21,73 +16,52 @@ import qualified Text.Megaparsec.Char.Lexer as Lexer
 import Control.Monad (void)
 import Text.Megaparsec.Char.Lexer (nonIndented)
 
-root :: Parser [Statement]
-root = nonIndented children
+root :: Parser Statement
+root = SAll <$> Mega.many statements
 
-children :: Parser Statement
+statements :: Parser Statement
+statements = Mega.choice
+    [ Mega.try parseIf
+    , Mega.try parseWhile
+    , exprS ]
 
+asBlock :: [Statement] -> Parser Statement
+asBlock xs = return $ SAll xs
+
+asIf :: Expr -> [Statement] -> Parser Statement
+asIf e xs = return $ SOnlyIf e xs
+
+asWhile :: Expr -> [Statement] -> Parser Statement
+asWhile e xs = return $ SWhile e xs
 
 condition :: Parser Expr
-condition = Mega.between (MChar.char '|') (MChar.char '|') parseExpr'
+condition = (lexeme . bars) parseExpr'
 
-manyStatements :: Parser [Statement]
-manyStatements = Mega.some parseStatement
-
-parseStatement :: Parser Statement
-parseStatement = Mega.choice
-    [ Mega.try parseOnlyIf
-    , Mega.try parseWhile 
-    , Mega.try parseReturn
-    , expressionStatement ]
-
-parseExpr' :: Parser Expr
-parseExpr' = lexeme (whitespace >> parseExpr)
-
-expressionStatement :: Parser Statement
-expressionStatement = do
-    x <- parseExpr'
-    return $ SExpr [x]
+exprS :: Parser Statement
+exprS = SExpr <$> parseExpr'
 
 parseIf :: Parser Statement
-parseIf = Mega.choice
-    [ parseOnlyIf 
-    , parseIfElse ]
-    
-parseIfElse :: Parser Statement
-parseIfElse = (lexeme . meowDiv "mew?") $ do
-    whitespace
-    cond <- condition
-    whitespace
-    ifBody <- Mega.between whitespace (MChar.string "else") manyStatements
-    SIfElse cond ifBody <$> manyStatements
-
-parseOnlyIf :: Parser Statement
-parseOnlyIf = (lexeme . meowDiv "mew?") $ do
-    whitespace
-    cond <- condition
-    whitespace
-    SOnlyIf cond <$> manyStatements
-
-{-
-parseWhile :: Parser Statement
-parseWhile = (lexeme . meowDiv "meowmeow") $ do
-    whitespace
-    cond <- condition
-    x <- manyStatements
-    return $ SWhile cond x ""
--}
-
-parseWhile :: Parser Statement
-parseWhile = lexeme $ do
-    whitespace
+parseIf = lexeme $ Lexer.indentBlock whitespaceLn $ do
     void $ MChar.string "meowmeow"
     whitespace
-    cond <- condition
-    x <- Mega.between whitespace (MChar.string "leave") parseExpr'
-    return $ SWhile cond [SExpr [x]] ""
+    c <- condition
+    return (Lexer.IndentMany Nothing (asIf c) statements)
 
-parseReturn :: Parser Statement
-parseReturn = lexeme $ do
+parseWhile:: Parser Statement
+parseWhile = lexeme $ Lexer.indentBlock whitespaceLn $ do
     whitespace
-    void $ lexeme $ MChar.string "return"
-    SReturn <$> parseExpr
+    c <- condition
+    return (Lexer.IndentMany Nothing (asWhile c) statements)
+
+
+dummyN :: Parser Int
+dummyN = let p = return (Lexer.IndentMany Nothing dummyComb dummy)
+         in Lexer.indentBlock whitespaceLn p
+
+dummy :: Parser Int
+dummy = return 0
+
+dummyComb :: [Int] -> Parser Int
+dummyComb xs = do
+    let x = sum xs
+    return x

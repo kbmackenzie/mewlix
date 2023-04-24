@@ -39,8 +39,8 @@ data Expr =
     deriving (Eq, Show, Ord)
 
 data Statement =
-      SExpr [Expr]
-    | SWhile Expr [Statement] Text.Text
+      SExpr Expr
+    | SWhile Expr [Statement]
     | SOnlyIf Expr [Statement]
     | SIfElse Expr [Statement] [Statement] 
     | SFuncDef Text.Text Args [Statement]

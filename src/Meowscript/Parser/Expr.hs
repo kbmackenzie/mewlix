@@ -2,6 +2,7 @@
 
 module Meowscript.Parser.Expr
 ( parseExpr
+, parseExpr'
 ) where
 
 import Meowscript.Core.AST
@@ -17,6 +18,9 @@ exprTerm = (lexeme . parens) parseExpr
 
 parseExpr :: Parser Expr
 parseExpr = makeExprParser exprTerm operators
+
+parseExpr' :: Parser Expr
+parseExpr' = lexeme (whitespace >> parseExpr)
 
 operators :: [[Operator Parser Expr]]
 operators =

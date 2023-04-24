@@ -34,18 +34,21 @@ parseMany = Mega.sepEndBy (whitespace >> parseExpr) MChar.newline --(symbol ";")
 exprMany :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) [Expr]
 exprMany = Mega.parse (Mega.between whitespace Mega.eof parseMany)
 
-unitTesst :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) [Statement]
-unitTesst = Mega.parse (Mega.between whitespace Mega.eof manyStatements)
+--unitTesst :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) [Statement]
+--unitTesst = Mega.parse (Mega.between whitespace Mega.eof manyStatements)
 
-aaa :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) [Statement]
-aaa = Mega.parse manyStatements
+--aaa :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) [Statement]
+--aaa = Mega.parse manyStatements
+
+aaab :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) Statement
+aaab = Mega.parse root 
 
 
 main :: IO ()
 main = do
     let path = "C:\\Users\\ianvi\\Desktop\\example1_expr.txt"
     txt <- TextIO.readFile path
-    let exp' = aaa "" txt
+    let exp' = aaab "" txt
     let x = case exp' of
             (Right e) -> show e
             (Left e) -> show e
