@@ -92,13 +92,18 @@ meowDiv k = Mega.between (MChar.string k) (MChar.string "leave")
 stmtEnd :: Parser Char
 stmtEnd = lexeme (MChar.char ';' <|> MChar.char '\n')
 
+reservedKeywords :: [Text.Text]
+reservedKeywords = [ "purr", "paw", "hiss!", "mew?", "meow", "leave" ]
+
 validAtomChar :: Char -> Bool
 validAtomChar c = isAlphaNum c || c `elem` ['.', '[', ']', '_']
 
 parseAtom :: Parser Prim
 parseAtom = do
     x <- Mega.takeWhile1P (Just "atom") validAtomChar
-    (return . MeowAtom) x
+    if x `elem` reservedKeywords
+    then fail "Variable name cannot be a keyword!"
+    else (return . MeowAtom) x
 
 atomName :: Prim -> Text.Text
 atomName (MeowAtom name) = name

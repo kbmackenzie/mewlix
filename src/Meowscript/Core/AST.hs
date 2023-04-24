@@ -28,7 +28,7 @@ data Prim =
     | MeowInt Int
     | MeowNumber Double
     | MeowLonely
-    | MeowFunc Text.Text Args [Statement]
+    | MeowFunc Args [Statement]
     deriving (Eq, Show, Ord)
 
 data Expr =

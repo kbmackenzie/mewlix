@@ -26,7 +26,7 @@ operators :: [[Operator Parser Expr]]
 operators =
     [
         [ Prefix  (EUnop MeowNegate  <$ symbol "-"      )
-        , Prefix  (EUnop MeowNot     <$ trySymbol "hiss" ) ]
+        , Prefix  (EUnop MeowNot     <$ trySymbol "paw" ) ]
       , [ Prefix  (EUnop MeowYarn    <$ trySymbol "~~"   ) ]
       , [ Postfix (EUnop MeowYarnLen <$ symbol "~?"   ) ]
       , [ InfixL (EBinop MeowMul <$ symbol "*")
