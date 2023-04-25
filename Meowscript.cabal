@@ -28,13 +28,13 @@ library
       Lib
       Meowscript
       Meowscript.Core.AST
-      Meowscript.Core.Env
+      Meowscript.Core.Base
+      Meowscript.Core.Environment
       Meowscript.Core.Evaluate
       Meowscript.Core.Functions
       Meowscript.Core.Messages
       Meowscript.Core.Operations
       Meowscript.Core.Run
-      Meowscript.Core.Statements
       Meowscript.Parser.Core
       Meowscript.Parser.Expr
       Meowscript.Parser.Statements

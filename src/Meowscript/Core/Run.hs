@@ -9,17 +9,18 @@ module Meowscript.Core.Run
 import Meowscript.Core.AST
 import Meowscript.Core.Evaluate
 import Meowscript.Core.Operations
+import Meowscript.Core.Environment
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map
-import Control.Monad.Reader (ask, local, runReaderT, liftIO)
+import Control.Monad.State (get, put, liftIO, runStateT)
 import Control.Monad.Except (throwError, runExceptT)
 import Control.Monad (void, when)
 import Data.Either (Either)
 
 {- Run all statements from root. -}
-runEvaluator :: Environment -> Evaluator a -> IO (Either Text.Text a)
-runEvaluator env x = runExceptT (runReaderT x env)
+runEvaluator :: EnvStack -> Evaluator a -> IO (Either Text.Text (a, EnvStack))
+runEvaluator env x = runExceptT (runStateT x env)
 
 {- Evaluating Expressions -}
 evaluate :: Expr -> Evaluator Prim
@@ -41,115 +42,118 @@ evaluate ERead = do
     return $ MeowString x
 evaluate (EWrite x) = do
     x' <- evaluate x
-    (liftIO . print) x'
+    x'' <- ensureValue x'
+    (liftIO . print) x''
     return MeowLonely
--- No need for this last pattern, already matched all options!
---evaluate _ = throwError "Cannot evaluate empty expression!"
 
 
+{- Ensures a value will be passed instead of an atom. -}
+ensureValue :: Prim -> Evaluator Prim
+ensureValue (MeowAtom x) = lookUpVar x
+ensureValue x = return x
+
+
+{- Function Call -}
 funcCall :: Text.Text -> [Expr] -> Evaluator Prim
 funcCall name args = do
-    env <- ask
-    let fn = name `Map.lookup` env
-    case fn of
-        (Just (MeowFunc params body)) -> do
-            when (length params > length args) $ throwError "Too few arguments!"
-            let z = zip params args
-            void $ addArguments z
-            ret <- runStatements body
-            local (const env) $ case ret of
-                (Just ret') -> return ret'
-                _ -> return MeowLonely
-        _ -> throwError "Invalid function name!" -- todo: make better error
+    x <- keyExists name
+    if not x then
+        throwError (Text.concat ["Function doesn't exist! :", name])
+    else do
+        (MeowFunc params body) <- lookUpVar name
+        when (length params > length args) $ throwError "Too few arguments!"
+        let z = zip params args
+        stackPush
+        funcArgs z
+        ret <- runStatements body
+        stackPop
+        return ret
 
-addArguments :: [(Text.Text, Expr)] -> Evaluator Prim
-addArguments [] = return MeowLonely
-addArguments ((key, exp'):xs) = do
-    env <- ask
-    value <- evaluate exp'
-    let envFn = const $ Map.insert key value env
-    local envFn $ addArguments xs
+{- Add function arguments to the environment. -}
+funcArgs :: [(Key, Expr)] -> Evaluator ()
+funcArgs [] = return ()
+funcArgs ((key, expr):xs) = do
+    value <- evaluate expr
+    value' <- ensureValue value
+    addToTop key value'
+    funcArgs xs
+
 
 
 {- Running Statements -}
-runStatements :: [Statement] -> Evaluator (ReturnValue Prim)
-runStatements [] = return Nothing
+runStatements :: [Statement] -> Evaluator Prim
+runStatements [] = return MeowVoid
+
 runStatements ((SReturn x):_) = do
     ret <- evaluate x
-    ret' <- lookUpSafe ret
-    return (Just ret')
-runStatements (SBreak:_) = return (Just MeowBreak)
-runStatements (SContinue:_) = return Nothing
-runStatements ((SExpr x):xs) = runExprS x >> runStatements xs
-runStatements ((SFuncDef name args body):xs) = runFuncDef name args body >> runStatements xs
-runStatements (x:xs) =
-    let run = case x of
+    ensureValue ret
+
+runStatements (SBreak:_) = return MeowBreak
+runStatements (SContinue:_) = return MeowVoid
+
+runStatements ((SExpr x):xs) =
+    runExprS x >> runStatements xs
+
+runStatements ((SFuncDef name args body):xs) =
+    runFuncDef name args body >> runStatements xs
+
+runStatements (x:xs) = do
+    stackPush
+    ret <- run
+    stackPop
+    if ret /= MeowVoid
+        then return ret
+        else runStatements xs
+    where run = case x of
             (SOnlyIf y body) -> runIf y body
             (SIfElse y ifB elseB) -> runIfElse y ifB elseB
-            (SWhile y body) -> runWhile y body >> return Nothing
-            _ -> return Nothing
-    in do
-        env <- ask
-        void run
-        local (const env) $ runStatements xs
-    
+            (SWhile y body) -> runWhile y body
+            _ -> return MeowVoid
+
 
 {- Boolean Condition -}
 asCondition :: Expr -> Evaluator Bool
 asCondition x = do
     n <- evaluate x
-    return (asBool n)
-
+    n' <- ensureValue n
+    return (asBool n')
 
 {- Expression Statement -}
-runExprS :: Expr -> Evaluator (ReturnValue Prim)
-
+runExprS :: Expr -> Evaluator Prim
 runExprS x = do
-    n <- evaluate x
-    return (Just n)
-
+    evaluate x
 
 {- If Block (Single) -}
-runIf :: Expr -> [Statement] -> Evaluator (ReturnValue Prim)
-
+runIf :: Expr -> [Statement] -> Evaluator Prim
 runIf x body = do
     condition <- asCondition x 
     if condition
       then runStatements body
-      else return Nothing
-
+      else return MeowVoid
 
 {- If Else -}
-runIfElse :: Expr -> [Statement] -> [Statement] -> Evaluator (ReturnValue Prim)
-
+runIfElse :: Expr -> [Statement] -> [Statement] -> Evaluator Prim
 runIfElse x ifB elseB = do
     condition <- asCondition x
     if condition
         then runStatements ifB
         else runStatements elseB
 
-
 {- While Loop -}
 {- Notes:
  - A 'True' return value indicates a 'break' statement. -}
-runWhile :: Expr -> [Statement] -> Evaluator Bool
-
+runWhile :: Expr -> [Statement] -> Evaluator Prim
 runWhile x body = do
     ret <- runStatements body
     condition <- asCondition x
-    let isBreak = case ret of
-            (Just MeowBreak) -> True
-            _ -> False
+    let isBreak = ret /= MeowVoid 
     if condition && not isBreak
         then runWhile x body
-        else return isBreak
-
+        else return ret
 
 {- Function Definition -}
-
-runFuncDef :: Text.Text -> Args -> [Statement] -> Evaluator (ReturnValue Prim)
+runFuncDef :: Text.Text -> Args -> [Statement] -> Evaluator Prim
 runFuncDef name args body = do
-    env <- ask
-    let fn = MeowFunc args body 
-    let envFn = const $ Map.insert name fn env
-    local envFn $ return Nothing 
+    let func = MeowFunc args body
+    insertVar name func
+    return MeowVoid

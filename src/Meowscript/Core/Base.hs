@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-} 
 
-module Meowscript.Core.Env
-( baseEnv
+module Meowscript.Core.Base
+( baseLibrary
 ) where
 
 import Meowscript.Core.AST
@@ -11,8 +11,8 @@ import qualified Data.Text as Text
 import Control.Monad.Reader (ReaderT)
 import Control.Monad.Except (ExceptT)
 
-baseEnv :: Environment
-baseEnv = Map.fromList
+baseLibrary :: EnvStack
+baseLibrary = ((: []) . Map.fromList)
     [ ("meow"    , MeowFunc ["x"] meow    )
     , ("listen"  , MeowFunc []    listen  )]
 

@@ -7,24 +7,27 @@ module Meowscript.Core.Operations
 , unopVar
 , asBool
 , asString
-, lookUpSafe
 ) where
 
 import Meowscript.Core.AST
 import Meowscript.Core.Evaluate
+import Meowscript.Core.Environment
 import Meowscript.Core.Messages
 import qualified Data.Text as Text
 import qualified Data.Map as Map
-import Control.Monad.Reader (ask, local, liftIO)
+import Control.Monad.State (get, put, liftIO)
 import Control.Monad.Except (throwError)
 
 {- Binary Operations -}
 binop :: Binop -> Prim -> Prim -> Evaluator Prim
 
-binop MeowAssign a b = do
-    b' <- lookUpSafe b
-    x <- meowAssign a b'
-    local (const x) $ return b'
+binop MeowAssign a (MeowAtom b) = do
+    value <- lookUpVar b
+    binop MeowAssign a value
+binop MeowAssign (MeowAtom a) b = do
+    insertVar a b
+    return b
+binop MeowAssign a b = throwError (binopError "Invalid assignment!" "" a b)
     
 binop op a b =
     let fn = case op of
@@ -38,9 +41,9 @@ binop op a b =
             MeowConcat -> meowConcat
     in binopVar fn a b
     
+
 {- Unary Operations -}
 unop :: Unop -> Prim -> Evaluator Prim
-
 unop op a =
     let fn = case op of
             MeowYarn -> meowYarn
@@ -54,51 +57,29 @@ unop op a =
     in unopVar fn a
 
 
-{- TO DO -}
--- Better error messages.
-
-
 {- Variables -}
-
-{- Look-up -}
-meowLookup :: Text.Text -> Evaluator Prim
-meowLookup x = do
-    env <- ask
-    liftIO $ print env
-    let x' = x `Map.lookup` env
-    case x' of
-        Nothing -> throwError $ Text.concat [ "Variable not in scope: ", showT x ]
-        (Just a) -> return a
-
-lookUpSafe :: Prim -> Evaluator Prim
-lookUpSafe (MeowAtom x) = meowLookup x
-lookUpSafe y = return y
-
-{- Assignment -}
-meowAssign :: Prim -> Prim -> Evaluator Environment
-meowAssign (MeowAtom key) value = do
-    env <- ask
-    let env' = Map.insert key value env
-    local (const env') (return env')
-meowAssign x y = throwError $ binopError "Invalid assignment!" "" x y
 
 {- Wrappers for evaluating variables.
  - This way, operations don't have to worry about this. -}
 binopVar :: (Prim -> Prim -> Evaluator Prim) -> Prim -> Prim -> Evaluator Prim
 binopVar f (MeowAtom a) y = do
-    x <- meowLookup a
+    x <- lookUpVar a
     f x y
 binopVar f x (MeowAtom b) = do
-    y <- meowLookup b
+    y <- lookUpVar b
     f x y
 binopVar f x y = f x y
 
 unopVar :: (Prim -> Evaluator Prim) -> Prim -> Evaluator Prim
 unopVar f (MeowAtom a) = do
-    x <- meowLookup a
+    x <- lookUpVar a
     f x
 unopVar f x = f x
 
+
+
+{- TO DO -}
+-- Better error messages.
 
 {- Addition -}
 meowAdd :: Prim -> Prim -> Evaluator Prim
@@ -179,7 +160,6 @@ meowDiv x@(MeowDouble a) y = case y of
 
 meowDiv x y = throwError $ divError x y
 
-
 divError :: Prim -> Prim -> Text.Text
 divError = binopError "Division" "/"
 
@@ -189,11 +169,8 @@ divByZero x y = Text.intercalate "\n" [ divError x y, "Cannot divide by zero!" ]
 
 {- Comparison -}
 meowCompare :: [Ordering] -> Prim -> Prim -> Evaluator Prim
-
 meowCompare ord a b = let c = a `compare` b
                       in return $ MeowBool (c `elem` ord)
-
-
 
 
 {- Logical Operations -}
@@ -213,26 +190,22 @@ meowNot x = let x' = asBool x
 
 {- And -}
 meowAnd :: Prim -> Prim -> Evaluator Prim
+meowAnd x y = return $ MeowBool (x' && y')
+    where x' = asBool x
+          y' = asBool y
 
-meowAnd x y = let x' = asBool x
-                  y' = asBool y
-              in return $ MeowBool (x' && y')
 
 {- Or -}
-
 meowOr :: Prim -> Prim -> Evaluator Prim
-
-meowOr x y = let x' = asBool x
-                 y' = asBool y
-             in return $ MeowBool (x' || y')
-
+meowOr x y = return $ MeowBool (x' || y')
+    where x' = asBool x
+          y' = asBool y
 
 
 
 {- String Manipulation -}
 
 {- Yarn -}
-
 meowYarn :: Prim -> Evaluator Prim
 
 meowYarn (MeowString a) = return (MeowAtom a)

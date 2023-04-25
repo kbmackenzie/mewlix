@@ -1,6 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE BangPatterns #-}
-
 module Main (main) where
 
 import Meowscript.Parser.Expr
@@ -19,6 +18,9 @@ import Data.Either (fromRight, fromLeft)
 import Control.Monad (void)
 import Data.Char (isAlphaNum)
 import Control.StopWatch (stopWatch)
+import Control.Monad.State
+import Control.Monad.Reader 
+import Control.Monad.Identity (Identity)
 
 exprTest :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) Expr
 exprTest = Mega.parse (Mega.between whitespace Mega.eof parseExpr)
@@ -69,4 +71,54 @@ main = do
     let path = "C:\\Users\\ianvi\\Desktop\\example1_expr.txt"
     main'
     x <- runBasic path
+    print x
+
+
+{- Reader - Experimentation -}
+{-
+readerExp :: [Int] -> Reader [Int] Int
+readerExp [] = do
+    sum env
+readerExp (x:xs) = do
+    env <- ask
+    let env' = x:env
+    local (const env') (readerExp xs)
+
+readerAddOne :: Reader [Int] Int
+readerAddOne = do
+    env <- ask
+    let env' = 1:env
+    local (const env') (asks sum)
+
+readerCore :: Reader [Int] [Int]
+readerCore = do
+    x <- readerExp [3, 3, 3]
+    return [x]
+
+readerRun :: [Int]
+readerRun = runReader readerCore [] -}
+
+{- State -- Experimentation -}
+stateExp :: [Int] -> State [Int] Int
+stateExp [] = do
+    void stateAddOne
+    gets sum
+stateExp (x:xs) = do
+    s <- get
+    put (x:s)
+    stateExp xs
+
+stateAddOne :: State [Int] Int
+stateAddOne = do
+    s <- get
+    put (1:s)
+    return 0
+
+stateRun :: Int
+stateRun = evalState (stateExp [3, 3, 3]) []
+
+
+main''' :: IO ()
+main''' = do
+    let x = stateRun
     print x

@@ -20,6 +20,7 @@ data Prim =
     | MeowLonely
     | MeowFunc Args [Statement]
     | MeowBreak
+    | MeowVoid
     deriving (Eq, Ord)
 
 instance Show Prim where
@@ -29,8 +30,9 @@ instance Show Prim where
     show (MeowInt x) = show x
     show (MeowDouble x) = show x
     show MeowLonely = "lonely"
-    show x@(MeowFunc _ _) = show x -- "<function>"
-    show x@MeowBreak = show x
+    show (MeowFunc _ _) = "<function>"
+    show MeowBreak = "<break>"
+    show MeowVoid = "<void>"
 
 data Expr =
       EPrim Prim
