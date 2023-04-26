@@ -26,10 +26,10 @@ parseExpr' = lexeme (whitespace >> parseExpr)
 operators :: [[Operator Parser Expr]]
 operators =
     [
-        [ Postfix $ Mega.try functionCall ]
-      , [ Prefix  (EUnop MeowYarn    <$ trySymbol "~~"  ) ]
+        [ Prefix  (EUnop MeowYarn    <$ trySymbol "~~"  ) ]
+      , [ Postfix $ Mega.try functionCall ]
       , [ Prefix  (EUnop MeowNegate  <$ symbol "-"      )
-        , Prefix  (EUnop MeowNot     <$ trySymbol "paw" ) ]
+        , Prefix  (EUnop MeowNot     <$ trySymbol "bap" ) ]
       , [ InfixL (EBinop MeowMul <$ symbol "*")
         , InfixL (EBinop MeowDiv <$ symbol "/") ]
       , [ InfixL (EBinop MeowAdd <$ symbol "+")
@@ -46,9 +46,9 @@ operators =
         , InfixL (EBinop (MeowCompare [GT])     <$ symbol ">" ) ]
       , [ InfixL (EBinop (MeowCompare [EQ])     <$ trySymbol "==")
         , InfixL (EBinop (MeowCompare [LT, GT]) <$ trySymbol "!=") ]
-      , [ InfixL (EBinop MeowAnd    <$ trySymbol "nya"      ) ]
-      , [ InfixL (EBinop MeowOr     <$ trySymbol "push"     ) ]
-      , [ InfixL (EBinop MeowAssign <$ trySymbol "=^.x.^="  ) ]
+      , [ InfixL (EBinop MeowAnd    <$ trySymbol "and"      ) ]
+      , [ InfixL (EBinop MeowOr     <$ trySymbol "or"       ) ]
+      , [ InfixL (EBinop MeowAssign <$ symbol "="           ) ]
     ]
 
 functionCall :: Parser (Expr -> Expr)

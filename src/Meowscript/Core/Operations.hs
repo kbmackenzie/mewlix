@@ -64,10 +64,10 @@ unop op a =
 binopVar :: (Prim -> Prim -> Evaluator Prim) -> Prim -> Prim -> Evaluator Prim
 binopVar f (MeowAtom a) y = do
     x <- lookUpVar a
-    f x y
+    binopVar f x y
 binopVar f x (MeowAtom b) = do
     y <- lookUpVar b
-    f x y
+    binopVar f x y
 binopVar f x y = f x y
 
 unopVar :: (Prim -> Evaluator Prim) -> Prim -> Evaluator Prim

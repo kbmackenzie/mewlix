@@ -114,7 +114,7 @@ asFunc name args = asLeave (SFuncDef name args)
 
 parseFunc :: Parser Statement
 parseFunc = lexeme $ Lexer.indentBlock whitespaceLn $ do
-    void $ keyword "purr"
+    void $ keyword "=^.w.^="
     name <- funName
     args <- funArgs
     return (Lexer.IndentMany Nothing (asFunc name args) statements)
@@ -125,7 +125,7 @@ parseFunc = lexeme $ Lexer.indentBlock whitespaceLn $ do
 parseReturn :: Parser Statement
 parseReturn = lexeme $ do
     whitespace
-    void $ keyword "bring gift"
+    void $ keyword "bring"
     SReturn <$> parseExpr'
 
 {- Continue -}

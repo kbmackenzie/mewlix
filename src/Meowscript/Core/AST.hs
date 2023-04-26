@@ -5,11 +5,15 @@ module Meowscript.Core.AST
 , Binop(..)
 , Statement(..)
 , Args
+, Name
+, Key
 ) where
 
 import qualified Data.Text as Text
 
 type Args = [Text.Text]
+type Key = Text.Text
+type Name = Text.Text
 
 data Prim =
       MeowString Text.Text
@@ -48,7 +52,7 @@ data Statement =
     | SWhile Expr [Statement]
     | SOnlyIf Expr [Statement]
     | SIfElse Expr [Statement] [Statement] 
-    | SFuncDef Text.Text Args [Statement]
+    | SFuncDef Name Args [Statement]
     | SReturn Expr
     | SContinue
     | SBreak

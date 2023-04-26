@@ -1,9 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-} 
 
-module Meowscript.Core.Run
+module Meowscript.Core.Blocks
 ( runEvaluator 
 , evaluate
 , runStatements
+, runBlock
 ) where
 
 import Meowscript.Core.AST
@@ -13,6 +14,7 @@ import Meowscript.Core.Environment
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map
+import qualified Data.List as List
 import Control.Monad.State (get, put, liftIO, runStateT)
 import Control.Monad.Except (throwError, runExceptT)
 import Control.Monad (void, when)
@@ -54,11 +56,11 @@ ensureValue x = return x
 
 
 {- Function Call -}
-funcCall :: Text.Text -> [Expr] -> Evaluator Prim
+funcCall :: Name -> [Expr] -> Evaluator Prim
 funcCall name args = do
     x <- keyExists name
     if not x then
-        throwError (Text.concat ["Function doesn't exist! :", name])
+        throwError (Text.concat ["Function doesn't exist! : ", name])
     else do
         (MeowFunc params body) <- lookUpVar name
         when (length params > length args) $ throwError "Too few arguments!"
@@ -78,6 +80,19 @@ funcArgs ((key, expr):xs) = do
     addToTop key value'
     funcArgs xs
 
+
+{- Helper functions to distinguish between statements. -}
+isFuncDef :: Statement -> Bool
+isFuncDef (SFuncDef {}) = True
+isFuncDef _ = False
+
+
+{- Run block in proper order: Function definitions, then other statements. -}
+runBlock :: [Statement] -> Evaluator Prim
+runBlock xs = do
+    let (funcDefs, rest) = List.partition isFuncDef xs
+    void $ runStatements funcDefs
+    runStatements rest
 
 
 {- Running Statements -}
@@ -105,10 +120,11 @@ runStatements (x:xs) = do
         then return ret
         else runStatements xs
     where run = case x of
-            (SOnlyIf y body) -> runIf y body
-            (SIfElse y ifB elseB) -> runIfElse y ifB elseB
-            (SWhile y body) -> runWhile y body
+            (SOnlyIf cond body) -> runIf cond body
+            (SIfElse cond ifB elseB) -> runIfElse cond ifB elseB
+            (SWhile cond body) -> runWhile cond body
             _ -> return MeowVoid
+
 
 
 {- Boolean Condition -}
@@ -128,7 +144,7 @@ runIf :: Expr -> [Statement] -> Evaluator Prim
 runIf x body = do
     condition <- asCondition x 
     if condition
-      then runStatements body
+      then runBlock body
       else return MeowVoid
 
 {- If Else -}
@@ -136,15 +152,15 @@ runIfElse :: Expr -> [Statement] -> [Statement] -> Evaluator Prim
 runIfElse x ifB elseB = do
     condition <- asCondition x
     if condition
-        then runStatements ifB
-        else runStatements elseB
+        then runBlock ifB
+        else runBlock elseB
 
 {- While Loop -}
 {- Notes:
- - A 'True' return value indicates a 'break' statement. -}
+ - Any return value that isn't MeowVoid implies the end of the loop. -}
 runWhile :: Expr -> [Statement] -> Evaluator Prim
 runWhile x body = do
-    ret <- runStatements body
+    ret <- runBlock body
     condition <- asCondition x
     let isBreak = ret /= MeowVoid 
     if condition && not isBreak
@@ -152,7 +168,7 @@ runWhile x body = do
         else return ret
 
 {- Function Definition -}
-runFuncDef :: Text.Text -> Args -> [Statement] -> Evaluator Prim
+runFuncDef :: Name -> Args -> [Statement] -> Evaluator Prim
 runFuncDef name args body = do
     let func = MeowFunc args body
     insertVar name func

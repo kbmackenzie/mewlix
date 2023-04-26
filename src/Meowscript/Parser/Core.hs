@@ -100,7 +100,6 @@ reservedKeywords =
     , "scratch"
     , "leave"
     , "bring"
-    , "gift"
     , "rest"
     , "run"
     , "away"
@@ -108,12 +107,15 @@ reservedKeywords =
     , "nudge"
     , "peek"
     , "sneak"
+    , "push"
+    , "knock"
+    , "over"
     , "lonely"
     , "yummy"
     , "icky" ]
 
 validAtomChar :: Char -> Bool
-validAtomChar c = isAlphaNum c || c `elem` ['.', '[', ']', '_']
+validAtomChar c = isAlphaNum c || c `elem` ['.', '^', '_']
 
 parseAtom :: Parser Prim
 parseAtom = MeowAtom <$> atomText

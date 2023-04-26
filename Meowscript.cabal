@@ -29,14 +29,14 @@ library
       Meowscript
       Meowscript.Core.AST
       Meowscript.Core.Base
+      Meowscript.Core.Blocks
       Meowscript.Core.Environment
       Meowscript.Core.Evaluate
-      Meowscript.Core.Functions
       Meowscript.Core.Messages
       Meowscript.Core.Operations
-      Meowscript.Core.Run
       Meowscript.Parser.Core
       Meowscript.Parser.Expr
+      Meowscript.Parser.Keywords
       Meowscript.Parser.Statements
   other-modules:
       Paths_Meowscript

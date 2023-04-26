@@ -3,8 +3,8 @@ module Meowscript
 ) where
 
 import Meowscript.Core.AST
-import Meowscript.Core.Run
 import Meowscript.Core.Base
+import Meowscript.Core.Blocks
 import Meowscript.Core.Evaluate
 import Meowscript.Parser.Statements
 import qualified Data.Text as Text
@@ -17,5 +17,5 @@ runBasic path = do
     txt <- TextIO.readFile path
     let output = Mega.parse root path txt
     case output of
-        (Right (SAll y)) -> runEvaluator baseLibrary (runStatements y)
+        (Right (SAll y)) -> runEvaluator baseLibrary (runBlock y)
         _ -> fail ""

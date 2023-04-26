@@ -60,7 +60,9 @@ parseE txt = do
 
 main' :: IO ()
 main' = do 
-    let path = "C:\\Users\\ianvi\\Desktop\\example1_expr.txt"
+    -- let path = "C:\\Users\\ianvi\\Desktop\\example1_expr.txt"
+    -- let path = "C:\\Art\\Game Development\\KellyWool\\Projects\\Haskell\\Meowscript\\meowscript_fibonacci.txt"
+    let path = "C:\\Art\\Game Development\\KellyWool\\Projects\\Haskell\\Meowscript\\meowscript_vector2.txt"
     !txt <- TextIO.readFile path
     (tok, time) <- stopWatch (parseE txt)
     print tok
@@ -68,10 +70,15 @@ main' = do
 
 main :: IO ()
 main = do 
-    let path = "C:\\Users\\ianvi\\Desktop\\example1_expr.txt"
+    -- let path = "C:\\Users\\ianvi\\Desktop\\example1_expr.txt"
+    -- let path = "C:\\Art\\Game Development\\KellyWool\\Projects\\Haskell\\Meowscript\\meowscript_fibonacci.txt"
+    let path = "C:\\Art\\Game Development\\KellyWool\\Projects\\Haskell\\Meowscript\\meowscript_vector2.txt"
     main'
-    x <- runBasic path
-    print x
+    --x <- runBasic path
+    --print x
+    (tok, time) <- stopWatch (runBasic path)
+    print tok
+    print time
 
 
 {- Reader - Experimentation -}
