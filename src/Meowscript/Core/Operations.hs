@@ -21,10 +21,10 @@ import Control.Monad.Except (throwError)
 {- Binary Operations -}
 binop :: Binop -> Prim -> Prim -> Evaluator Prim
 
-binop MeowAssign a (MeowAtom b) = do
+binop MeowAssign a (MeowKey b) = do
     value <- lookUpVar b
     binop MeowAssign a value
-binop MeowAssign (MeowAtom a) b = do
+binop MeowAssign (MeowKey a) b = do
     insertVar a b
     return b
 binop MeowAssign a b = throwError (binopError "Invalid assignment!" "" a b)
@@ -62,16 +62,16 @@ unop op a =
 {- Wrappers for evaluating variables.
  - This way, operations don't have to worry about this. -}
 binopVar :: (Prim -> Prim -> Evaluator Prim) -> Prim -> Prim -> Evaluator Prim
-binopVar f (MeowAtom a) y = do
+binopVar f (MeowKey a) y = do
     x <- lookUpVar a
     binopVar f x y
-binopVar f x (MeowAtom b) = do
+binopVar f x (MeowKey b) = do
     y <- lookUpVar b
     binopVar f x y
 binopVar f x y = f x y
 
 unopVar :: (Prim -> Evaluator Prim) -> Prim -> Evaluator Prim
-unopVar f (MeowAtom a) = do
+unopVar f (MeowKey a) = do
     x <- lookUpVar a
     f x
 unopVar f x = f x
@@ -208,7 +208,7 @@ meowOr x y = return $ MeowBool (x' || y')
 {- Yarn -}
 meowYarn :: Prim -> Evaluator Prim
 
-meowYarn (MeowString a) = return (MeowAtom a)
+meowYarn (MeowString a) = return (MeowKey a)
 meowYarn x = throwError $ yarnError x
 
 yarnError :: Prim -> Text.Text

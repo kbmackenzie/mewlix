@@ -17,7 +17,7 @@ type Name = Text.Text
 
 data Prim =
       MeowString Text.Text
-    | MeowAtom Text.Text
+    | MeowKey Key
     | MeowBool Bool
     | MeowInt Int
     | MeowDouble Double
@@ -29,7 +29,7 @@ data Prim =
 
 instance Show Prim where
     show (MeowString x) = Text.unpack x
-    show (MeowAtom x) = Text.unpack x
+    show (MeowKey x) = Text.unpack x
     show (MeowBool x) = if x then "yummy" else "icky"
     show (MeowInt x) = show x
     show (MeowDouble x) = show x

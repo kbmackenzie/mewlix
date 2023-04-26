@@ -17,8 +17,8 @@
  , meowDiv
  , stmtEnd
  , parseStr
- , validAtomChar
- , parseAtom
+ , validKeyChar
+ , parseKey
  , atomText
  , parseInt
  , parseFloat
@@ -83,7 +83,7 @@ bars = Mega.between (MChar.char '|') (MChar.char '|')
 keyword :: Text.Text -> Parser ()
 keyword k = lexeme $ do
     void $ MChar.string k
-    Mega.notFollowedBy $ Mega.satisfy validAtomChar
+    Mega.notFollowedBy $ Mega.satisfy validKeyChar
 
 meowDiv :: Text.Text -> Parser a -> Parser a
 meowDiv k = Mega.between (MChar.string k) (MChar.string "leave")
@@ -114,15 +114,15 @@ reservedKeywords =
     , "yummy"
     , "icky" ]
 
-validAtomChar :: Char -> Bool
-validAtomChar c = isAlphaNum c || c `elem` ['.', '^', '_']
+validKeyChar :: Char -> Bool
+validKeyChar c = isAlphaNum c || c `elem` ['.', '^', '_']
 
-parseAtom :: Parser Prim
-parseAtom = MeowAtom <$> atomText
+parseKey :: Parser Prim
+parseKey = MeowKey <$> atomText
     
 atomText :: Parser Text.Text
 atomText = do
-    x <- Mega.takeWhile1P (Just "atom") validAtomChar
+    x <- Mega.takeWhile1P (Just "atom") validKeyChar
     if x `elem` reservedKeywords
     then fail "Variable name cannot be a keyword!"
     else return x
@@ -134,7 +134,7 @@ parsePrim = Mega.choice
     , parseLonely <?> "lonely"
     , Mega.try parseInt <?> "int"
     , parseFloat <?> "float"
-    , parseAtom <?> "atom" ]
+    , parseKey <?> "atom" ]
 
 parseStr :: Parser Prim
 parseStr = do

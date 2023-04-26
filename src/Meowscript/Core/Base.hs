@@ -17,7 +17,7 @@ baseLibrary = ((: []) . Map.fromList)
     , ("listen"  , MeowFunc []    listen  )]
 
 meow :: [Statement]
-meow = [ SExpr (EWrite (EPrim (MeowAtom "x"))) ]
+meow = [ SExpr (EWrite (EPrim (MeowKey "x"))) ]
 
 listen :: [Statement]
 listen = [ SReturn ERead ]

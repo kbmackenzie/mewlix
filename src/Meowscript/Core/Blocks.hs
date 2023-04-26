@@ -37,7 +37,7 @@ evaluate (EUnop op expA) = do
 evaluate (ECall args name) = do
     fnName <- evaluate name
     case fnName of
-        (MeowAtom x) -> funcCall x args
+        (MeowKey x) -> funcCall x args
         _ -> throwError "Invalid function name!"
 evaluate ERead = do
     x <- liftIO TextIO.getLine
@@ -51,7 +51,7 @@ evaluate (EWrite x) = do
 
 {- Ensures a value will be passed instead of an atom. -}
 ensureValue :: Prim -> Evaluator Prim
-ensureValue (MeowAtom x) = lookUpVar x
+ensureValue (MeowKey x) = lookUpVar x
 ensureValue x = return x
 
 
