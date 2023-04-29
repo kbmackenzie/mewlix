@@ -11,11 +11,12 @@ import Meowscript.Core.AST
 import Meowscript.Core.Evaluate
 import Meowscript.Core.Operations
 import Meowscript.Core.Environment
+import Meowscript.Core.Messages
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map
 import qualified Data.List as List
-import Control.Monad.State (liftIO, runStateT)
+import Control.Monad.State (get, liftIO, runStateT)
 import Control.Monad.Except (throwError, runExceptT)
 import Control.Monad (void, when)
 import Data.Functor ((<&>))
@@ -48,18 +49,16 @@ evaluate (EObject xs) = do
     (return . MeowObject) mapObject
 
 {- Dot Operator -}
-evaluate (EDot x y) = do
-    a <- evaluate x
-    b <- evaluate y
-    (_, res) <- unwrapDot a b
-    return res
-
+evaluate x@(EDot {}) = do
+    xs <- unwrapDot x
+    (return . MeowTrail) xs
+    
 {- Methods -}
-evaluate (ECall args (EDot a b)) = do
-    a' <- evaluate a
-    b' <- evaluate b
-    (obj, res) <- unwrapDot a' b'
-    methodCall args obj res
+evaluate (ECall args x@(EDot {})) = do
+    xs <- unwrapDot x
+    fn <- lookUpTrail xs
+    let home = init xs -- All but the function name.
+    methodCall args home fn
 
 {- Functions -}
 evaluate (ECall args name) = do
@@ -76,21 +75,24 @@ evaluate (EWrite x) = do
 
 {- Ensures a value will be passed instead of an atom. -}
 ensureValue :: Prim -> Evaluator Prim
-ensureValue (MeowKey x) = lookUpVar x
+ensureValue (MeowKey x) = lookUpVar x >>= ensureValue
+ensureValue (MeowTrail xs) = lookUpTrail xs >>= ensureValue
 ensureValue x = return x
 
 
 {- Dot Operator -}
-unwrapDot :: Prim -> Prim -> Evaluator (Prim, Prim)
-unwrapDot x@(MeowObject obj) (MeowKey key) = do
-    let i = Map.lookup key obj
-    case i of
-        (Just item) -> return (x, item)
-        Nothing -> throwError "Item not found!"
-unwrapDot (MeowKey x) y = do
-    x' <- lookUpVar x
-    unwrapDot x' y
-unwrapDot _ _ = throwError "Invalid dot operation!"
+unwrapDot :: Expr -> Evaluator [Text.Text]
+unwrapDot (EDot x y) = do
+    x' <- unwrapDot x
+    y' <- unwrapDot y
+    return (x' ++ y')
+unwrapDot (EPrim (MeowTrail xs)) = return xs
+unwrapDot (EPrim (MeowKey x)) = return [x]
+unwrapDot x = do
+    x' <- evaluate x
+    case x' of
+        (MeowKey key) -> return [key]
+        _ -> throwError (Text.concat ["Invalid token in trail: ", showT x'])
 
 
 {- Function Call -}
@@ -114,14 +116,14 @@ runFunc args (MeowFunc params body) = do
 runFunc _ _ = throwError "Invalid function call!"
 
 {- Method Call -}
-methodCall :: [Expr] -> Prim -> Prim -> Evaluator Prim
-methodCall args obj@(MeowObject _) (MeowFunc params body) = do
+methodCall :: [Expr] -> [Key] -> Prim -> Evaluator Prim
+methodCall args trail (MeowFunc params body) = do
     when (length params > length args)
         (throwError "Too few arguments for function!")
     let z = zip params args
     stackPush
     funcArgs z
-    addToTop "home" obj 
+    addToTop "home" (MeowTrail trail)
     ret <- runStatements body
     stackPop
     return ret

@@ -9,6 +9,7 @@ module Meowscript.Core.AST
 , Args
 , Name
 , Key
+, ObjectMap
 , asString
 , asBool
 , asInt
@@ -41,6 +42,7 @@ data Prim =
     | MeowObject ObjectMap
     | MeowBreak
     | MeowVoid
+    | MeowTrail [Key]
     | MeowIFunc Args InnerFunc
     | MeowIO Args InnerIO
 
@@ -51,6 +53,7 @@ instance Eq Prim where
     _ == MeowLonely = False
     {- Basic Types -}
     (MeowString a) == b = a == asString b
+    (MeowInt a) == (MeowDouble b) = fromIntegral a == b
     (MeowInt a) == b = a == asInt b
     (MeowDouble a) == b = a == asDouble b
     (MeowBool a) == b = a == asBool b
@@ -74,6 +77,7 @@ instance Ord Prim where
     {- Basic Types -}
     -- Allowing some type conversion.
     compare (MeowString a) b = compare a (asString b)
+    compare (MeowInt a) (MeowDouble b) = compare (fromIntegral a) b
     compare (MeowInt a) b = compare a (asInt b) 
     compare (MeowDouble a) b = compare a (asDouble b)
     compare (MeowBool a) b = compare a (asBool b)
@@ -104,6 +108,7 @@ instance Show Prim where
     show (MeowLambda {}) = "<lambda-function>"
     show MeowBreak = "<break>"
     show MeowVoid = "<void>"
+    show (MeowTrail {}) = "<key-trail>"
     show (MeowIFunc {}) = "<inner-function>"
     show (MeowIO {}) = "<inner-function>"
 

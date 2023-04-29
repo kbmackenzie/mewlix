@@ -21,6 +21,12 @@ binop :: Binop -> Prim -> Prim -> Evaluator Prim
 binop MeowAssign a (MeowKey b) = do
     value <- lookUpVar b
     binop MeowAssign a value
+binop MeowAssign a (MeowTrail b) = do
+    value <- lookUpTrail b
+    binop MeowAssign a value
+binop MeowAssign (MeowTrail a) b = do
+    insertWithTrail a b
+    return b
 binop MeowAssign (MeowKey a) b = do
     insertVar a b
     return b
