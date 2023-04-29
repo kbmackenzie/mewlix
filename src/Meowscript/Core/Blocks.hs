@@ -15,11 +15,10 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map
 import qualified Data.List as List
-import Control.Monad.State (get, put, liftIO, runStateT, mapM, foldM)
+import Control.Monad.State (liftIO, runStateT)
 import Control.Monad.Except (throwError, runExceptT)
 import Control.Monad (void, when)
 import Data.Functor ((<&>))
-import Data.Either (Either)
 
 {- Run all statements from root. -}
 runEvaluator :: EnvStack -> Evaluator a -> IO (Either Text.Text (a, EnvStack))
@@ -178,7 +177,6 @@ runStatements (x:xs) = do
             (SIfElse cond ifB elseB) -> runIfElse cond ifB elseB
             (SWhile cond body) -> runWhile cond body
             _ -> return MeowVoid
-
 
 
 {- Boolean Condition -}

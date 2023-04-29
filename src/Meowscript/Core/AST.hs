@@ -13,6 +13,7 @@ module Meowscript.Core.AST
 , asBool
 , asInt
 , asDouble
+, prettyMap
 ) where
 
 import qualified Data.Text as Text
@@ -60,19 +61,8 @@ instance Eq Prim where
     {- Objects -}
     (MeowObject a) == (MeowObject b) = a == b
     (MeowObject _) == _ = False
-    {-------------------------------------}
-    {- Anything else should never be compared.
-    - I didn't't wanna make it 'undefined', though.
-    - And I didn't want to make them all evaluate to False, 
-    - as that would generate inconsistencies with Ord.
-    - (Are they all simultaneously lesser/greater than each other?)
-    -
-    - I also didn't want to manually implement some weird comparison logic
-    - to each of them, though. How do you compare two IO functions?
-    -
-    - So I'm giving them this absurd logic-breaking definition instead.
-    - Read it as 'All inner types are equal to each other.'
-    - A good way to check if a variable holds a function, if anything. -}
+    {- All other types should never be compared.
+     - I'm making them all equal to each other for ease. -}
     _ == _ = True
 
 instance Ord Prim where
@@ -100,18 +90,18 @@ instance Ord Prim where
 
 instance Show Prim where
     {- Basic Types -}
-    show (MeowString x) = Text.unpack x
+    show (MeowString x) = concat ["\"", Text.unpack x, "\""]
     show (MeowKey x) = concat ["key <", Text.unpack x, ">"]
     show (MeowBool x) = if x then "yummy" else "icky"
     show (MeowInt x) = show x
     show (MeowDouble x) = show x
     show (MeowList x) = show x
+    show (MeowObject x) = Text.unpack (prettyMap x)
     {- Lonely -}
     show MeowLonely = "lonely"
     {- Inner Types (should never be shown) -}
     show (MeowFunc {}) = "<function>"
     show (MeowLambda {}) = "<lambda-function>"
-    show (MeowObject _) = "<map-object>"
     show MeowBreak = "<break>"
     show MeowVoid = "<void>"
     show (MeowIFunc {}) = "<inner-function>"
@@ -164,6 +154,16 @@ data Binop =
     | MeowConcat 
     deriving (Eq, Show, Ord)
 
+
+{- Helpers -}
+
+{- Pretty-print Maps -}
+prettyMap :: ObjectMap -> Text.Text
+prettyMap o = Text.concat ["{ ", pairs, " }"]
+    where
+        lst = Map.toList o
+        pair (key, val) = Text.concat [ key, ": ", (Text.pack . show) val ]
+        pairs = Text.intercalate ", " (map pair lst)
 
 {- Stringify -}
 asString :: Prim -> Text.Text

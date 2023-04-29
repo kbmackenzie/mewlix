@@ -7,10 +7,7 @@ module Meowscript.Core.Messages
 ) where
 
 import Meowscript.Core.AST
-import qualified Data.Map as Map
 import qualified Data.Text as Text
-import Control.Monad.Reader (ReaderT)
-import Control.Monad.Except (ExceptT)
 
 showT :: (Show a) => a -> Text.Text
 showT = Text.pack . show
