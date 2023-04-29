@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-} 
+{-# LANGUAGE LambdaCase #-}
 
 module Meowscript.Core.Blocks
 ( runEvaluator 
@@ -16,7 +17,7 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map
 import qualified Data.List as List
-import Control.Monad.State (get, liftIO, runStateT)
+import Control.Monad.State (liftIO, runStateT)
 import Control.Monad.Except (throwError, runExceptT)
 import Control.Monad (void, when)
 import Data.Functor ((<&>))
@@ -34,14 +35,10 @@ evaluate (EBinop op expA expB) = do
     a <- evaluate expA
     b <- evaluate expB
     binop op a b
-evaluate (EUnop op expA) = do
-    a <- evaluate expA
-    unop op a
+evaluate (EUnop op expA) = evaluate expA >>= unop op
 
 {- Lists + Objects -}
-evaluate (EList xs) = do
-    prims <- mapM evaluate xs
-    (return . MeowList) prims
+evaluate (EList xs) = mapM evaluate xs <&> MeowList
 evaluate (EObject xs) = do
     asPrims <- mapM (\(key, exp') -> evaluate exp' >>= ensureValue
                         >>= (\x -> return (key, x))) xs
@@ -49,9 +46,7 @@ evaluate (EObject xs) = do
     (return . MeowObject) mapObject
 
 {- Dot Operator -}
-evaluate x@(EDot {}) = do
-    xs <- unwrapDot x
-    (return . MeowTrail) xs
+evaluate x@(EDot {}) = unwrapDot x <&> MeowTrail
     
 {- Methods -}
 evaluate (ECall args x@(EDot {})) = do
@@ -61,11 +56,9 @@ evaluate (ECall args x@(EDot {})) = do
     methodCall args home fn
 
 {- Functions -}
-evaluate (ECall args name) = do
-    fnName <- evaluate name
-    case fnName of
-        (MeowKey x) -> funcCall x args
-        _ -> throwError "Invalid function name!"
+evaluate (ECall args name) = evaluate name >>= \case
+    (MeowKey x) -> funcCall x args
+    _ -> throwError "Invalid function name!"
 
 {- Inner Functions -}
 evaluate ERead = liftIO TextIO.getLine <&> MeowString
@@ -73,12 +66,18 @@ evaluate (EWrite x) = do
     evaluate x >>= ensureValue >>= (liftIO . print)
     return MeowLonely
 
+
+{-- Helpers --}
+
 {- Ensures a value will be passed instead of an atom. -}
 ensureValue :: Prim -> Evaluator Prim
 ensureValue (MeowKey x) = lookUpVar x >>= ensureValue
 ensureValue (MeowTrail xs) = lookUpTrail xs >>= ensureValue
 ensureValue x = return x
 
+
+
+{-- Objects --}
 
 {- Dot Operator -}
 unwrapDot :: Expr -> Evaluator [Text.Text]
@@ -95,54 +94,8 @@ unwrapDot x = do
         _ -> throwError (Text.concat ["Invalid token in trail: ", showT x'])
 
 
-{- Function Call -}
-funcCall :: Name -> [Expr] -> Evaluator Prim
-funcCall name args = do
-    x <- keyExists name
-    if not x then
-        throwError (Text.concat ["Function doesn't exist! : ", name])
-    else do lookUpVar name >>= runFunc args
-        
-runFunc :: [Expr] -> Prim -> Evaluator Prim
-runFunc args (MeowFunc params body) = do
-    when (length params > length args)
-        (throwError "Too few arguments for function!")
-    let z = zip params args
-    stackPush
-    funcArgs z
-    ret <- runStatements body
-    stackPop
-    return ret
-runFunc _ _ = throwError "Invalid function call!"
 
-{- Method Call -}
-methodCall :: [Expr] -> [Key] -> Prim -> Evaluator Prim
-methodCall args trail (MeowFunc params body) = do
-    when (length params > length args)
-        (throwError "Too few arguments for function!")
-    let z = zip params args
-    stackPush
-    funcArgs z
-    addToTop "home" (MeowTrail trail)
-    ret <- runStatements body
-    stackPop
-    return ret
-methodCall _ _ _ = throwError "Invalid method call!" 
-
-
-{- Add function arguments to the environment. -}
-funcArgs :: [(Key, Expr)] -> Evaluator ()
-funcArgs [] = return ()
-funcArgs ((key, expr):xs) = do
-    evaluate expr >>= ensureValue >>= addToTop key
-    funcArgs xs
-
-
-{- Helper functions to distinguish between statements. -}
-isFuncDef :: Statement -> Bool
-isFuncDef (SFuncDef {}) = True
-isFuncDef _ = False
-
+{-- Blocks --}
 
 {- Run block in proper order: Function definitions, then other statements. -}
 runBlock :: [Statement] -> Evaluator Prim
@@ -217,9 +170,59 @@ runWhile x body = do
         then runWhile x body
         else return ret
 
+
+
+{-- Functions --}
+
 {- Function Definition -}
 runFuncDef :: Name -> Args -> [Statement] -> Evaluator Prim
 runFuncDef name args body = do
     let func = MeowFunc args body
     insertVar name func
     return MeowVoid
+
+{- Function Call -}
+funcCall :: Name -> [Expr] -> Evaluator Prim
+funcCall name args = do
+    x <- keyExists name
+    if not x then
+        throwError (Text.concat ["Function doesn't exist! : ", name])
+    else do lookUpVar name >>= runFunc args
+        
+runFunc :: [Expr] -> Prim -> Evaluator Prim
+runFunc args (MeowFunc params body) = do
+    when (length params > length args)
+        (throwError "Too few arguments for function!")
+    let z = zip params args
+    stackPush
+    funcArgs z
+    ret <- runStatements body
+    stackPop
+    return ret
+runFunc _ _ = throwError "Invalid function call!"
+
+{- Method Call -}
+methodCall :: [Expr] -> [Key] -> Prim -> Evaluator Prim
+methodCall args trail (MeowFunc params body) = do
+    when (length params > length args)
+        (throwError "Too few arguments for function!")
+    let z = zip params args
+    stackPush
+    funcArgs z
+    addToTop "home" (MeowTrail trail)
+    ret <- runStatements body
+    stackPop
+    return ret
+methodCall _ _ _ = throwError "Invalid method call!" 
+
+{- Add function arguments to the environment. -}
+funcArgs :: [(Key, Expr)] -> Evaluator ()
+funcArgs [] = return ()
+funcArgs ((key, expr):xs) = do
+    evaluate expr >>= ensureValue >>= addToTop key
+    funcArgs xs
+
+{- Helper functions to distinguish between statements. -}
+isFuncDef :: Statement -> Bool
+isFuncDef (SFuncDef {}) = True
+isFuncDef _ = False

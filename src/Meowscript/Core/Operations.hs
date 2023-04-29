@@ -18,22 +18,14 @@ import Control.Monad.Except (throwError)
 {- Binary Operations -}
 binop :: Binop -> Prim -> Prim -> Evaluator Prim
 
-binop MeowAssign a (MeowKey b) = do
-    value <- lookUpVar b
-    binop MeowAssign a value
-binop MeowAssign a (MeowTrail b) = do
-    value <- lookUpTrail b
-    binop MeowAssign a value
-binop MeowAssign (MeowTrail a) b = do
-    insertWithTrail a b
-    return b
-binop MeowAssign (MeowKey a) b = do
-    insertVar a b
-    return b
+binop MeowAssign a (MeowKey b) = lookUpVar b >>= binop MeowAssign a
+binop MeowAssign a (MeowTrail b) = lookUpTrail b >>= binop MeowAssign a
+binop MeowAssign (MeowTrail a) b = insertWithTrail a b >> return b
+binop MeowAssign (MeowKey a) b = insertVar a b >> return b
 binop MeowAssign a b = throwError (binopError "Invalid assignment!" "" a b)
 
-binop op a b =
-    let fn = case op of
+binop op a b = binopVar fn a b
+    where fn = case op of
             MeowAdd -> meowAdd
             MeowSub -> meowSub
             MeowMul -> meowMul
@@ -41,15 +33,14 @@ binop op a b =
             (MeowCompare ord) -> meowCompare ord
             MeowAnd -> meowAnd
             MeowOr -> meowOr
-            --MeowDot -> meowDot
             MeowConcat -> meowConcat
-    in binopVar fn a b
-    
+            _ -> undefined --todo
+
 
 {- Unary Operations -}
 unop :: Unop -> Prim -> Evaluator Prim
-unop op a =
-    let fn = case op of
+unop op = unopVar fn
+    where fn = case op of
             MeowYarn -> meowYarn
             MeowLen -> meowLen
             MeowPoke -> meowPoke
@@ -58,7 +49,6 @@ unop op a =
             MeowNot -> meowNot
             MeowPeek -> meowPeek
             MeowSneak -> meowSneak
-    in unopVar fn a
 
 
 {- Variables -}
@@ -66,20 +56,13 @@ unop op a =
 {- Wrappers for evaluating variables.
  - This way, operations don't have to worry about this. -}
 binopVar :: (Prim -> Prim -> Evaluator Prim) -> Prim -> Prim -> Evaluator Prim
-binopVar f (MeowKey a) y = do
-    x <- lookUpVar a
-    binopVar f x y
-binopVar f x (MeowKey b) = do
-    y <- lookUpVar b
-    binopVar f x y
+binopVar f (MeowKey a) y = lookUpVar a >>= flip (binopVar f) y
+binopVar f x (MeowKey b) = lookUpVar b >>= binopVar f x
 binopVar f x y = f x y
 
 unopVar :: (Prim -> Evaluator Prim) -> Prim -> Evaluator Prim
-unopVar f (MeowKey a) = do
-    x <- lookUpVar a
-    f x
+unopVar f (MeowKey a) = lookUpVar a >>= f
 unopVar f x = f x
-
 
 
 {- TO DO -}
@@ -113,10 +96,7 @@ meowNegate x = throwError $ unopError "Negation" "-" x
 
 {- Subtraction -}
 meowSub :: Prim -> Prim -> Evaluator Prim
-meowSub x y = do
-    y' <- meowNegate y
-    meowAdd x y'
-
+meowSub x y = meowNegate y >>= meowAdd x
 
 {- Multiplication -}
 meowMul :: Prim -> Prim -> Evaluator Prim
@@ -125,12 +105,10 @@ meowMul x@(MeowInt a) y = case y of
     (MeowInt b) -> return $ MeowInt (a * b)
     (MeowDouble b) -> return $ MeowDouble (fromIntegral a * b)
     _ -> throwError $ mulError x y
-
 meowMul x@(MeowDouble a) y = case y of
     (MeowInt b) -> return $ MeowDouble (a * fromIntegral b)
     (MeowDouble b) -> return $ MeowDouble (a * b)
     _ -> throwError $ mulError x y
-
 meowMul x y = throwError $ mulError x y
 
 -- Multiplication errors.
@@ -147,32 +125,30 @@ meowDiv x@(MeowInt a) y = case y of
     (MeowDouble 0) -> throwError $ divByZero x y
     (MeowDouble b) -> return $ MeowDouble (fromIntegral a / b)
     _ -> throwError $ divError x y
-
 meowDiv x@(MeowDouble a) y = case y of
     (MeowInt 0) -> throwError $ divByZero x y
     (MeowInt b) -> return $ MeowDouble (a / fromIntegral b)
     (MeowDouble 0) -> throwError $ divByZero x y
     (MeowDouble b) -> return $ MeowDouble (a / b)
     _ -> throwError $ divError x y
-
 meowDiv x y = throwError $ divError x y
 
 -- Division exceptions.
 divError :: Prim -> Prim -> Text.Text
-divError = binopError "Division" "/"
 
+divError = binopError "Division" "/"
 divByZero :: Prim -> Prim -> Text.Text
 divByZero x y = Text.intercalate "\n" [ divError x y, "Cannot divide by zero!" ]
 
 
-
 {- Comparison -}
 meowCompare :: [Ordering] -> Prim -> Prim -> Evaluator Prim
-meowCompare ord a b = let c = a `compare` b
-                      in return $ MeowBool (c `elem` ord)
+
+meowCompare ord a b = (return . MeowBool) (c `elem` ord)
+    where c = a `compare` b
 
 
-{- Logical Operations -}
+{-- Logical Operations --}
 
 {- Not -}
 meowNot :: Prim -> Evaluator Prim

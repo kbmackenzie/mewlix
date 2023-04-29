@@ -7,9 +7,6 @@ module Meowscript.Core.Base
 import Meowscript.Core.AST
 import Meowscript.Core.Evaluate
 import qualified Data.Map as Map
-import qualified Data.Text as Text
-import Control.Monad.Reader (ReaderT)
-import Control.Monad.Except (ExceptT)
 
 baseLibrary :: EnvStack
 baseLibrary = ((: []) . Map.fromList)
