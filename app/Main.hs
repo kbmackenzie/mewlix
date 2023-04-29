@@ -2,144 +2,42 @@
 {-# LANGUAGE BangPatterns #-}
 module Main (main) where
 
-import Meowscript.Parser.Expr
 import Meowscript
 import Meowscript.Core.AST
-import Meowscript.Parser.Core
 import Meowscript.Parser.Statements
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Text.Megaparsec as Mega
-import Text.Megaparsec ((<|>), (<?>))
-import qualified Text.Megaparsec.Char as MChar
-import qualified Text.Megaparsec.Char.Lexer as Lexer
 import qualified Text.Megaparsec.Error as MError
 import Data.Void (Void)
-import Data.Either (fromRight, fromLeft)
-import Control.Monad (void)
-import Data.Char (isAlphaNum)
 import Control.StopWatch (stopWatch)
-import Control.Monad.State
-import Control.Monad.Reader 
-import Control.Monad.Identity (Identity)
-import qualified Data.Set as Set
 
-exprTest :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) Expr
-exprTest = Mega.parse (Mega.between whitespace Mega.eof parseExpr)
-
-{-
-parseManyExpr :: Parser [[Expr]]
-parseManyExpr = Mega.many (Mega.manyTill parseExpr (MChar.char ';'))
-
-exprMany :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) [[Expr]]
-exprMany = Mega.parse (Mega.between whitespace Mega.eof parseManyExpr)
--}
-
-parseMany :: Parser [Expr]
-parseMany = Mega.sepEndBy (whitespace >> parseExpr) MChar.newline --(symbol ";")
-
-exprMany :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) [Expr]
-exprMany = Mega.parse (Mega.between whitespace Mega.eof parseMany)
-
---unitTesst :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) [Statement]
---unitTesst = Mega.parse (Mega.between whitespace Mega.eof manyStatements)
-
---aaa :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) [Statement]
---aaa = Mega.parse manyStatements
-
-aaab :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) Statement
-aaab = Mega.parse root 
-
-parseS :: Text.Text -> IO Statement
-parseS txt = do
-    let !exp' = aaab "" txt
-    return $ fromRight (SAll []) exp'
-
-{-
-parseSErr :: Text.Text -> String
-parseSErr txt = do
-    let !exp' = aaab "" txt
-    case exp' of
-        (Left x) -> MError.errorBundlePretty x
-        _ -> ""
--}
-
+runParserExample :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) Statement
+runParserExample = Mega.parse root 
 
 parseE :: Text.Text -> IO ()
 parseE txt = do
-    let !exp' = aaab "" txt
+    let !exp' = runParserExample "" txt
     putStrLn $ case exp' of
         (Left x) -> MError.errorBundlePretty x
         (Right x) -> show x
 
-main' :: IO ()
-main' = do 
-    -- let path = "C:\\Users\\ianvi\\Desktop\\example1_expr.txt"
-    -- let path = "C:\\Art\\Game Development\\KellyWool\\Projects\\Haskell\\Meowscript\\meowscript_fibonacci.txt"
-    let path = "C:\\Art\\Game Development\\KellyWool\\Projects\\Haskell\\Meowscript\\meowscript_vector2.txt"
+timedParsing :: IO ()
+timedParsing = do 
+    let path = "meowscript_vector2.txt"
     !txt <- TextIO.readFile path
     (tok, time) <- stopWatch (parseE txt)
     print tok
-    print time
+    putStrLn ("Parsing time: " ++ show time)
 
-main :: IO ()
-main = do 
-    -- let path = "C:\\Users\\ianvi\\Desktop\\example1_expr.txt"
-    -- let path = "C:\\Art\\Game Development\\KellyWool\\Projects\\Haskell\\Meowscript\\meowscript_fibonacci.txt"
-    let path = "C:\\Art\\Game Development\\KellyWool\\Projects\\Haskell\\Meowscript\\meowscript_vector2.txt"
-    main'
-    --x <- runBasic path
-    --print x
+runtime :: IO ()
+runtime = do 
+    let path = "meowscript_vector2.txt"
     (tok, time) <- stopWatch (runBasic path)
     print tok
-    print time
+    putStrLn ("Runtime: " ++ show time)
 
-
-{- Reader - Experimentation -}
-{-
-readerExp :: [Int] -> Reader [Int] Int
-readerExp [] = do
-    sum env
-readerExp (x:xs) = do
-    env <- ask
-    let env' = x:env
-    local (const env') (readerExp xs)
-
-readerAddOne :: Reader [Int] Int
-readerAddOne = do
-    env <- ask
-    let env' = 1:env
-    local (const env') (asks sum)
-
-readerCore :: Reader [Int] [Int]
-readerCore = do
-    x <- readerExp [3, 3, 3]
-    return [x]
-
-readerRun :: [Int]
-readerRun = runReader readerCore [] -}
-
-{- State -- Experimentation -}
-stateExp :: [Int] -> State [Int] Int
-stateExp [] = do
-    void stateAddOne
-    gets sum
-stateExp (x:xs) = do
-    s <- get
-    put (x:s)
-    stateExp xs
-
-stateAddOne :: State [Int] Int
-stateAddOne = do
-    s <- get
-    put (1:s)
-    return 0
-
-stateRun :: Int
-stateRun = evalState (stateExp [3, 3, 3]) []
-
-
-main''' :: IO ()
-main''' = do
-    let x = stateRun
-    print x
+main :: IO ()
+main = do
+    timedParsing
+    runtime

@@ -87,14 +87,16 @@ instance Ord Prim where
     compare (MeowList []) b = compare MeowLonely b
     compare (MeowList (a:_)) b = compare a b
     -- Objects
+    -- Always greater than any non-object time.
     compare (MeowObject a) (MeowObject b) = compare a b
+    compare (MeowObject _) _ = GT
     -- All inner types count as being equal to each other.
     -- Read my comment about it in Prim's Eq instance declaration.
     compare _ _ = EQ
 
 instance Show Prim where
     -- Basic Types
-    show (MeowString x) = concat ["\"", Text.unpack x, "\""]
+    show (MeowString x) = Text.unpack x
     show (MeowKey x) = concat ["key <", Text.unpack x, ">"]
     show (MeowBool x) = if x then "yummy" else "icky"
     show (MeowInt x) = show x
