@@ -85,4 +85,4 @@ parseKeyValue = do
     return (key, expr)
 
 parseDotOp :: Parser ()
-parseDotOp = MChar.char '.' >> Mega.notFollowedBy (MChar.char '.')
+parseDotOp = Mega.try $ MChar.char '.' >> Mega.notFollowedBy (MChar.char '.')

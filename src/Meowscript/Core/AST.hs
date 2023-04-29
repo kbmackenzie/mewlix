@@ -47,53 +47,53 @@ data Prim =
     | MeowIO Args InnerIO
 
 instance Eq Prim where
-    {- Lonely (nil) -}
+    -- Lonely (nil)
     MeowLonely == MeowLonely = True
     MeowLonely == _ = False
     _ == MeowLonely = False
-    {- Basic Types -}
+    -- Basic Types
     (MeowString a) == b = a == asString b
     (MeowInt a) == (MeowDouble b) = fromIntegral a == b
     (MeowInt a) == b = a == asInt b
     (MeowDouble a) == b = a == asDouble b
     (MeowBool a) == b = a == asBool b
-    {- Lists -}
+    -- Lists
     (MeowList a) == (MeowList b) = a == b
     (MeowList []) == b = MeowLonely == b
     (MeowList (a:_)) == b = a == b
-    {- Objects -}
+    -- Objects
     (MeowObject a) == (MeowObject b) = a == b
     (MeowObject _) == _ = False
-    {- All other types should never be compared.
-     - I'm making them all equal to each other for ease. -}
+    -- All other types should never be compared.
+    -- I'm making them all equal to each other for ease.
     _ == _ = True
 
 instance Ord Prim where
-    {- Lonely (nil) -}
+    -- Lonely (nil)
     -- It's always less than anything else.
     compare MeowLonely MeowLonely = EQ
     compare MeowLonely _ = LT
     compare _ MeowLonely = GT
-    {- Basic Types -}
+    -- Basic Types
     -- Allowing some type conversion.
     compare (MeowString a) b = compare a (asString b)
     compare (MeowInt a) (MeowDouble b) = compare (fromIntegral a) b
     compare (MeowInt a) b = compare a (asInt b) 
     compare (MeowDouble a) b = compare a (asDouble b)
     compare (MeowBool a) b = compare a (asBool b)
-    {- Lists -}
-    {- An empty list is equivalent to 'lonely'. -}
+    -- Lists
+    -- An empty list is equivalent to 'lonely'.
     compare (MeowList a) (MeowList b) = compare a b
     compare (MeowList []) b = compare MeowLonely b
     compare (MeowList (a:_)) b = compare a b
-    {- Objects -}
+    -- Objects
     compare (MeowObject a) (MeowObject b) = compare a b
-    {- All inner types count as being equal to each other.
-     - Read my comment about it in Prim's Eq instance declaration. -}
+    -- All inner types count as being equal to each other.
+    -- Read my comment about it in Prim's Eq instance declaration.
     compare _ _ = EQ
 
 instance Show Prim where
-    {- Basic Types -}
+    -- Basic Types
     show (MeowString x) = concat ["\"", Text.unpack x, "\""]
     show (MeowKey x) = concat ["key <", Text.unpack x, ">"]
     show (MeowBool x) = if x then "yummy" else "icky"
@@ -101,9 +101,9 @@ instance Show Prim where
     show (MeowDouble x) = show x
     show (MeowList x) = show x
     show (MeowObject x) = Text.unpack (prettyMap x)
-    {- Lonely -}
+    -- Lonely
     show MeowLonely = "lonely"
-    {- Inner Types (should never be shown) -}
+    -- Inner Types (should never be shown)
     show (MeowFunc {}) = "<function>"
     show (MeowLambda {}) = "<lambda-function>"
     show MeowBreak = "<break>"
@@ -162,7 +162,7 @@ data Binop =
 
 {- Helpers -}
 
-{- Pretty-print Maps -}
+-- Pretty-print Maps
 prettyMap :: ObjectMap -> Text.Text
 prettyMap o = Text.concat ["{ ", pairs, " }"]
     where
@@ -170,13 +170,13 @@ prettyMap o = Text.concat ["{ ", pairs, " }"]
         pair (key, val) = Text.concat [ key, ": ", (Text.pack . show) val ]
         pairs = Text.intercalate ", " (map pair lst)
 
-{- Stringify -}
+-- Stringify
 asString :: Prim -> Text.Text
 
 asString (MeowString a) = a
 asString x = (Text.pack . show) x
 
-{- Boolean-ify -}
+-- Boolean-ify
 asBool :: Prim -> Bool
 
 asBool (MeowBool a) = a
@@ -185,7 +185,7 @@ asBool (MeowString "") = False
 asBool (MeowList []) = False
 asBool _ = True
 
-{- Int-ify -}
+-- Int-ify
 asInt :: Prim -> Int
 asInt (MeowInt a) = a
 asInt (MeowDouble a) = floor a
@@ -194,7 +194,7 @@ asInt (MeowList a) = length a
 asInt (MeowObject a) = Map.size a
 asInt _ = 0
 
-{- Double-ify -}
+-- Double-ify
 asDouble :: Prim -> Double
 asDouble (MeowInt a) = fromIntegral a
 asDouble (MeowDouble a) = a
