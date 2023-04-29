@@ -19,7 +19,7 @@
  , parseStr
  , validKeyChar
  , parseKey
- , atomText
+ , keyText
  , parseInt
  , parseFloat
  , parseBool
@@ -115,13 +115,13 @@ reservedKeywords =
     , "icky" ]
 
 validKeyChar :: Char -> Bool
-validKeyChar c = isAlphaNum c || c `elem` ['.', '^', '_']
+validKeyChar c = isAlphaNum c || c `elem` ['\'', '^', '_']
 
 parseKey :: Parser Prim
-parseKey = MeowKey <$> atomText
+parseKey = MeowKey <$> keyText
     
-atomText :: Parser Text.Text
-atomText = do
+keyText :: Parser Text.Text
+keyText = do
     x <- Mega.takeWhile1P (Just "atom") validKeyChar
     if x `elem` reservedKeywords
     then fail "Variable name cannot be a keyword!"

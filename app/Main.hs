@@ -13,6 +13,7 @@ import qualified Text.Megaparsec as Mega
 import Text.Megaparsec ((<|>), (<?>))
 import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
+import qualified Text.Megaparsec.Error as MError
 import Data.Void (Void)
 import Data.Either (fromRight, fromLeft)
 import Control.Monad (void)
@@ -21,6 +22,7 @@ import Control.StopWatch (stopWatch)
 import Control.Monad.State
 import Control.Monad.Reader 
 import Control.Monad.Identity (Identity)
+import qualified Data.Set as Set
 
 exprTest :: String -> Text.Text -> Either (Mega.ParseErrorBundle Text.Text Void) Expr
 exprTest = Mega.parse (Mega.between whitespace Mega.eof parseExpr)
@@ -53,10 +55,22 @@ parseS txt = do
     let !exp' = aaab "" txt
     return $ fromRight (SAll []) exp'
 
+{-
+parseSErr :: Text.Text -> String
+parseSErr txt = do
+    let !exp' = aaab "" txt
+    case exp' of
+        (Left x) -> MError.errorBundlePretty x
+        _ -> ""
+-}
+
+
 parseE :: Text.Text -> IO ()
 parseE txt = do
     let !exp' = aaab "" txt
-    print exp'
+    putStrLn $ case exp' of
+        (Left x) -> MError.errorBundlePretty x
+        (Right x) -> show x
 
 main' :: IO ()
 main' = do 

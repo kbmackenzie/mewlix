@@ -15,9 +15,10 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map
 import qualified Data.List as List
-import Control.Monad.State (get, put, liftIO, runStateT)
+import Control.Monad.State (get, put, liftIO, runStateT, mapM, foldM)
 import Control.Monad.Except (throwError, runExceptT)
 import Control.Monad (void, when)
+import Data.Functor ((<&>))
 import Data.Either (Either)
 
 {- Run all statements from root. -}
@@ -25,6 +26,8 @@ runEvaluator :: EnvStack -> Evaluator a -> IO (Either Text.Text (a, EnvStack))
 runEvaluator env x = runExceptT (runStateT x env)
 
 {- Evaluating Expressions -}
+
+{- Basic Expressions -}
 evaluate :: Expr -> Evaluator Prim
 evaluate (EPrim x) = return x
 evaluate (EBinop op expA expB) = do
@@ -34,25 +37,61 @@ evaluate (EBinop op expA expB) = do
 evaluate (EUnop op expA) = do
     a <- evaluate expA
     unop op a
+
+{- Lists + Objects -}
+evaluate (EList xs) = do
+    prims <- mapM evaluate xs
+    (return . MeowList) prims
+evaluate (EObject xs) = do
+    asPrims <- mapM (\(key, exp') -> evaluate exp' >>= ensureValue
+                        >>= (\x -> return (key, x))) xs
+    let mapObject = Map.fromList asPrims
+    (return . MeowObject) mapObject
+
+{- Dot Operator -}
+evaluate (EDot x y) = do
+    a <- evaluate x
+    b <- evaluate y
+    (_, res) <- unwrapDot a b
+    return res
+
+{- Methods -}
+evaluate (ECall args (EDot a b)) = do
+    a' <- evaluate a
+    b' <- evaluate b
+    (obj, res) <- unwrapDot a' b'
+    methodCall args obj res
+
+{- Functions -}
 evaluate (ECall args name) = do
     fnName <- evaluate name
     case fnName of
         (MeowKey x) -> funcCall x args
         _ -> throwError "Invalid function name!"
-evaluate ERead = do
-    x <- liftIO TextIO.getLine
-    return $ MeowString x
-evaluate (EWrite x) = do
-    x' <- evaluate x
-    x'' <- ensureValue x'
-    (liftIO . print) x''
-    return MeowLonely
 
+{- Inner Functions -}
+evaluate ERead = liftIO TextIO.getLine <&> MeowString
+evaluate (EWrite x) = do
+    evaluate x >>= ensureValue >>= (liftIO . print)
+    return MeowLonely
 
 {- Ensures a value will be passed instead of an atom. -}
 ensureValue :: Prim -> Evaluator Prim
 ensureValue (MeowKey x) = lookUpVar x
 ensureValue x = return x
+
+
+{- Dot Operator -}
+unwrapDot :: Prim -> Prim -> Evaluator (Prim, Prim)
+unwrapDot x@(MeowObject obj) (MeowKey key) = do
+    let i = Map.lookup key obj
+    case i of
+        (Just item) -> return (x, item)
+        Nothing -> throwError "Item not found!"
+unwrapDot (MeowKey x) y = do
+    x' <- lookUpVar x
+    unwrapDot x' y
+unwrapDot _ _ = throwError "Invalid dot operation!"
 
 
 {- Function Call -}
@@ -61,23 +100,40 @@ funcCall name args = do
     x <- keyExists name
     if not x then
         throwError (Text.concat ["Function doesn't exist! : ", name])
-    else do
-        (MeowFunc params body) <- lookUpVar name
-        when (length params > length args) $ throwError "Too few arguments!"
-        let z = zip params args
-        stackPush
-        funcArgs z
-        ret <- runStatements body
-        stackPop
-        return ret
+    else do lookUpVar name >>= runFunc args
+        
+runFunc :: [Expr] -> Prim -> Evaluator Prim
+runFunc args (MeowFunc params body) = do
+    when (length params > length args)
+        (throwError "Too few arguments for function!")
+    let z = zip params args
+    stackPush
+    funcArgs z
+    ret <- runStatements body
+    stackPop
+    return ret
+runFunc _ _ = throwError "Invalid function call!"
+
+{- Method Call -}
+methodCall :: [Expr] -> Prim -> Prim -> Evaluator Prim
+methodCall args obj@(MeowObject _) (MeowFunc params body) = do
+    when (length params > length args)
+        (throwError "Too few arguments for function!")
+    let z = zip params args
+    stackPush
+    funcArgs z
+    addToTop "home" obj 
+    ret <- runStatements body
+    stackPop
+    return ret
+methodCall _ _ _ = throwError "Invalid method call!" 
+
 
 {- Add function arguments to the environment. -}
 funcArgs :: [(Key, Expr)] -> Evaluator ()
 funcArgs [] = return ()
 funcArgs ((key, expr):xs) = do
-    value <- evaluate expr
-    value' <- ensureValue value
-    addToTop key value'
+    evaluate expr >>= ensureValue >>= addToTop key
     funcArgs xs
 
 
@@ -99,9 +155,7 @@ runBlock xs = do
 runStatements :: [Statement] -> Evaluator Prim
 runStatements [] = return MeowVoid
 
-runStatements ((SReturn x):_) = do
-    ret <- evaluate x
-    ensureValue ret
+runStatements ((SReturn x):_) = evaluate x >>= ensureValue
 
 runStatements (SBreak:_) = return MeowBreak
 runStatements (SContinue:_) = return MeowVoid
@@ -129,15 +183,11 @@ runStatements (x:xs) = do
 
 {- Boolean Condition -}
 asCondition :: Expr -> Evaluator Bool
-asCondition x = do
-    n <- evaluate x
-    n' <- ensureValue n
-    return (asBool n')
+asCondition x = asBool <$> (evaluate x >>= ensureValue)
 
 {- Expression Statement -}
 runExprS :: Expr -> Evaluator Prim
-runExprS x = do
-    evaluate x
+runExprS = evaluate 
 
 {- If Block (Single) -}
 runIf :: Expr -> [Statement] -> Evaluator Prim

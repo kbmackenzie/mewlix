@@ -5,8 +5,6 @@ module Meowscript.Core.Operations
 , unop
 , binopVar
 , unopVar
-, asBool
-, asString
 ) where
 
 import Meowscript.Core.AST
@@ -28,7 +26,7 @@ binop MeowAssign (MeowKey a) b = do
     insertVar a b
     return b
 binop MeowAssign a b = throwError (binopError "Invalid assignment!" "" a b)
-    
+
 binop op a b =
     let fn = case op of
             MeowAdd -> meowAdd
@@ -38,6 +36,7 @@ binop op a b =
             (MeowCompare ord) -> meowCompare ord
             MeowAnd -> meowAnd
             MeowOr -> meowOr
+            --MeowDot -> meowDot
             MeowConcat -> meowConcat
     in binopVar fn a b
     
@@ -175,14 +174,6 @@ meowCompare ord a b = let c = a `compare` b
 
 {- Logical Operations -}
 
-{- Helper -}
-asBool :: Prim -> Bool
-
-asBool (MeowBool a) = a
-asBool MeowLonely = False
-asBool (MeowString "") = False
-asBool _ = True
-
 {- Not -}
 meowNot :: Prim -> Evaluator Prim
 meowNot x = let x' = asBool x
@@ -224,13 +215,6 @@ meowLen x = throwError $ lenError x
 
 lenError :: Prim -> Text.Text
 lenError = unopError "Len" "~?"
-
-
-{- Stringify -}
-asString :: Prim -> Text.Text
-
-asString (MeowString a) = a
-asString x = showT x
 
 
 {- Concat -}

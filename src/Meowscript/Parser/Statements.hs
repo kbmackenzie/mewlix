@@ -100,12 +100,12 @@ parseBElse f = lexeme $ Lexer.indentBlock whitespaceLn $ do
 {- Functions -}
 
 funName :: Parser Text.Text
-funName = lexeme (whitespace >> atomText)
+funName = lexeme (whitespace >> keyText)
 
 funArgs :: Parser [Text.Text]
 funArgs = (lexeme . bars) $ do
     whitespace
-    args <- Mega.sepBy (whitespace >> atomText) (MChar.char ',')
+    args <- Mega.sepBy (whitespace >> keyText) (MChar.char ',')
     whitespace
     return args
 
