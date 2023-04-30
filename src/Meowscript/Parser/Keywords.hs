@@ -10,10 +10,9 @@ module Meowscript.Parser.Keywords
 , meowElse
 , meowWhile
 , meowBap
-, meowPoke
 , meowPeek
-, meowNudge
-, meowSneak
+, meowPush
+, meowKnock
 ) where
 
 import Data.Text (Text)
@@ -45,11 +44,14 @@ meowWhile = "scratch while"
 meowBap :: Text
 meowBap = "bap"
 
-meowPoke :: Text
-meowPoke = "poke"
+meowPush :: Text
+meowPush = "push"
 
 meowPeek :: Text
 meowPeek = "peek"
+
+meowKnock :: Text
+meowKnock = "knock over"
 
 meowNudge :: Text
 meowNudge = "nudge"

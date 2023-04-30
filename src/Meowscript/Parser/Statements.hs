@@ -34,7 +34,7 @@ statements = Mega.choice
 asLeave :: ([Statement] -> Statement) -> [Statement] -> Parser Statement
 asLeave f xs = do
     whitespace
-    void $ keyword meowLeave
+    (void . keyword) meowLeave
     return (f xs)
 
 condition :: Parser Expr
@@ -73,30 +73,30 @@ parseWhile = lexeme $ Lexer.indentBlock whitespaceLn $ do
 
 {- If Else -}
 
-bAsIf :: Expr -> [Statement] -> Parser ([Statement] -> Statement)
-bAsIf e xs = return $ SIfElse e xs
+binAsIf :: Expr -> [Statement] -> Parser ([Statement] -> Statement)
+binAsIf e xs = return $ SIfElse e xs
 
-bAsElse :: ([Statement] -> Statement) -> [Statement] -> Parser Statement
-bAsElse f xs = do
+binAsElse :: ([Statement] -> Statement) -> [Statement] -> Parser Statement
+binAsElse f xs = do
     void $ keyword meowLeave
     return (f xs)
 
 parseIfElse :: Parser Statement
 parseIfElse = do
-    x <- parseBIf
-    parseBElse x
+    x <- parseBinIf
+    parseBinElse x
 
-parseBIf :: Parser ([Statement] -> Statement)
-parseBIf = lexeme $ Lexer.indentBlock whitespaceLn $ do
+parseBinIf :: Parser ([Statement] -> Statement)
+parseBinIf = lexeme $ Lexer.indentBlock whitespaceLn $ do
     void $ keyword meowIf
     whitespace
     c <- condition
-    return (Lexer.IndentMany Nothing (bAsIf c) statements)
+    return (Lexer.IndentMany Nothing (binAsIf c) statements)
 
-parseBElse :: ([Statement] -> Statement) -> Parser Statement
-parseBElse f = lexeme $ Lexer.indentBlock whitespaceLn $ do
+parseBinElse :: ([Statement] -> Statement) -> Parser Statement
+parseBinElse f = lexeme $ Lexer.indentBlock whitespaceLn $ do
     void $ keyword meowElse
-    return (Lexer.IndentMany Nothing (bAsElse f) statements)
+    return (Lexer.IndentMany Nothing (binAsElse f) statements)
 
 
 {- Functions -}

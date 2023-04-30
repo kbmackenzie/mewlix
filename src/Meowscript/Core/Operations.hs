@@ -19,9 +19,9 @@ import Control.Monad.Except (throwError)
 binop :: Binop -> Prim -> Prim -> Evaluator Prim
 {-# INLINE binop #-}
 binop MeowAssign a (MeowTrail b) = lookUpTrail b >>= binop MeowAssign a
-binop MeowAssign a (MeowKey b) = lookUpVar b >>= binop MeowAssign a
+binop MeowAssign a (MeowKey b)   = lookUpVar b >>= binop MeowAssign a
 binop MeowAssign (MeowTrail a) b = insertWithTrail a b >> return b
-binop MeowAssign (MeowKey a) b = insertVar a b >> return b
+binop MeowAssign (MeowKey a) b   = insertVar a b >> return b
 binop MeowAssign a b = throwError (binopError "Invalid assignment!" "=" a b)
 binop op a b = binopVar fn a b
     where fn = case op of
@@ -33,7 +33,8 @@ binop op a b = binopVar fn a b
             MeowAnd -> meowAnd
             MeowOr -> meowOr
             MeowConcat -> meowConcat
-            _ -> undefined --todo
+            MeowPush -> meowPush
+            _ -> undefined -- This should never be matched, right?
 
 {- Unary Operations -}
 unop :: Unop -> Prim -> Evaluator Prim
@@ -42,13 +43,10 @@ unop op = unopVar fn
     where fn = case op of
             MeowYarn -> meowYarn
             MeowLen -> meowLen
-            MeowPoke -> meowPoke
-            MeowNudge -> meowNudge
             MeowNegate -> meowNegate
             MeowNot -> meowNot
             MeowPeek -> meowPeek
-            MeowSneak -> meowSneak
-
+            MeowKnockOver -> meowKnock
 
 {- Variables -}
 
@@ -177,10 +175,7 @@ meowOr x y = (return . MeowBool) (asBool x || asBool y)
 meowYarn :: Prim -> Evaluator Prim
 
 meowYarn (MeowString a) = return (MeowKey a)
-meowYarn x = throwError $ yarnError x
-
-yarnError :: Prim -> Text.Text
-yarnError = unopError "Yarn" "~~"
+meowYarn x = throwError (unopError "yarn" "~~" x)
 
 
 -- YarnLen
@@ -189,33 +184,24 @@ meowLen :: Prim -> Evaluator Prim
 meowLen (MeowString a) = (return . MeowInt . Text.length) a
 meowLen (MeowList a) = (return . MeowInt . length) a
 meowLen (MeowObject a) = (return . MeowInt . Map.size) a
-meowLen x = throwError $ lenError x
-
-lenError :: Prim -> Text.Text
-lenError = unopError "Len" "~?"
+meowLen x = throwError (unopError "len" "~?" x)
 
 
 -- Concat
 meowConcat :: Prim -> Prim -> Evaluator Prim
 
+meowConcat (MeowString a) (MeowString b) = (return . MeowString) (Text.append a b)
 meowConcat (MeowList a) (MeowList b) = (return . MeowList) (a ++ b)
+meowConcat (MeowObject a) (MeowObject b) = (return . MeowObject) (a <> b)
 meowConcat a b = (return . MeowString) ab
     where ab = Text.append (asString a) (asString b)
 
 
--- Poke
-meowPoke :: Prim -> Evaluator Prim
-meowPoke (MeowList a) = (return . MeowList) (if null a then a else tail a)
-meowPoke a = (return . MeowString) res
-    where a' = asString a
-          res = if Text.null a' then a' else Text.tail a'
-
--- Nudge
-meowNudge :: Prim -> Evaluator Prim
-meowNudge (MeowList a) = (return . MeowList) (if null a then a else init a)
-meowNudge a = (return . MeowString) res
-    where a' = asString a
-          res = if Text.null a' then a' else Text.init a'
+-- Push
+meowPush :: Prim -> Prim -> Evaluator Prim
+meowPush (MeowList a) b = (return . MeowList) (b:a)
+meowPush (MeowString a) b = (return . MeowString) (asString b `Text.append` a)
+meowPush a b = throwError (binopError "Push" "push" a b)
 
 -- Peek
 meowPeek :: Prim -> Evaluator Prim
@@ -224,9 +210,8 @@ meowPeek a = (return . MeowString) res
     where a' = asString a
           res = if Text.null a' then a' else (Text.pack . (: []) . Text.head) a'
 
--- Sneak
-meowSneak :: Prim -> Evaluator Prim
-meowSneak (MeowList a) = return (if null a then MeowLonely else last a)
-meowSneak a = (return . MeowString) res
-    where a' = asString a
-          res = if Text.null a' then a' else (Text.pack . (: []) . Text.last) a'
+-- Knock over
+meowKnock :: Prim -> Evaluator Prim
+meowKnock (MeowList a) = (return . MeowList) (if null a then a else tail a)
+meowKnock (MeowString a) = (return . MeowString) (if Text.null a then a else Text.tail a)
+meowKnock a = throwError (unopError "knock over" "knock over" a)

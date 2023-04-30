@@ -168,12 +168,10 @@ data Statement =
 data Unop =
       MeowYarn 
     | MeowLen 
-    | MeowPoke 
-    | MeowNudge
+    | MeowKnockOver
+    | MeowPeek
     | MeowNot 
     | MeowNegate
-    | MeowPeek
-    | MeowSneak
     deriving (Eq, Show, Ord)
 
 data Binop =
@@ -186,6 +184,7 @@ data Binop =
     | MeowCompare [Ordering]
     | MeowAssign 
     | MeowConcat 
+    | MeowPush
     deriving (Eq, Show, Ord)
 
 

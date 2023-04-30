@@ -185,19 +185,15 @@ funcCall :: Name -> [Expr] -> Evaluator Prim
 {-# INLINE funcCall #-}
 funcCall name args = do
     x <- keyExists name
-    if not x then
-        throwError (Text.concat ["Function doesn't exist! : ", name])
-    else do
-        n <- lookUpVar name
-        runFunc args n
+    if not x then throwError (Text.concat ["Function doesn't exist! : ", name])
+    else lookUpVar name >>= runFunc args
         
 runFunc :: [Expr] -> Prim -> Evaluator Prim
 runFunc args (MeowFunc params body) = do
     when (length params > length args)
-        (throwError "Too few arguments for function!")
-    let z = zip params args
+        (throwError "Too few arguments for function!") 
     stackPush
-    funcArgs z
+    funcArgs (zip params args)
     ret <- runStatements body
     stackPop
     return ret
@@ -206,10 +202,9 @@ runFunc _ _ = throwError "Invalid function call!"
 runMethod :: [Expr] -> [Key] -> Prim -> Evaluator Prim
 runMethod args trail (MeowFunc params body) = do
     when (length params > length args)
-        (throwError "Too few arguments for function!")
-    let z = zip params args
+        (throwError "Too few arguments for function!") 
     stackPush
-    funcArgs z
+    funcArgs (zip params args)
     addToTop "home" (MeowTrail trail)
     ret <- runStatements body
     stackPop
