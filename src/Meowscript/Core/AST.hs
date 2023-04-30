@@ -24,8 +24,8 @@ type Name = Text.Text
 
 type ObjectMap = Map.Map Text.Text Prim
 
-type InnerFunc = (Prim -> Prim -> Prim)
-type InnerIO = (Prim -> Prim -> IO Prim)
+type InnerFunc = ([(Key, Prim)] -> Prim)
+type InnerIO = ([(Key, Prim)] -> IO Prim)
 
 data Prim =
       MeowString Text.Text
