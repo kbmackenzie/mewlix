@@ -123,7 +123,7 @@ parseKey = MeowKey <$> keyText
     
 keyText :: Parser Text.Text
 keyText = do
-    x <- Mega.takeWhile1P (Just "atom") validKeyChar
+    x <- Mega.takeWhile1P (Just "key") validKeyChar
     if x `elem` reservedKeywords
     then fail "Variable name cannot be a keyword!"
     else return x
@@ -135,7 +135,7 @@ parsePrim = Mega.choice
     , parseLonely <?> "lonely"
     , Mega.try parseInt <?> "int"
     , parseFloat <?> "float"
-    , parseKey <?> "atom" ]
+    , parseKey <?> "key" ]
 
 parseStr :: Parser Prim
 parseStr = do

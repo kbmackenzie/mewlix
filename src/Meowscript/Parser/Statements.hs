@@ -9,6 +9,7 @@ import Meowscript.Core.AST
 import Meowscript.Parser.Core
 import Meowscript.Parser.Expr
 import Meowscript.Parser.Keywords
+import Text.Megaparsec ((<?>))
 import qualified Data.Text as Text
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
@@ -20,14 +21,14 @@ root = SAll <$> Mega.between whitespaceLn Mega.eof (Mega.many (lexemeLn statemen
 
 statements :: Parser Statement
 statements = Mega.choice
-    [ Mega.try parseIf
-    , Mega.try parseWhile
-    , Mega.try parseIfElse
-    , Mega.try parseFunc
-    , Mega.try parseReturn
-    , Mega.try parseContinue
-    , Mega.try parseBreak
-    , exprS
+    [ Mega.try parseIf          <?> "if"
+    , Mega.try parseWhile       <?> "while"
+    , Mega.try parseIfElse      <?> "if/else"
+    , Mega.try parseFunc        <?> "function"
+    , Mega.try parseReturn      <?> "return"
+    , Mega.try parseContinue    <?> "continue"
+    , Mega.try parseBreak       <?> "break"
+    , exprS                     <?> "expression"
     , fail "Invalid token!" ]
 
 asLeave :: ([Statement] -> Statement) -> [Statement] -> Parser Statement

@@ -12,4 +12,3 @@ main = do
     case tok of
             (Right x) -> print x
             (Left x) -> TextIO.putStr x
-

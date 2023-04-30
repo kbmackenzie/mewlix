@@ -8,17 +8,17 @@ module Meowscript.Parser.Expr
 import Meowscript.Core.AST
 import Meowscript.Parser.Core
 import Meowscript.Parser.Keywords
-import Text.Megaparsec ((<|>))
+import Text.Megaparsec ((<|>), (<?>))
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 import Control.Monad (void)
 
 exprTerm :: Parser Expr
-exprTerm = (lexeme . parens) parseExpr
-    <|> Mega.try (lexeme parseObject)
-    <|> lexeme parseList
-    <|> (EPrim <$> lexeme parsePrim)
+exprTerm = ((lexeme . parens) parseExpr <?> "parens"    )
+    <|> (Mega.try (lexeme parseObject)  <?> "object"    )
+    <|> (lexeme parseList               <?> "list"      )
+    <|> (EPrim <$> lexeme parsePrim                     ) 
 
 parseExpr :: Parser Expr
 parseExpr = makeExprParser exprTerm operators

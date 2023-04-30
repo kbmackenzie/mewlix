@@ -12,8 +12,6 @@ module Meowscript.Core.AST
 , ObjectMap
 , asString
 , asBool
-, asInt
-, asDouble
 , prettyMap
 ) where
 
@@ -47,77 +45,92 @@ data Prim =
     | MeowIO Args InnerIO
 
 instance Eq Prim where
-    -- Void (inner type)
-    MeowVoid == MeowVoid = True
-    _ == MeowVoid = False
-    MeowVoid == _ = False
-    MeowBreak == MeowBreak = True
-    _ == MeowBreak = False
-    MeowBreak == _ = False
-    -- Lonely (nil)
-    MeowLonely == MeowLonely = True
-    MeowLonely == _ = False
-    _ == MeowLonely = False
-    -- Basic Types
-    (MeowString a) == b = a == asString b
     (MeowInt a) == (MeowDouble b) = fromIntegral a == b
-    (MeowInt a) == b = a == asInt b
-    (MeowDouble a) == b = a == asDouble b
+    (MeowInt a) == (MeowInt b) = a == b
+
+    (MeowDouble a) == (MeowDouble b) = a == b
+    (MeowDouble a) == (MeowInt b) = a == fromIntegral b
+
+    (MeowString a) == (MeowString b) = a == b
+    (MeowString a) == b = a == asString b
+    a == (MeowString b) = asString a == b
+
+    (MeowBool a) == (MeowBool b) = a == b
     (MeowBool a) == b = a == asBool b
-    -- Lists
+    a == (MeowBool b) = asBool a == b
+
     (MeowList a) == (MeowList b) = a == b
-    (MeowList []) == b = MeowLonely == b
-    (MeowList (a:_)) == b = a == b
-    -- Objects
+    (MeowList a) == b = a == [b]
+    a == (MeowList b) = [a] == b
     (MeowObject a) == (MeowObject b) = a == b
-    (MeowObject _) == _ = False
-    -- All other types should never be compared.
-    -- I'm making them all never equal to each other for ease.
-    _ == _ = False
+
+    MeowLonely == MeowLonely = True
+    _ == MeowLonely = False
+    MeowLonely == _ = False
+
+    MeowVoid == MeowVoid = True
+    MeowVoid == _ = False
+    _ == MeowVoid = False
+
+    MeowBreak == MeowBreak = True 
+    MeowBreak == _ = False
+    _ == MeowBreak = False
+
+    -- Stringify everything else because they shouldn't
+    -- be compared, LOL.
+    a == b = asString a == asString b
 
 instance Ord Prim where
-    -- Void (inner type)
-    compare MeowVoid MeowVoid = EQ
-    compare _ MeowVoid = GT
-    compare MeowVoid _ = LT
-    compare MeowBreak MeowBreak = EQ
-    compare _ MeowBreak = GT
-    compare MeowBreak _ = LT
-    -- Lonely (nil)
-    -- It's always less than anything else.
-    compare MeowLonely MeowLonely = EQ
-    compare MeowLonely _ = LT
-    compare _ MeowLonely = GT
-    -- Basic Types
-    -- Allowing some type conversion.
-    compare (MeowString a) b = compare a (asString b)
-    compare (MeowInt a) (MeowDouble b) = compare (fromIntegral a) b
-    compare (MeowInt a) b = compare a (asInt b) 
-    compare (MeowDouble a) b = compare a (asDouble b)
-    compare (MeowBool a) b = compare a (asBool b)
-    -- Lists
-    -- An empty list is equivalent to 'lonely'.
-    compare (MeowList a) (MeowList b) = compare a b
-    compare (MeowList []) b = compare MeowLonely b
-    compare (MeowList (a:_)) b = compare a b
-    -- Objects
-    -- Always greater than any non-object time.
-    compare (MeowObject a) (MeowObject b) = compare a b
-    compare (MeowObject _) _ = GT
-    -- All inner types count as being equal to each other.
-    -- Read my comment about it in Prim's Eq instance declaration.
-    compare _ _ = EQ
+    (MeowInt a) `compare` (MeowDouble b) = fromIntegral a `compare` b
+    (MeowInt a) `compare` (MeowInt b) = a `compare` b
 
+    (MeowDouble a) `compare` (MeowDouble b) = a `compare` b
+    (MeowDouble a) `compare` (MeowInt b) = a `compare` fromIntegral b
+
+    (MeowString a) `compare` (MeowString b) = a `compare` b
+    (MeowString a) `compare` b = a `compare` asString b
+    a `compare` (MeowString b) = asString a `compare` b
+
+    (MeowBool a) `compare` (MeowBool b) = a `compare` b
+    (MeowBool a) `compare` b = a `compare` asBool b
+    a `compare` (MeowBool b) = asBool a `compare` b
+
+    (MeowList a) `compare` (MeowList b) = a `compare` b
+    (MeowList a) `compare` b = a `compare` [b]
+    a `compare` (MeowList b) = [a] `compare` b
+    (MeowObject a) `compare` (MeowObject b) = a `compare` b
+
+    -- Lonely > Break > Void
+    MeowLonely `compare` MeowLonely = EQ
+    MeowLonely `compare` MeowBreak = GT
+    MeowLonely `compare` MeowVoid = GT
+
+    MeowBreak `compare` MeowBreak = EQ
+    MeowBreak `compare` MeowVoid = GT
+    MeowBreak `compare` MeowLonely = LT
+
+    MeowVoid `compare` MeowVoid = EQ
+    MeowVoid `compare` MeowBreak = LT
+    MeowVoid `compare` MeowLonely = LT
+
+    -- Lonely, Break, Void are smaller than all.
+    _ `compare` MeowLonely = LT
+    _ `compare` MeowBreak = LT
+    _ `compare` MeowVoid = LT
+
+    -- Stringify everything else, because they shouldn't
+    -- be compared. c':
+    a `compare` b = asString a `compare` asString b
+
+    
 instance Show Prim where
-    -- Basic Types
-    show (MeowString x) = Text.unpack x
     show (MeowKey x) = concat ["key <", Text.unpack x, ">"]
+    show (MeowString x) = Text.unpack x
     show (MeowBool x) = if x then "yummy" else "icky"
     show (MeowInt x) = show x
     show (MeowDouble x) = show x
     show (MeowList x) = show x
     show (MeowObject x) = Text.unpack (prettyMap x)
-    -- Lonely
     show MeowLonely = "lonely"
     -- Inner Types (should never be shown)
     show (MeowFunc {}) = "<function>"
@@ -196,27 +209,8 @@ asString x = (Text.pack . show) x
 asBool :: Prim -> Bool
 {-# INLINE asBool #-}
 asBool (MeowBool a) = a
-asBool MeowLonely = False
-asBool (MeowString "") = False
 asBool (MeowList []) = False
+asBool (MeowString x) = Text.null x
+asBool (MeowObject x) = Map.null x
+asBool MeowLonely = False
 asBool _ = True
-
--- Int-ify
-asInt :: Prim -> Int
-{-# INLINE asInt #-}
-asInt (MeowInt a) = a
-asInt (MeowDouble a) = floor a
-asInt (MeowBool a) = if a then 1 else 0
-asInt (MeowList a) = length a
-asInt (MeowObject a) = Map.size a
-asInt _ = 0
-
--- Double-ify
-asDouble :: Prim -> Double
-{-# INLINE asDouble #-}
-asDouble (MeowInt a) = fromIntegral a
-asDouble (MeowDouble a) = a
-asDouble (MeowBool a) = if a then 1 else 0
-asDouble a@(MeowList _) = (fromIntegral . asInt) a
-asDouble a@(MeowObject _) = (fromIntegral . asInt) a
-asDouble _ = 0
