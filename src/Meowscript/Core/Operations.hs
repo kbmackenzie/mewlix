@@ -15,6 +15,14 @@ import qualified Data.Text as Text
 import qualified Data.Map as Map
 import Control.Monad.Except (throwError)
 
+-- Inline pragmas.
+{-# INLINE ensureValid #-}
+{-# INLINE binopVar #-}
+{-# INLINE unopVar #-}
+{-# INLINE binop #-}
+{-# INLINE unop #-}
+{-# INLINE meowSub #-}
+
 {- Binary Operations -}
 binop :: Binop -> Prim -> Prim -> Evaluator Prim
 

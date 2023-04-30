@@ -26,6 +26,7 @@ dependencies:
 - megaparsec >= 9.3.0
 - parser-combinators
 - mtl
+- unordered-containers
 - stopwatch
 - bytestring
 

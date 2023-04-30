@@ -23,6 +23,13 @@ import Control.Monad (void, when)
 import Data.Functor ((<&>))
 
 
+-- Inline pragmas.
+{-# INLINE ensureValue #-}
+{-# INLINE asCondition #-}
+{-# INLINE runExprS #-}
+{-# INLINE runBlock #-}
+{-# INLINE funcCall #-}
+
 {- Run all statements from root. -}
 runEvaluator :: EnvStack -> Evaluator a -> IO (Either Text.Text (a, EnvStack))
 runEvaluator env x = runExceptT (runStateT x env)
@@ -75,8 +82,6 @@ ensureValue :: Prim -> Evaluator Prim
 ensureValue (MeowKey x) = lookUpVar x >>= ensureValue
 ensureValue (MeowTrail xs) = lookUpTrail xs >>= ensureValue
 ensureValue x = return x
-
-
 
 {-- Objects --}
 

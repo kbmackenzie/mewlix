@@ -23,6 +23,11 @@ import Control.Monad.Except (throwError)
 import Data.List (find)
 import Data.Functor ((<&>))
 
+-- Inlining pragmas.
+{-# INLINE lookUpVar #-}
+{-# INLINE keyExists #-}
+{-# INLINE addToTop  #-}
+
 {- Environment -}
 keyExists :: Key -> Evaluator Bool
 keyExists key = get <&> any (Map.member key)
