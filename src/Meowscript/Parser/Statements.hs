@@ -31,10 +31,10 @@ statements = Mega.choice
     , exprS                     <?> "expression"
     , fail "Invalid token!" ]
 
-asLeave :: ([Statement] -> Statement) -> [Statement] -> Parser Statement
-asLeave f xs = do
+asEnd :: ([Statement] -> Statement) -> [Statement] -> Parser Statement
+asEnd f xs = do
     whitespace
-    (void . keyword) meowLeave
+    (void . keyword) meowEnd
     return (f xs)
 
 condition :: Parser Expr
@@ -47,7 +47,7 @@ exprS = whitespace >> SExpr <$> parseExpr'
 {- If -}
 
 asIf :: Expr -> [Statement] -> Parser Statement
-asIf e = asLeave (SOnlyIf e)
+asIf e = asEnd (SOnlyIf e)
 
 parseIf :: Parser Statement
 parseIf = lexeme $ Lexer.indentBlock whitespaceLn $ do
@@ -60,7 +60,7 @@ parseIf = lexeme $ Lexer.indentBlock whitespaceLn $ do
 {- While -}
 
 asWhile :: Expr -> [Statement] -> Parser Statement
-asWhile e = asLeave (SWhile e)
+asWhile e = asEnd (SWhile e)
 
 parseWhile:: Parser Statement
 parseWhile = lexeme $ Lexer.indentBlock whitespaceLn $ do
@@ -78,7 +78,7 @@ binAsIf e xs = return $ SIfElse e xs
 
 binAsElse :: ([Statement] -> Statement) -> [Statement] -> Parser Statement
 binAsElse f xs = do
-    void $ keyword meowLeave
+    void $ keyword meowEnd
     return (f xs)
 
 parseIfElse :: Parser Statement
@@ -112,7 +112,7 @@ funArgs = (lexeme . bars) $ do
     return args
 
 asFunc :: Text.Text -> [Text.Text] -> [Statement] -> Parser Statement
-asFunc name args = asLeave (SFuncDef name args)
+asFunc name args = asEnd (SFuncDef name args)
 
 parseFunc :: Parser Statement
 parseFunc = lexeme $ Lexer.indentBlock whitespaceLn $ do

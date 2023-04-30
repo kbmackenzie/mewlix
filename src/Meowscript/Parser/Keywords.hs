@@ -2,7 +2,7 @@
 
 module Meowscript.Parser.Keywords
 ( meowCatface
-, meowLeave
+, meowEnd
 , meowReturn
 , meowContinue
 , meowBreak
@@ -20,8 +20,8 @@ import Data.Text (Text)
 meowCatface :: Text
 meowCatface = "=^.x.^="
 
-meowLeave :: Text
-meowLeave = "leave"
+meowEnd :: Text
+meowEnd = "walk off"
 
 meowReturn :: Text
 meowReturn = "bring"
@@ -52,9 +52,3 @@ meowPeek = "peek"
 
 meowKnock :: Text
 meowKnock = "knock over"
-
-meowNudge :: Text
-meowNudge = "nudge"
-
-meowSneak :: Text
-meowSneak = "sneak"
