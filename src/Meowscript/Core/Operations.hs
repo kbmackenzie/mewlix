@@ -15,22 +15,14 @@ import qualified Data.Text as Text
 import qualified Data.Map as Map
 import Control.Monad.Except (throwError)
 
--- Inline pragmas.
-{-# INLINE ensureValid #-}
-{-# INLINE binop #-}
-{-# INLINE unop #-}
-{-# INLINE binopVar #-}
-{-# INLINE unopVar #-}
-
 {- Binary Operations -}
 binop :: Binop -> Prim -> Prim -> Evaluator Prim
-
+{-# INLINE binop #-}
 binop MeowAssign a (MeowTrail b) = lookUpTrail b >>= binop MeowAssign a
 binop MeowAssign a (MeowKey b) = lookUpVar b >>= binop MeowAssign a
 binop MeowAssign (MeowTrail a) b = insertWithTrail a b >> return b
 binop MeowAssign (MeowKey a) b = insertVar a b >> return b
 binop MeowAssign a b = throwError (binopError "Invalid assignment!" "=" a b)
-
 binop op a b = binopVar fn a b
     where fn = case op of
             MeowAdd -> meowAdd
@@ -45,6 +37,7 @@ binop op a b = binopVar fn a b
 
 {- Unary Operations -}
 unop :: Unop -> Prim -> Evaluator Prim
+{-# INLINE unop #-}
 unop op = unopVar fn
     where fn = case op of
             MeowYarn -> meowYarn
@@ -59,20 +52,21 @@ unop op = unopVar fn
 
 {- Variables -}
 
--- Wrappers for evaluating variables.
--- This way, operations don't have to worry about this.
-ensureValid :: Prim -> Evaluator Prim
-ensureValid (MeowKey x) = lookUpVar x >>= ensureValid
-ensureValid (MeowTrail xs) = lookUpTrail xs >>= ensureValid
-ensureValid x = return x
+-- Ensures a value is a concrete value (and not a key nor trail).
+ensureValue :: Prim -> Evaluator Prim
+{-# INLINE ensureValue #-}
+ensureValue (MeowKey x) = lookUpVar x >>= ensureValue
+ensureValue (MeowTrail xs) = lookUpTrail xs >>= ensureValue
+ensureValue x = return x
 
 binopVar :: (Prim -> Prim -> Evaluator Prim) -> Prim -> Prim -> Evaluator Prim
+{-# INLINE binopVar #-}
 binopVar f x y = do
-    x' <- ensureValid x
-    y' <- ensureValid y
+    x' <- ensureValue x
+    y' <- ensureValue y
     f x' y'
-
 unopVar :: (Prim -> Evaluator Prim) -> Prim -> Evaluator Prim
+{-# INLINE unopVar #-}
 unopVar f (MeowKey a) = lookUpVar a >>= f
 unopVar f x = f x
 

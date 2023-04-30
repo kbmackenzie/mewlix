@@ -22,15 +22,6 @@ import Control.Monad.Except (throwError, runExceptT)
 import Control.Monad (void, when)
 import Data.Functor ((<&>))
 
-
--- Inline pragmas.
-{-# INLINE ensureValue #-}
-{-# INLINE asCondition #-}
-{-# INLINE runExprS #-}
-{-# INLINE runBlock #-}
-{-# INLINE funcArgs #-}
-{-# INLINE funcCall #-}
-
 {- Run all statements from root. -}
 runEvaluator :: EnvStack -> Evaluator a -> IO (Either Text.Text (a, EnvStack))
 runEvaluator env x = runExceptT (runStateT x env)
@@ -61,7 +52,7 @@ evaluate (ECall args x@(EDot {})) = do
     xs <- unwrapDot x
     fn <- lookUpTrail xs
     let home = init xs -- All but the function name.
-    methodCall args home fn
+    runMethod args home fn
 
 -- Functions
 evaluate (ECall args name) = evaluate name >>= \case
@@ -79,6 +70,7 @@ evaluate (EWrite x) = do
 
 -- Ensures a value will be passed instead of an atom.
 ensureValue :: Prim -> Evaluator Prim
+{-# INLINE ensureValue #-}
 ensureValue (MeowKey x) = lookUpVar x >>= ensureValue
 ensureValue (MeowTrail xs) = lookUpTrail xs >>= ensureValue
 ensureValue x = return x
@@ -105,6 +97,7 @@ unwrapDot x = do
 
 -- Run block in proper order: Function definitions, then other statements.
 runBlock :: [Statement] -> Evaluator Prim
+{-# INLINE runBlock #-}
 runBlock xs = do
     let (funcDefs, rest) = List.partition isFuncDef xs
     void $ runStatements funcDefs
@@ -119,7 +112,7 @@ runStatements (SBreak:_) = return MeowBreak
 runStatements (SContinue:_) = return MeowVoid
 
 runStatements ((SExpr x):xs) =
-    runExprS x >> runStatements xs
+    runExprStatement x >> runStatements xs
 
 runStatements ((SFuncDef name args body):xs) =
     runFuncDef name args body >> runStatements xs
@@ -138,15 +131,14 @@ runStatements (x:xs) = do
             _ -> return MeowVoid
 
 
--- Boolean Condition
 asCondition :: Expr -> Evaluator Bool
+{-# INLINE asCondition #-}
 asCondition x = asBool <$> (evaluate x >>= ensureValue)
 
--- Expression Statement
-runExprS :: Expr -> Evaluator Prim
-runExprS = evaluate 
+runExprStatement :: Expr -> Evaluator Prim
+{-# INLINE runExprStatement #-}
+runExprStatement = evaluate 
 
--- If Block (Single)
 runIf :: Expr -> [Statement] -> Evaluator Prim
 runIf x body = do
     condition <- asCondition x 
@@ -154,7 +146,6 @@ runIf x body = do
       then runBlock body
       else return MeowVoid
 
--- If Else
 runIfElse :: Expr -> [Statement] -> [Statement] -> Evaluator Prim
 runIfElse x ifB elseB = do
     condition <- asCondition x
@@ -162,9 +153,7 @@ runIfElse x ifB elseB = do
         then runBlock ifB
         else runBlock elseB
 
--- While Loop
-{- Notes:
- - Any return value that isn't MeowVoid implies the end of the loop. -}
+-- Notes: Any return value that isn't MeowVoid implies the end of the loop.
 runWhile :: Expr -> [Statement] -> Evaluator Prim
 runWhile x body = do
     ret <- runBlock body
@@ -178,15 +167,22 @@ runWhile x body = do
 
 {-- Functions --}
 
--- Function Definition
 runFuncDef :: Name -> Args -> [Statement] -> Evaluator Prim
 runFuncDef name args body = do
     let func = MeowFunc args body
     insertVar name func
     return MeowVoid
 
--- Function Call
+-- Add function arguments to the environment.
+funcArgs :: [(Key, Expr)] -> Evaluator ()
+{-# INLINE funcArgs #-}
+funcArgs [] = return ()
+funcArgs ((key, expr):xs) = do
+    evaluate expr >>= ensureValue >>= addToTop key
+    funcArgs xs
+
 funcCall :: Name -> [Expr] -> Evaluator Prim
+{-# INLINE funcCall #-}
 funcCall name args = do
     x <- keyExists name
     if not x then
@@ -207,9 +203,8 @@ runFunc args (MeowFunc params body) = do
     return ret
 runFunc _ _ = throwError "Invalid function call!"
 
--- Method Call
-methodCall :: [Expr] -> [Key] -> Prim -> Evaluator Prim
-methodCall args trail (MeowFunc params body) = do
+runMethod :: [Expr] -> [Key] -> Prim -> Evaluator Prim
+runMethod args trail (MeowFunc params body) = do
     when (length params > length args)
         (throwError "Too few arguments for function!")
     let z = zip params args
@@ -219,14 +214,7 @@ methodCall args trail (MeowFunc params body) = do
     ret <- runStatements body
     stackPop
     return ret
-methodCall _ _ _ = throwError "Invalid method call!" 
-
--- Add function arguments to the environment.
-funcArgs :: [(Key, Expr)] -> Evaluator ()
-funcArgs [] = return ()
-funcArgs ((key, expr):xs) = do
-    evaluate expr >>= ensureValue >>= addToTop key
-    funcArgs xs
+runMethod _ _ _ = throwError "Invalid method call!" 
 
 -- Helper functions to distinguish between statements.
 isFuncDef :: Statement -> Bool

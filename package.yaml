@@ -31,6 +31,7 @@ dependencies:
 - bytestring
 
 ghc-options:
+- -O3
 - -Wall
 - -Wcompat
 - -Widentities
@@ -40,6 +41,8 @@ ghc-options:
 - -Wmissing-home-modules
 - -Wpartial-fields
 - -Wredundant-constraints
+  #- -optc-O3
+  #- -funfolding-use-threshold=16
 
 library:
   source-dirs: src
@@ -52,6 +55,7 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-M128m
+    - -O3
     dependencies:
     - Meowscript
 
@@ -62,6 +66,6 @@ tests:
     ghc-options:
     - -threaded
     - -rtsopts
-    - -with-rtsopts=-M128m
+    - -O3
     dependencies:
     - Meowscript

@@ -23,13 +23,9 @@ import Control.Monad.Except (throwError)
 import Data.List (find)
 import Data.Functor ((<&>))
 
--- Inlining pragmas.
-{-# INLINE lookUpVar #-}
-{-# INLINE keyExists #-}
-{-# INLINE addToTop  #-}
-
 {- Environment -}
 keyExists :: Key -> Evaluator Bool
+{-# INLINE keyExists #-}
 keyExists key = get <&> any (Map.member key)
 
 stackPush :: Evaluator ()
@@ -39,12 +35,14 @@ stackPop :: Evaluator ()
 stackPop = get >>= (put . tail)
 
 addToTop :: Key -> Prim -> Evaluator ()
+{-# INLINE addToTop  #-}
 addToTop key value = do
     (x:xs) <- get
     let x' = Map.insert key value x
     put (x':xs)
 
 lookUpVar :: Key -> Evaluator Prim
+{-# INLINE lookUpVar #-}
 lookUpVar key = get >>= \stack -> case find (Map.member key) stack of
     (Just env) -> case Map.lookup key env of
         (Just item) -> return item
@@ -73,22 +71,21 @@ envModify (x:xs) key value =
 
 lookUpTrail :: [Key] -> Evaluator Prim
 lookUpTrail [] = throwError "Trail is empty!"
-lookUpTrail [x] = lookUpVar x
-
-lookUpTrail (x:xs) = lookUpVar x >>= \case
-    (MeowObject o) -> case innerTrail xs o of
+lookUpTrail [key] = lookUpVar key
+lookUpTrail (key:xs) = lookUpVar key >>= \case
+    (MeowObject objMap) -> case innerTrail xs objMap of
         (Just value) -> return value
         _ -> throwError "Item doesn't exist!"
     (MeowTrail ts) -> lookUpTrail (ts ++ xs)
-    _ -> throwError (Text.concat [showT x, " isn't a box!"])
+    _ -> throwError (Text.concat [showT key, " isn't a box!"])
 
+--
 
 innerTrail :: [Key] -> ObjectMap -> Maybe Prim
 innerTrail [] _ = Nothing
-innerTrail [x] o = Map.lookup x o
-
-innerTrail (x:xs) o = case Map.lookup x o of
-    (Just (MeowObject o')) -> innerTrail xs o'
+innerTrail [key] objMap = Map.lookup key objMap
+innerTrail (key:xs) objMap = case Map.lookup key objMap of
+    (Just (MeowObject newO)) -> innerTrail xs newO
     _ -> Nothing
 
 
@@ -97,20 +94,25 @@ innerTrail (x:xs) o = case Map.lookup x o of
 insertWithTrail :: [Key] -> Prim -> Evaluator ()
 
 insertWithTrail [] _ = throwError "Trail cannot be empty!"
-insertWithTrail [x] value = insertVar x value
+insertWithTrail [key] value = insertVar key value
 
-insertWithTrail (x:xs) value = lookUpVar x >>= \case
-    (MeowObject o) -> insertVar x . MeowObject =<< modifyTrail xs value o 
+insertWithTrail (key:xs) value = lookUpVar key >>= \case
+    (MeowObject objMap) -> insertVar key . MeowObject =<< modifyTrail xs value objMap 
     (MeowTrail ts) -> insertWithTrail (ts ++ xs) value
-    _ -> throwError (Text.concat [showT x, " isn't a box!"])
+    _ -> throwError (Text.concat [showT key, " isn't a box!"])
 
+--
 
 modifyTrail :: [Key] -> Prim -> ObjectMap -> Evaluator ObjectMap
 
 modifyTrail [] _ _ = throwError "Trail cannot be empty!"
-modifyTrail [x] value o = return (Map.insert x value o)
+modifyTrail [key] value objMap = return (Map.insert key value objMap)
 
-modifyTrail (x:xs) value o = case Map.lookup x o of
-    -- (Just (MeowObject o')) -> modifyTrail xs value o' >>= \obj -> return (Map.insert x (MeowObject obj) o)
-    (Just (MeowObject o')) -> flip (Map.insert x . MeowObject) o `fmap` modifyTrail xs value o'
-    _ -> throwError "Critical error: Trail ends abruptly!"
+modifyTrail (key:xs) value objMap = case Map.lookup key objMap of
+    (Just (MeowObject newO)) -> do
+        obj <- modifyTrail xs value newO
+        return (Map.insert key (MeowObject obj) objMap)
+    Nothing -> do --If key doesn't exist, add it.
+        obj <- modifyTrail xs value Map.empty
+        return (Map.insert key (MeowObject obj) objMap)
+    _ -> throwError (Text.concat ["Key ", key, " is not an object!"])
