@@ -52,7 +52,6 @@ library
     , parser-combinators
     , stopwatch
     , text
-    , unordered-containers
   default-language: Haskell2010
 
 executable Meowscript-exe
@@ -72,7 +71,6 @@ executable Meowscript-exe
     , parser-combinators
     , stopwatch
     , text
-    , unordered-containers
   default-language: Haskell2010
 
 test-suite Meowscript-test
@@ -93,5 +91,4 @@ test-suite Meowscript-test
     , parser-combinators
     , stopwatch
     , text
-    , unordered-containers
   default-language: Haskell2010

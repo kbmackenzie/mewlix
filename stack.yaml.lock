@@ -68,13 +68,6 @@ packages:
   original:
     hackage: megaparsec-9.3.0@sha256:5836aed85cdc87025c2e947040331f2a3cde32911db3b841161c6f3dc4fc5f4f,3219
 - completed:
-    hackage: unordered-containers-0.2.19.1@sha256:9ad8972c2e913c37b1d4f0e1261517fd7a1b8c8a58077e057be69837e3dbaa00,3822
-    pantry-tree:
-      size: 1517
-      sha256: ab7c0dbe2eea20198c7f471825a4aa87e47ae8976be75d6de4ff7cf2f1258f46
-  original:
-    hackage: unordered-containers-0.2.19.1@sha256:9ad8972c2e913c37b1d4f0e1261517fd7a1b8c8a58077e057be69837e3dbaa00,3822
-- completed:
     hackage: stopwatch-0.1.0.6@sha256:8be98a1714889e4414e2d2d153aaa9ef08a2374926ed6195479570ff540e426b,2169
     pantry-tree:
       size: 438

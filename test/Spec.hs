@@ -35,7 +35,9 @@ runtime = do
     --let path = "meowscript_vector2.txt"
     let path = "meowscript_fibonacci.txt"
     (tok, time) <- stopWatch (runBasic path)
-    print tok
+    case tok of
+        (Right x) -> print x
+        (Left x) -> TextIO.putStr x
     putStrLn ("Runtime: " ++ show time)
 
 runtime' :: IO ()
@@ -43,7 +45,11 @@ runtime' = do
     let path = "meowscript_fibonacci.txt"
     putStrLn "About to run it..."
     tok <- runBasic path
-    print tok
+    --print tok
+    case tok of
+        (Right x) -> print x
+        (Left x) -> TextIO.putStr x
+
 
 
 main :: IO ()

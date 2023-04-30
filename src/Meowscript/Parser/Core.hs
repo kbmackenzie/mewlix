@@ -108,6 +108,7 @@ reservedKeywords =
     , "peek"
     , "sneak"
     , "push"
+    , "bap"
     , "knock"
     , "over"
     , "lonely"
