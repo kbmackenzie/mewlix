@@ -188,13 +188,13 @@ prettyMap o = Text.concat ["{ ", pairs, " }"]
 
 -- Stringify
 asString :: Prim -> Text.Text
-
+{-# INLINE asString #-}
 asString (MeowString a) = a
 asString x = (Text.pack . show) x
 
 -- Boolean-ify
 asBool :: Prim -> Bool
-
+{-# INLINE asBool #-}
 asBool (MeowBool a) = a
 asBool MeowLonely = False
 asBool (MeowString "") = False
@@ -203,6 +203,7 @@ asBool _ = True
 
 -- Int-ify
 asInt :: Prim -> Int
+{-# INLINE asInt #-}
 asInt (MeowInt a) = a
 asInt (MeowDouble a) = floor a
 asInt (MeowBool a) = if a then 1 else 0
@@ -212,6 +213,7 @@ asInt _ = 0
 
 -- Double-ify
 asDouble :: Prim -> Double
+{-# INLINE asDouble #-}
 asDouble (MeowInt a) = fromIntegral a
 asDouble (MeowDouble a) = a
 asDouble (MeowBool a) = if a then 1 else 0

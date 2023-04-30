@@ -28,12 +28,12 @@ import Data.Functor ((<&>))
 {-# INLINE asCondition #-}
 {-# INLINE runExprS #-}
 {-# INLINE runBlock #-}
+{-# INLINE funcArgs #-}
 {-# INLINE funcCall #-}
 
 {- Run all statements from root. -}
 runEvaluator :: EnvStack -> Evaluator a -> IO (Either Text.Text (a, EnvStack))
 runEvaluator env x = runExceptT (runStateT x env)
-
 
 {- Evaluating Expressions -}
 -- Basic Expressions

@@ -41,6 +41,7 @@ runtime = do
 runtime' :: IO ()
 runtime' = do
     let path = "meowscript_fibonacci.txt"
+    putStrLn "About to run it..."
     tok <- runBasic path
     print tok
 
