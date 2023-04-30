@@ -70,7 +70,7 @@ evaluate (EWrite x) = do
 
 -- Ensures a value will be passed instead of an atom.
 ensureValue :: Prim -> Evaluator Prim
-{-# INLINE ensureValue #-}
+{-# INLINABLE ensureValue #-}
 ensureValue (MeowKey x) = lookUpVar x >>= ensureValue
 ensureValue (MeowTrail xs) = lookUpTrail xs >>= ensureValue
 ensureValue x = return x
@@ -97,7 +97,7 @@ unwrapDot x = do
 
 -- Run block in proper order: Function definitions, then other statements.
 runBlock :: [Statement] -> Evaluator Prim
-{-# INLINE runBlock #-}
+{-# INLINABLE runBlock #-}
 runBlock xs = do
     let (funcDefs, rest) = List.partition isFuncDef xs
     void $ runStatements funcDefs
@@ -132,11 +132,11 @@ runStatements (x:xs) = do
 
 
 asCondition :: Expr -> Evaluator Bool
-{-# INLINE asCondition #-}
+{-# INLINABLE asCondition #-}
 asCondition x = asBool <$> (evaluate x >>= ensureValue)
 
 runExprStatement :: Expr -> Evaluator Prim
-{-# INLINE runExprStatement #-}
+{-# INLINABLE runExprStatement #-}
 runExprStatement = evaluate 
 
 runIf :: Expr -> [Statement] -> Evaluator Prim
@@ -175,14 +175,14 @@ runFuncDef name args body = do
 
 -- Add function arguments to the environment.
 funcArgs :: [(Key, Expr)] -> Evaluator ()
-{-# INLINE funcArgs #-}
+{-# INLINABLE funcArgs #-}
 funcArgs [] = return ()
 funcArgs ((key, expr):xs) = do
     evaluate expr >>= ensureValue >>= addToTop key
     funcArgs xs
 
 funcCall :: Name -> [Expr] -> Evaluator Prim
-{-# INLINE funcCall #-}
+{-# INLINABLE funcCall #-}
 funcCall name args = do
     x <- keyExists name
     if not x then throwError (Text.concat ["Function doesn't exist! : ", name])

@@ -5,7 +5,7 @@ import qualified Data.Text.IO as TextIO
 
 runtime' :: IO ()
 runtime' = do
-    let path = "meowscript_fibonacci.txt"
+    let path = "meowscript_practice1.txt"
     putStrLn "About to run it..."
     tok <- runBasic path
     --print tok

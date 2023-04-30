@@ -17,7 +17,7 @@ import Control.Monad.Except (throwError)
 
 {- Binary Operations -}
 binop :: Binop -> Prim -> Prim -> Evaluator Prim
-{-# INLINE binop #-}
+{-# INLINABLE binop #-}
 binop MeowAssign a (MeowTrail b) = lookUpTrail b >>= binop MeowAssign a
 binop MeowAssign a (MeowKey b)   = lookUpVar b >>= binop MeowAssign a
 binop MeowAssign (MeowTrail a) b = insertWithTrail a b >> return b
@@ -38,7 +38,7 @@ binop op a b = binopVar fn a b
 
 {- Unary Operations -}
 unop :: Unop -> Prim -> Evaluator Prim
-{-# INLINE unop #-}
+{-# INLINABLE unop #-}
 unop op = unopVar fn
     where fn = case op of
             MeowYarn -> meowYarn
@@ -52,22 +52,20 @@ unop op = unopVar fn
 
 -- Ensures a value is a concrete value (and not a key nor trail).
 ensureValue :: Prim -> Evaluator Prim
-{-# INLINE ensureValue #-}
+{-# INLINABLE ensureValue #-}
 ensureValue (MeowKey x) = lookUpVar x >>= ensureValue
 ensureValue (MeowTrail xs) = lookUpTrail xs >>= ensureValue
 ensureValue x = return x
 
 binopVar :: (Prim -> Prim -> Evaluator Prim) -> Prim -> Prim -> Evaluator Prim
-{-# INLINE binopVar #-}
+{-# INLINABLE binopVar #-}
 binopVar f x y = do
     x' <- ensureValue x
     y' <- ensureValue y
     f x' y'
 unopVar :: (Prim -> Evaluator Prim) -> Prim -> Evaluator Prim
-{-# INLINE unopVar #-}
-unopVar f (MeowKey a) = lookUpVar a >>= f
-unopVar f x = f x
-
+{-# INLINABLE unopVar #-}
+unopVar f x = ensureValue x >>= f
 
 {- TO DO -}
 -- Better error messages.

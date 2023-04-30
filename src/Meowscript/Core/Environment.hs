@@ -25,24 +25,26 @@ import Data.Functor ((<&>))
 
 {- Environment -}
 keyExists :: Key -> Evaluator Bool
-{-# INLINE keyExists #-}
+{-# INLINABLE keyExists #-}
 keyExists key = get <&> any (Map.member key)
 
 stackPush :: Evaluator ()
+{-# INLINABLE stackPush #-}
 stackPush = get >>= (put . (Map.empty :))
 
 stackPop :: Evaluator ()
+{-# INLINABLE stackPop #-}
 stackPop = get >>= (put . tail)
 
 addToTop :: Key -> Prim -> Evaluator ()
-{-# INLINE addToTop  #-}
+{-# INLINABLE addToTop  #-}
 addToTop key value = do
     (x:xs) <- get
     let x' = Map.insert key value x
     put (x':xs)
 
 lookUpVar :: Key -> Evaluator Prim
-{-# INLINE lookUpVar #-}
+{-# INLINABLE lookUpVar #-}
 lookUpVar key = get >>= \stack -> case find (Map.member key) stack of
     (Just env) -> case Map.lookup key env of
         (Just item) -> return item

@@ -200,13 +200,13 @@ prettyMap o = Text.concat ["{ ", pairs, " }"]
 
 -- Stringify
 asString :: Prim -> Text.Text
-{-# INLINE asString #-}
+{-# INLINABLE asString #-}
 asString (MeowString a) = a
 asString x = (Text.pack . show) x
 
 -- Boolean-ify
 asBool :: Prim -> Bool
-{-# INLINE asBool #-}
+{-# INLINABLE asBool #-}
 asBool (MeowBool a) = a
 asBool (MeowList []) = False
 asBool (MeowString x) = Text.null x

@@ -7,6 +7,7 @@ module Meowscript.Core.Messages
 ) where
 
 import Meowscript.Core.AST
+import Meowscript.Core.Exceptions
 import qualified Data.Text as Text
 
 showT :: (Show a) => a -> Text.Text

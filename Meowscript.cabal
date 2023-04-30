@@ -32,6 +32,7 @@ library
       Meowscript.Core.Blocks
       Meowscript.Core.Environment
       Meowscript.Core.Evaluate
+      Meowscript.Core.Exceptions
       Meowscript.Core.Messages
       Meowscript.Core.Operations
       Meowscript.Parser.Core
