@@ -47,6 +47,13 @@ data Prim =
     | MeowIO Args InnerIO
 
 instance Eq Prim where
+    -- Void (inner type)
+    MeowVoid == MeowVoid = True
+    _ == MeowVoid = False
+    MeowVoid == _ = False
+    MeowBreak == MeowBreak = True
+    _ == MeowBreak = False
+    MeowBreak == _ = False
     -- Lonely (nil)
     MeowLonely == MeowLonely = True
     MeowLonely == _ = False
@@ -65,10 +72,17 @@ instance Eq Prim where
     (MeowObject a) == (MeowObject b) = a == b
     (MeowObject _) == _ = False
     -- All other types should never be compared.
-    -- I'm making them all equal to each other for ease.
-    _ == _ = True
+    -- I'm making them all never equal to each other for ease.
+    _ == _ = False
 
 instance Ord Prim where
+    -- Void (inner type)
+    compare MeowVoid MeowVoid = EQ
+    compare _ MeowVoid = GT
+    compare MeowVoid _ = LT
+    compare MeowBreak MeowBreak = EQ
+    compare _ MeowBreak = GT
+    compare MeowBreak _ = LT
     -- Lonely (nil)
     -- It's always less than anything else.
     compare MeowLonely MeowLonely = EQ

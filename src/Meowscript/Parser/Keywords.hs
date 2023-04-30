@@ -1,31 +1,58 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Meowscript.Parser.Keywords
-( func
+( meowCatface
+, meowLeave
+, meowReturn
+, meowContinue
+, meowBreak
+, meowIf
+, meowElse
+, meowWhile
+, meowBap
+, meowPoke
+, meowPeek
+, meowNudge
+, meowSneak
 ) where
 
 import Data.Text (Text)
 
-func :: Text
-func = "=^.x.^="
+meowCatface :: Text
+meowCatface = "=^.x.^="
 
-return :: Text
-return = "bring"
+meowLeave :: Text
+meowLeave = "leave"
 
-end :: Text
-end = "leave"
+meowReturn :: Text
+meowReturn = "bring"
 
-continue :: Text
-continue = "rest"
+meowContinue :: Text
+meowContinue = "rest"
 
-break :: Text
-break = "run away"
+meowBreak :: Text
+meowBreak = "run away"
 
-ifBlock :: Text
-ifBlock = "mew?"
+meowIf :: Text
+meowIf = "mew?"
 
-elseBlock :: Text
-elseBlock = "hiss!"
+meowElse :: Text
+meowElse = "hiss!"
 
-whileLoop :: Text
-whileLoop = "scratch while"
+meowWhile :: Text
+meowWhile = "scratch while"
+
+meowBap :: Text
+meowBap = "bap"
+
+meowPoke :: Text
+meowPoke = "poke"
+
+meowPeek :: Text
+meowPeek = "peek"
+
+meowNudge :: Text
+meowNudge = "nudge"
+
+meowSneak :: Text
+meowSneak = "sneak"

@@ -7,6 +7,7 @@ module Meowscript.Parser.Expr
 
 import Meowscript.Core.AST
 import Meowscript.Parser.Core
+import Meowscript.Parser.Keywords
 import Text.Megaparsec ((<|>))
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
@@ -28,25 +29,25 @@ parseExpr' = lexeme (whitespace >> parseExpr)
 operators :: [[Operator Parser Expr]]
 operators =
     [
-        [ Prefix  (EUnop MeowYarn    <$ trySymbol "~~"  ) ]
-      , [ InfixL  (EDot              <$ parseDotOp      ) ]
-      , [ Postfix $ Mega.try functionCall                 ]
-      , [ Prefix  (EUnop MeowNegate  <$ symbol "-"      )
-        , Prefix  (EUnop MeowNot     <$ trySymbol "bap" ) ]
-      , [ InfixL  (EBinop MeowMul <$ symbol "*")
-        , InfixL  (EBinop MeowDiv <$ symbol "/") ]
-      , [ InfixL  (EBinop MeowAdd <$ symbol "+")
-        , InfixL  (EBinop MeowSub <$ symbol "-") ]
-      , [ Prefix  (EUnop MeowPoke   <$ trySymbol "poke"  )
-        , Prefix  (EUnop MeowNudge  <$ trySymbol "nudge" )
-        , Prefix  (EUnop MeowPeek   <$ trySymbol "peek"  )
-        , Prefix  (EUnop MeowSneak  <$ trySymbol "sneak" )
-        , Postfix (EUnop MeowLen   <$ symbol "~?"     )
-        , InfixL  (EBinop MeowConcat <$ trySymbol ".."   ) ]
+        [ Prefix  (EUnop MeowYarn    <$ trySymbol "~~"      ) ]
+      , [ InfixL  (EDot              <$ parseDotOp          ) ]
+      , [ Postfix $ Mega.try functionCall                   ]
+      , [ Prefix  (EUnop MeowNegate  <$ symbol "-"          )
+        , Prefix  (EUnop MeowNot     <$ trySymbol meowBap   ) ]
+      , [ InfixL  (EBinop MeowMul    <$ symbol "*")
+        , InfixL  (EBinop MeowDiv    <$ symbol "/") ]
+      , [ InfixL  (EBinop MeowAdd    <$ symbol "+")
+        , InfixL  (EBinop MeowSub    <$ symbol "-") ]
+      , [ Prefix  (EUnop MeowPoke    <$ trySymbol meowPoke   )
+        , Prefix  (EUnop MeowPeek    <$ trySymbol meowPeek   )
+        , Prefix  (EUnop MeowNudge   <$ trySymbol meowNudge  )
+        , Prefix  (EUnop MeowSneak   <$ trySymbol meowSneak  )
+        , Postfix (EUnop MeowLen     <$ symbol "~?"          )
+        , InfixL  (EBinop MeowConcat <$ trySymbol ".."      ) ]
       , [ InfixL  (EBinop (MeowCompare [LT, EQ]) <$ trySymbol "<=")
         , InfixL  (EBinop (MeowCompare [GT, EQ]) <$ trySymbol ">=")
-        , InfixL  (EBinop (MeowCompare [LT])     <$ symbol "<" )
-        , InfixL  (EBinop (MeowCompare [GT])     <$ symbol ">" ) ]
+        , InfixL  (EBinop (MeowCompare [LT])     <$ symbol "<"    )
+        , InfixL  (EBinop (MeowCompare [GT])     <$ symbol ">"    ) ]
       , [ InfixL  (EBinop (MeowCompare [EQ])     <$ trySymbol "==")
         , InfixL  (EBinop (MeowCompare [LT, GT]) <$ trySymbol "!=") ]
       , [ InfixL  (EBinop MeowAnd    <$ trySymbol "and"      ) ]

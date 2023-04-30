@@ -110,7 +110,6 @@ runStatements :: [Statement] -> Evaluator Prim
 runStatements [] = return MeowVoid
 
 runStatements ((SReturn x):_) = evaluate x >>= ensureValue
-
 runStatements (SBreak:_) = return MeowBreak
 runStatements (SContinue:_) = return MeowVoid
 
@@ -187,7 +186,9 @@ funcCall name args = do
     x <- keyExists name
     if not x then
         throwError (Text.concat ["Function doesn't exist! : ", name])
-    else do lookUpVar name >>= runFunc args
+    else do
+        n <- lookUpVar name
+        runFunc args n
         
 runFunc :: [Expr] -> Prim -> Evaluator Prim
 runFunc args (MeowFunc params body) = do

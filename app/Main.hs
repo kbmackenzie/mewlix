@@ -24,7 +24,8 @@ parseE txt = do
 
 timedParsing :: IO ()
 timedParsing = do 
-    let path = "meowscript_vector2.txt"
+    --let path = "meowscript_vector2.txt"
+    let path = "meowscript_fibonacci.txt"
     !txt <- TextIO.readFile path
     (tok, time) <- stopWatch (parseE txt)
     print tok
@@ -32,7 +33,8 @@ timedParsing = do
 
 runtime :: IO ()
 runtime = do 
-    let path = "meowscript_vector2.txt"
+    --let path = "meowscript_vector2.txt"
+    let path = "meowscript_fibonacci.txt"
     (tok, time) <- stopWatch (runBasic path)
     print tok
     putStrLn ("Runtime: " ++ show time)
