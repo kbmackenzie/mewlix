@@ -17,11 +17,10 @@ import Control.Monad.Except (throwError)
 
 -- Inline pragmas.
 {-# INLINE ensureValid #-}
-{-# INLINE binopVar #-}
-{-# INLINE unopVar #-}
 {-# INLINE binop #-}
 {-# INLINE unop #-}
-{-# INLINE meowSub #-}
+{-# INLINE binopVar #-}
+{-# INLINE unopVar #-}
 
 {- Binary Operations -}
 binop :: Binop -> Prim -> Prim -> Evaluator Prim
