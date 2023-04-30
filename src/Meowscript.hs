@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Meowscript
 ( runBasic
 ) where
@@ -10,12 +12,13 @@ import Meowscript.Parser.Statements
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Text.Megaparsec as Mega
-import Control.Monad (liftM)
+import qualified Text.Megaparsec.Error as MError
 
 runBasic :: FilePath -> IO (Either Text.Text (Prim, EnvStack))
 runBasic path = do
     txt <- TextIO.readFile path
     let output = Mega.parse root path txt
     case output of
-        (Right (SAll y)) -> runEvaluator baseLibrary (runBlock y)
-        _ -> fail ""
+        (Right (SAll program)) -> runEvaluator baseLibrary (runBlock program)
+        (Left x) -> (return . Left . Text.pack . MError.errorBundlePretty) x
+        _ -> (return . Left) "Fatal error: Invalid parser output."

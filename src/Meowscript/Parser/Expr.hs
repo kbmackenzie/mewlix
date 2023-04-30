@@ -16,8 +16,8 @@ import Control.Monad (void)
 
 exprTerm :: Parser Expr
 exprTerm = (lexeme . parens) parseExpr
+    <|> Mega.try (lexeme parseObject)
     <|> lexeme parseList
-    <|> lexeme parseObject
     <|> (EPrim <$> lexeme parsePrim)
 
 parseExpr :: Parser Expr
@@ -57,33 +57,31 @@ operators =
 
 functionCall :: Parser (Expr -> Expr)
 functionCall = lexeme $ do
-    void $ MChar.char '('
-    x <- Mega.sepBy (whitespace >> lexeme parseExpr) (MChar.char ',')
-    void $ MChar.char ')'
-    return (ECall x)
+    (void . MChar.char) '('
+    args <- Mega.sepBy (whitespaceLn >> lexeme parseExpr) (MChar.char ',')
+    (void . MChar.char) ')'
+    return (ECall args)
 
 parseList :: Parser Expr
 parseList = do
-    void $ MChar.char '['
-    whitespaceLn
+    (void . lexemeLn . MChar.char) '['
     list <- Mega.sepBy (whitespaceLn >> lexemeLn parseExpr) (MChar.char ',')
-    void $ MChar.char ']'
+    (void . MChar.char) ']'
     (return . EList) list
 
 parseObject :: Parser Expr
 parseObject = do
-    void $ MChar.char '{'
-    whitespaceLn
-    obj <- Mega.sepBy (whitespaceLn >> lexemeLn parseKeyValue) (MChar.char ',')
-    void $ MChar.char '}'
-    (return . EObject) obj
+    (void . lexemeLn . MChar.char) '{'
+    object <- Mega.sepBy (whitespaceLn >> lexemeLn parseKeyValue) (MChar.char ',')
+    (void . MChar.char) '}'
+    (return . EObject) object
 
 parseKeyValue :: Parser (Key, Expr)
 parseKeyValue = do
     key <- lexeme keyText
     (void . lexeme) (MChar.char ':')
-    expr <- lexeme parseExpr
-    return (key, expr)
+    expression <- lexeme parseExpr
+    return (key, expression)
 
 parseDotOp :: Parser ()
-parseDotOp = Mega.try $ MChar.char '.' >> Mega.notFollowedBy (MChar.char '.')
+parseDotOp = Mega.try (MChar.char '.' >> (Mega.notFollowedBy . MChar.char) '.')
