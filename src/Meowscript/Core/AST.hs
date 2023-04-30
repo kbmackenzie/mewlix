@@ -10,6 +10,7 @@ module Meowscript.Core.AST
 , Name
 , Key
 , ObjectMap
+, showT
 , asString
 , asBool
 , prettyMap
@@ -197,6 +198,10 @@ prettyMap o = Text.concat ["{ ", pairs, " }"]
         lst = Map.toList o
         pair (key, val) = Text.concat [ key, ": ", (Text.pack . show) val ]
         pairs = Text.intercalate ", " (map pair lst)
+
+-- Show as Text
+showT :: (Show a) => a -> Text.Text
+showT = Text.pack . show
 
 -- Stringify
 asString :: Prim -> Text.Text

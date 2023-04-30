@@ -33,7 +33,6 @@ library
       Meowscript.Core.Environment
       Meowscript.Core.Evaluate
       Meowscript.Core.Exceptions
-      Meowscript.Core.Messages
       Meowscript.Core.Operations
       Meowscript.Parser.Core
       Meowscript.Parser.Expr

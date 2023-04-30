@@ -12,7 +12,7 @@ import Meowscript.Core.AST
 import Meowscript.Core.Evaluate
 import Meowscript.Core.Operations
 import Meowscript.Core.Environment
-import Meowscript.Core.Messages
+import Meowscript.Core.Exceptions
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map
@@ -27,24 +27,20 @@ runEvaluator :: EnvStack -> Evaluator a -> IO (Either Text.Text (a, EnvStack))
 runEvaluator env x = runExceptT (runStateT x env)
 
 {- Evaluating Expressions -}
--- Basic Expressions
 evaluate :: Expr -> Evaluator Prim
-evaluate (EPrim x) = return x
-evaluate (EBinop op expA expB) = do
-    a <- evaluate expA
-    b <- evaluate expB
+evaluate (EPrim prim) = return prim
+evaluate (EBinop op expressionA expressionB) = do
+    a <- evaluate expressionA
+    b <- evaluate expressionB
     binop op a b
 evaluate (EUnop op expA) = evaluate expA >>= unop op
 
--- Lists + Objects
-evaluate (EList xs) = mapM evaluate xs <&> MeowList
-evaluate (EObject xs) = do
+evaluate (EList list) = mapM evaluate list <&> MeowList
+evaluate (EObject object) = do
     let asPair key x = return (key, x)
-    asPrims <- mapM (\(key, exp') -> evaluate exp' >>= ensureValue >>= asPair key) xs
+    asPrims <- mapM (\(key, exp') -> evaluate exp' >>= ensureValue >>= asPair key) object
     let mapObject = Map.fromList asPrims
     (return . MeowObject) mapObject
-
--- Dot Operator
 evaluate x@(EDot {}) = unwrapDot x <&> MeowTrail
     
 -- Methods
@@ -52,7 +48,8 @@ evaluate (ECall args x@(EDot {})) = do
     xs <- unwrapDot x
     fn <- lookUpTrail xs
     let home = init xs -- All but the function name.
-    runMethod args home fn
+    let name = last xs
+    runMethod args name home fn
 
 -- Functions
 evaluate (ECall args name) = evaluate name >>= \case
@@ -75,8 +72,8 @@ ensureValue (MeowKey x) = lookUpVar x >>= ensureValue
 ensureValue (MeowTrail xs) = lookUpTrail xs >>= ensureValue
 ensureValue x = return x
 
-{-- Objects --}
 
+{-- Objects --}
 -- Dot Operator
 unwrapDot :: Expr -> Evaluator [Text.Text]
 unwrapDot (EDot x y) = do
@@ -85,12 +82,9 @@ unwrapDot (EDot x y) = do
     return (x' ++ y')
 unwrapDot (EPrim (MeowTrail xs)) = return xs
 unwrapDot (EPrim (MeowKey x)) = return [x]
-unwrapDot x = do
-    x' <- evaluate x
-    case x' of
-        (MeowKey key) -> return [key]
-        _ -> throwError (Text.concat ["Invalid token in trail: ", showT x'])
-
+unwrapDot x = evaluate x >>= \tok -> case tok of
+    (MeowKey key) -> return [key]
+    _ -> (throwError . badTrail . showT) tok
 
 
 {-- Blocks --}
@@ -107,27 +101,27 @@ runBlock xs = do
 runStatements :: [Statement] -> Evaluator Prim
 runStatements [] = return MeowVoid
 
-runStatements ((SReturn x):_) = evaluate x >>= ensureValue
+runStatements ((SReturn value):_) = evaluate value >>= ensureValue
 runStatements (SBreak:_) = return MeowBreak
 runStatements (SContinue:_) = return MeowVoid
 
-runStatements ((SExpr x):xs) =
-    runExprStatement x >> runStatements xs
+runStatements ((SExpr expression):xs) =
+    runExprStatement expression >> runStatements xs
 
 runStatements ((SFuncDef name args body):xs) =
     runFuncDef name args body >> runStatements xs
 
-runStatements (x:xs) = do
+runStatements (statement:xs) = do
     stackPush
     ret <- run
     stackPop
     if ret /= MeowVoid
         then return ret
         else runStatements xs
-    where run = case x of
-            (SOnlyIf cond body) -> runIf cond body
-            (SIfElse cond ifB elseB) -> runIfElse cond ifB elseB
-            (SWhile cond body) -> runWhile cond body
+    where run = case statement of
+            (SOnlyIf condition body) -> runIf condition body
+            (SWhile condition body) -> runWhile condition body
+            (SIfElse condition ifBody elseBody) -> runIfElse condition ifBody elseBody
             _ -> return MeowVoid
 
 
@@ -185,31 +179,31 @@ funcCall :: Name -> [Expr] -> Evaluator Prim
 {-# INLINABLE funcCall #-}
 funcCall name args = do
     x <- keyExists name
-    if not x then throwError (Text.concat ["Function doesn't exist! : ", name])
-    else lookUpVar name >>= runFunc args
+    if not x then throwError (badKey name)
+    else lookUpVar name >>= runFunc args name
         
-runFunc :: [Expr] -> Prim -> Evaluator Prim
-runFunc args (MeowFunc params body) = do
-    when (length params > length args)
-        (throwError "Too few arguments for function!") 
+runFunc :: [Expr] -> Text.Text -> Prim -> Evaluator Prim
+runFunc args name (MeowFunc params body) = do
+    when (length params < length args) (throwError $ manyArgs name)
+    when (length params > length args) (throwError $ fewArgs name)
     stackPush
     funcArgs (zip params args)
     ret <- runStatements body
     stackPop
     return ret
-runFunc _ _ = throwError "Invalid function call!"
+runFunc _ name _ = throwError (badFunc name)
 
-runMethod :: [Expr] -> [Key] -> Prim -> Evaluator Prim
-runMethod args trail (MeowFunc params body) = do
-    when (length params > length args)
-        (throwError "Too few arguments for function!") 
+runMethod :: [Expr] -> Text.Text -> [Key] -> Prim -> Evaluator Prim
+runMethod args name trail (MeowFunc params body) = do
+    when (length params < length args) (throwError $ manyArgs name)
+    when (length params > length args) (throwError $ fewArgs name)
     stackPush
     funcArgs (zip params args)
     addToTop "home" (MeowTrail trail)
     ret <- runStatements body
     stackPop
     return ret
-runMethod _ _ _ = throwError "Invalid method call!" 
+runMethod _ name _ _ = throwError (badFunc name)
 
 -- Helper functions to distinguish between statements.
 isFuncDef :: Statement -> Bool

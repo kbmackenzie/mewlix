@@ -10,7 +10,7 @@ module Meowscript.Core.Operations
 import Meowscript.Core.AST
 import Meowscript.Core.Evaluate
 import Meowscript.Core.Environment
-import Meowscript.Core.Messages
+import Meowscript.Core.Exceptions
 import qualified Data.Text as Text
 import qualified Data.Map as Map
 import Control.Monad.Except (throwError)
@@ -22,7 +22,7 @@ binop MeowAssign a (MeowTrail b) = lookUpTrail b >>= binop MeowAssign a
 binop MeowAssign a (MeowKey b)   = lookUpVar b >>= binop MeowAssign a
 binop MeowAssign (MeowTrail a) b = insertWithTrail a b >> return b
 binop MeowAssign (MeowKey a) b   = insertVar a b >> return b
-binop MeowAssign a b = throwError (binopError "Invalid assignment!" "=" a b)
+binop MeowAssign a b             = throwError (opException "Assignment" [a, b])
 binop op a b = binopVar fn a b
     where fn = case op of
             MeowAdd -> meowAdd
@@ -34,7 +34,7 @@ binop op a b = binopVar fn a b
             MeowOr -> meowOr
             MeowConcat -> meowConcat
             MeowPush -> meowPush
-            _ -> undefined -- This should never be matched, right?
+            _ -> undefined -- I'm pretty sure MeowAssign is properly matched, but alas.
 
 {- Unary Operations -}
 unop :: Unop -> Prim -> Evaluator Prim
@@ -72,81 +72,43 @@ unopVar f x = ensureValue x >>= f
 
 -- Addition
 meowAdd :: Prim -> Prim -> Evaluator Prim
-meowAdd x@(MeowInt a) y = case y of
-    (MeowInt b) -> return $ MeowInt (a + b)
-    (MeowDouble b) -> return $ MeowDouble (fromIntegral a + b)
-    _ -> throwError $ addError x y
-
-meowAdd x@(MeowDouble a) y = case y of
-    (MeowInt b) -> return $ MeowDouble (a + fromIntegral b)
-    (MeowDouble b) -> return $ MeowDouble (a + b)
-    _ -> throwError $ addError x y
-
-meowAdd x y = throwError $ addError x y
-
--- Addition error logging.
-addError :: Prim -> Prim -> Text.Text
-addError = binopError "Addition" "+"
-
+meowAdd (MeowInt a) (MeowInt b) = (return . MeowInt) (a + b)
+meowAdd (MeowInt a) (MeowDouble b) = (return . MeowDouble) (fromIntegral a + b)
+meowAdd (MeowDouble a) (MeowInt b) = (return . MeowDouble) (a + fromIntegral b)
+meowAdd (MeowDouble a) (MeowDouble b) = (return . MeowDouble) (a + b)
+meowAdd x y = throwError (opException "Addition" [x, y])
 
 -- Negation
 meowNegate :: Prim -> Evaluator Prim
-meowNegate (MeowInt a) = return $ MeowInt (negate a)
-meowNegate (MeowDouble a) = return $ MeowDouble (negate a)
-meowNegate x = throwError $ unopError "Negation" "-" x
-
+meowNegate (MeowInt a) = (return . MeowInt . negate) a
+meowNegate (MeowDouble a) = (return . MeowDouble . negate) a
+meowNegate a = throwError (opException "Negation" [a])
 
 -- Subtraction
 meowSub :: Prim -> Prim -> Evaluator Prim
 meowSub x y = meowNegate y >>= meowAdd x
 
-
 -- Multiplication
 meowMul :: Prim -> Prim -> Evaluator Prim
-
-meowMul x@(MeowInt a) y = case y of
-    (MeowInt b) -> return $ MeowInt (a * b)
-    (MeowDouble b) -> return $ MeowDouble (fromIntegral a * b)
-    _ -> throwError $ mulError x y
-meowMul x@(MeowDouble a) y = case y of
-    (MeowInt b) -> return $ MeowDouble (a * fromIntegral b)
-    (MeowDouble b) -> return $ MeowDouble (a * b)
-    _ -> throwError $ mulError x y
-meowMul x y = throwError $ mulError x y
-
--- Multiplication errors.
-mulError :: Prim -> Prim -> Text.Text
-mulError = binopError "Multiplication" "*"
-
+meowMul (MeowInt a) (MeowInt b) = (return . MeowInt) (a * b)
+meowMul (MeowInt a) (MeowDouble b) = (return . MeowDouble) (fromIntegral a * b)
+meowMul (MeowDouble a) (MeowInt b) = (return . MeowDouble) (a * fromIntegral b)
+meowMul (MeowDouble a) (MeowDouble b) = (return . MeowDouble) (a * b)
+meowMul x y = throwError (opException "Multiplication" [x, y])
 
 -- Division
 meowDiv :: Prim -> Prim -> Evaluator Prim
-
-meowDiv x@(MeowInt a) y = case y of
-    (MeowInt 0) -> throwError $ divByZero x y
-    (MeowInt b) -> return $ MeowInt (a `div` b)
-    (MeowDouble 0) -> throwError $ divByZero x y
-    (MeowDouble b) -> return $ MeowDouble (fromIntegral a / b)
-    _ -> throwError $ divError x y
-meowDiv x@(MeowDouble a) y = case y of
-    (MeowInt 0) -> throwError $ divByZero x y
-    (MeowInt b) -> return $ MeowDouble (a / fromIntegral b)
-    (MeowDouble 0) -> throwError $ divByZero x y
-    (MeowDouble b) -> return $ MeowDouble (a / b)
-    _ -> throwError $ divError x y
-meowDiv x y = throwError $ divError x y
-
--- Division exceptions.
-divError :: Prim -> Prim -> Text.Text
-
-divError = binopError "Division" "/"
-divByZero :: Prim -> Prim -> Text.Text
-divByZero x y = Text.intercalate "\n" [ divError x y, "Cannot divide by zero!" ]
+meowDiv a b@(MeowInt 0) = throwError (divByZero [a, b])
+meowDiv a b@(MeowDouble 0) = throwError (divByZero [a, b])
+meowDiv (MeowInt a) (MeowInt b) = (return . MeowDouble) (fromIntegral a / fromIntegral b)
+meowDiv (MeowInt a) (MeowDouble b) = (return . MeowDouble) (fromIntegral a / b)
+meowDiv (MeowDouble a) (MeowInt b) = (return . MeowDouble) (a / fromIntegral b)
+meowDiv (MeowDouble a) (MeowDouble b) = (return . MeowDouble) (a / b)
+meowDiv x y = throwError (opException "Division" [x, y])
 
 
 -- Comparison
 meowCompare :: [Ordering] -> Prim -> Prim -> Evaluator Prim
-
 meowCompare ord a b = (return . MeowBool) (c `elem` ord)
     where c = a `compare` b
 
@@ -171,23 +133,19 @@ meowOr x y = (return . MeowBool) (asBool x || asBool y)
 
 -- Yarn
 meowYarn :: Prim -> Evaluator Prim
-
 meowYarn (MeowString a) = return (MeowKey a)
-meowYarn x = throwError (unopError "yarn" "~~" x)
-
+meowYarn x = throwError (opException "Yarn" [x])
 
 -- YarnLen
 meowLen :: Prim -> Evaluator Prim
-
 meowLen (MeowString a) = (return . MeowInt . Text.length) a
 meowLen (MeowList a) = (return . MeowInt . length) a
 meowLen (MeowObject a) = (return . MeowInt . Map.size) a
-meowLen x = throwError (unopError "len" "~?" x)
+meowLen x = throwError (opException "Length" [x])
 
 
 -- Concat
 meowConcat :: Prim -> Prim -> Evaluator Prim
-
 meowConcat (MeowString a) (MeowString b) = (return . MeowString) (Text.append a b)
 meowConcat (MeowList a) (MeowList b) = (return . MeowList) (a ++ b)
 meowConcat (MeowObject a) (MeowObject b) = (return . MeowObject) (a <> b)
@@ -199,17 +157,17 @@ meowConcat a b = (return . MeowString) ab
 meowPush :: Prim -> Prim -> Evaluator Prim
 meowPush (MeowList a) b = (return . MeowList) (b:a)
 meowPush (MeowString a) b = (return . MeowString) (asString b `Text.append` a)
-meowPush a b = throwError (binopError "Push" "push" a b)
+meowPush a b = throwError (opException "Push" [a, b])
 
 -- Peek
 meowPeek :: Prim -> Evaluator Prim
 meowPeek (MeowList a) = return (if null a then MeowLonely else head a)
-meowPeek a = (return . MeowString) res
-    where a' = asString a
-          res = if Text.null a' then a' else (Text.pack . (: []) . Text.head) a'
+meowPeek (MeowString a) = (return . MeowString) res
+          where res = if Text.null a then a else (Text.pack . (: []) . Text.head) a
+meowPeek a = throwError (opException "Peek" [a])
 
 -- Knock over
 meowKnock :: Prim -> Evaluator Prim
 meowKnock (MeowList a) = (return . MeowList) (if null a then a else tail a)
 meowKnock (MeowString a) = (return . MeowString) (if Text.null a then a else Text.tail a)
-meowKnock a = throwError (unopError "knock over" "knock over" a)
+meowKnock a = throwError (opException "Knock Over" [a])
