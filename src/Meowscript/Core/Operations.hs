@@ -19,35 +19,28 @@ import Control.Monad (join)
 {- Binary Operations -}
 binop :: Binop -> Prim -> Prim -> Evaluator Prim
 {-# INLINABLE binop #-}
-binop MeowAssign a (MeowTrail b) = lookUpTrail b >>= binop MeowAssign a
-binop MeowAssign a (MeowKey b)   = lookUpVar b >>= binop MeowAssign a
-binop MeowAssign (MeowTrail a) b = insertWithTrail a b >> return b
-binop MeowAssign (MeowKey a) b   = insertVar a b >> return b
-binop MeowAssign a b             = throwError (opException "Assignment" [a, b])
-binop op a b = binopVar fn a b
-    where fn = case op of
-            MeowAdd -> meowAdd
-            MeowSub -> meowSub
-            MeowMul -> meowMul
-            MeowDiv -> meowDiv
-            (MeowCompare ord) -> meowCompare ord
-            MeowAnd -> meowAnd
-            MeowOr -> meowOr
-            MeowConcat -> meowConcat
-            MeowPush -> meowPush
-            _ -> undefined -- I'm pretty sure MeowAssign is properly matched, but alas.
+binop MeowAssign = meowAssign
+binop op = binopVar $ case op of
+    MeowAdd -> meowAdd
+    MeowSub -> meowSub
+    MeowMul -> meowMul
+    MeowDiv -> meowDiv
+    (MeowCompare ord) -> meowCompare ord
+    MeowAnd -> meowAnd
+    MeowOr -> meowOr
+    MeowConcat -> meowConcat
+    MeowPush -> meowPush
 
 {- Unary Operations -}
 unop :: Unop -> Prim -> Evaluator Prim
 {-# INLINABLE unop #-}
-unop op = unopVar fn
-    where fn = case op of
-            MeowYarn -> meowYarn
-            MeowLen -> meowLen
-            MeowNegate -> meowNegate
-            MeowNot -> meowNot
-            MeowPeek -> meowPeek
-            MeowKnockOver -> meowKnock
+unop op = unopVar $ case op of
+    MeowYarn -> meowYarn
+    MeowLen -> meowLen
+    MeowNegate -> meowNegate
+    MeowNot -> meowNot
+    MeowPeek -> meowPeek
+    MeowKnockOver -> meowKnock
 
 {- Variables -}
 
@@ -66,8 +59,16 @@ unopVar :: (Prim -> Evaluator Prim) -> Prim -> Evaluator Prim
 {-# INLINABLE unopVar #-}
 unopVar f x = ensureValue x >>= f
 
-{- TO DO -}
--- Better error messages.
+
+{- Operations -}
+
+-- Assignment
+meowAssign :: Prim -> Prim -> Evaluator Prim
+meowAssign a (MeowTrail b) = lookUpTrail b >>= meowAssign a
+meowAssign a (MeowKey b) = lookUpVar b >>= meowAssign a
+meowAssign (MeowTrail a) b = insertWithTrail a b >> return b
+meowAssign (MeowKey a) b = insertVar a b >> return b
+meowAssign a b = throwError (opException "Assignment" [a, b])
 
 -- Addition
 meowAdd :: Prim -> Prim -> Evaluator Prim
@@ -135,13 +136,12 @@ meowYarn :: Prim -> Evaluator Prim
 meowYarn (MeowString a) = return (MeowKey a)
 meowYarn x = throwError (opException "Yarn" [x])
 
--- YarnLen
+-- Length 
 meowLen :: Prim -> Evaluator Prim
 meowLen (MeowString a) = (return . MeowInt . Text.length) a
 meowLen (MeowList a) = (return . MeowInt . length) a
 meowLen (MeowObject a) = (return . MeowInt . Map.size) a
 meowLen x = throwError (opException "Length" [x])
-
 
 -- Concat
 meowConcat :: Prim -> Prim -> Evaluator Prim
@@ -150,7 +150,6 @@ meowConcat (MeowList a) (MeowList b) = (return . MeowList) (a ++ b)
 meowConcat (MeowObject a) (MeowObject b) = (return . MeowObject) (a <> b)
 meowConcat a b = (return . MeowString) ab
     where ab = Text.append (asString a) (asString b)
-
 
 -- Push
 meowPush :: Prim -> Prim -> Evaluator Prim

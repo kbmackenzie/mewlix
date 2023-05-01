@@ -2,20 +2,20 @@
 
  module Meowscript.Parser.Core
  ( Parser
- , indented
- , notIndented
- , lexemeLn
- , whitespaceLn
  , lexeme
  , whitespace
+ , flexeme
+ , lexemeLn
+ , whitespaceLn
+ , lnLexeme
  , symbol
  , trySymbol
  , parens
  , quotes
  , bars
+ , brackets
+ , sepByComma
  , keyword
- , meowDiv
- , stmtEnd
  , parseStr
  , validKeyChar
  , parseKey
@@ -45,31 +45,32 @@ lineComment = Lexer.skipLineComment "--"
 blockComment :: Parser ()
 blockComment = Lexer.skipBlockComment "<(=^.x.^= )~" "~( =^.x.^=)>"
 
-notIndented :: Parser a -> Parser a
-notIndented = Lexer.nonIndented whitespaceLn
+spaceChars :: Parser ()
+spaceChars = (void . Mega.some . Mega.choice) (MChar.char <$> [ ' ', '\t' ])
 
-indented :: Parser (Lexer.IndentOpt Parser a b) -> Parser a
-indented = Lexer.indentBlock whitespaceLn
-
-whitespaceLn :: Parser ()
-whitespaceLn = Lexer.space MChar.space1 lineComment blockComment
-
--- Like 'whitespaceLn', but doesn't skip newlines.
 whitespace :: Parser ()
-whitespace = Lexer.space (void $ Mega.some (MChar.char ' ' <|> MChar.char '\t')) lineComment blockComment
+whitespace = Lexer.space spaceChars lineComment blockComment
+
+lexeme :: Parser a -> Parser a
+lexeme = Lexer.lexeme whitespace
+
+flexeme :: Parser a -> Parser a
+flexeme a = whitespace >> lexeme a
 
 lexemeLn :: Parser a -> Parser a
 lexemeLn = Lexer.lexeme whitespaceLn
 
-lexeme :: Parser a -> Parser a
-lexeme = Lexer.lexeme whitespace
+lnLexeme :: Parser a -> Parser a
+lnLexeme a = whitespaceLn >> lexeme a
+
+whitespaceLn :: Parser ()
+whitespaceLn = Lexer.space MChar.space1 lineComment blockComment
 
 symbol :: Text.Text -> Parser Text.Text
 symbol = Lexer.symbol whitespace
 
 trySymbol :: Text.Text -> Parser Text.Text
-trySymbol s = lexeme $ Mega.try $ do
-    MChar.string s
+trySymbol = lexeme . Mega.try . symbol
 
 parens :: Parser a -> Parser a
 parens = Mega.between (MChar.char '(') (MChar.char ')')
@@ -80,16 +81,16 @@ quotes = Mega.between (MChar.char '"') (MChar.char '"')
 bars :: Parser a -> Parser a
 bars = Mega.between (MChar.char '|') (MChar.char '|')
 
+brackets :: Parser a -> Parser a
+brackets = Mega.between (MChar.char '[') (MChar.char ']')
+
+sepByComma :: Parser a -> Parser [a]
+sepByComma x = Mega.sepBy x (MChar.char ',')
+
 keyword :: Text.Text -> Parser ()
 keyword k = lexeme $ do
-    void $ MChar.string k
-    Mega.notFollowedBy $ Mega.satisfy validKeyChar
-
-meowDiv :: Text.Text -> Parser a -> Parser a
-meowDiv k = Mega.between (MChar.string k) (MChar.string "leave")
-
-stmtEnd :: Parser Char
-stmtEnd = lexeme (MChar.char ';' <|> MChar.char '\n')
+    (void . MChar.string) k
+    Mega.notFollowedBy (Mega.satisfy validKeyChar)
 
 reservedKeywords :: [Text.Text]
 reservedKeywords =
@@ -130,24 +131,22 @@ keyText = do
 
 parsePrim :: Parser Prim
 parsePrim = Mega.choice
-    [ parseStr <?> "string"
-    , parseBool <?> "bool"
-    , parseLonely <?> "lonely"
+    [ parseStr          <?> "string"
+    , parseBool         <?> "bool"
+    , parseLonely       <?> "lonely"
     , Mega.try parseInt <?> "int"
-    , parseFloat <?> "float"
-    , parseKey <?> "key" ]
+    , parseFloat        <?> "float"
+    , parseKey          <?> "key"   ]
 
 parseStr :: Parser Prim
 parseStr = do
-    void $ MChar.char '"'
-    x <- Text.pack <$> Mega.many escapeStr 
-    void $ MChar.char '"'
-    (return . MeowString) x
+    (void . MChar.char) '"'
+    (MeowString . Text.pack <$> Mega.many escapeStr) <* (void . MChar.char) '"'
 
 escapeStr :: Parser Char
 escapeStr = Mega.choice
-    [ '"' <$ MChar.string "\\\""
-    , '/' <$ MChar.string "\\/"
+    [ '"'  <$ MChar.string "\\\""
+    , '/'  <$ MChar.string "\\/"
     , '\b' <$ MChar.string "\\b"
     , '\f' <$ MChar.string "\\f"
     , '\n' <$ MChar.string "\\n"
@@ -159,21 +158,17 @@ escapeStr = Mega.choice
 parseInt :: Parser Prim
 parseInt = do
     let readInt = Lexer.decimal
-    x <- Lexer.signed whitespace readInt
-    (return . MeowInt) x
+    MeowInt <$> Lexer.signed whitespace readInt
 
 parseFloat :: Parser Prim
 parseFloat = do
     let readDouble = Lexer.float
-    x <- Lexer.signed whitespace readDouble
-    (return . MeowDouble) x
+    MeowDouble <$> Lexer.signed whitespace readDouble
 
 parseBool :: Parser Prim
-parseBool =  do
-    x <- Mega.choice
-        [ True <$ keyword "yummy"
-        , False <$ keyword "icky" ]
-    (return . MeowBool) x
+parseBool = MeowBool <$> Mega.choice
+    [ True <$ keyword "yummy"
+    , False <$ keyword "icky" ]
 
 parseLonely :: Parser Prim
-parseLonely = keyword "lonely" >> return MeowLonely
+parseLonely = MeowLonely <$ keyword "lonely"

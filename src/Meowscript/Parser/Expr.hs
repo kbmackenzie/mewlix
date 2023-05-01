@@ -55,25 +55,16 @@ operators =
     ]
 
 functionCall :: Parser (Expr -> Expr)
-functionCall = lexeme $ do
-    (void . MChar.char) '('
-    args <- Mega.sepBy (whitespaceLn >> lexeme parseExpr) (MChar.char ',')
-    (void . MChar.char) ')'
-    return (ECall args)
+functionCall = (lexeme . parens) $
+    ECall <$> sepByComma (lnLexeme parseExpr)
 
 parseList :: Parser Expr
-parseList = do
-    (void . lexemeLn . MChar.char) '['
-    list <- Mega.sepBy (whitespaceLn >> lexemeLn parseExpr) (MChar.char ',')
-    (void . MChar.char) ']'
-    (return . EList) list
+parseList = (lexeme . brackets) $
+    EList <$> sepByComma (lnLexeme parseExpr)
 
 parseObject :: Parser Expr
-parseObject = do
-    (void . lexemeLn . MChar.char) '{'
-    object <- Mega.sepBy (whitespaceLn >> lexemeLn parseKeyValue) (MChar.char ',')
-    (void . MChar.char) '}'
-    (return . EObject) object
+parseObject = (lexeme . brackets) $
+    EObject <$> sepByComma (lnLexeme parseKeyValue)
 
 parseKeyValue :: Parser (Key, Expr)
 parseKeyValue = do
