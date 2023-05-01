@@ -163,7 +163,9 @@ runWhile x body = do
 
 innerWhile :: Expr -> [Statement] -> Evaluator Prim
 innerWhile x body = do
+    stackPush
     ret <- runBlock body
+    stackPop
     condition <- asCondition x
     let isBreak = ret /= MeowVoid 
     if condition && not isBreak
@@ -183,7 +185,9 @@ runFor xs@(init', _, cond) body = do
 
 innerFor :: (Expr, Expr, Expr) -> [Statement] -> Evaluator Prim
 innerFor xs@(_, incr, cond) body = do
+    stackPush
     ret <- runBlock body
+    stackPop
     (void . evaluate) incr
     condition <- asCondition cond
     let isBreak = ret /= MeowVoid
