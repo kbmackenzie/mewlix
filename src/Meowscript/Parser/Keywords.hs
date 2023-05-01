@@ -60,7 +60,7 @@ meowBox :: Text
 meowBox = "~(  ^.x.^) BOX!!"
 
 meowLambda :: Text
-meowLambda = "( =^.x.^=)>"
+meowLambda = "( ^.x.^)>"
 
 meowNot :: Text
 meowNot = "poke"

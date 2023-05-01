@@ -24,13 +24,13 @@ root = SAll <$> Mega.between whitespaceLn Mega.eof (Mega.many (lexemeLn statemen
 statements :: Parser Statement
 statements = Mega.choice $ Mega.try <$>
     [  parseWhile                <?> "scratch while"
-     , parseFor                  <?> "steal"
+     , parseFor                  <?> "take"
      , parseIfElse               <?> "mew?"
      , parseFunc                 <?> "=^.x.^="
      , parseReturn               <?> "bring"
      , parseContinue             <?> "rest"
      , parseBreak                <?> "run away"
-     , parseTake                 <?> "takes"
+     , parseImport                 <?> "takes"
      , parseExpression           <?> "expression" ]
 
 parseEnd :: Parser ()
@@ -120,8 +120,8 @@ parseFor = lexeme . Lexer.indentBlock whitespaceLn $ do
 
 {- Import -}
 
-parseTake :: Parser Statement
-parseTake = lexeme $ do
+parseImport :: Parser Statement
+parseImport = lexeme $ do
     let (start, end) = meowTakes
     (void . Mega.try . lexeme . keyword) start
     (MeowString moduleName) <- lexeme parseStr

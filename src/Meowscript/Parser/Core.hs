@@ -79,7 +79,7 @@ quotes :: Parser a -> Parser a
 quotes = Mega.between (MChar.char '"') (MChar.char '"')
 
 bars :: Parser a -> Parser a
-bars = Mega.between (MChar.char '|') (MChar.char '|')
+bars = parens --Mega.between (MChar.char '|') (MChar.char '|')
 
 brackets :: Parser a -> Parser a
 brackets = Mega.between (MChar.char '[') (MChar.char ']')
