@@ -16,7 +16,7 @@ import Control.Monad (void)
 
 exprTerm :: Parser Expr
 exprTerm = ((lexeme . parens) parseExpr <?> "parens"    )
-    <|> (Mega.try (lexeme parseObject)  <?> "object"    )
+    <|> (Mega.try (lexeme parseObject)  <?> "box"       )
     <|> (lexeme parseList               <?> "list"      )
     <|> (EPrim <$> lexeme parsePrim                     ) 
 
@@ -32,17 +32,17 @@ operators =
         [ Prefix  (EUnop MeowYarn                   <$ trySymbol "~~"      ) ]
       , [ InfixL  (EDot                             <$ parseDotOp          ) ]
       , [ Postfix (Mega.try functionCall                                   ) ]
+      , [ Prefix  (EUnop  MeowPeek                  <$ trySymbol meowPeek  )
+        , InfixL  (EBinop MeowPush                  <$ trySymbol meowPush  )
+        , Prefix  (EUnop  MeowKnockOver             <$ trySymbol meowKnock )
+        , Postfix (EUnop  MeowLen                   <$ symbol "?"          )
+        , InfixL  (EBinop MeowConcat                <$ trySymbol ".."      ) ]
       , [ Prefix  (EUnop MeowNegate                 <$ symbol "-"          )
         , Prefix  (EUnop MeowNot                    <$ trySymbol meowBap   ) ]
       , [ InfixL  (EBinop MeowMul                   <$ symbol "*"          )
         , InfixL  (EBinop MeowDiv                   <$ symbol "/"          ) ]
       , [ InfixL  (EBinop MeowAdd                   <$ symbol "+"          )
         , InfixL  (EBinop MeowSub                   <$ symbol "-"          ) ]
-      , [ Prefix  (EUnop  MeowPeek                  <$ trySymbol meowPeek  )
-        , InfixL  (EBinop MeowPush                  <$ trySymbol meowPush  )
-        , Prefix  (EUnop  MeowKnockOver             <$ trySymbol meowKnock )
-        , Postfix (EUnop  MeowLen                   <$ symbol "~?"         )
-        , InfixL  (EBinop MeowConcat                <$ trySymbol ".."      ) ]
       , [ InfixL  (EBinop (MeowCompare [LT, EQ])    <$ trySymbol "<="      )
         , InfixL  (EBinop (MeowCompare [GT, EQ])    <$ trySymbol ">="      )
         , InfixL  (EBinop (MeowCompare [LT])        <$ symbol "<"          )
