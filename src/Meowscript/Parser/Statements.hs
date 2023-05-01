@@ -37,7 +37,7 @@ parseEnd :: Parser ()
 parseEnd = whitespace >> (void . keyword) meowEnd
 
 barsExpression :: Parser Expr
-barsExpression = (lexeme . bars) parseExpr'
+barsExpression = (lexeme . bars) (whitespace >> parseExpr')
 
 parseExpression :: Parser Statement
 parseExpression = whitespace >> SExpr <$> parseExpr'
@@ -75,7 +75,7 @@ parseIfElse = lexeme $ do
 {- Functions -}
 
 funArgs :: Parser [Text.Text]
-funArgs = (lexeme . bars . sepByComma) (flexeme keyText)
+funArgs = (lexeme . bars) $ whitespace >> sepByComma (flexeme keyText)
 
 parseFunc :: Parser Statement
 parseFunc = lexeme . Lexer.indentBlock whitespaceLn $ do

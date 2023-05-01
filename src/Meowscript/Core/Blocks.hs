@@ -42,6 +42,9 @@ evaluate (EObject object) = do
     let mapObject = Map.fromList asPrims
     (return . MeowObject) mapObject
 evaluate x@(EDot {}) = unwrapDot x <&> MeowTrail
+
+-- Lambda functions
+evaluate (ELambda args expr) = return (MeowFunc args [SReturn expr])
     
 -- Methods
 evaluate (ECall args x@(EDot {})) = do

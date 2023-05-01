@@ -37,7 +37,6 @@ data Prim =
     | MeowLonely
     | MeowList [Prim]
     | MeowFunc Args [Statement]
-    | MeowLambda Args Expr
     | MeowObject ObjectMap
     | MeowBreak
     | MeowVoid
@@ -135,7 +134,6 @@ instance Show Prim where
     show MeowLonely = "lonely"
     -- Inner Types (should never be shown)
     show (MeowFunc {}) = "<function>"
-    show (MeowLambda {}) = "<lambda-function>"
     show MeowBreak = "<break>"
     show MeowVoid = "<void>"
     show (MeowTrail {}) = "<key-trail>"
@@ -148,6 +146,7 @@ data Expr =
     | EBinop Binop Expr Expr
     | EList [Expr]
     | EObject [(Key, Expr)]
+    | ELambda [Key] Expr
     | ECall [Expr] Expr
     | EDot Expr Expr
     | ERead
@@ -198,7 +197,7 @@ data Binop =
 
 -- Pretty-print Maps
 prettyMap :: ObjectMap -> Text.Text
-prettyMap o = Text.concat ["{ ", pairs, " }"]
+prettyMap o = Text.concat ["[ ", pairs, " ]"]
     where
         lst = Map.toList o
         pair (key, val) = Text.concat [ key, ": ", asString val ]

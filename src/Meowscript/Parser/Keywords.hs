@@ -12,6 +12,8 @@ module Meowscript.Parser.Keywords
 , meowFor
 , meowPaw
 , meowClaw
+, meowBox
+, meowLambda
 , meowNot
 , meowPeek
 , meowPush
@@ -46,13 +48,19 @@ meowWhile :: Text
 meowWhile = "scratch while"
 
 meowFor :: (Text, Text, Text)
-meowFor = ("steal", "and do", "while")
+meowFor = ("take", "and do", "while")
 
 meowPaw :: Text
 meowPaw = "paw at" 
 
 meowClaw :: Text
 meowClaw = "claw at"
+
+meowBox :: Text
+meowBox = "~(  ^.x.^) BOX!!"
+
+meowLambda :: Text
+meowLambda = "( =^.x.^=)>"
 
 meowNot :: Text
 meowNot = "poke"

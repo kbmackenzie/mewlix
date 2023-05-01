@@ -16,7 +16,7 @@ import Control.Monad (void)
 
 exprTerm :: Parser Expr
 exprTerm = ((lexeme . parens) parseExpr <?> "parens"    )
-    <|> (Mega.try (lexeme parseObject)  <?> "box"       )
+    <|> (lexeme parseBox                <?> "box"       )
     <|> (lexeme parseList               <?> "list"      )
     <|> (EPrim <$> lexeme parsePrim                     ) 
 
@@ -54,19 +54,26 @@ operators =
         , InfixL  (EBinop (MeowCompare [LT, GT])    <$ trySymbol "!="      ) ]
       , [ InfixL  (EBinop MeowAnd                   <$ trySymbol "and"     ) ]
       , [ InfixL  (EBinop MeowOr                    <$ trySymbol "or"      ) ]
+      , [ Prefix  parseLambda                                                ]
       , [ InfixR  (EBinop MeowAssign                <$ symbol "="          ) ]
     ]
 
 functionCall :: Parser (Expr -> Expr)
 functionCall = (lexeme . parens) $
+    whitespace >>
     ECall <$> sepByComma (lnLexeme parseExpr)
 
 parseList :: Parser Expr
 parseList = (lexeme . brackets) $
+    whitespaceLn >>
     EList <$> sepByComma (lnLexeme parseExpr)
 
-parseObject :: Parser Expr
-parseObject = (lexeme . brackets) $
+parseBox :: Parser Expr
+parseBox = (Mega.try . lexemeLn . MChar.string) meowBox >> parseBox'
+
+parseBox' :: Parser Expr
+parseBox' = (lexeme . brackets) $
+    whitespaceLn >>
     EObject <$> sepByComma (lnLexeme parseKeyValue)
 
 parseKeyValue :: Parser (Key, Expr)
@@ -75,6 +82,14 @@ parseKeyValue = do
     (void . lexeme) (MChar.char ':')
     expression <- lexeme parseExpr
     return (key, expression)
+
+parseLambda :: Parser (Expr -> Expr)
+parseLambda = lexeme $ do
+    (void . Mega.try . lexeme . MChar.string) meowLambda
+    let takeArgs = (sepByComma . flexeme) keyText
+    args <- (lexeme . bars) (whitespace >> takeArgs)
+    (void . lexeme . MChar.string) "=>"
+    return (ELambda args)
 
 parseDotOp :: Parser ()
 parseDotOp = Mega.try (MChar.char '.' >> (Mega.notFollowedBy . MChar.char) '.')
