@@ -36,9 +36,6 @@ statements = Mega.choice $ Mega.try <$>
 parseEnd :: Parser ()
 parseEnd = whitespace >> (void . keyword) meowEnd
 
-withEnd :: ([Statement] -> Statement) -> [Statement] -> Parser Statement
-withEnd f x = parseEnd >> return (f x)
-
 barsExpression :: Parser Expr
 barsExpression = (lexeme . bars) parseExpr'
 
@@ -53,7 +50,7 @@ parseWhile = lexeme . Lexer.indentBlock whitespaceLn $ do
     (Mega.try . void . keyword) meowWhile
     whitespace
     condition <- barsExpression
-    return (Lexer.IndentMany Nothing (withEnd $ SWhile condition) statements)
+    return (Lexer.IndentMany Nothing ((<$ parseEnd) . SWhile condition) statements)
 
 {- If Else -}
 
@@ -85,7 +82,7 @@ parseFunc = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . keyword) meowCatface
     name <- lexeme keyText
     args <- funArgs
-    return (Lexer.IndentMany Nothing (withEnd $ SFuncDef name args) statements)
+    return (Lexer.IndentMany Nothing ((<$ parseEnd) . SFuncDef name args) statements)
 
 
 {- Return -}
@@ -119,8 +116,7 @@ parseFor = lexeme . Lexer.indentBlock whitespaceLn $ do
     let first = Mega.try (getExp start)
     (a, b, c) <- (,,) <$> first <*> getExp middle <*> getExp end
     let expressions = (a, b, c)
-    --return (Lexer.IndentMany Nothing (withEnd $ SFor expressions) statements)
-    return (Lexer.IndentMany Nothing ((<$ parseEnd) . SFor expressions) statements)
+    return $ Lexer.IndentMany Nothing ((<$ parseEnd) . SFor expressions) statements
 
 {- Import -}
 
