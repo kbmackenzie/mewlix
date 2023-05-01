@@ -41,6 +41,8 @@ unop op = unopVar $ case op of
     MeowNot -> meowNot
     MeowPeek -> meowPeek
     MeowKnockOver -> meowKnock
+    MeowPaw -> meowPaw
+    MeowClaw -> meowClaw
 
 {- Variables -}
 
@@ -78,6 +80,18 @@ meowAdd (MeowInt a) (MeowDouble b) = (return . MeowDouble) (fromIntegral a + b)
 meowAdd (MeowDouble a) (MeowInt b) = (return . MeowDouble) (a + fromIntegral b)
 meowAdd (MeowDouble a) (MeowDouble b) = (return . MeowDouble) (a + b)
 meowAdd x y = throwError (opException "Addition" [x, y])
+
+-- Paw (++)
+meowPaw :: Prim -> Evaluator Prim
+meowPaw (MeowInt a) = (return . MeowInt . succ) a
+meowPaw (MeowDouble a) = (return . MeowDouble . succ) a
+meowPaw x = throwError (opException "Paw" [x])
+
+-- Claw (--)
+meowClaw :: Prim -> Evaluator Prim
+meowClaw (MeowInt a) = (return . MeowInt . pred) a
+meowClaw (MeowDouble a) = (return . MeowDouble . pred) a
+meowClaw x = throwError (opException "Claw" [x])
 
 -- Negation
 meowNegate :: Prim -> Evaluator Prim

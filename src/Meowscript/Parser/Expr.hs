@@ -37,8 +37,10 @@ operators =
         , Prefix  (EUnop  MeowKnockOver             <$ trySymbol meowKnock )
         , Postfix (EUnop  MeowLen                   <$ symbol "?"          )
         , InfixL  (EBinop MeowConcat                <$ trySymbol ".."      ) ]
-      , [ Prefix  (EUnop MeowNegate                 <$ symbol "-"          )
-        , Prefix  (EUnop MeowNot                    <$ trySymbol meowBap   ) ]
+      , [ Prefix  (EUnop  MeowPaw                   <$ trySymbol meowPaw   )
+        , Prefix  (EUnop  MeowClaw                  <$ trySymbol meowClaw  )
+        , Prefix  (EUnop  MeowNegate                <$ symbol "-"          )
+        , Prefix  (EUnop  MeowNot                   <$ trySymbol meowBap   ) ]
       , [ InfixL  (EBinop MeowMul                   <$ symbol "*"          )
         , InfixL  (EBinop MeowDiv                   <$ symbol "/"          ) ]
       , [ InfixL  (EBinop MeowAdd                   <$ symbol "+"          )

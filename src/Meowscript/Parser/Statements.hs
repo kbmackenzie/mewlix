@@ -23,14 +23,14 @@ root = SAll <$> Mega.between whitespaceLn Mega.eof (Mega.many (lexemeLn statemen
 
 statements :: Parser Statement
 statements = Mega.choice $ Mega.try <$>
-    [  parseWhile                <?> "while"
-     , parseFor                  <?> "for"
-     , parseIfElse               <?> "if/else"
-     , parseFunc                 <?> "function"
-     , parseReturn               <?> "return"
-     , parseContinue             <?> "continue"
-     , parseBreak                <?> "break"
-     , parseTake                 <?> "take"
+    [  parseWhile                <?> "scratch while"
+     , parseFor                  <?> "steal"
+     , parseIfElse               <?> "mew?"
+     , parseFunc                 <?> "=^.x.^="
+     , parseReturn               <?> "bring"
+     , parseContinue             <?> "rest"
+     , parseBreak                <?> "run away"
+     , parseTake                 <?> "takes"
      , parseExpression           <?> "expression" ]
 
 parseEnd :: Parser ()

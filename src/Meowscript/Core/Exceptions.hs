@@ -82,4 +82,4 @@ badTrail = showException MeowBadTrail . Text.append "Invalid token in trail: "
 badImport :: Text.Text -> Text.Text
 badImport = showException MeowBadImport . \x -> Text.concat
     [ "Can't import module '", x,"' : "
-    , "Import / 'take as' statements cannot be nested!" ]
+    , "Import / 'takes as' statements cannot be nested!" ]

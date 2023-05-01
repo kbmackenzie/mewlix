@@ -175,6 +175,8 @@ data Unop =
     | MeowPeek
     | MeowNot 
     | MeowNegate
+    | MeowPaw
+    | MeowClaw
     deriving (Eq, Show, Ord)
 
 data Binop =
