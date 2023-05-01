@@ -196,7 +196,7 @@ prettyMap :: ObjectMap -> Text.Text
 prettyMap o = Text.concat ["{ ", pairs, " }"]
     where
         lst = Map.toList o
-        pair (key, val) = Text.concat [ key, ": ", (Text.pack . show) val ]
+        pair (key, val) = Text.concat [ key, ": ", asString val ]
         pairs = Text.intercalate ", " (map pair lst)
 
 -- Show as Text
@@ -207,14 +207,14 @@ showT = Text.pack . show
 asString :: Prim -> Text.Text
 {-# INLINABLE asString #-}
 asString (MeowString a) = a
-asString x = (Text.pack . show) x
+asString x = showT x
 
 -- Boolean-ify
 asBool :: Prim -> Bool
 {-# INLINABLE asBool #-}
 asBool (MeowBool a) = a
-asBool (MeowList []) = False
-asBool (MeowString x) = Text.null x
-asBool (MeowObject x) = Map.null x
+asBool (MeowList x) = (not . null) x
+asBool (MeowString x) = (not . Text.null) x
+asBool (MeowObject x) = (not . Map.null) x
 asBool MeowLonely = False
 asBool _ = True

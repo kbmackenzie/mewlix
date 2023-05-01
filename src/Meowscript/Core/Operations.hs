@@ -14,6 +14,7 @@ import Meowscript.Core.Exceptions
 import qualified Data.Text as Text
 import qualified Data.Map as Map
 import Control.Monad.Except (throwError)
+import Control.Monad (join)
 
 {- Binary Operations -}
 binop :: Binop -> Prim -> Prim -> Evaluator Prim
@@ -59,10 +60,8 @@ ensureValue x = return x
 
 binopVar :: (Prim -> Prim -> Evaluator Prim) -> Prim -> Prim -> Evaluator Prim
 {-# INLINABLE binopVar #-}
-binopVar f x y = do
-    x' <- ensureValue x
-    y' <- ensureValue y
-    f x' y'
+binopVar f x y = join (f <$> ensureValue x <*> ensureValue y)
+
 unopVar :: (Prim -> Evaluator Prim) -> Prim -> Evaluator Prim
 {-# INLINABLE unopVar #-}
 unopVar f x = ensureValue x >>= f
