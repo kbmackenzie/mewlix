@@ -24,19 +24,21 @@ root = SAll <$> Mega.between whitespaceLn Mega.eof (Mega.many (lexemeLn statemen
 statements :: Parser Statement
 statements = Mega.choice
     [ parseWhile                <?> "while"
+    , parseFor                  <?> "for"
     , parseIfElse               <?> "if/else"
-    , Mega.try parseFunc        <?> "function"
-    , Mega.try parseReturn      <?> "return"
-    , Mega.try parseContinue    <?> "continue"
-    , Mega.try parseBreak       <?> "break"
+    , parseFunc                 <?> "function"
+    , parseReturn               <?> "return"
+    , parseContinue             <?> "continue"
+    , parseBreak                <?> "break"
+    , parseTake                 <?> "take"
     , parseExpression           <?> "expression"
     , fail "Invalid token!" ]
 
 parseEnd :: Parser ()
 parseEnd = whitespace >> (void . keyword) meowEnd
 
-parseCondition :: Parser Expr
-parseCondition = (lexeme . bars) parseExpr'
+barsExpression :: Parser Expr
+barsExpression = (lexeme . bars) parseExpr'
 
 parseExpression :: Parser Statement
 parseExpression = whitespace >> SExpr <$> parseExpr'
@@ -48,7 +50,7 @@ parseWhile:: Parser Statement
 parseWhile = lexeme . Lexer.indentBlock whitespaceLn $ do
     (Mega.try . void . keyword) meowWhile
     whitespace
-    condition <- parseCondition
+    condition <- barsExpression
     Lexer.IndentMany Nothing (return . SWhile condition) statements <$ parseEnd
 
 {- If Else -}
@@ -56,7 +58,7 @@ parseWhile = lexeme . Lexer.indentBlock whitespaceLn $ do
 parseIf :: Parser (Expr, [Statement])
 parseIf = lexeme . Lexer.indentBlock whitespaceLn $ do
     (Mega.try . void . lexeme . keyword) meowIf
-    condition <- parseCondition
+    condition <- barsExpression
     return (Lexer.IndentMany Nothing (return . (condition,)) statements)
 
 parseElse :: Parser [Statement]
@@ -74,7 +76,7 @@ parseIfElse = do
 {- Functions -}
 
 funArgs :: Parser [Text.Text]
-funArgs = (lexeme . bars . sepByComma) (whitespace >> keyText)
+funArgs = (lexeme . bars . sepByComma) (flexeme keyText)
 
 parseFunc :: Parser Statement
 parseFunc = lexeme . Lexer.indentBlock whitespaceLn $ do
@@ -104,3 +106,25 @@ parseBreak :: Parser Statement
 parseBreak = lexeme $ do
     whitespace
     SBreak <$ (void . keyword) meowBreak
+
+
+{- For Loop -}
+
+parseFor :: Parser Statement
+parseFor = lexeme . Mega.try . Lexer.indentBlock whitespaceLn $ do
+    let (start, middle, end) = meowFor
+    let getExp name = (void . lexeme . keyword) name >> barsExpression
+    (a, b, c) <- (,,) <$> getExp start <*> getExp middle <*> getExp end
+    let expressions = (a, b, c)
+    Lexer.IndentMany Nothing (return . SFor expressions) statements <$ parseEnd
+
+{- Import -}
+
+parseTake :: Parser Statement
+parseTake = lexeme $ do
+    let (start, end) = meowTakes
+    (void . Mega.try . lexeme . keyword) start
+    (MeowString moduleName) <- lexeme parseStr
+    let key = (void . Mega.try . lexeme . keyword) end >> lexeme keyText
+    maybeKey <- Mega.optional key
+    return (SImport moduleName maybeKey)

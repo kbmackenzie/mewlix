@@ -9,10 +9,14 @@ module Meowscript.Parser.Keywords
 , meowIf
 , meowElse
 , meowWhile
+, meowFor
+, meowPaw
+, meowClaw
 , meowBap
 , meowPeek
 , meowPush
 , meowKnock
+, meowTakes
 ) where
 
 import Data.Text (Text)
@@ -41,6 +45,15 @@ meowElse = "hiss!"
 meowWhile :: Text
 meowWhile = "scratch while"
 
+meowFor :: (Text, Text, Text)
+meowFor = ("steal", "and do", "until")
+
+meowPaw :: Text
+meowPaw = "paw at" 
+
+meowClaw :: Text
+meowClaw = "claw at"
+
 meowBap :: Text
 meowBap = "bap"
 
@@ -52,3 +65,6 @@ meowPeek = "peek"
 
 meowKnock :: Text
 meowKnock = "knock over"
+
+meowTakes :: (Text, Text)
+meowTakes = ("takes", "as")

@@ -157,10 +157,12 @@ data Expr =
 data Statement =
       SExpr Expr
     | SWhile Expr [Statement]
+    | SFor (Expr, Expr, Expr) [Statement]
     | SOnlyIf Expr [Statement]
     | SIfElse Expr [Statement] [Statement] 
     | SFuncDef Name Args [Statement]
     | SReturn Expr
+    | SImport Key (Maybe Key)
     | SContinue
     | SBreak
     | SAll [Statement]
