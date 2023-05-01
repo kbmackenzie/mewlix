@@ -64,6 +64,7 @@ unopVar f x = ensureValue x >>= f
 
 -- Assignment
 meowAssign :: Prim -> Prim -> Evaluator Prim
+{-# INLINABLE meowAssign #-}
 meowAssign a (MeowTrail b) = lookUpTrail b >>= meowAssign a
 meowAssign a (MeowKey b) = lookUpVar b >>= meowAssign a
 meowAssign (MeowTrail a) b = insertWithTrail a b >> return b
