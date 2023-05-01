@@ -113,17 +113,19 @@ runStatements ((SFuncDef name args body):xs) =
 
 runStatements (statement:xs) = do
     stackPush
-    ret <- run
+    ret <- runTable statement
     stackPop
     if ret /= MeowVoid
         then return ret
         else runStatements xs
-    where run = case statement of
-            (SOnlyIf condition body) -> runIf condition body
-            (SWhile condition body) -> runWhile condition body
-            (SIfElse condition ifBody elseBody) -> runIfElse condition ifBody elseBody
-            _ -> return MeowVoid
-
+    
+runTable :: Statement -> Evaluator Prim
+runTable (SWhile a b) = runWhile a b
+runTable (SFor a b) = runFor a b
+runTable (SIfElse a b c) = runIfElse a b c
+runTable (SIf a b) = runIf a b
+runTable (SImport a _) = throwError (badImport a)
+runTable _ = return MeowVoid
 
 asCondition :: Expr -> Evaluator Bool
 {-# INLINABLE asCondition #-}
@@ -133,6 +135,8 @@ runExprStatement :: Expr -> Evaluator Prim
 {-# INLINABLE runExprStatement #-}
 runExprStatement = evaluate 
 
+
+{- If Else -}
 runIf :: Expr -> [Statement] -> Evaluator Prim
 runIf x body = do
     condition <- asCondition x 
@@ -147,16 +151,45 @@ runIfElse x ifB elseB = do
         then runBlock ifB
         else runBlock elseB
 
+
+{- While Loop -}
 -- Notes: Any return value that isn't MeowVoid implies the end of the loop.
 runWhile :: Expr -> [Statement] -> Evaluator Prim
 runWhile x body = do
+    condition <- asCondition x
+    if condition
+        then innerWhile x body
+        else return MeowVoid
+
+innerWhile :: Expr -> [Statement] -> Evaluator Prim
+innerWhile x body = do
     ret <- runBlock body
     condition <- asCondition x
     let isBreak = ret /= MeowVoid 
     if condition && not isBreak
-        then runWhile x body
+        then innerWhile x body
         else return ret
 
+
+{- For Loop -}
+-- Notes: Any return value that isn't MeowVoid implies the end of the loop.
+runFor :: (Expr, Expr, Expr) -> [Statement] -> Evaluator Prim
+runFor xs@(init', _, cond) body = do
+    (void . evaluate) init'
+    condition <- asCondition cond
+    if condition
+        then innerFor xs body
+        else return MeowVoid
+
+innerFor :: (Expr, Expr, Expr) -> [Statement] -> Evaluator Prim
+innerFor xs@(_, incr, cond) body = do
+    ret <- runBlock body
+    (void . evaluate) incr
+    condition <- asCondition cond
+    let isBreak = ret /= MeowVoid
+    if condition && not isBreak
+        then innerFor xs body
+        else return ret
 
 
 {-- Functions --}

@@ -46,7 +46,7 @@ meowWhile :: Text
 meowWhile = "scratch while"
 
 meowFor :: (Text, Text, Text)
-meowFor = ("steal", "and do", "until")
+meowFor = ("steal", "and do", "while")
 
 meowPaw :: Text
 meowPaw = "paw at" 

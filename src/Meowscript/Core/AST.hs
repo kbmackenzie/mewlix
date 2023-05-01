@@ -158,7 +158,7 @@ data Statement =
       SExpr Expr
     | SWhile Expr [Statement]
     | SFor (Expr, Expr, Expr) [Statement]
-    | SOnlyIf Expr [Statement]
+    | SIf Expr [Statement]
     | SIfElse Expr [Statement] [Statement] 
     | SFuncDef Name Args [Statement]
     | SReturn Expr

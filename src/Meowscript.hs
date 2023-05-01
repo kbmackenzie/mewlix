@@ -19,6 +19,8 @@ runBasic path = do
     txt <- TextIO.readFile path
     let output = Mega.parse root path txt
     case output of
-        (Right (SAll program)) -> runEvaluator baseLibrary (runBlock program)
+        (Right (SAll program)) -> do
+            print program -- Take this off later!
+            runEvaluator baseLibrary (runBlock program)
         (Left x) -> (return . Left . Text.pack . MError.errorBundlePretty) x
         _ -> (return . Left) "Fatal error: Invalid parser output."
