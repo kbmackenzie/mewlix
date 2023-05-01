@@ -184,6 +184,7 @@ data Binop =
     | MeowSub 
     | MeowMul 
     | MeowDiv 
+    | MeowMod
     | MeowAnd 
     | MeowOr 
     | MeowCompare [Ordering]

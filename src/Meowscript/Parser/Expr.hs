@@ -40,9 +40,10 @@ operators =
       , [ Prefix  (EUnop  MeowPaw                   <$ trySymbol meowPaw   )
         , Prefix  (EUnop  MeowClaw                  <$ trySymbol meowClaw  )
         , Prefix  (EUnop  MeowNegate                <$ symbol "-"          )
-        , Prefix  (EUnop  MeowNot                   <$ trySymbol meowBap   ) ]
+        , Prefix  (EUnop  MeowNot                   <$ trySymbol meowNot   ) ]
       , [ InfixL  (EBinop MeowMul                   <$ symbol "*"          )
-        , InfixL  (EBinop MeowDiv                   <$ symbol "/"          ) ]
+        , InfixL  (EBinop MeowDiv                   <$ symbol "/"          )
+        , InfixL  (EBinop MeowMod                   <$ symbol "%"          ) ]
       , [ InfixL  (EBinop MeowAdd                   <$ symbol "+"          )
         , InfixL  (EBinop MeowSub                   <$ symbol "-"          ) ]
       , [ InfixL  (EBinop (MeowCompare [LT, EQ])    <$ trySymbol "<="      )

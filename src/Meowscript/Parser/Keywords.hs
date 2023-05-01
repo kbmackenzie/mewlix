@@ -12,7 +12,7 @@ module Meowscript.Parser.Keywords
 , meowFor
 , meowPaw
 , meowClaw
-, meowBap
+, meowNot
 , meowPeek
 , meowPush
 , meowKnock
@@ -25,7 +25,7 @@ meowCatface :: Text
 meowCatface = "=^.x.^="
 
 meowEnd :: Text
-meowEnd = "walk off"
+meowEnd = "meow meow"
 
 meowReturn :: Text
 meowReturn = "bring"
@@ -54,8 +54,8 @@ meowPaw = "paw at"
 meowClaw :: Text
 meowClaw = "claw at"
 
-meowBap :: Text
-meowBap = "bap"
+meowNot :: Text
+meowNot = "poke"
 
 meowPush :: Text
 meowPush = "push"

@@ -25,6 +25,7 @@ binop op = binopVar $ case op of
     MeowSub -> meowSub
     MeowMul -> meowMul
     MeowDiv -> meowDiv
+    MeowMod -> meowMod
     (MeowCompare ord) -> meowCompare ord
     MeowAnd -> meowAnd
     MeowOr -> meowOr
@@ -120,6 +121,13 @@ meowDiv (MeowInt a) (MeowDouble b) = (return . MeowDouble) (fromIntegral a / b)
 meowDiv (MeowDouble a) (MeowInt b) = (return . MeowDouble) (a / fromIntegral b)
 meowDiv (MeowDouble a) (MeowDouble b) = (return . MeowDouble) (a / b)
 meowDiv x y = throwError (opException "Division" [x, y])
+
+-- Modulo
+meowMod :: Prim -> Prim -> Evaluator Prim
+meowMod a b@(MeowInt 0) = throwError (divByZero [a, b])
+meowMod a b@(MeowDouble 0) = throwError (divByZero [a, b])
+meowMod (MeowInt a) (MeowInt b) = (return . MeowInt) (a `mod` b)
+meowMod x y = throwError (opException "Modulo" [x, y])
 
 
 -- Comparison
