@@ -87,7 +87,7 @@ parseLambda :: Parser (Expr -> Expr)
 parseLambda = lexeme $ do
     (void . Mega.try . lexeme . MChar.string) meowLambda
     let takeArgs = (sepByComma . flexeme) keyText
-    args <- (lexeme . bars) (whitespace >> takeArgs)
+    args <- (lexeme . parens) (whitespace >> takeArgs)
     (void . lexeme . MChar.string) "=>"
     return (ELambda args)
 
