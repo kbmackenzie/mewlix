@@ -7,7 +7,6 @@ module Meowscript
 import Meowscript.Core.AST
 import Meowscript.Core.Base
 import Meowscript.Core.Blocks
-import Meowscript.Core.Evaluate
 import Meowscript.Parser.Statements
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO

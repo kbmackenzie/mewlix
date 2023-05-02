@@ -14,7 +14,6 @@ module Meowscript.Core.Environment
 ) where
 
 import Meowscript.Core.AST
-import Meowscript.Core.Evaluate
 import Meowscript.Core.Exceptions
 import qualified Data.Text as Text
 import qualified Data.Map as Map
@@ -47,7 +46,8 @@ lookUpVar :: Key -> Evaluator Prim
 {-# INLINABLE lookUpVar #-}
 lookUpVar key = get >>= \stack -> case find (Map.member key) stack of
     (Just env) -> case Map.lookup key env of
-        (Just item) -> return item
+        -- (Just (MeowTrail xs)) -> lookUpTrail xs
+        (Just prim) -> return prim
         Nothing -> throwError (badKey key)
     _ -> throwError (badKey key)
 

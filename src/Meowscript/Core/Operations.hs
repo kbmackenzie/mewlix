@@ -8,7 +8,6 @@ module Meowscript.Core.Operations
 ) where
 
 import Meowscript.Core.AST
-import Meowscript.Core.Evaluate
 import Meowscript.Core.Environment
 import Meowscript.Core.Exceptions
 import qualified Data.Text as Text
@@ -20,6 +19,7 @@ import Control.Monad (join)
 binop :: Binop -> Prim -> Prim -> Evaluator Prim
 {-# INLINABLE binop #-}
 binop MeowAssign = meowAssign
+binop MeowPush = meowPush
 binop op = binopVar $ case op of
     MeowAdd -> meowAdd
     MeowSub -> meowSub
@@ -30,20 +30,19 @@ binop op = binopVar $ case op of
     MeowAnd -> meowAnd
     MeowOr -> meowOr
     MeowConcat -> meowConcat
-    MeowPush -> meowPush
 
 {- Unary Operations -}
 unop :: Unop -> Prim -> Evaluator Prim
 {-# INLINABLE unop #-}
+unop MeowPaw = meowPaw
+unop MeowClaw = meowClaw
+unop MeowKnockOver = meowKnock
 unop op = unopVar $ case op of
     MeowYarn -> meowYarn
     MeowLen -> meowLen
     MeowNegate -> meowNegate
     MeowNot -> meowNot
     MeowPeek -> meowPeek
-    MeowKnockOver -> meowKnock
-    MeowPaw -> meowPaw
-    MeowClaw -> meowClaw
 
 {- Variables -}
 
@@ -68,11 +67,45 @@ unopVar f x = ensureValue x >>= f
 -- Assignment
 meowAssign :: Prim -> Prim -> Evaluator Prim
 {-# INLINABLE meowAssign #-}
-meowAssign a (MeowTrail b) = lookUpTrail b >>= meowAssign a
-meowAssign a (MeowKey b) = lookUpVar b >>= meowAssign a
-meowAssign (MeowTrail a) b = insertWithTrail a b >> return b
-meowAssign (MeowKey a) b = insertVar a b >> return b
+meowAssign (MeowTrail a) b = ensureValue b >>= insertWithTrail a >> return b
+meowAssign (MeowKey a) b = ensureValue b >>= insertVar a >> return b
 meowAssign a b = throwError (opException "Assignment" [a, b])
+
+-- Paw (++)
+meowPaw :: Prim -> Evaluator Prim
+meowPaw (MeowKey a) = do
+    num <- lookUpVar a >>= meowPaw'
+    insertVar a num
+    return num
+meowPaw (MeowTrail as) = do
+    num <- lookUpTrail as >>= meowPaw'
+    insertWithTrail as num
+    return num
+meowPaw a = throwError (opException "Paw" [a])
+
+meowPaw' :: Prim -> Evaluator Prim
+meowPaw' (MeowInt a) = (return . MeowInt . succ) a
+meowPaw' (MeowDouble a) = (return . MeowDouble . succ) a
+meowPaw' a = throwError (opException "Paw" [a])
+
+-- Claw (--)
+meowClaw :: Prim -> Evaluator Prim
+meowClaw (MeowKey a) = do
+    num <- lookUpVar a >>= meowClaw'
+    insertVar a num
+    return num
+meowClaw (MeowTrail as) = do
+    num <- lookUpTrail as >>= meowClaw'
+    insertWithTrail as num
+    return num
+meowClaw a = throwError (opException "Claw" [a])
+
+meowClaw' :: Prim -> Evaluator Prim
+meowClaw' (MeowInt a) = (return . MeowInt . pred) a
+meowClaw' (MeowDouble a) = (return . MeowDouble . pred) a
+meowClaw' a = throwError (opException "Claw" [a])
+
+
 
 -- Addition
 meowAdd :: Prim -> Prim -> Evaluator Prim
@@ -81,18 +114,6 @@ meowAdd (MeowInt a) (MeowDouble b) = (return . MeowDouble) (fromIntegral a + b)
 meowAdd (MeowDouble a) (MeowInt b) = (return . MeowDouble) (a + fromIntegral b)
 meowAdd (MeowDouble a) (MeowDouble b) = (return . MeowDouble) (a + b)
 meowAdd x y = throwError (opException "Addition" [x, y])
-
--- Paw (++)
-meowPaw :: Prim -> Evaluator Prim
-meowPaw (MeowInt a) = (return . MeowInt . succ) a
-meowPaw (MeowDouble a) = (return . MeowDouble . succ) a
-meowPaw x = throwError (opException "Paw" [x])
-
--- Claw (--)
-meowClaw :: Prim -> Evaluator Prim
-meowClaw (MeowInt a) = (return . MeowInt . pred) a
-meowClaw (MeowDouble a) = (return . MeowDouble . pred) a
-meowClaw x = throwError (opException "Claw" [x])
 
 -- Negation
 meowNegate :: Prim -> Evaluator Prim
@@ -174,12 +195,6 @@ meowConcat (MeowObject a) (MeowObject b) = (return . MeowObject) (a <> b)
 meowConcat a b = (return . MeowString) ab
     where ab = Text.append (asString a) (asString b)
 
--- Push
-meowPush :: Prim -> Prim -> Evaluator Prim
-meowPush (MeowList a) b = (return . MeowList) (b:a)
-meowPush (MeowString a) b = (return . MeowString) (asString b `Text.append` a)
-meowPush a b = throwError (opException "Push" [a, b])
-
 -- Peek
 meowPeek :: Prim -> Evaluator Prim
 meowPeek (MeowList a) = return (if null a then MeowLonely else head a)
@@ -187,8 +202,42 @@ meowPeek (MeowString a) = (return . MeowString) res
           where res = if Text.null a then a else (Text.pack . (: []) . Text.head) a
 meowPeek a = throwError (opException "Peek" [a])
 
+
+
+{- List Assignment -}
+
+-- Push
+meowPush :: Prim -> Prim -> Evaluator Prim
+meowPush a (MeowKey b) = do
+    a' <- ensureValue a
+    list <- lookUpVar b >>= meowPush' a'
+    insertVar b list
+    return list
+meowPush a (MeowTrail bs) = do
+    a' <- ensureValue a
+    list <- lookUpTrail bs >>= meowPush' a'
+    insertWithTrail bs list
+    return list
+meowPush a b = throwError (opException "Push" [a, b])
+
+meowPush' :: Prim -> Prim -> Evaluator Prim
+meowPush' a (MeowList b) = (return . MeowList) (a:b)
+meowPush' a (MeowString b) = (return . MeowString) (asString a `Text.append` b)
+meowPush' a b = throwError (opException "Push" [a, b])
+
 -- Knock over
 meowKnock :: Prim -> Evaluator Prim
-meowKnock (MeowList a) = (return . MeowList) (if null a then a else tail a)
-meowKnock (MeowString a) = (return . MeowString) (if Text.null a then a else Text.tail a)
+meowKnock (MeowKey a) = do
+    list <- lookUpVar a >>= meowKnock'
+    insertVar a list
+    return list
+meowKnock (MeowTrail as) = do
+    list <- lookUpTrail as >>= meowKnock'
+    insertWithTrail as list
+    return list
 meowKnock a = throwError (opException "Knock Over" [a])
+    
+meowKnock' :: Prim -> Evaluator Prim
+meowKnock' (MeowList a) = (return . MeowList) (if null a then a else tail a)
+meowKnock' (MeowString a) = (return . MeowString) (if Text.null a then a else Text.tail a)
+meowKnock' a = throwError (opException "Knock Over" [a])

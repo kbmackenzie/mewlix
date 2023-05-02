@@ -84,7 +84,7 @@ parseKeyValue = do
     return (key, expression)
 
 parseLambda :: Parser (Expr -> Expr)
-parseLambda = lexeme $ do
+parseLambda = do
     (void . Mega.try . lexeme . MChar.string) meowLambda
     let takeArgs = (sepByComma . flexeme) keyText
     args <- (lexeme . parens) (whitespace >> takeArgs)

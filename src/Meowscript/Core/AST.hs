@@ -6,10 +6,14 @@ module Meowscript.Core.AST
 , Unop(..)
 , Binop(..)
 , Statement(..)
-, Args
 , Name
 , Key
+, Params
 , ObjectMap
+, Environment
+, EnvStack
+, Evaluator
+, InnerFunc
 , showT
 , asString
 , asBool
@@ -18,15 +22,20 @@ module Meowscript.Core.AST
 
 import qualified Data.Text as Text
 import qualified Data.Map as Map
+import Control.Monad.State (StateT)
+import Control.Monad.Except (ExceptT)
 
-type Args = [Text.Text]
-type Key = Text.Text
 type Name = Text.Text
+type Key = Text.Text
+type Params = [Text.Text]
 
 type ObjectMap = Map.Map Text.Text Prim
 
-type InnerFunc = ([(Key, Prim)] -> Prim)
-type InnerIO = ([(Key, Prim)] -> IO Prim)
+type Environment = Map.Map Text.Text Prim
+type EnvStack = [Environment]
+type Evaluator a = StateT EnvStack (ExceptT Text.Text IO) a
+
+type InnerFunc = Evaluator Prim
 
 data Prim =
       MeowString Text.Text
@@ -36,13 +45,12 @@ data Prim =
     | MeowDouble Double
     | MeowLonely
     | MeowList [Prim]
-    | MeowFunc Args [Statement]
+    | MeowFunc Params [Statement]
     | MeowObject ObjectMap
     | MeowBreak
     | MeowVoid
     | MeowTrail [Key]
-    | MeowIFunc Args InnerFunc
-    | MeowIO Args InnerIO
+    | MeowIFunc Params InnerFunc
 
 instance Eq Prim where
     (MeowInt a) == (MeowDouble b) = fromIntegral a == b
@@ -138,7 +146,6 @@ instance Show Prim where
     show MeowVoid = "<void>"
     show (MeowTrail {}) = "<key-trail>"
     show (MeowIFunc {}) = "<inner-function>"
-    show (MeowIO {}) = "<inner-function>"
 
 data Expr =
       EPrim Prim
@@ -149,8 +156,8 @@ data Expr =
     | ELambda [Key] Expr
     | ECall [Expr] Expr
     | EDot Expr Expr
-    | ERead
-    | EWrite Expr
+    -- | ERead
+    -- | EWrite Expr
     deriving (Eq, Show, Ord)
 
 data Statement =
@@ -159,9 +166,10 @@ data Statement =
     | SFor (Expr, Expr, Expr) [Statement]
     | SIf Expr [Statement]
     | SIfElse Expr [Statement] [Statement] 
-    | SFuncDef Name Args [Statement]
+    | SFuncDef Name Params [Statement]
     | SReturn Expr
     | SImport Key (Maybe Key)
+    | SIFunc Name Prim
     | SContinue
     | SBreak
     | SAll [Statement]

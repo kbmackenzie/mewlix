@@ -9,7 +9,6 @@ module Meowscript.Core.Blocks
 ) where
 
 import Meowscript.Core.AST
-import Meowscript.Core.Evaluate
 import Meowscript.Core.Operations
 import Meowscript.Core.Environment
 import Meowscript.Core.Exceptions
@@ -60,10 +59,12 @@ evaluate (ECall args name) = evaluate name >>= \case
     _ -> throwError "Invalid function name!"
 
 -- Inner Functions
+{--
 evaluate ERead = liftIO TextIO.getLine <&> MeowString
 evaluate (EWrite x) = do
     evaluate x >>= ensureValue >>= (liftIO . print)
     return MeowLonely
+--}
 
 
 {-- Helpers --}
@@ -139,6 +140,89 @@ runExprStatement :: Expr -> Evaluator Prim
 runExprStatement = evaluate 
 
 
+------------------------------------------------------------------------
+
+{-- Functions --}
+
+runFuncDef :: Name -> Params -> [Statement] -> Evaluator Prim
+runFuncDef name params body = do
+    let func = MeowFunc params body
+    insertVar name func
+    return MeowVoid
+
+{-
+innerFuncDef :: Name -> Prim -> Evaluator Prim
+innerFuncDef name func@(MeowIFunc _ _) = 
+    insertVar name func >> return MeowVoid
+innerFuncDef name _ = throwError (badIFunc name)
+-}
+
+-- Add function arguments to the environment.
+funcArgs :: [(Key, Expr)] -> Evaluator ()
+{-# INLINABLE funcArgs #-}
+funcArgs [] = return ()
+funcArgs ((key, expr):xs) = do
+    evaluate expr >>= ensureValue >>= addToTop key
+    funcArgs xs
+
+funcCall :: Name -> [Expr] -> Evaluator Prim
+{-# INLINABLE funcCall #-}
+funcCall name args = do
+    x <- keyExists name
+    if not x then throwError (badKey name)
+    else lookUpVar name >>= runFunc args name
+
+paramGuard :: Name -> [Expr] -> Params -> Evaluator ()
+paramGuard name args params = do
+    when (length params < length args) (throwError $ manyArgs name)
+    when (length params > length args) (throwError $ fewArgs name)
+
+{- Function -}
+runFunc :: [Expr] -> Name -> Prim -> Evaluator Prim
+runFunc args name (MeowFunc params body) = do
+    paramGuard name args params
+    stackPush
+    funcArgs (zip params args)
+    ret <- runStatements body
+    stackPop
+    return ret
+runFunc args name (MeowIFunc params fn) = do
+    paramGuard name args params
+    stackPush
+    funcArgs (zip params args)
+    ret <- fn
+    stackPop
+    return ret
+runFunc _ name _ = throwError (badFunc name)
+
+
+{- Method -}
+runMethod :: [Expr] -> Name -> [Key] -> Prim -> Evaluator Prim
+runMethod args name trail (MeowFunc params body) = do
+    paramGuard name args params
+    stackPush
+    funcArgs (zip params args)
+    addToTop "home" (MeowTrail trail)
+    ret <- runStatements body
+    stackPop
+    return ret
+runMethod args name trail (MeowIFunc params fn) = do
+    paramGuard name args params
+    stackPush
+    funcArgs (zip params args)
+    addToTop "home" (MeowTrail trail)
+    ret <- fn
+    stackPop
+    return ret
+runMethod _ name _ _ = throwError (badFunc name)
+
+-- Helper functions to distinguish between statements.
+isFuncDef :: Statement -> Bool
+isFuncDef (SFuncDef {}) = True
+isFuncDef _ = False
+
+------------------------------------------------------------------------
+
 {- If Else -}
 runIf :: Expr -> [Statement] -> Evaluator Prim
 runIf x body = do
@@ -197,55 +281,3 @@ innerFor xs@(_, incr, cond) body = do
     if condition && not isBreak
         then innerFor xs body
         else return ret
-
-
-{-- Functions --}
-
-runFuncDef :: Name -> Args -> [Statement] -> Evaluator Prim
-runFuncDef name args body = do
-    let func = MeowFunc args body
-    insertVar name func
-    return MeowVoid
-
--- Add function arguments to the environment.
-funcArgs :: [(Key, Expr)] -> Evaluator ()
-{-# INLINABLE funcArgs #-}
-funcArgs [] = return ()
-funcArgs ((key, expr):xs) = do
-    evaluate expr >>= ensureValue >>= addToTop key
-    funcArgs xs
-
-funcCall :: Name -> [Expr] -> Evaluator Prim
-{-# INLINABLE funcCall #-}
-funcCall name args = do
-    x <- keyExists name
-    if not x then throwError (badKey name)
-    else lookUpVar name >>= runFunc args name
-        
-runFunc :: [Expr] -> Text.Text -> Prim -> Evaluator Prim
-runFunc args name (MeowFunc params body) = do
-    when (length params < length args) (throwError $ manyArgs name)
-    when (length params > length args) (throwError $ fewArgs name)
-    stackPush
-    funcArgs (zip params args)
-    ret <- runStatements body
-    stackPop
-    return ret
-runFunc _ name _ = throwError (badFunc name)
-
-runMethod :: [Expr] -> Text.Text -> [Key] -> Prim -> Evaluator Prim
-runMethod args name trail (MeowFunc params body) = do
-    when (length params < length args) (throwError $ manyArgs name)
-    when (length params > length args) (throwError $ fewArgs name)
-    stackPush
-    funcArgs (zip params args)
-    addToTop "home" (MeowTrail trail)
-    ret <- runStatements body
-    stackPop
-    return ret
-runMethod _ name _ _ = throwError (badFunc name)
-
--- Helper functions to distinguish between statements.
-isFuncDef :: Statement -> Bool
-isFuncDef (SFuncDef {}) = True
-isFuncDef _ = False

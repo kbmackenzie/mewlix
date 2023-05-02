@@ -14,6 +14,7 @@ module Meowscript.Core.Exceptions
 , badFunc
 , badTrail
 , badImport
+, badIFunc
 ) where
 
 import Meowscript.Core.AST
@@ -30,6 +31,7 @@ data MeowException =
     | MeowBadToken
     | MeowBadFunc
     | MeowBadImport
+    | MeowBadIFunc
     deriving (Eq, Ord)
 
 instance Show MeowException where
@@ -43,9 +45,11 @@ instance Show MeowException where
     show MeowBadToken = "InvalidTokenException"
     show MeowBadFunc = "InvalidFunctionException"
     show MeowBadImport = "InvalidImportException"
+    show MeowBadIFunc = "InvalidInnerFunctionException"
 
 showException :: MeowException -> Text.Text -> Text.Text
-showException meowe message = Text.concat [(Text.pack . show) meowe, ": ", message]
+showException meowe message = Text.concat
+    ["[", (Text.pack . show) meowe, "]", ": ", message]
 
 showException' :: (Show a) => MeowException -> Text.Text -> [a] -> Text.Text
 showException' meowe text xs = (showException meowe . Text.concat) message
@@ -83,3 +87,6 @@ badImport :: Text.Text -> Text.Text
 badImport = showException MeowBadImport . \x -> Text.concat
     [ "Can't import module '", x,"' : "
     , "Import / 'takes as' statements cannot be nested!" ]
+
+badIFunc :: Text.Text -> [Prim] -> Text.Text
+badIFunc = showException' MeowBadIFunc

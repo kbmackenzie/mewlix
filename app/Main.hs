@@ -7,7 +7,7 @@ import qualified Data.Text.IO as TextIO
 
 main :: IO ()
 main = do
-    let path = "meowscript_practice2.txt"
+    let path = "meowscript_practice3.txt"
     tok <- runBasic path
     case tok of
             (Right x) -> print x
