@@ -81,10 +81,12 @@ unwrapDot x = evaluate x >>= \tok -> case tok of
 
 -- Helper functions to distinguish between statements.
 isFuncDef :: Statement -> Bool
+{-# INLINABLE isFuncDef #-}
 isFuncDef (SFuncDef {}) = True
 isFuncDef _ = False
 
 isImport :: Statement -> Bool
+{-# INLINABLE isImport #-}
 isImport (SImport {}) = True
 isImport _ = False
 
@@ -118,6 +120,7 @@ runStatements (statement:xs) = do
 
 -- Action table for all other statement blocks.
 runTable :: Statement -> Evaluator Prim
+{-# INLINABLE runTable #-}
 runTable (SWhile a b) = runWhile a b
 runTable (SFor a b) = runFor a b
 runTable (SIfElse a b c) = runIfElse a b c
@@ -158,11 +161,13 @@ funCall name args = do
     else lookUpVar name >>= runFunc name args
 
 paramGuard :: Name -> Args -> Params -> Evaluator ()
+{-# INLINABLE paramGuard #-}
 paramGuard name args params = do
     when (length params < length args) (throwError $ manyArgs name)
     when (length params > length args) (throwError $ fewArgs name)
 
 funWrapper :: Name -> Params -> Args -> Evaluator Prim -> Evaluator Prim
+{-# INLINABLE funWrapper #-}
 funWrapper name params args action = do
     paramGuard name args params
     stackPush
