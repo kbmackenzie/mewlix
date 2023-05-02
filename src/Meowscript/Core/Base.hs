@@ -18,14 +18,15 @@ import Control.Monad.State(liftIO)
 import Data.Functor((<&>))
 
 baseLibrary :: EnvStack
-baseLibrary = ((: []) . Map.fromList)
+baseLibrary = (List.singleton . Map.fromList)
     [ ("meow"    , MeowIFunc  ["x"] meow      )
     , ("listen"  , MeowIFunc  [   ] listen    )
     , ("reverse" , MeowIFunc  ["x"] reverseFn )
     , ("sort"    , MeowIFunc  ["x"] sortFn    )
     , ("int"     , MeowIFunc  ["x"] toInt     )
     , ("float"   , MeowIFunc  ["x"] toDouble  )
-    , ("string"  , MeowIFunc  ["x"] toString  )]
+    , ("string"  , MeowIFunc  ["x"] toString  )
+    , ("taste"   , MeowIFunc  ["x"] toBool    )]
 
 {- IO -} 
 ----------------------------------------------------------
@@ -64,7 +65,7 @@ toInt = lookUpVar "x" >>= \case
     x -> throwError (badArgs "int" [x])
 
 readInt :: Text.Text -> Evaluator Int
-readInt txt = case Read.decimal txt of
+readInt txt = case Read.signed Read.decimal txt of
     (Left er) -> throwError (badValue "int" (Text.pack er) [MeowString txt])
     (Right x) -> (return . fst) x
 
@@ -77,7 +78,9 @@ toDouble = lookUpVar "x" >>= \case
     x -> throwError (badArgs "float" [x])
 
 readDouble :: Text.Text -> Evaluator Double
-readDouble txt = case Read.double txt of
+readDouble txt = case Read.signed Read.double txt of
     (Left er) -> throwError (badValue "float" (Text.pack er) [MeowString txt])
     (Right x) -> (return . fst) x
 
+toBool :: Evaluator Prim
+toBool = lookUpVar "x" <&> (MeowBool . asBool)
