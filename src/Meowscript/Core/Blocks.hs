@@ -40,7 +40,7 @@ evaluate (EObject object) = do
 evaluate dots@(EDot {}) = unwrapDot dots <&> MeowTrail
 evaluate (ELambda args expr) = return (MeowFunc args [SReturn expr])
     
--- Methods
+{- Methods Call -}
 evaluate (ECall args dots@(EDot {})) = do
     xs <- unwrapDot dots
     fn <- lookUpTrail xs
@@ -48,15 +48,18 @@ evaluate (ECall args dots@(EDot {})) = do
     let name = last xs
     runMethod name args home fn
 
--- Functions
+{- Function Call -}
 evaluate (ECall args name) = evaluate name >>= \case
-    (MeowKey x) -> funcCall x args
+    (MeowKey x) -> funCall x args
     -- Allow lambda immediate call:
     lambda@(MeowFunc _ _) -> runFunc "<lambda>" args lambda
     _ -> throwError "Invalid function name!"
 
 
+------------------------------------------------------------------------
+
 {-- Helpers --}
+
 -- Ensures a value will be passed instead of an atom.
 ensureValue :: Prim -> Evaluator Prim
 {-# INLINABLE ensureValue #-}
@@ -76,14 +79,25 @@ unwrapDot x = evaluate x >>= \tok -> case tok of
     (MeowKey key) -> return [key]
     _ -> (throwError . badTrail . showT) tok
 
+-- Helper functions to distinguish between statements.
+isFuncDef :: Statement -> Bool
+isFuncDef (SFuncDef {}) = True
+isFuncDef _ = False
+
+isImport :: Statement -> Bool
+isImport (SImport {}) = True
+isImport _ = False
+
+------------------------------------------------------------------------
 
 {-- Blocks --}
+
 -- Run block in proper order: Function definitions, then other statements.
 runBlock :: [Statement] -> Evaluator Prim
 {-# INLINABLE runBlock #-}
 runBlock xs = do
     let (funcDefs, rest) = List.partition isFuncDef xs
-    void $ runStatements funcDefs
+    (void . runStatements) funcDefs
     runStatements rest
 
 -- Running Statements
@@ -123,24 +137,22 @@ runExprStatement = evaluate
 ------------------------------------------------------------------------
 
 {-- Functions --}
-
 runFuncDef :: Name -> Params -> [Statement] -> Evaluator Prim
 runFuncDef name params body = do
     let func = MeowFunc params body
     insertVar name func
     return MeowVoid
 
--- Add function arguments to the environment.
-funcArgs :: [(Key, Expr)] -> Evaluator ()
-{-# INLINABLE funcArgs #-}
-funcArgs [] = return ()
-funcArgs ((key, expr):xs) = do
+addFunArgs :: [(Key, Expr)] -> Evaluator ()
+{-# INLINABLE addFunArgs #-}
+addFunArgs [] = return ()
+addFunArgs ((key, expr):xs) = do
     evaluate expr >>= ensureValue >>= addToTop key
-    funcArgs xs
+    addFunArgs xs
 
-funcCall :: Name -> Args -> Evaluator Prim
-{-# INLINABLE funcCall #-}
-funcCall name args = do
+funCall :: Name -> Args -> Evaluator Prim
+{-# INLINABLE funCall #-}
+funCall name args = do
     x <- keyExists name
     if not x then throwError (badKey name)
     else lookUpVar name >>= runFunc name args
@@ -150,35 +162,30 @@ paramGuard name args params = do
     when (length params < length args) (throwError $ manyArgs name)
     when (length params > length args) (throwError $ fewArgs name)
 
-funcHelper :: Name -> Params -> Args -> Evaluator Prim -> Evaluator Prim
-funcHelper name params args action = do
+funWrapper :: Name -> Params -> Args -> Evaluator Prim -> Evaluator Prim
+funWrapper name params args action = do
     paramGuard name args params
     stackPush
-    funcArgs (zip params args)
+    addFunArgs (zip params args)
     ret <- action
     stackPop
     return ret
 
 {- Function -}
 runFunc :: Name -> Args -> Prim -> Evaluator Prim
-runFunc name args (MeowFunc params body) = funcHelper name params args (runStatements body)
-runFunc name args (MeowIFunc params fn) = funcHelper name params args fn
+runFunc name args (MeowFunc params body) = funWrapper name params args (runStatements body)
+runFunc name args (MeowIFunc params fn) = funWrapper name params args fn
 runFunc name _ _ = throwError (badFunc name)
 
 {- Method -}
 runMethod :: Name -> Args -> [Key] -> Prim -> Evaluator Prim
-runMethod name args trail (MeowFunc params body) = funcHelper name params args $ do
+runMethod name args trail (MeowFunc params body) = funWrapper name params args $ do
     addToTop "home" (MeowTrail trail)
     runStatements body
-runMethod name args trail (MeowIFunc params fn) = funcHelper name params args $ do
+runMethod name args trail (MeowIFunc params fn) = funWrapper name params args $ do
     addToTop "home" (MeowTrail trail)
     fn
 runMethod name _ _ _ = throwError (badFunc name)
-
--- Helper functions to distinguish between statements.
-isFuncDef :: Statement -> Bool
-isFuncDef (SFuncDef {}) = True
-isFuncDef _ = False
 
 ------------------------------------------------------------------------
 
