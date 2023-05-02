@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-} 
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TupleSections #-}
 
 module Meowscript.Core.Blocks
 ( runEvaluator 
@@ -13,62 +14,49 @@ import Meowscript.Core.Operations
 import Meowscript.Core.Environment
 import Meowscript.Core.Exceptions
 import qualified Data.Text as Text
-import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map
 import qualified Data.List as List
-import Control.Monad.State (liftIO, runStateT)
+import Control.Monad.State (runStateT)
 import Control.Monad.Except (throwError, runExceptT)
-import Control.Monad (void, when)
+import Control.Monad (void, join, when)
 import Data.Functor ((<&>))
 
-{- Run all statements from root. -}
+type Args = [Expr]
+
+{- Run evaluator. -}
 runEvaluator :: EnvStack -> Evaluator a -> IO (Either Text.Text (a, EnvStack))
 runEvaluator env x = runExceptT (runStateT x env)
 
 {- Evaluating Expressions -}
 evaluate :: Expr -> Evaluator Prim
 evaluate (EPrim prim) = return prim
-evaluate (EBinop op expressionA expressionB) = do
-    a <- evaluate expressionA
-    b <- evaluate expressionB
-    binop op a b
-evaluate (EUnop op expA) = evaluate expA >>= unop op
-
+evaluate (EBinop op a b) = join (binop op <$> evaluate a <*> evaluate b)
+evaluate (EUnop op a) = evaluate a >>= unop op
 evaluate (EList list) = mapM evaluate list <&> MeowList
 evaluate (EObject object) = do
-    let asPair key x = return (key, x)
-    asPrims <- mapM (\(key, exp') -> evaluate exp' >>= ensureValue >>= asPair key) object
-    let mapObject = Map.fromList asPrims
-    (return . MeowObject) mapObject
-evaluate x@(EDot {}) = unwrapDot x <&> MeowTrail
-
--- Lambda functions
+    let toPrim (key, expr) = (evaluate expr >>= ensureValue) <&> (key,)
+    pairs <- mapM toPrim object
+    (return . MeowObject) (Map.fromList pairs)
+evaluate dots@(EDot {}) = unwrapDot dots <&> MeowTrail
 evaluate (ELambda args expr) = return (MeowFunc args [SReturn expr])
     
 -- Methods
-evaluate (ECall args x@(EDot {})) = do
-    xs <- unwrapDot x
+evaluate (ECall args dots@(EDot {})) = do
+    xs <- unwrapDot dots
     fn <- lookUpTrail xs
     let home = init xs -- All but the function name.
     let name = last xs
-    runMethod args name home fn
+    runMethod name args home fn
 
 -- Functions
 evaluate (ECall args name) = evaluate name >>= \case
     (MeowKey x) -> funcCall x args
+    -- Allow lambda immediate call:
+    lambda@(MeowFunc _ _) -> runFunc "<lambda>" args lambda
     _ -> throwError "Invalid function name!"
-
--- Inner Functions
-{--
-evaluate ERead = liftIO TextIO.getLine <&> MeowString
-evaluate (EWrite x) = do
-    evaluate x >>= ensureValue >>= (liftIO . print)
-    return MeowLonely
---}
 
 
 {-- Helpers --}
-
 -- Ensures a value will be passed instead of an atom.
 ensureValue :: Prim -> Evaluator Prim
 {-# INLINABLE ensureValue #-}
@@ -76,9 +64,7 @@ ensureValue (MeowKey x) = lookUpVar x >>= ensureValue
 ensureValue (MeowTrail xs) = lookUpTrail xs >>= ensureValue
 ensureValue x = return x
 
-
-{-- Objects --}
--- Dot Operator
+-- Converts the dot operator to a MeowTrail.
 unwrapDot :: Expr -> Evaluator [Text.Text]
 unwrapDot (EDot x y) = do
     x' <- unwrapDot x
@@ -92,7 +78,6 @@ unwrapDot x = evaluate x >>= \tok -> case tok of
 
 
 {-- Blocks --}
-
 -- Run block in proper order: Function definitions, then other statements.
 runBlock :: [Statement] -> Evaluator Prim
 {-# INLINABLE runBlock #-}
@@ -104,17 +89,11 @@ runBlock xs = do
 -- Running Statements
 runStatements :: [Statement] -> Evaluator Prim
 runStatements [] = return MeowVoid
-
 runStatements ((SReturn value):_) = evaluate value >>= ensureValue
 runStatements (SBreak:_) = return MeowBreak
 runStatements (SContinue:_) = return MeowVoid
-
-runStatements ((SExpr expression):xs) =
-    runExprStatement expression >> runStatements xs
-
-runStatements ((SFuncDef name args body):xs) =
-    runFuncDef name args body >> runStatements xs
-
+runStatements ((SExpr expression):xs) = runExprStatement expression >> runStatements xs
+runStatements ((SFuncDef name args body):xs) = runFuncDef name args body >> runStatements xs
 runStatements (statement:xs) = do
     stackPush
     ret <- runTable statement
@@ -122,7 +101,8 @@ runStatements (statement:xs) = do
     if ret /= MeowVoid
         then return ret
         else runStatements xs
-    
+
+-- Action table for all other statement blocks.
 runTable :: Statement -> Evaluator Prim
 runTable (SWhile a b) = runWhile a b
 runTable (SFor a b) = runFor a b
@@ -150,13 +130,6 @@ runFuncDef name params body = do
     insertVar name func
     return MeowVoid
 
-{-
-innerFuncDef :: Name -> Prim -> Evaluator Prim
-innerFuncDef name func@(MeowIFunc _ _) = 
-    insertVar name func >> return MeowVoid
-innerFuncDef name _ = throwError (badIFunc name)
--}
-
 -- Add function arguments to the environment.
 funcArgs :: [(Key, Expr)] -> Evaluator ()
 {-# INLINABLE funcArgs #-}
@@ -165,56 +138,42 @@ funcArgs ((key, expr):xs) = do
     evaluate expr >>= ensureValue >>= addToTop key
     funcArgs xs
 
-funcCall :: Name -> [Expr] -> Evaluator Prim
+funcCall :: Name -> Args -> Evaluator Prim
 {-# INLINABLE funcCall #-}
 funcCall name args = do
     x <- keyExists name
     if not x then throwError (badKey name)
-    else lookUpVar name >>= runFunc args name
+    else lookUpVar name >>= runFunc name args
 
-paramGuard :: Name -> [Expr] -> Params -> Evaluator ()
+paramGuard :: Name -> Args -> Params -> Evaluator ()
 paramGuard name args params = do
     when (length params < length args) (throwError $ manyArgs name)
     when (length params > length args) (throwError $ fewArgs name)
 
-{- Function -}
-runFunc :: [Expr] -> Name -> Prim -> Evaluator Prim
-runFunc args name (MeowFunc params body) = do
+funcHelper :: Name -> Params -> Args -> Evaluator Prim -> Evaluator Prim
+funcHelper name params args action = do
     paramGuard name args params
     stackPush
     funcArgs (zip params args)
-    ret <- runStatements body
+    ret <- action
     stackPop
     return ret
-runFunc args name (MeowIFunc params fn) = do
-    paramGuard name args params
-    stackPush
-    funcArgs (zip params args)
-    ret <- fn
-    stackPop
-    return ret
-runFunc _ name _ = throwError (badFunc name)
 
+{- Function -}
+runFunc :: Name -> Args -> Prim -> Evaluator Prim
+runFunc name args (MeowFunc params body) = funcHelper name params args (runStatements body)
+runFunc name args (MeowIFunc params fn) = funcHelper name params args fn
+runFunc name _ _ = throwError (badFunc name)
 
 {- Method -}
-runMethod :: [Expr] -> Name -> [Key] -> Prim -> Evaluator Prim
-runMethod args name trail (MeowFunc params body) = do
-    paramGuard name args params
-    stackPush
-    funcArgs (zip params args)
+runMethod :: Name -> Args -> [Key] -> Prim -> Evaluator Prim
+runMethod name args trail (MeowFunc params body) = funcHelper name params args $ do
     addToTop "home" (MeowTrail trail)
-    ret <- runStatements body
-    stackPop
-    return ret
-runMethod args name trail (MeowIFunc params fn) = do
-    paramGuard name args params
-    stackPush
-    funcArgs (zip params args)
+    runStatements body
+runMethod name args trail (MeowIFunc params fn) = funcHelper name params args $ do
     addToTop "home" (MeowTrail trail)
-    ret <- fn
-    stackPop
-    return ret
-runMethod _ name _ _ = throwError (badFunc name)
+    fn
+runMethod name _ _ _ = throwError (badFunc name)
 
 -- Helper functions to distinguish between statements.
 isFuncDef :: Statement -> Bool
