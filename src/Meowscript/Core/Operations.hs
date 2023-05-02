@@ -69,7 +69,7 @@ meowAssign :: Prim -> Prim -> Evaluator Prim
 {-# INLINABLE meowAssign #-}
 meowAssign (MeowTrail a) b = ensureValue b >>= insertWithTrail a >> return b
 meowAssign (MeowKey a) b = ensureValue b >>= insertVar a >> return b
-meowAssign a b = throwError (opException "Assignment" [a, b])
+meowAssign a b = throwError (opException "=" [a, b])
 
 -- Paw (++)
 meowPaw :: Prim -> Evaluator Prim
@@ -81,12 +81,12 @@ meowPaw (MeowTrail as) = do
     num <- lookUpTrail as >>= meowPaw'
     insertWithTrail as num
     return num
-meowPaw a = throwError (opException "Paw" [a])
+meowPaw a = throwError (opException "paw" [a])
 
 meowPaw' :: Prim -> Evaluator Prim
 meowPaw' (MeowInt a) = (return . MeowInt . succ) a
 meowPaw' (MeowDouble a) = (return . MeowDouble . succ) a
-meowPaw' a = throwError (opException "Paw" [a])
+meowPaw' a = throwError (opException "paw" [a])
 
 -- Claw (--)
 meowClaw :: Prim -> Evaluator Prim
@@ -98,12 +98,12 @@ meowClaw (MeowTrail as) = do
     num <- lookUpTrail as >>= meowClaw'
     insertWithTrail as num
     return num
-meowClaw a = throwError (opException "Claw" [a])
+meowClaw a = throwError (opException "claw" [a])
 
 meowClaw' :: Prim -> Evaluator Prim
 meowClaw' (MeowInt a) = (return . MeowInt . pred) a
 meowClaw' (MeowDouble a) = (return . MeowDouble . pred) a
-meowClaw' a = throwError (opException "Claw" [a])
+meowClaw' a = throwError (opException "claw" [a])
 
 
 
@@ -113,13 +113,13 @@ meowAdd (MeowInt a) (MeowInt b) = (return . MeowInt) (a + b)
 meowAdd (MeowInt a) (MeowDouble b) = (return . MeowDouble) (fromIntegral a + b)
 meowAdd (MeowDouble a) (MeowInt b) = (return . MeowDouble) (a + fromIntegral b)
 meowAdd (MeowDouble a) (MeowDouble b) = (return . MeowDouble) (a + b)
-meowAdd x y = throwError (opException "Addition" [x, y])
+meowAdd x y = throwError (opException "+" [x, y])
 
 -- Negation
 meowNegate :: Prim -> Evaluator Prim
 meowNegate (MeowInt a) = (return . MeowInt . negate) a
 meowNegate (MeowDouble a) = (return . MeowDouble . negate) a
-meowNegate a = throwError (opException "Negation" [a])
+meowNegate a = throwError (opException "-" [a])
 
 -- Subtraction
 meowSub :: Prim -> Prim -> Evaluator Prim
@@ -131,7 +131,7 @@ meowMul (MeowInt a) (MeowInt b) = (return . MeowInt) (a * b)
 meowMul (MeowInt a) (MeowDouble b) = (return . MeowDouble) (fromIntegral a * b)
 meowMul (MeowDouble a) (MeowInt b) = (return . MeowDouble) (a * fromIntegral b)
 meowMul (MeowDouble a) (MeowDouble b) = (return . MeowDouble) (a * b)
-meowMul x y = throwError (opException "Multiplication" [x, y])
+meowMul x y = throwError (opException "*" [x, y])
 
 -- Division
 meowDiv :: Prim -> Prim -> Evaluator Prim
@@ -141,14 +141,14 @@ meowDiv (MeowInt a) (MeowInt b) = (return . MeowDouble) (fromIntegral a / fromIn
 meowDiv (MeowInt a) (MeowDouble b) = (return . MeowDouble) (fromIntegral a / b)
 meowDiv (MeowDouble a) (MeowInt b) = (return . MeowDouble) (a / fromIntegral b)
 meowDiv (MeowDouble a) (MeowDouble b) = (return . MeowDouble) (a / b)
-meowDiv x y = throwError (opException "Division" [x, y])
+meowDiv x y = throwError (opException "/" [x, y])
 
 -- Modulo
 meowMod :: Prim -> Prim -> Evaluator Prim
 meowMod a b@(MeowInt 0) = throwError (divByZero [a, b])
 meowMod a b@(MeowDouble 0) = throwError (divByZero [a, b])
 meowMod (MeowInt a) (MeowInt b) = (return . MeowInt) (a `mod` b)
-meowMod x y = throwError (opException "Modulo" [x, y])
+meowMod x y = throwError (opException "%" [x, y])
 
 
 -- Comparison
@@ -178,14 +178,14 @@ meowOr x y = (return . MeowBool) (asBool x || asBool y)
 -- Yarn
 meowYarn :: Prim -> Evaluator Prim
 meowYarn (MeowString a) = return (MeowKey a)
-meowYarn x = throwError (opException "Yarn" [x])
+meowYarn x = throwError (opException "~~" [x])
 
 -- Length 
 meowLen :: Prim -> Evaluator Prim
 meowLen (MeowString a) = (return . MeowInt . Text.length) a
 meowLen (MeowList a) = (return . MeowInt . length) a
 meowLen (MeowObject a) = (return . MeowInt . Map.size) a
-meowLen x = throwError (opException "Length" [x])
+meowLen x = throwError (opException "?" [x])
 
 -- Concat
 meowConcat :: Prim -> Prim -> Evaluator Prim
@@ -200,7 +200,7 @@ meowPeek :: Prim -> Evaluator Prim
 meowPeek (MeowList a) = return (if null a then MeowLonely else head a)
 meowPeek (MeowString a) = (return . MeowString) res
           where res = if Text.null a then a else (Text.pack . (: []) . Text.head) a
-meowPeek a = throwError (opException "Peek" [a])
+meowPeek a = throwError (opException "peek" [a])
 
 
 
@@ -218,12 +218,12 @@ meowPush a (MeowTrail bs) = do
     list <- lookUpTrail bs >>= meowPush' a'
     insertWithTrail bs list
     return list
-meowPush a b = throwError (opException "Push" [a, b])
+meowPush a b = throwError (opException "push" [a, b])
 
 meowPush' :: Prim -> Prim -> Evaluator Prim
 meowPush' a (MeowList b) = (return . MeowList) (a:b)
 meowPush' a (MeowString b) = (return . MeowString) (asString a `Text.append` b)
-meowPush' a b = throwError (opException "Push" [a, b])
+meowPush' a b = throwError (opException "push" [a, b])
 
 -- Knock over
 meowKnock :: Prim -> Evaluator Prim
@@ -235,9 +235,9 @@ meowKnock (MeowTrail as) = do
     list <- lookUpTrail as >>= meowKnock'
     insertWithTrail as list
     return list
-meowKnock a = throwError (opException "Knock Over" [a])
+meowKnock a = throwError (opException "knock over" [a])
     
 meowKnock' :: Prim -> Evaluator Prim
 meowKnock' (MeowList a) = (return . MeowList) (if null a then a else tail a)
 meowKnock' (MeowString a) = (return . MeowString) (if Text.null a then a else Text.tail a)
-meowKnock' a = throwError (opException "Knock Over" [a])
+meowKnock' a = throwError (opException "knock over" [a])

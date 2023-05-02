@@ -53,7 +53,7 @@ evaluate (ECall args name) = evaluate name >>= \case
     (MeowKey x) -> funCall x args
     -- Allow lambda immediate call:
     lambda@(MeowFunc _ _) -> runFunc "<lambda>" args lambda
-    _ -> throwError "Invalid function name!"
+    x -> throwError (notFunc x)
 
 
 ------------------------------------------------------------------------
