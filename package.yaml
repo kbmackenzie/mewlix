@@ -28,6 +28,7 @@ dependencies:
 - mtl
 - stopwatch
 - bytestring
+- filepath
 
 ghc-options:
 - -O3

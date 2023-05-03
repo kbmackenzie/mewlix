@@ -3,9 +3,7 @@
 {-# LANGUAGE TupleSections #-}
 
 module Meowscript.Core.Blocks
-( runEvaluator 
-, evaluate
-, runStatements
+( evaluate
 , runBlock
 ) where
 
@@ -16,16 +14,11 @@ import Meowscript.Core.Exceptions
 import qualified Data.Text as Text
 import qualified Data.Map as Map
 import qualified Data.List as List
-import Control.Monad.State (runStateT)
-import Control.Monad.Except (throwError, runExceptT)
+import Control.Monad.Except (throwError)
 import Control.Monad (void, join, when)
 import Data.Functor ((<&>))
 
 type Args = [Expr]
-
-{- Run evaluator. -}
-runEvaluator :: EnvStack -> Evaluator a -> IO (Either Text.Text (a, EnvStack))
-runEvaluator env x = runExceptT (runStateT x env)
 
 {- Evaluating Expressions -}
 evaluate :: Expr -> Evaluator Prim

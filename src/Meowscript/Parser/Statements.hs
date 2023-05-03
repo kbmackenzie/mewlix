@@ -18,8 +18,8 @@ import qualified Text.Megaparsec.Char.Lexer as Lexer
 import Control.Monad (void)
 import Data.Functor((<&>))
 
-root :: Parser Statement
-root = SAll <$> Mega.between whitespaceLn Mega.eof (Mega.many (lexemeLn statements))
+root :: Parser [Statement]
+root = Mega.between whitespaceLn Mega.eof (Mega.many (lexemeLn statements))
 
 statements :: Parser Statement
 statements = Mega.choice $ Mega.try <$>
