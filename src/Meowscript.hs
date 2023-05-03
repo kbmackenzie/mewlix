@@ -6,7 +6,7 @@ module Meowscript
 
 import Meowscript.Core.AST
 import Meowscript.Core.Base
-import Meowscript.Core.Blocks
+import Meowscript.Core.RunEvaluator
 import Meowscript.Parser.RunParser
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
@@ -14,13 +14,9 @@ import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Error as MError
 import Control.StopWatch (stopWatch)
 
-runBasic :: FilePath -> IO (Either Text.Text (Prim, EnvStack))
+runBasic :: FilePath -> IO ()
 runBasic path = do
-    output <- meowParse path
+    (output, time) <- stopWatch $ runMeow' path
     case output of
-        (Right program) -> do
-            print program -- Take this off later!
-            (tok, time) <- stopWatch $ runEvaluator baseLibrary (runBlock program)
-            print time
-            return tok
-        (Left x) -> (return . Left . Text.pack . MError.errorBundlePretty) x
+        (Right x) -> print time >> print x
+        (Left x) -> print x

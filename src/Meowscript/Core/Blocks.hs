@@ -5,6 +5,8 @@
 module Meowscript.Core.Blocks
 ( evaluate
 , runBlock
+, isFuncDef
+, isImport
 ) where
 
 import Meowscript.Core.AST
@@ -118,7 +120,7 @@ runTable (SWhile a b) = runWhile a b
 runTable (SFor a b) = runFor a b
 runTable (SIfElse a b c) = runIfElse a b c
 runTable (SIf a b) = runIf a b
-runTable (SImport a _) = throwError (badImport a)
+runTable (SImport a _) = throwError (nestedImport a)
 runTable _ = return MeowVoid
 
 asCondition :: Expr -> Evaluator Bool

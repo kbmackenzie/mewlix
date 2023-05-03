@@ -15,12 +15,12 @@ import qualified Text.Megaparsec as Mega
 import Text.Megaparsec.Error (errorBundlePretty)
 import System.FilePath (takeFileName)
 
-parseBase :: Parser a -> FilePath -> IO (Either Text.Text a)
+parseBase :: (Show a) => Parser a -> FilePath -> IO (Either Text.Text a)
 parseBase parser path = do
     let fileName = takeFileName path
     contents <- TextIO.readFile path
     case Mega.parse parser fileName contents of
-        (Right program) -> (return . Right) program
+        (Right program) -> print program >> (return . Right) program
         (Left x) -> (return . Left . Text.pack . errorBundlePretty) x
 
 meowParse :: FilePath -> IO (Either Text.Text [Statement])

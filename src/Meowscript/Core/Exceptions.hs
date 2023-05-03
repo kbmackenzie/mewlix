@@ -16,6 +16,7 @@ module Meowscript.Core.Exceptions
 , notFunc
 , badArgs
 , badValue
+, nestedImport
 , badImport
 ) where
 
@@ -107,7 +108,11 @@ badValue :: Text.Text -> Text.Text -> [Prim] -> Text.Text
 badValue fn = showException' MeowBadValue . Text.append
     (Text.concat [ "In function: '", fn, "': " ])
 
-badImport :: Text.Text -> Text.Text
-badImport = showException MeowBadImport . \x -> Text.concat
-    [ "Can't import module '", x,"' : "
+nestedImport :: FilePath -> Text.Text
+nestedImport = showException MeowBadImport . \x -> Text.concat
+    [ "Can't import module '", Text.pack x,"' : "
     , "Import / 'takes as' statements cannot be nested!" ]
+
+badImport :: FilePath -> Text.Text -> Text.Text
+badImport file exception = showException MeowBadImport
+    (Text.concat ["Error when importing file '", Text.pack file, "':\n", exception])

@@ -14,6 +14,9 @@ module Meowscript.Core.AST
 , EnvStack
 , Evaluator
 , InnerFunc
+, Condition
+, Block
+, Qualified
 , showT
 , asString
 , asBool
@@ -36,6 +39,10 @@ type EnvStack = [Environment]
 type Evaluator a = StateT EnvStack (ExceptT Text.Text IO) a
 
 type InnerFunc = Evaluator Prim
+
+type Condition = Expr
+type Block = [Statement]
+type Qualified = Maybe Text.Text
 
 data Prim =
       MeowString Text.Text
@@ -168,7 +175,7 @@ data Statement =
     | SIfElse Expr [Statement] [Statement] 
     | SFuncDef Name Params [Statement]
     | SReturn Expr
-    | SImport Key (Maybe Key)
+    | SImport FilePath (Maybe Key)
     | SIFunc Name Prim
     | SContinue
     | SBreak

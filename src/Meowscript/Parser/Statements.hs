@@ -30,7 +30,7 @@ statements = Mega.choice $ Mega.try <$>
      , parseReturn               <?> "bring"
      , parseContinue             <?> "rest"
      , parseBreak                <?> "run away"
-     , parseImport                 <?> "takes"
+     , parseImport               <?> "takes"
      , parseExpression           <?> "expression" ]
 
 parseEnd :: Parser ()
@@ -124,7 +124,8 @@ parseImport :: Parser Statement
 parseImport = lexeme $ do
     let (start, end) = meowTakes
     (void . Mega.try . lexeme . keyword) start
-    (MeowString moduleName) <- lexeme parseStr
+    (MeowString x) <- lexeme parseStr
+    let filepath = Text.unpack x
     let key = (void . Mega.try . lexeme . keyword) end >> lexeme keyText
     maybeKey <- Mega.optional key
-    return (SImport moduleName maybeKey)
+    return (SImport filepath maybeKey)
