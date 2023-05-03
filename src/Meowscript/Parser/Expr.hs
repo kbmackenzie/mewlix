@@ -13,6 +13,7 @@ import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 import Control.Monad (void)
+import Data.Char (isNumber)
 
 exprTerm :: Parser Expr
 exprTerm = ((lexeme . parens) parseExpr <?> "parens"    )
@@ -92,4 +93,6 @@ parseLambda = do
     return (ELambda args)
 
 parseDotOp :: Parser ()
-parseDotOp = Mega.try (MChar.char '.' >> (Mega.notFollowedBy . MChar.char) '.')
+parseDotOp = Mega.try $ do
+    void $ MChar.char '.'
+    Mega.notFollowedBy $ Mega.satisfy (== '.')

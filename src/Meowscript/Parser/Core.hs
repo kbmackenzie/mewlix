@@ -134,8 +134,8 @@ parsePrim = Mega.choice
     [ parseStr          <?> "string"
     , parseBool         <?> "bool"
     , parseLonely       <?> "lonely"
-    , Mega.try parseInt <?> "int"
     , parseFloat        <?> "float"
+    , parseInt          <?> "int"
     , parseKey          <?> "key"   ]
 
 parseStr :: Parser Prim
@@ -161,7 +161,7 @@ parseInt = do
     MeowInt <$> Lexer.signed whitespace readInt
 
 parseFloat :: Parser Prim
-parseFloat = do
+parseFloat = Mega.try $ do
     let readDouble = Lexer.float
     MeowDouble <$> Lexer.signed whitespace readDouble
 
