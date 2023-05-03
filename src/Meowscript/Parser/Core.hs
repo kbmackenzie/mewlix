@@ -15,6 +15,7 @@
  , brackets
  , sepByComma
  , keyword
+ , tryKeyword
  , parseStr
  , validKeyChar
  , parseKey
@@ -87,6 +88,9 @@ keyword :: Text.Text -> Parser ()
 keyword k = lexeme $ do
     (void . MChar.string) k
     Mega.notFollowedBy (Mega.satisfy validKeyChar)
+
+tryKeyword :: Text.Text -> Parser ()
+tryKeyword = Mega.try . keyword
 
 reservedKeywords :: [Text.Text]
 reservedKeywords =

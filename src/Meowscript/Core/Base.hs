@@ -31,7 +31,7 @@ baseLibrary = (List.singleton . Map.fromList)
 {- IO -} 
 ----------------------------------------------------------
 meow :: Evaluator Prim
-meow = lookUpVar "x" >>= (liftIO . TextIO.putStr . asString) >> return MeowLonely
+meow = lookUpVar "x" >>= (liftIO . TextIO.putStrLn . asString) >> return MeowLonely
 
 listen :: Evaluator Prim
 listen = liftIO TextIO.getLine <&> MeowString
