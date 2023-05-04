@@ -144,7 +144,7 @@ instance Show Prim where
     show (MeowBool x) = if x then "yummy" else "icky"
     show (MeowInt x) = show x
     show (MeowDouble x) = show x
-    show (MeowList x) = show x
+    show (MeowList x) = Text.unpack (prettyList x)
     show (MeowObject x) = Text.unpack (prettyMap x)
     show MeowLonely = "lonely"
     -- Inner Types (should never be shown)
@@ -215,8 +215,15 @@ prettyMap :: ObjectMap -> Text.Text
 prettyMap o = Text.concat ["[ ", pairs, " ]"]
     where
         lst = Map.toList o
-        pair (key, val) = Text.concat [ key, ": ", asString val ]
+        pair (key, val) = Text.concat [ key, ": ", asString' val ]
         pairs = Text.intercalate ", " (map pair lst)
+
+prettyList :: [Prim] -> Text.Text
+prettyList xs = Text.concat ["[ ", items, " ]"]
+    where items = Text.intercalate ", " (map asString' xs)
+
+prettyText :: Text.Text -> Text.Text
+prettyText x = Text.concat ["\"", x, "\""]
 
 -- Show as Text
 showT :: (Show a) => a -> Text.Text
@@ -226,7 +233,13 @@ showT = Text.pack . show
 asString :: Prim -> Text.Text
 {-# INLINABLE asString #-}
 asString (MeowString a) = a
+asString (MeowList a) = prettyList a
+asString (MeowObject a) = prettyMap a
 asString x = showT x
+
+asString' :: Prim -> Text.Text
+asString' (MeowString a) = prettyText a
+asString' x = asString x
 
 -- Boolean-ify
 asBool :: Prim -> Bool
