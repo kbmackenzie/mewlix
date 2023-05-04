@@ -30,7 +30,7 @@
 import Meowscript.Core.AST
 import qualified Data.Text as Text
 import qualified Text.Megaparsec as Mega
-import Text.Megaparsec ((<|>), (<?>))
+import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
 import Data.Void (Void)
@@ -85,7 +85,7 @@ sepByComma :: Parser a -> Parser [a]
 sepByComma x = Mega.sepBy x (MChar.char ',')
 
 keyword :: Text.Text -> Parser ()
-keyword k = lexeme $ do
+keyword k = lexeme . (<?> "keyword") $ do
     (void . MChar.string) k
     Mega.notFollowedBy (Mega.satisfy validKeyChar)
 
@@ -140,8 +140,9 @@ parsePrim = Mega.choice
 
 parseStr :: Parser Prim
 parseStr = do
-    (void . MChar.char) '"'
-    (MeowString . Text.pack <$> Mega.many escapeStr) <* (void . MChar.char) '"'
+    let quotation = ((<?> "quotation mark") . MChar.char) '"'
+    void quotation
+    (MeowString . Text.pack <$> Mega.many escapeStr) <* void quotation
 
 escapeStr :: Parser Char
 escapeStr = Mega.choice

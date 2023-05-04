@@ -22,7 +22,7 @@ root :: Parser [Statement]
 root = Mega.between whitespaceLn Mega.eof (Mega.many (lexemeLn statements))
 
 statements :: Parser Statement
-statements = Mega.choice $ Mega.try <$>
+statements = Mega.choice
     [  parseWhile                <?> "scratch while"
      , parseFor                  <?> "take"
      , parseIfElse               <?> "mew?"
@@ -74,14 +74,14 @@ parseIfElse = lexeme $ do
 
 {- Functions -}
 
-funArgs :: Parser [Text.Text]
-funArgs = (lexeme . parens) $ whitespace >> sepByComma (flexeme keyText)
+funParams :: Parser [Text.Text]
+funParams = (lexeme . parens) $ whitespace >> sepByComma (flexeme keyText)
 
 parseFunc :: Parser Statement
 parseFunc = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . keyword) meowCatface
     name <- lexeme keyText
-    args <- funArgs
+    args <- funParams
     return (Lexer.IndentMany Nothing ((<$ parseEnd) . SFuncDef name args) statements)
 
 
@@ -124,7 +124,7 @@ parseImport :: Parser Statement
 parseImport = lexeme $ do
     let (start, end) = meowTakes
     (void . Mega.try . lexeme . keyword) start
-    (MeowString x) <- lexeme parseStr
+    (MeowString x) <- lexeme parseStr 
     let filepath = Text.unpack x
     let key = (void . Mega.try . lexeme . keyword) end >> lexeme keyText
     maybeKey <- Mega.optional key
