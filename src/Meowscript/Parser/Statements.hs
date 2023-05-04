@@ -23,13 +23,13 @@ root = Mega.between whitespaceLn Mega.eof (Mega.many (lexemeLn statements))
 
 statements :: Parser Statement
 statements = Mega.choice
-    [  parseWhile                <?> "scratch while"
+    [  parseWhile                <?> "purr"
      , parseFor                  <?> "take"
      , parseIfElse               <?> "mew?"
      , parseFunc                 <?> "=^.x.^="
      , parseReturn               <?> "bring"
-     , parseContinue             <?> "rest"
-     , parseBreak                <?> "run away"
+     , parseContinue             <?> "catnap"
+     , parseBreak                <?> "run off"
      , parseImport               <?> "takes"
      , parseExpression           <?> "expression" ]
 

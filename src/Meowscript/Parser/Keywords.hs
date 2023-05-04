@@ -33,10 +33,10 @@ meowReturn :: Text
 meowReturn = "bring"
 
 meowContinue :: Text
-meowContinue = "rest"
+meowContinue = "catnap"
 
 meowBreak :: Text
-meowBreak = "run away"
+meowBreak = "run off"
 
 meowIf :: Text
 meowIf = "mew?"
@@ -45,7 +45,7 @@ meowElse :: Text
 meowElse = "hiss!"
 
 meowWhile :: Text
-meowWhile = "scratch while"
+meowWhile = "purr"
 
 meowFor :: (Text, Text, Text)
 meowFor = ("take", "and do", "while")
