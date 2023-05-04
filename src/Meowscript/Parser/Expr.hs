@@ -75,7 +75,7 @@ parseBox = (Mega.try . lexemeLn . MChar.string) meowBox >> parseBox'
 parseBox' :: Parser Expr
 parseBox' = (lexeme . brackets) $
     whitespaceLn >>
-    EObject <$> sepByComma (lnLexeme parseKeyValue)
+    EObject <$> sepByComma (lnLexeme parseKeyValue) <* whitespaceLn
 
 parseKeyValue :: Parser (Key, Expr)
 parseKeyValue = do
