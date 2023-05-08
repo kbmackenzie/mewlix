@@ -30,6 +30,7 @@ library
       Meowscript.Core.AST
       Meowscript.Core.Blocks
       Meowscript.Core.Environment
+      Meowscript.Core.Exceptions
       Meowscript.Core.Keys
       Meowscript.Core.Operations
       Meowscript.Core.Pretty

@@ -81,10 +81,10 @@ data Expr =
     | ExpBinop Binop Expr Expr
     | ExpList [Expr]
     | ExpObject [(Key, Expr)]
-    | ExpAssign Expr Expr
     | ExpLambda [Key] Expr
     | ExpCall [Expr] Expr
     | ExpTrail Expr Expr
+    | ExpYarn Expr
     deriving (Show)
 
 type Name = Text.Text
@@ -116,7 +116,7 @@ data Unop =
     | MeowNegate
     | MeowPaw
     | MeowClaw
-    | MeowYarn
+--    | MeowYarn
     deriving (Show)
 
 data Binop =
@@ -128,7 +128,7 @@ data Binop =
     | MeowAnd 
     | MeowOr 
     | MeowCompare [Ordering]
-    | MeowAssign 
+    | MeowAssign
     | MeowConcat 
     | MeowPush
     deriving (Show)

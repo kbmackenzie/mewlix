@@ -30,9 +30,9 @@ parseExpr' = lexeme (whitespace >> parseExpr)
 operators :: [[Operator Parser Expr]]
 operators =
     [
-        [ Prefix  (ExpUnop MeowYarn                   <$ trySymbol "~~"        ) ]
+        [ Prefix  (ExpYarn                            <$ trySymbol "~~"        ) ]
       , [ InfixL  (ExpTrail                           <$ parseDotOp            ) ]
-      , [ Postfix (Mega.try functionCall                                     ) ]
+      , [ Postfix (Mega.try functionCall                                       ) ]
       , [ Prefix  (ExpUnop  MeowPeek                  <$ tryKeyword meowPeek   )
         , InfixL  (ExpBinop MeowPush                  <$ tryKeyword meowPush   )
         , Prefix  (ExpUnop  MeowKnockOver             <$ tryKeyword meowKnock  )

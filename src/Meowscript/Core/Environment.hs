@@ -22,6 +22,8 @@ module Meowscript.Core.Environment
 , createObject
 , modifyObject
 , runMethod
+, runFunction
+, Callback
 ) where
 
 import Meowscript.Core.AST
@@ -138,11 +140,25 @@ innerInsert (key:xs) value ref = evalRef ref >>= tapObject key >>= innerInsert x
 type Callback = PrimRef -> Evaluator Prim
 
 trailAction :: [Key] -> Callback -> Evaluator Prim
+trailAction [] _ = throwError "empty trail"
+trailAction (key:keys) f = lookUpVar' key >>= innerAction keys f
+
+innerAction :: [Key] -> Callback -> PrimRef -> Evaluator Prim
+innerAction [] f ref = f ref
+innerAction (key:keys) f ref = evalRef ref >>= \case
+    (MeowModule env) -> do
+        ref' <- evalRef ref >>= peekObject key
+        local (const env) (innerAction keys f ref')
+    (MeowObject obj) -> peekObject key obj >>= innerAction keys f
+    _ -> throwError "not object"
+
+{-
+trailAction :: [Key] -> Callback -> Evaluator Prim
 trailAction [] _ = throwError "aaaaaaaaaaaa"
 trailAction [key] f = lookUpVar' key >>= f
-trailAction (k:k':xs) f = lookUp k >>= \case
-    (MeowModule env) -> local (const env) (trailAction (k':xs) f)
-    (MeowObject obj) -> peekObject k' obj >>= innerAction xs f
+trailAction (k:y:z) f = lookUp k >>= \case
+    (MeowModule env) -> local (const env) (trailAction (y:z) f)
+    (MeowObject obj) -> peekObject y obj >>= innerAction z f
     _ -> throwError "not object!!!!!!!!!"
 
 innerAction :: [Key] -> Callback -> PrimRef -> Evaluator Prim
@@ -164,3 +180,7 @@ runMethod keys fn = do
         -- and push arguments to the current env
         -- and do all of that stuff > .<
         -- all that should be doen by the callback!!
+
+runFunction :: Key -> Callback -> Evaluator Prim
+runFunction key f = lookUpVar' key >>= f
+-}
