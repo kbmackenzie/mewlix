@@ -47,9 +47,10 @@ evaluate (ExpCall args name) = evaluate name >>= \case
 {- Trail -}
 evaluate x@(ExpTrail {}) = MeowKey . KeyTrail <$> asTrail x
 
-evaluate (ExpCall args fn) = do
-    fn' <- evaluate fn
-    funcLookup fn $ \x -> return MeowLonely
+evaluate (ExpCall args funcKey) = evaluate funcKey >>= \case
+    (MeowKey key) -> funcLookup key (funWrapper key args)
+    lambda@(MeowFunc _ _) -> funWrapper "<lambda>" args lambda
+    _ -> throwError "not function"
 
 ------------------------------------------------------------------------
 {- Trails -}
@@ -124,60 +125,35 @@ runExprStatement = evaluate
 ------------------------------------------------------------------------
 
 {-- Functions --}
-runFuncDef :: Name -> Params -> [Statement] -> Evaluator Prim
-runFuncDef name params body = do
+runFuncDef :: KeyType -> Params -> [Statement] -> Evaluator Prim
+runFuncDef key params body = do
     let func = MeowFunc params body
-    insertVar name func
-    return MeowVoid
+    assignment key func
+    return MeowLonely
 
 addFunArgs :: [(Key, Expr)] -> Evaluator ()
 {-# INLINABLE addFunArgs #-}
 addFunArgs [] = return ()
 addFunArgs ((key, expr):xs) = do
-    evaluate expr >>= ensureValue >>= addToTop key
+    evaluate expr >>= ensureValue >>= assignNew key
     addFunArgs xs
 
-funCall :: Name -> Args -> Evaluator Prim
-{-# INLINABLE funCall #-}
-funCall name args = do
-    x <- keyExists name
-    if not x then throwError (badKey name)
-    else lookUpVar name >>= runFunc name args
-
-paramGuard :: Name -> Args -> Params -> Evaluator ()
+paramGuard :: KeyType -> Args -> Params -> Evaluator ()
 {-# INLINABLE paramGuard #-}
-paramGuard name args params = do
-    when (length params < length args) (throwError $ manyArgs name)
-    when (length params > length args) (throwError $ fewArgs name)
+paramGuard key args params = do
+    when (length params < length args) ((throwError . manyArgs . showT) key)
+    when (length params > length args) ((throwError . manyArgs . showT) key)
 
-funWrapper :: Name -> Params -> Args -> Callback -> Evaluator Prim
-{-# INLINABLE funWrapper #-}
-funWrapper name params args action = do
-    paramGuard name args params
-    stackPush
+funWrapper :: KeyType -> Args -> FnCallback
+funWrapper key args (MeowIFunc params fn) = do
+    paramGuard key args params
     addFunArgs (zip params args)
-    ret <- action
-    stackPop
-    return ret
-
-{- Function -}
-runFunc :: Name -> Args -> Prim -> Evaluator Prim
-runFunc name args (MeowFunc params body) = funWrapper name params args (runStatements body)
-runFunc name args (MeowIFunc params fn) = funWrapper name params args fn
-runFunc name _ _ = throwError (badFunc name)
-
-methodWrapper :: Name -> Params -> Args -> [Key] -> Callback -> Evaluator Prim
-methodWrapper name params args trail action = do
-    paramGuard name args params
-    asMethod trail $ do
-        addFunArgs (zip params args)
-        action
-
-{- Method -}
-runMethod :: Name -> Args -> [Key] -> Prim -> Evaluator Prim
-runMethod name args trail (MeowFunc params body) = methodWrapper name params args trail (runStatements body)
-runMethod name args trail (MeowIFunc params fn) = methodWrapper name params args trail fn
-runMethod name _ _ _ = throwError (badFunc name)
+    fn
+funWrapper key args (MeowFunc params body) = do
+    paramGuard key args params
+    addFunArgs (zip params args)
+    runStatements body
+funWrapper _ _ _ = throwError "not function"
 
 ------------------------------------------------------------------------
 

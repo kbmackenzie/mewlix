@@ -3,6 +3,7 @@ module Meowscript.Core.Keys
 , assignment
 , ensureValue
 , funcLookup
+, assignNew
 ) where
 
 import Meowscript.Core.AST
@@ -29,3 +30,6 @@ funcLookup key f = case key of
     (KeyModify x) -> runFunction x f
     (KeyNew x) -> runFunction x f
     (KeyTrail xs) -> runMethod xs f
+
+assignNew :: Key -> Prim -> Evaluator ()
+assignNew key value = insertVar key value True
