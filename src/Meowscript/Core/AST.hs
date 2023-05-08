@@ -9,15 +9,16 @@ module Meowscript.Core.AST
 , ReturnValue(..)
 , PrimRef
 , ObjectMap
-, Name
 , Key
-, Params
-, Environment
+, LocalNew
+, Name
+, Params , Environment
 , Evaluator
 , InnerFunc
 , Condition
 , Block
 , Qualified
+, meowBool
 ) where
 
 import qualified Data.Text as Text
@@ -25,13 +26,13 @@ import qualified Data.Map as Map
 import Control.Monad.Reader (ReaderT)
 import Control.Monad.Except (ExceptT)
 import Data.IORef
+import Data.List (intercalate)
 
 type PrimRef = IORef Prim
 type ObjectMap = Map.Map Key PrimRef
 
-type Name = Text.Text
 type Key = Text.Text
-type Params = [Key]
+type LocalNew = Bool
 type InnerFunc = Evaluator Prim
 
 type Environment = IORef ObjectMap
@@ -39,12 +40,13 @@ type Evaluator a = ReaderT Environment (ExceptT Text.Text IO) a
 
 data Prim =
       MeowString Text.Text
-    | MeowRef PrimRef
+    | MeowKey Key
+    | MeowKeys [Key]
     | MeowBool Bool
     | MeowInt Int
     | MeowDouble Double
     | MeowLonely
-    | MeowList [PrimRef]
+    | MeowList [Prim]
     | MeowFunc Params [Statement]
     | MeowObject ObjectMap
     | MeowIFunc Params InnerFunc
@@ -56,12 +58,13 @@ data Prim =
  - Thus, I'm using this to facilitate my understanding instead. -}
 instance Show Prim where
     show (MeowString x) = Text.unpack x
-    show (MeowRef _) = "<reference>"
+    show (MeowKey _) = "<key>"
+    show (MeowKeys _) = "<keys>"
     show (MeowInt x) = show x
     show (MeowBool x) = show x
     show (MeowDouble x) = show x
     show MeowLonely = "<lonely>"
-    show (MeowList _) = "<list>"
+    show (MeowList xs) = concat [ "\"", intercalate ", " $ map show xs, "\"" ]
     show (MeowFunc _ _) = "<func>"
     show (MeowObject _) = "<object>"
     show (MeowIFunc _ _) = "<inner-func>"
@@ -69,15 +72,19 @@ instance Show Prim where
 
 data Expr =
       ExpPrim Prim
-    | ExpKey Key
+    | ExpKey Key LocalNew
     | ExpUnop Unop Expr 
     | ExpBinop Binop Expr Expr
     | ExpList [Expr]
     | ExpObject [(Key, Expr)]
+    | ExpYarn Expr
     | ExpLambda [Key] Expr
     | ExpCall [Expr] Expr
     | ExpTrail Expr Expr
     deriving (Show)
+
+type Name = Text.Text
+type Params = [Key]
 
 type Condition = Expr
 type Block = [Statement]
@@ -98,10 +105,9 @@ data Statement =
     deriving (Show)
 
 data Unop =
-      MeowYarn 
-    | MeowLen 
-    | MeowKnockOver
+      MeowLen 
     | MeowPeek
+    | MeowKnockOver
     | MeowNot 
     | MeowNegate
     | MeowPaw
@@ -133,3 +139,59 @@ instance Eq ReturnValue where
     RBreak == RBreak = True
     RValue _ == RValue _ = True
     _ == _ = False
+
+
+{- A special case will have to be made when comparing objects later on! c':
+ - Thanks to the IORefs, of course.
+ - As of right now, I'm comparing the keys. -}
+instance Eq Prim where
+    -- Numbers
+    (MeowInt a) == (MeowInt b) = a == b
+    (MeowInt a) == (MeowDouble b) = fromIntegral a == b
+    (MeowDouble a) == (MeowInt b) = a == fromIntegral b
+    (MeowDouble a) == (MeowDouble b) = a == b
+    -- Strings
+    (MeowString a) == (MeowString b) = a == b
+    (MeowString a) == b = a == (Text.pack . show) b
+    a == (MeowString b) = (Text.pack . show) a == b
+    -- Booleans
+    (MeowBool a) == (MeowBool b) = a == b
+    (MeowBool a) == b = a == meowBool b
+    a == (MeowBool b) = meowBool a == b
+    -- Lists, objects, nil
+    (MeowList a) == (MeowList b) = a == b
+    (MeowObject a) == (MeowObject b) = Map.keys a == Map.keys b
+    MeowLonely == MeowLonely = True
+    -- Stringify everything else because screw it c':
+    a == b = show a == show b
+
+instance Ord Prim where
+    -- Numbers
+    (MeowInt a) `compare` (MeowInt b) = a `compare` b
+    (MeowInt a) `compare` (MeowDouble b) = fromIntegral a `compare` b
+    (MeowDouble a) `compare` (MeowInt b) = a `compare` fromIntegral b
+    (MeowDouble a) `compare` (MeowDouble b) = a `compare` b
+    -- Strings
+    (MeowString a) `compare` (MeowString b) = a `compare` b
+    (MeowString a) `compare` b = a `compare` (Text.pack . show) b
+    a `compare` (MeowString b) = (Text.pack . show) a `compare` b
+    -- Booleans
+    (MeowBool a) `compare` (MeowBool b) = a `compare` b
+    (MeowBool a) `compare` b = a `compare` meowBool b
+    a `compare` (MeowBool b) = meowBool a `compare` b
+    -- Lists, objects, nil
+    (MeowList a) `compare` (MeowList b) = a `compare` b
+    (MeowObject a) `compare` (MeowObject b) = Map.keys a `compare` Map.keys b
+    MeowLonely `compare` MeowLonely = EQ
+    _ `compare` MeowLonely = GT
+    MeowLonely `compare` _ = LT
+    -- Stringify everything else because screw it c':
+    a `compare` b = show a `compare` show b
+
+meowBool :: Prim ->  Bool
+meowBool (MeowBool a) = a
+meowBool (MeowList a) = (not . null) a
+meowBool (MeowString a) = (not . Text.null) a
+meowBool (MeowObject a) = (not . Map.null) a
+meowBool MeowLonely = False
+meowBool _ = True

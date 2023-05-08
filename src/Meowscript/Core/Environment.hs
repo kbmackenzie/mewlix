@@ -9,7 +9,8 @@ module Meowscript.Core.Environment
 , keyExists
 , createVar
 , modifyVar
-, followTrail
+, insertVar
+, overwriteVar
 , localEnv
 , runLocal
 , evalRef
@@ -47,10 +48,18 @@ createVar key value = do
     let env' = Map.insert key value' env
     ask >>= liftIO . flip writeIORef env'
 
-modifyVar :: Key -> Prim -> Evaluator ()
-modifyVar key value = lookUpVar key >>= \case
-    Nothing -> throwError "not found!!!!!!!"
-    (Just x) -> liftIO $ writeIORef x value
+modifyVar :: PrimRef -> Prim -> Evaluator ()
+modifyVar key value = liftIO $ writeIORef key value
+
+insertVar :: Key -> Prim -> LocalNew -> Evaluator ()
+insertVar key value True = overwriteVar key value
+insertVar key value False = lookUpVar key >>= \case
+    Nothing -> createVar key value
+    (Just x) -> modifyVar x value
+
+overwriteVar :: Key -> Prim -> Evaluator ()
+{-# INLINE overwriteVar #-}
+overwriteVar = createVar
 
 localEnv :: Evaluator Environment
 localEnv = ask >>= liftIO . readIORef >>= liftIO . newIORef
@@ -58,23 +67,10 @@ localEnv = ask >>= liftIO . readIORef >>= liftIO . newIORef
 runLocal :: Evaluator a -> Evaluator a
 runLocal action = localEnv >>= \x -> local (const x) action
 
-followTrail :: [Key] -> Evaluator PrimRef
-followTrail [] = throwError "empty!!!!!!!"
-followTrail (x:xs) = lookUp x >>= \case
-    (MeowObject obj) -> innerFollow xs obj
-    _ -> throwError "Not object!" 
-
 objectLookup :: Key -> ObjectMap -> Evaluator PrimRef
 objectLookup key obj = case Map.lookup key obj of
-    Nothing -> throwError "not found" 
+    Nothing -> throwError "Key not found" 
     (Just x) -> return x
-
-innerFollow :: [Key] -> ObjectMap -> Evaluator PrimRef
-innerFollow [] _ = throwError "Empty trail!" 
-innerFollow [key] obj = objectLookup key obj
-innerFollow (key:xs) obj = objectLookup key obj >>= evalRef >>= \case
-    (MeowObject obj') -> innerFollow xs obj'
-    _ -> throwError "Not object!"
 
 createObject :: [(Key, Prim)] -> Evaluator ObjectMap
 createObject [] = return Map.empty
@@ -82,3 +78,26 @@ createObject xs = do
     let asRef (key, value) = (liftIO . newIORef) value <&> (key,)
     pairs <- mapM asRef xs
     return $ Map.fromList pairs
+
+lookUpTrail :: [Key] -> Evaluator PrimRef
+lookUpTrail [] = throwError "empty!!!!!!!"
+lookUpTrail (x:xs) = lookUpVar x >>= \case
+    (Just prim) -> innerFollow xs prim
+    _ -> throwError "Key doesn't exist!" 
+
+asObject :: Key -> PrimRef -> Evaluator PrimRef
+asObject key ref = evalRef ref >>= \case
+    (MeowObject obj) -> objectLookup key obj
+    _ -> throwError "Not object!"
+
+innerFollow :: [Key] -> PrimRef -> Evaluator PrimRef
+innerFollow [] _ = throwError "Empty trail!" 
+innerFollow [key] ref = asObject key ref
+innerFollow (key:xs) obj = asObject key obj >>= innerFollow xs
+
+
+-- This is the main insert function.
+insertTo :: [Key] -> Prim -> LocalNew -> Evaluator PrimRef
+insertTo [] _ _ = throwError "?????? empty"
+insertTo [key] value l = insertVar key value l
+insertTo (x:xs) key value _ = 

@@ -5,6 +5,7 @@ module Meowscript.Core.Pretty
 ( showT
 , showMeow
 , showMeow'
+, meowStr
 ) where
 
 import Meowscript.Core.AST
@@ -25,7 +26,7 @@ showMeow (MeowDouble x) = return $ showT x
 showMeow (MeowBool x) = return $ if x then "yummy" else "icky"
 showMeow MeowLonely = return "lonely"
 showMeow (MeowList x) = do 
-    prims <- mapM evalRef x >>= mapM showMeow'
+    prims <- mapM showMeow' x
     let prims' = Text.intercalate ", " prims
     return $ Text.concat [ "[ ", prims', " ]" ]
 showMeow (MeowObject x) = do
@@ -42,3 +43,7 @@ showMeow (MeowModule _) = return "<module>"
 showMeow' :: Prim -> Evaluator Text.Text
 showMeow' (MeowString x) = return $ Text.concat [ "\"", x, "\"" ]
 showMeow' x = showMeow x
+
+meowStr :: Prim -> Evaluator Text.Text
+{-# INLINE meowStr #-}
+meowStr = showMeow'

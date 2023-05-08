@@ -28,7 +28,9 @@ library
       Lib
       Meowscript
       Meowscript.Core.AST
+      Meowscript.Core.Blocks
       Meowscript.Core.Environment
+      Meowscript.Core.Operations
       Meowscript.Core.Pretty
       Meowscript.Core.Primitives
       Meowscript.Parser.Core
