@@ -113,9 +113,9 @@ tapObject _ _ = throwError "Not object!"
 
 {- Trails -}
 
-lookUpTrail :: [Key] -> Evaluator PrimRef
+lookUpTrail :: [Key] -> Evaluator Prim
 lookUpTrail [] = throwError "empty!!!!!!!"
-lookUpTrail (x:xs) = lookUpVar' x >>= innerLookup xs
+lookUpTrail (x:xs) = lookUpVar' x >>= innerLookup xs >>= evalRef
 
 innerLookup :: [Key] -> PrimRef -> Evaluator PrimRef
 innerLookup [] _ = throwError "Empty trail!"

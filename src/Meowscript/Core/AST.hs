@@ -155,19 +155,27 @@ instance Eq Prim where
     (MeowInt a) == (MeowDouble b) = fromIntegral a == b
     (MeowDouble a) == (MeowInt b) = a == fromIntegral b
     (MeowDouble a) == (MeowDouble b) = a == b
-    -- Strings
-    (MeowString a) == (MeowString b) = a == b
-    (MeowString a) == b = a == (Text.pack . show) b
-    a == (MeowString b) = (Text.pack . show) a == b
+
+    -- Nil
+    MeowLonely == MeowLonely = True
+    _ == MeowLonely = False
+    MeowLonely == _ = False
+
     -- Booleans
     (MeowBool a) == (MeowBool b) = a == b
     (MeowBool a) == b = a == meowBool b
     a == (MeowBool b) = meowBool a == b
-    -- Lists, objects, nil
+
+    -- Strings
+    (MeowString a) == (MeowString b) = a == b
+    (MeowString a) == b = a == (Text.pack . show) b
+    a == (MeowString b) = (Text.pack . show) a == b
+
+    -- Lists, objects
     (MeowList a) == (MeowList b) = a == b
     (MeowObject a) == (MeowObject b) = Map.keys a == Map.keys b
-    MeowLonely == MeowLonely = True
-    -- Stringify everything else because screw it c':
+
+    -- Stringify everything else because they shouldn't be compared c':
     a == b = show a == show b
 
 instance Ord Prim where
@@ -176,21 +184,27 @@ instance Ord Prim where
     (MeowInt a) `compare` (MeowDouble b) = fromIntegral a `compare` b
     (MeowDouble a) `compare` (MeowInt b) = a `compare` fromIntegral b
     (MeowDouble a) `compare` (MeowDouble b) = a `compare` b
-    -- Strings
-    (MeowString a) `compare` (MeowString b) = a `compare` b
-    (MeowString a) `compare` b = a `compare` (Text.pack . show) b
-    a `compare` (MeowString b) = (Text.pack . show) a `compare` b
+
+    -- Nil
+    MeowLonely `compare` MeowLonely = EQ
+    _ `compare` MeowLonely = GT
+    MeowLonely `compare` _ = LT
+
     -- Booleans
     (MeowBool a) `compare` (MeowBool b) = a `compare` b
     (MeowBool a) `compare` b = a `compare` meowBool b
     a `compare` (MeowBool b) = meowBool a `compare` b
-    -- Lists, objects, nil
+
+    -- Strings
+    (MeowString a) `compare` (MeowString b) = a `compare` b
+    (MeowString a) `compare` b = a `compare` (Text.pack . show) b
+    a `compare` (MeowString b) = (Text.pack . show) a `compare` b
+
+    -- Lists, objects
     (MeowList a) `compare` (MeowList b) = a `compare` b
     (MeowObject a) `compare` (MeowObject b) = Map.keys a `compare` Map.keys b
-    MeowLonely `compare` MeowLonely = EQ
-    _ `compare` MeowLonely = GT
-    MeowLonely `compare` _ = LT
-    -- Stringify everything else because screw it c':
+
+    -- Stringify everything else because they shouldn't be compared c':
     a `compare` b = show a `compare` show b
 
 meowBool :: Prim ->  Bool

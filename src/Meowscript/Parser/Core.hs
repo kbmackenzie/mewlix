@@ -30,7 +30,7 @@
 import Meowscript.Core.AST
 import qualified Data.Text as Text
 import qualified Text.Megaparsec as Mega
-import Text.Megaparsec ((<?>))
+import Text.Megaparsec ((<|>), (<?>))
 import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
 import Data.Void (Void)
@@ -120,7 +120,13 @@ validKeyChar :: Char -> Bool
 validKeyChar c = isAlphaNum c || c `elem` ['\'', '^', '_']
 
 parseKey :: Parser Prim
-parseKey = MeowKey <$> keyText
+parseKey = MeowKey <$> (parseKeyNew <|> parseKey')
+
+parseKeyNew :: Parser KeyType
+parseKeyNew = (Mega.try . lexeme . keyword) "mew" >> KeyNew <$> keyText
+
+parseKey' :: Parser KeyType
+parseKey' = KeyModify <$> keyText
     
 keyText :: Parser Text.Text
 keyText = do

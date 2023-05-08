@@ -40,7 +40,7 @@ parensExpression :: Parser Expr
 parensExpression = (lexeme . parens) (whitespace >> parseExpr')
 
 parseExpression :: Parser Statement
-parseExpression = whitespace >> SExpr <$> parseExpr'
+parseExpression = whitespace >> StmExpr <$> parseExpr'
 
 
 {- While -}
@@ -50,7 +50,7 @@ parseWhile = lexeme . Lexer.indentBlock whitespaceLn $ do
     (Mega.try . void . keyword) meowWhile
     whitespace
     condition <- parensExpression
-    return (Lexer.IndentMany Nothing ((<$ parseEnd) . SWhile condition) statements)
+    return (Lexer.IndentMany Nothing ((<$ parseEnd) . StmWhile condition) statements)
 
 {- If Else -}
 
@@ -68,8 +68,8 @@ parseElse = lexeme . Lexer.indentBlock whitespaceLn $ do
 parseIfElse :: Parser Statement
 parseIfElse = lexeme $ do
     (cond, ifBody) <- parseIf
-    let elseS = parseElse <&> SIfElse cond ifBody
-    let onlyIf = return (SIf cond ifBody)
+    let elseS = parseElse <&> StmIfElse cond ifBody
+    let onlyIf = return (StmIf cond ifBody)
     (Mega.try elseS <|> onlyIf) <* parseEnd
 
 {- Functions -}
@@ -82,7 +82,7 @@ parseFunc = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . keyword) meowCatface
     name <- lexeme keyText
     args <- funParams
-    return (Lexer.IndentMany Nothing ((<$ parseEnd) . SFuncDef name args) statements)
+    return (Lexer.IndentMany Nothing ((<$ parseEnd) . StmFuncDef name args) statements)
 
 
 {- Return -}
@@ -91,20 +91,20 @@ parseReturn :: Parser Statement
 parseReturn = lexeme $ do
     whitespace
     (void . keyword) meowReturn
-    SReturn <$> parseExpr'
+    StmReturn <$> parseExpr'
 
 {- Continue -}
 parseContinue :: Parser Statement
 parseContinue = lexeme $ do
     whitespace
-    SContinue <$ (void . keyword) meowContinue
+    StmContinue <$ (void . keyword) meowContinue
 
 {- Break -}
 
 parseBreak :: Parser Statement
 parseBreak = lexeme $ do
     whitespace
-    SBreak <$ (void . keyword) meowBreak
+    StmBreak <$ (void . keyword) meowBreak
 
 
 {- For Loop -}
@@ -116,7 +116,7 @@ parseFor = lexeme . Lexer.indentBlock whitespaceLn $ do
     let first = Mega.try (getExp start)
     (a, b, c) <- (,,) <$> first <*> getExp middle <*> getExp end
     let expressions = (a, b, c)
-    return $ Lexer.IndentMany Nothing ((<$ parseEnd) . SFor expressions) statements
+    return $ Lexer.IndentMany Nothing ((<$ parseEnd) . StmFor expressions) statements
 
 {- Import -}
 
@@ -128,4 +128,4 @@ parseImport = lexeme $ do
     let filepath = Text.unpack x
     let key = (void . Mega.try . lexeme . keyword) end >> lexeme keyText
     maybeKey <- Mega.optional key
-    return (SImport filepath maybeKey)
+    return (StmImport filepath maybeKey)

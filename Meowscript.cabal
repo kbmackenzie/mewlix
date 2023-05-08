@@ -30,9 +30,9 @@ library
       Meowscript.Core.AST
       Meowscript.Core.Blocks
       Meowscript.Core.Environment
+      Meowscript.Core.Keys
       Meowscript.Core.Operations
       Meowscript.Core.Pretty
-      Meowscript.Core.Primitives
       Meowscript.Parser.Core
       Meowscript.Parser.Expr
       Meowscript.Parser.Keywords

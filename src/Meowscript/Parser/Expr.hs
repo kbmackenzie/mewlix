@@ -19,7 +19,7 @@ exprTerm :: Parser Expr
 exprTerm = ((lexeme . parens) parseExpr <?> "parens"    )
     <|> (lexeme parseBox                <?> "box"       )
     <|> (lexeme parseList               <?> "list"      )
-    <|> (EPrim <$> lexeme parsePrim                     ) 
+    <|> (ExpPrim <$> lexeme parsePrim                     ) 
 
 parseExpr :: Parser Expr
 parseExpr = makeExprParser exprTerm operators
@@ -30,44 +30,44 @@ parseExpr' = lexeme (whitespace >> parseExpr)
 operators :: [[Operator Parser Expr]]
 operators =
     [
-        [ Prefix  (EUnop MeowYarn                   <$ trySymbol "~~"        ) ]
-      , [ InfixL  (ETrail                             <$ parseDotOp            ) ]
+        [ Prefix  (ExpUnop MeowYarn                   <$ trySymbol "~~"        ) ]
+      , [ InfixL  (ExpTrail                           <$ parseDotOp            ) ]
       , [ Postfix (Mega.try functionCall                                     ) ]
-      , [ Prefix  (EUnop  MeowPeek                  <$ tryKeyword meowPeek   )
-        , InfixL  (EBinop MeowPush                  <$ tryKeyword meowPush   )
-        , Prefix  (EUnop  MeowKnockOver             <$ tryKeyword meowKnock  )
-        , Postfix (EUnop  MeowLen                   <$ symbol "?"            )
-        , InfixL  (EBinop MeowConcat                <$ trySymbol ".."        ) ]
-      , [ Prefix  (EUnop  MeowPaw                   <$ tryKeyword meowPaw    )
-        , Prefix  (EUnop  MeowClaw                  <$ tryKeyword meowClaw   )
-        , Prefix  (EUnop  MeowNegate                <$ symbol "-"            )
-        , Prefix  (EUnop  MeowNot                   <$ tryKeyword meowNot    ) ]
-      , [ InfixL  (EBinop MeowMul                   <$ symbol "*"            )
-        , InfixL  (EBinop MeowDiv                   <$ symbol "/"            )
-        , InfixL  (EBinop MeowMod                   <$ symbol "%"            ) ]
-      , [ InfixL  (EBinop MeowAdd                   <$ symbol "+"            )
-        , InfixL  (EBinop MeowSub                   <$ symbol "-"            ) ]
-      , [ InfixL  (EBinop (MeowCompare [LT, EQ])    <$ trySymbol "<="        )
-        , InfixL  (EBinop (MeowCompare [GT, EQ])    <$ trySymbol ">="        )
-        , InfixL  (EBinop (MeowCompare [LT])        <$ symbol "<"            )
-        , InfixL  (EBinop (MeowCompare [GT])        <$ symbol ">"            ) ]
-      , [ InfixL  (EBinop (MeowCompare [EQ])        <$ trySymbol "=="        )
-        , InfixL  (EBinop (MeowCompare [LT, GT])    <$ trySymbol "!="        ) ]
-      , [ InfixL  (EBinop MeowAnd                   <$ tryKeyword "and"      ) ]
-      , [ InfixL  (EBinop MeowOr                    <$ tryKeyword "or"       ) ]
+      , [ Prefix  (ExpUnop  MeowPeek                  <$ tryKeyword meowPeek   )
+        , InfixL  (ExpBinop MeowPush                  <$ tryKeyword meowPush   )
+        , Prefix  (ExpUnop  MeowKnockOver             <$ tryKeyword meowKnock  )
+        , Postfix (ExpUnop  MeowLen                   <$ symbol "?"            )
+        , InfixL  (ExpBinop MeowConcat                <$ trySymbol ".."        ) ]
+      , [ Prefix  (ExpUnop  MeowPaw                   <$ tryKeyword meowPaw    )
+        , Prefix  (ExpUnop  MeowClaw                  <$ tryKeyword meowClaw   )
+        , Prefix  (ExpUnop  MeowNegate                <$ symbol "-"            )
+        , Prefix  (ExpUnop  MeowNot                   <$ tryKeyword meowNot    ) ]
+      , [ InfixL  (ExpBinop MeowMul                   <$ symbol "*"            )
+        , InfixL  (ExpBinop MeowDiv                   <$ symbol "/"            )
+        , InfixL  (ExpBinop MeowMod                   <$ symbol "%"            ) ]
+      , [ InfixL  (ExpBinop MeowAdd                   <$ symbol "+"            )
+        , InfixL  (ExpBinop MeowSub                   <$ symbol "-"            ) ]
+      , [ InfixL  (ExpBinop (MeowCompare [LT, EQ])    <$ trySymbol "<="        )
+        , InfixL  (ExpBinop (MeowCompare [GT, EQ])    <$ trySymbol ">="        )
+        , InfixL  (ExpBinop (MeowCompare [LT])        <$ symbol "<"            )
+        , InfixL  (ExpBinop (MeowCompare [GT])        <$ symbol ">"            ) ]
+      , [ InfixL  (ExpBinop (MeowCompare [EQ])        <$ trySymbol "=="        )
+        , InfixL  (ExpBinop (MeowCompare [LT, GT])    <$ trySymbol "!="        ) ]
+      , [ InfixL  (ExpBinop MeowAnd                   <$ tryKeyword "and"      ) ]
+      , [ InfixL  (ExpBinop MeowOr                    <$ tryKeyword "or"       ) ]
       , [ Prefix  parseLambda                                                  ]
-      , [ InfixR  (EBinop MeowAssign                <$ symbol "="            ) ]
+      , [ InfixR  (ExpBinop MeowAssign                <$ symbol "="            ) ]
     ]
 
 functionCall :: Parser (Expr -> Expr)
 functionCall = (lexeme . parens) $
     whitespace >>
-    ECall <$> sepByComma (lnLexeme parseExpr)
+    ExpCall <$> sepByComma (lnLexeme parseExpr)
 
 parseList :: Parser Expr
 parseList = (lexeme . brackets) $
     whitespaceLn >>
-    EList <$> sepByComma (lnLexeme parseExpr)
+    ExpList <$> sepByComma (lnLexeme parseExpr)
 
 parseBox :: Parser Expr
 parseBox = (Mega.try . lexemeLn . MChar.string) meowBox >> parseBox'
@@ -75,7 +75,7 @@ parseBox = (Mega.try . lexemeLn . MChar.string) meowBox >> parseBox'
 parseBox' :: Parser Expr
 parseBox' = (lexeme . brackets) $
     whitespaceLn >>
-    EObject <$> sepByComma (lnLexeme parseKeyValue) <* whitespaceLn
+    ExpObject <$> sepByComma (lnLexeme parseKeyValue) <* whitespaceLn
 
 parseKeyValue :: Parser (Key, Expr)
 parseKeyValue = do
@@ -90,7 +90,7 @@ parseLambda = do
     let takeArgs = (sepByComma . flexeme) keyText
     args <- (lexeme . parens) (whitespace >> takeArgs)
     (void . lexeme . MChar.string) "=>"
-    return (ELambda args)
+    return (ExpLambda args)
 
 parseDotOp :: Parser ()
 parseDotOp = Mega.try $ do
