@@ -21,6 +21,7 @@ evaluate (ExpPrim prim) = return prim
 evaluate (ExpAssign a b) = do
     key <- asKey a
     value <- evaluate b
+    return MeowLonely
 
 -- Dereference pointers.
 ensureValue :: Prim -> Evaluator Prim

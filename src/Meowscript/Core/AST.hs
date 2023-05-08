@@ -6,6 +6,7 @@ module Meowscript.Core.AST
 , Unop(..)
 , Binop(..)
 , Statement(..)
+, KeyType(..)
 , ReturnValue(..)
 , PrimRef
 , ObjectMap
@@ -40,7 +41,7 @@ type Evaluator a = ReaderT Environment (ExceptT Text.Text IO) a
 
 data Prim =
       MeowString Text.Text
-    | MeowKey Key
+    | MeowKey KeyType
     | MeowKeys [Key]
     | MeowBool Bool
     | MeowInt Int
@@ -50,7 +51,13 @@ data Prim =
     | MeowFunc Params [Statement]
     | MeowObject ObjectMap
     | MeowIFunc Params InnerFunc
-    | MeowModule ObjectMap
+    | MeowModule Environment
+
+data KeyType =
+      KeyModify Key
+    | KeyNew Key
+    | KeyTrail [Key]
+    deriving (Eq, Show)
 
 {- This is extremely different from actually pretty-printing Meowscript values!!!
  - Since Meowscript handles IORefs as primitives, a pretty-printing function
@@ -77,7 +84,7 @@ data Expr =
     | ExpBinop Binop Expr Expr
     | ExpList [Expr]
     | ExpObject [(Key, Expr)]
-    | ExpYarn Expr
+    | ExpAssign Expr Expr
     | ExpLambda [Key] Expr
     | ExpCall [Expr] Expr
     | ExpTrail Expr Expr
@@ -112,6 +119,7 @@ data Unop =
     | MeowNegate
     | MeowPaw
     | MeowClaw
+    | MeowYarn
     deriving (Show)
 
 data Binop =

@@ -20,7 +20,8 @@ showT = Text.pack . show
 
 showMeow :: Prim -> Evaluator Text.Text
 showMeow (MeowString x) = return x
-showMeow (MeowRef _) = return "<reference>"
+showMeow (MeowKey _) = return "<key>"
+showMeow (MeowKeys _) = return "<keys>"
 showMeow (MeowInt x) = return $ showT x
 showMeow (MeowDouble x) = return $ showT x
 showMeow (MeowBool x) = return $ if x then "yummy" else "icky"
