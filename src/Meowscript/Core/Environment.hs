@@ -16,23 +16,24 @@ module Meowscript.Core.Environment
 , runLocal
 , allocNew
 , evalRef
+, createObject
+, modifyObject
+, Callback
 , lookUpTrail
 , insertTrail
 , trailAction
-, createObject
-, modifyObject
+, FnCallback
 , runMethod
 , runFunction
-, Callback
 ) where
 
 import Meowscript.Core.AST
 import Data.IORef
-import qualified Data.Text as Text
 import qualified Data.Map as Map
 import Control.Monad.Reader (ask, liftIO, local)
 import Control.Monad.Except (throwError)
 import Data.Functor ((<&>))
+import Control.Monad (void)
 
 newEnv :: IO Environment
 newEnv = newIORef Map.empty
@@ -108,32 +109,9 @@ modifyObject ref f = evalRef ref >>= \case
     (MeowObject obj) -> (liftIO . writeIORef ref . MeowObject . f) obj
     _ -> throwError "??????????"
 
-tapObject :: Key -> Prim -> Evaluator PrimRef
-tapObject key (MeowObject x) = peekObject key x
-tapObject _ _ = throwError "Not object!"
-
-
-{- Trails -}
-
-lookUpTrail :: [Key] -> Evaluator Prim
-lookUpTrail [] = throwError "empty!!!!!!!"
-lookUpTrail (x:xs) = lookUpVar' x >>= innerLookup xs >>= evalRef
-
-innerLookup :: [Key] -> PrimRef -> Evaluator PrimRef
-innerLookup [] _ = throwError "Empty trail!"
-innerLookup [key] ref = evalRef ref >>= tapObject key
-innerLookup (key:xs) ref = evalRef ref >>= tapObject key >>= innerLookup xs
-
-insertTrail :: [Key] -> Prim -> Evaluator ()
-insertTrail [] _ = throwError "aaaaaaaaaaaaaaaaaaaaaaaa"
-insertTrail [key] value = insertVar key value False
-insertTrail (key:xs) value = lookUpVar' key >>= innerInsert xs value
-
-innerInsert :: [Key] -> Prim -> PrimRef -> Evaluator ()
-innerInsert [] _ _ = throwError "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-innerInsert [key] value ref = allocNew value >>= modifyObject ref . Map.insert key
-innerInsert (key:xs) value ref = evalRef ref >>= tapObject key >>= innerInsert xs value
-
+peekAsObject :: Key -> Prim -> Evaluator PrimRef
+peekAsObject key (MeowObject x) = peekObject key x
+peekAsObject _ _ = throwError "Not object!"
 
 {- Trail : Actions -}
 
@@ -147,40 +125,37 @@ innerAction :: [Key] -> Callback -> PrimRef -> Evaluator Prim
 innerAction [] f ref = f ref
 innerAction (key:keys) f ref = evalRef ref >>= \case
     (MeowModule env) -> do
-        ref' <- evalRef ref >>= peekObject key
+        ref' <- evalRef ref >>= peekAsObject key
         local (const env) (innerAction keys f ref')
     (MeowObject obj) -> peekObject key obj >>= innerAction keys f
     _ -> throwError "not object"
 
-{-
-trailAction :: [Key] -> Callback -> Evaluator Prim
-trailAction [] _ = throwError "aaaaaaaaaaaa"
-trailAction [key] f = lookUpVar' key >>= f
-trailAction (k:y:z) f = lookUp k >>= \case
-    (MeowModule env) -> local (const env) (trailAction (y:z) f)
-    (MeowObject obj) -> peekObject y obj >>= innerAction z f
-    _ -> throwError "not object!!!!!!!!!"
+lookUpTrail :: [Key] -> Evaluator Prim
+lookUpTrail keys = trailAction keys evalRef
 
-innerAction :: [Key] -> Callback -> PrimRef -> Evaluator Prim
-innerAction [] f ref = f ref
-innerAction (x:xs) f ref = evalRef ref >>= tapObject x >>= innerAction xs f
+insertTrail :: [Key] -> Prim -> Evaluator ()
+insertTrail keys value
+    | length keys <= 1 = throwError "aaaaa"
+    | otherwise = void $ trailAction (init keys) $ \x -> do
+        allocNew value >>= modifyObject x . Map.insert (last keys)
+        return value
 
-runMethod :: [Key] -> Callback -> Evaluator Prim
-runMethod [] _ = throwError "??"
-runMethod [_] _ = throwError "??"
-runMethod keys fn = do
-    let top = init keys
-    let key = last keys
-    trailAction top $ \x -> runLocal $ do
-        insertRef "home" x
-        -- do all the function stuff here
-        -- return the function return
-        evalRef x >>= tapObject key >>= fn
-        -- the callback should take the function
-        -- and push arguments to the current env
-        -- and do all of that stuff > .<
-        -- all that should be doen by the callback!!
 
-runFunction :: Key -> Callback -> Evaluator Prim
-runFunction key f = lookUpVar' key >>= f
--}
+{- Meowscript Functions -}
+
+type FnCallback = Prim -> Evaluator Prim
+
+runMethod :: [Key] -> FnCallback -> Evaluator Prim
+runMethod keys callback
+    | length keys <= 1 = throwError "aaaaaa"
+    | otherwise = trailAction (init keys) $ \parent -> runLocal $ do
+        insertRef "home" parent
+        -- Look up function:
+        fn <- evalRef parent >>= peekAsObject (last keys) >>= evalRef
+        -- Function callback should:
+        -- 1. Push arguments to stack
+        -- 2. Run the entire function
+        callback fn
+        
+runFunction :: Key -> FnCallback -> Evaluator Prim
+runFunction key f = lookUp key >>= f

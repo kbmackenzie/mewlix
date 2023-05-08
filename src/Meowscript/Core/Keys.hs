@@ -24,7 +24,7 @@ ensureValue :: Prim -> Evaluator Prim
 ensureValue (MeowKey key) = keyLookup key >>= ensureValue
 ensureValue x = return x
 
-funcLookup :: KeyType -> Callback -> Evaluator Prim
+funcLookup :: KeyType -> FnCallback -> Evaluator Prim
 funcLookup key f = case key of 
     (KeyModify x) -> runFunction x f
     (KeyNew x) -> runFunction x f
