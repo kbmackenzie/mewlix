@@ -7,7 +7,7 @@ import Meowscript.Core.AST
 import Meowscript.Core.Environment
 
 ensureValue :: Prim -> Evaluator Prim
-ensureValue (MeowKey key) = case key of
+ensureValue (MeowKey key) = ensureValue =<< case key of
     (KeyModify x) -> lookUp x
     (KeyNew x) -> lookUp x
     (KeyTrail xs) -> lookUpTrail xs

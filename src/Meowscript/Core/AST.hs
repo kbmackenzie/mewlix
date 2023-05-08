@@ -11,7 +11,7 @@ module Meowscript.Core.AST
 , PrimRef
 , ObjectMap
 , Key
-, LocalNew
+, Overwrite
 , Name
 , Params , Environment
 , Evaluator
@@ -33,7 +33,7 @@ type PrimRef = IORef Prim
 type ObjectMap = Map.Map Key PrimRef
 
 type Key = Text.Text
-type LocalNew = Bool
+type Overwrite = Bool
 type InnerFunc = Evaluator Prim
 
 type Environment = IORef ObjectMap

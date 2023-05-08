@@ -59,7 +59,7 @@ createVar key value = do
 modifyVar :: PrimRef -> Prim -> Evaluator ()
 modifyVar key value = liftIO $ writeIORef key value
 
-insertVar :: Key -> Prim -> LocalNew -> Evaluator ()
+insertVar :: Key -> Prim -> Overwrite -> Evaluator ()
 insertVar key value True = overwriteVar key value
 insertVar key value False = lookUpVar key >>= \case
     Nothing -> createVar key value
