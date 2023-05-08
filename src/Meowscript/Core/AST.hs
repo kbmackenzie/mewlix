@@ -20,6 +20,7 @@ module Meowscript.Core.AST
 , Block
 , Qualified
 , meowBool
+, returnAsPrim
 ) where
 
 import qualified Data.Text as Text
@@ -56,7 +57,7 @@ data KeyType =
       KeyModify Key
     | KeyNew Key
     | KeyTrail [Key]
-    deriving (Eq, Show)
+    deriving (Eq)
 
 {- This is extremely different from actually pretty-printing Meowscript values!!!
  - Since Meowscript handles IORefs as primitives, a pretty-printing function
@@ -64,7 +65,7 @@ data KeyType =
  - Thus, I'm using this to facilitate my understanding instead. -}
 instance Show Prim where
     show (MeowString x) = Text.unpack x
-    show (MeowKey _) = "<key>"
+    show (MeowKey x) = concat ["<key: \"", show x, "\">" ]
     show (MeowInt x) = show x
     show (MeowBool x) = show x
     show (MeowDouble x) = show x
@@ -74,6 +75,11 @@ instance Show Prim where
     show (MeowObject _) = "<object>"
     show (MeowIFunc _ _) = "<inner-func>"
     show (MeowModule _) = "<module>"
+
+instance Show KeyType where
+    show (KeyModify x) = Text.unpack x
+    show (KeyNew x) = Text.unpack x
+    show (KeyTrail xs) = (Text.unpack . Text.intercalate ", ") xs
 
 data Expr =
       ExpPrim Prim
@@ -116,7 +122,6 @@ data Unop =
     | MeowNegate
     | MeowPaw
     | MeowClaw
---    | MeowYarn
     deriving (Show)
 
 data Binop =
@@ -134,17 +139,20 @@ data Binop =
     deriving (Show)
 
 data ReturnValue =
-      RVoid
-    | RBreak
-    | RValue Prim
+      RetVoid
+    | RetBreak
+    | RetValue Prim
     deriving (Show)
 
 instance Eq ReturnValue where
-    RVoid == RVoid = True
-    RBreak == RBreak = True
-    RValue _ == RValue _ = True
+    RetVoid == RetVoid = True
+    RetBreak == RetBreak = True
+    RetValue _ == RetValue _ = True
     _ == _ = False
 
+returnAsPrim :: ReturnValue -> Prim
+returnAsPrim (RetValue x) = x
+returnAsPrim _ = MeowLonely
 
 {- A special case will have to be made when comparing objects later on! c':
  - Thanks to the IORefs, of course.
