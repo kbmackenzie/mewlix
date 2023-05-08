@@ -12,7 +12,7 @@ bug-reports:    https://github.com/githubuser/Meowscript/issues
 author:         Author name here
 maintainer:     example@example.com
 copyright:      2023 Author name here
-license:        BSD3
+license:        MIT
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
@@ -28,12 +28,9 @@ library
       Lib
       Meowscript
       Meowscript.Core.AST
-      Meowscript.Core.Base
-      Meowscript.Core.Blocks
       Meowscript.Core.Environment
-      Meowscript.Core.Exceptions
-      Meowscript.Core.Operations
-      Meowscript.Core.RunEvaluator
+      Meowscript.Core.Pretty
+      Meowscript.Core.Primitives
       Meowscript.Parser.Core
       Meowscript.Parser.Expr
       Meowscript.Parser.Keywords
@@ -62,7 +59,7 @@ executable Meowscript-exe
       Paths_Meowscript
   hs-source-dirs:
       app
-  ghc-options: -O3 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-M128m -O3
+  ghc-options: -O3 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-M128m
   build-depends:
       Meowscript
     , base >=4.7 && <5
@@ -83,7 +80,7 @@ test-suite Meowscript-test
       Paths_Meowscript
   hs-source-dirs:
       test
-  ghc-options: -O3 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -O3
+  ghc-options: -O3 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-M128m
   build-depends:
       Meowscript
     , base >=4.7 && <5

@@ -31,7 +31,7 @@ operators :: [[Operator Parser Expr]]
 operators =
     [
         [ Prefix  (EUnop MeowYarn                   <$ trySymbol "~~"        ) ]
-      , [ InfixL  (EDot                             <$ parseDotOp            ) ]
+      , [ InfixL  (ETrail                             <$ parseDotOp            ) ]
       , [ Postfix (Mega.try functionCall                                     ) ]
       , [ Prefix  (EUnop  MeowPeek                  <$ tryKeyword meowPeek   )
         , InfixL  (EBinop MeowPush                  <$ tryKeyword meowPush   )

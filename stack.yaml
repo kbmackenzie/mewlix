@@ -1,4 +1,4 @@
-system-ghc: true
+#system-ghc: true
 resolver: ghc-9.0.2
 
 extra-deps:

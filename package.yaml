@@ -1,7 +1,7 @@
 name:                Meowscript
 version:             0.1.0.0
 github:              "githubuser/Meowscript"
-license:             BSD3
+license:             MIT
 author:              "Author name here"
 maintainer:          "example@example.com"
 copyright:           "2023 Author name here"
@@ -55,7 +55,6 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-M128m
-    - -O3
     dependencies:
     - Meowscript
 
@@ -66,6 +65,6 @@ tests:
     ghc-options:
     - -threaded
     - -rtsopts
-    - -O3
+    - -with-rtsopts=-M128m
     dependencies:
     - Meowscript
