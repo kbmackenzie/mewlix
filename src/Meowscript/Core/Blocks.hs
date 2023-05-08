@@ -16,23 +16,4 @@ import Control.Monad.Except (throwError)
 import Data.Functor ((<&>))
 import Control.Monad (join)
 
-evaluate :: Expr -> Evaluator Prim
-evaluate (ExpPrim prim) = return prim
-evaluate (ExpAssign a b) = do
-    key <- asKey a
-    value <- evaluate b
-    return MeowLonely
 
--- Dereference pointers.
-ensureValue :: Prim -> Evaluator Prim
-ensureValue (MeowKey x) = lookUp x
-ensureValue x = return x
-
-unwrapDots :: Expr -> Evaluator [Key]
-unwrapDots (ExpTrail x y) = (:) <$> asKey x <*> unwrapDots y
-unwrapDots x = List.singleton <$> asKey x
-
-asKey :: Expr -> Evaluator Key
-asKey (ExpPrim x) = showMeow' x
-asKey (ExpYarn expr) = evaluate expr >>= showMeow'
-asKey _ = throwError "Invalid key!"

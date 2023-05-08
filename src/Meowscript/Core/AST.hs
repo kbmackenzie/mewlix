@@ -42,7 +42,6 @@ type Evaluator a = ReaderT Environment (ExceptT Text.Text IO) a
 data Prim =
       MeowString Text.Text
     | MeowKey KeyType
-    | MeowKeys [Key]
     | MeowBool Bool
     | MeowInt Int
     | MeowDouble Double
@@ -66,12 +65,11 @@ data KeyType =
 instance Show Prim where
     show (MeowString x) = Text.unpack x
     show (MeowKey _) = "<key>"
-    show (MeowKeys _) = "<keys>"
     show (MeowInt x) = show x
     show (MeowBool x) = show x
     show (MeowDouble x) = show x
     show MeowLonely = "<lonely>"
-    show (MeowList xs) = concat [ "\"", intercalate ", " $ map show xs, "\"" ]
+    show (MeowList xs) = concat [ "[", (intercalate ", " . map show) xs, "]" ]
     show (MeowFunc _ _) = "<func>"
     show (MeowObject _) = "<object>"
     show (MeowIFunc _ _) = "<inner-func>"
@@ -79,7 +77,6 @@ instance Show Prim where
 
 data Expr =
       ExpPrim Prim
-    | ExpKey Key LocalNew
     | ExpUnop Unop Expr 
     | ExpBinop Binop Expr Expr
     | ExpList [Expr]
