@@ -1,6 +1,6 @@
 # Meowscript
 
-Meowscript is a cat-themed esotering programming language. It's an imperative, dynamically typed, interpreted language with impractical cat-themed syntax and support for a subset of features from OOP and FP. It takes a lot of inspiration from the Lua language—just with a lot more cats. \_(:3」∠)\_
+Meowscript is a cat-themed esoteric programming language. It's an imperative, dynamically typed, interpreted language with impractical cat-themed syntax and support for a subset of features from OOP and FP. It takes a lot of inspiration from the Lua language—just with a lot more cats. \_(:3」∠)\_
 
 I wrote this language entirely in Haskell as my first 'big' Haskell project. It was a really fun learning experience! <3 It made me really realize how beautiful of a language Haskell is!! I'm addicted now!!
 
