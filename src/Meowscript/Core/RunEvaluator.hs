@@ -61,8 +61,8 @@ runProgram xs = do
     mapM_ addImport imps
     returnAsPrim <$> runBlock rest
 
-asImport :: [Statement] -> Evaluator Environment
-asImport xs = runProgram xs >> ask -- Return the environment.
+runAsImport :: [Statement] -> Evaluator Environment
+runAsImport xs = runProgram xs >> ask -- Return the environment.
 
 runDebug :: [Statement] -> Evaluator Prim
 runDebug xs = do
@@ -71,13 +71,8 @@ runDebug xs = do
     (liftIO . TextIO.putStrLn) x
     return ret
 
-{- Imports -}
-{- A few things about imports:
- - They shouldn't take the base library. That's already 'implied'.
- - They can be imported qualified or not. One is easier than the other. @x@ -}
-
 getImportEnv :: FilePath -> IO (Either Text.Text Environment)
-getImportEnv path = runMeow (return Map.empty) asImport path >>= \case
+getImportEnv path = runMeow (return Map.empty) runAsImport path >>= \case
     (Left exception) -> (return . Left) exception
     (Right output) -> (return . Right) output
 
@@ -92,4 +87,4 @@ addImport (StmImport file qualified) = (liftIO . getImportEnv) file >>= \case
         (Just x) -> do
             imp <- (liftIO . readIORef) import' >>= liftIO . newIORef . MeowObject
             insertRef x imp
-addImport _ = throwError (showException MeowBadImport "Critical error: Statement is not an import!")
+addImport x = throwError (showException MeowBadImport "Critical error: Statement is not an import! Trace: " `Text.append` showT x)

@@ -29,12 +29,10 @@ module Meowscript.Core.Environment
 
 import Meowscript.Core.AST
 import Data.IORef
-import Meowscript.Core.Pretty
 import Meowscript.Core.Exceptions
-import qualified Data.Map as Map
 import Control.Monad.Reader (ask, liftIO, local)
 import Control.Monad.Except (throwError)
-import qualified Data.Text as Text
+import qualified Data.Map as Map
 import Data.Functor ((<&>))
 import Control.Monad (void)
 
@@ -63,7 +61,7 @@ createVar key value = do
     ask >>= liftIO . flip writeIORef env'
 
 modifyVar :: PrimRef -> Prim -> Evaluator ()
-modifyVar key value = liftIO $ writeIORef key value
+modifyVar ref value = liftIO $ writeIORef ref value
 
 insertVar :: Key -> Prim -> Overwrite -> Evaluator ()
 insertVar key value True = overwriteVar key value
@@ -113,11 +111,11 @@ createObject xs = do
 modifyObject :: PrimRef -> (ObjectMap -> ObjectMap) -> Evaluator ()
 modifyObject ref f = evalRef ref >>= \case
     (MeowObject obj) -> (liftIO . writeIORef ref . MeowObject . f) obj
-    x -> prettyMeow x >>= throwError . badBox
+    x -> throwError =<< notBox x
 
 peekAsObject :: Key -> Prim -> Evaluator PrimRef
 peekAsObject key (MeowObject x) = peekObject key x
-peekAsObject _ x = prettyMeow x >>= throwError . badBox
+peekAsObject _ x = throwError =<< notBox x
 
 {- Trail : Actions -}
 

@@ -8,6 +8,7 @@ module Meowscript.Core.Exceptions
 , divByZero
 , badKey
 , badBox
+, notBox
 , emptyTrail
 , manyArgs
 , fewArgs
@@ -64,11 +65,13 @@ showException :: MeowException -> Text.Text -> Text.Text
 showException meowe message = Text.concat
     ["[", (Text.pack . show) meowe, "]", ": ", message]
 
-showException' :: (Show a) => MeowException -> Text.Text -> [a] -> Evaluator Text.Text
-showException' meowEx text xs = (return . showException meowEx . Text.concat) message
-    where terms = Text.intercalate ", " (map showT xs)
-          message = [text, " | Terms: [", terms, "]"]
-
+showException' :: MeowException -> Text.Text -> [Prim] -> Evaluator Text.Text
+showException' meowEx text xs = do
+    prims <- mapM showMeow xs
+    let terms = Text.intercalate ", " prims
+    let message = [text, " | Terms: [", terms, "]"]
+    (return . showException meowEx . Text.concat) message
+    
 opException :: Text.Text -> [Prim] -> Evaluator Text.Text
 opException = showException' MeowInvalidOp . \x -> Text.concat
     [ "Invalid operands for '", x, "'!" ]
@@ -83,31 +86,34 @@ badKey = showException MeowBadVar . \x -> Text.concat
 badBox :: Text.Text -> Text.Text
 badBox = showException MeowBadBox . \x -> Text.concat ["Value in key '", x, "' is not a box!"]
 
+notBox :: Prim -> Evaluator Text.Text
+notBox prim = showMeow prim >>= \x -> return $ showException MeowBadBox
+    $ Text.concat [ "Value '", x, "' is not a box!" ]
+
 emptyTrail :: Text.Text
 emptyTrail = showException MeowBadTrail "Trail is empty!"
 
-fewArgs :: Text.Text -> Text.Text
-fewArgs = showException MeowBadArgs . \x -> Text.concat
-    [ "Too few arguments passed to function '", x, "'!" ]
+fewArgs :: Text.Text -> [Prim] -> Evaluator Text.Text
+fewArgs x = showException' MeowBadArgs
+    $ Text.concat [ "Too few arguments passed to function '", x, "'! | Terms:" ]
 
-manyArgs :: Text.Text -> Text.Text
-manyArgs = showException MeowBadArgs . \x -> Text.concat
-    [ "Too many arguments passed to function '", x, "'!" ]
+manyArgs :: Text.Text -> [Prim] -> Evaluator Text.Text
+manyArgs x = showException' MeowBadArgs 
+    $ Text.concat [ "Too many arguments passed to function '", x, "'!" ]
 
 badFunc :: Text.Text -> Text.Text
 badFunc = showException MeowBadFunc . \x -> Text.concat ["Key '", x, "' is not a function!"]
 
-notFunc :: Prim -> Text.Text
-notFunc = showException MeowBadFunc . \x -> let prim = showT x in Text.concat
-    [ "Attempted to call '", prim, "' as a function,"
-    , " but '", prim, "' is not a function!" ]
+notFunc :: Prim -> Evaluator Text.Text
+notFunc prim = showMeow prim >>= \x -> return $ showException MeowBadFunc
+    $ Text.concat ["Attempted to call '", x, "' as a function," , " but '", x, "' is not a function!" ]
 
 badTrail :: Text.Text -> Text.Text
 badTrail = showException MeowBadTrail . Text.append "Invalid token in trail: "
 
 shortTrail :: [Key] -> Text.Text
 shortTrail = showException MeowBadTrail
-    . Text.append "Trail is too short. | Terms: "
+    . Text.append "Trail is too short. | Trail: "
     . Text.intercalate "."
 
 badArgs :: Text.Text -> [Prim] -> Evaluator Text.Text

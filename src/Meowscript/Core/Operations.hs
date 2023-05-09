@@ -158,7 +158,7 @@ meowMod :: Prim -> Prim -> Evaluator Prim
 meowMod a b@(MeowInt 0) = throwError =<< divByZero [a, b]
 meowMod a b@(MeowDouble 0) = throwError =<< divByZero [a, b]
 meowMod (MeowInt a) (MeowInt b) = (return . MeowInt) (a `mod` b)
-meowMod x y = throwError (opException "%" [x, y])
+meowMod x y = throwError =<< opException "%" [x, y]
 
 
 -- Comparison

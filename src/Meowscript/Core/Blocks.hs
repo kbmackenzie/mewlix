@@ -16,15 +16,14 @@ import Meowscript.Core.Keys
 import Meowscript.Core.Pretty
 import Meowscript.Core.Exceptions
 import qualified Data.Text as Text
-import qualified Data.Map as Map
 import qualified Data.List as List
-import Control.Monad.Reader (ask, asks, liftIO)
+import Control.Monad.Reader (asks, liftIO)
 import Control.Monad.Except (throwError)
-import Control.Monad (void, join, when)
+import Control.Monad (void, join, when, (>=>))
 import Data.Functor ((<&>))
 import Data.IORef (readIORef)
 
-type Args = [Expr]
+type Args = [Prim]
 
 {- Evaluating Expressions -}
 evaluate :: Expr -> Evaluator Prim
@@ -38,10 +37,12 @@ evaluate (ExpObject object) = do
     MeowObject <$> (liftIO . createObject) pairs
 evaluate (ExpLambda args expr) = asks (MeowFunc args [StmReturn expr])
 evaluate x@(ExpTrail {}) = MeowKey . KeyTrail <$> asTrail x
-evaluate (ExpCall args funcKey) = evaluate funcKey >>= \case
-    (MeowKey key) -> funcLookup key args
-    lambda@(MeowFunc {}) -> runFunc "<lambda>" args lambda
-    x -> throwError (notFunc x)
+evaluate (ExpCall args funcKey) = do
+    args' <- mapM (evaluate >=> ensureValue) args
+    evaluate funcKey >>= \case
+        (MeowKey key) -> funcLookup key args'
+        lambda@(MeowFunc {}) -> runFunc "<lambda>" args' lambda
+        x -> throwError =<< notFunc x
 evaluate (ExpYarn expr) = evaluate expr >>= \case
     (MeowString str) -> (return . MeowKey . KeyNew) str
     x -> throwError =<< opException "Yarn" [x]
@@ -176,18 +177,18 @@ runMethod key args parent (MeowFunc params body closure) = do
         meowFunc key params args body
 runMethod key _ _ _ = throwError (badFunc key)
 
-addFunArgs :: [(Key, Expr)] -> Evaluator ()
+addFunArgs :: [(Key, Prim)] -> Evaluator ()
 {-# INLINABLE addFunArgs #-}
 addFunArgs [] = return ()
-addFunArgs ((key, expr):xs) = do
-    evaluate expr >>= ensureValue >>= assignNew key
+addFunArgs ((key, prim):xs) = do
+    assignNew key prim
     addFunArgs xs
 
 paramGuard :: Key -> Args -> Params -> Evaluator ()
 {-# INLINABLE paramGuard #-}
 paramGuard key args params = do
-    when (length params < length args) ((throwError . manyArgs) key)
-    when (length params > length args) ((throwError . manyArgs) key)
+    when (length params < length args) (throwError =<< manyArgs key args)
+    when (length params > length args) (throwError =<< manyArgs key args)
 
 ------------------------------------------------------------------------
 

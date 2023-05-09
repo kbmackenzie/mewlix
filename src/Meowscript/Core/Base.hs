@@ -43,13 +43,12 @@ reverseFn :: Evaluator Prim
 reverseFn = lookUp "x" >>= \case
     (MeowList x) -> (return . MeowList . reverse) x
     (MeowString x) -> (return . MeowString . Text.reverse) x
-    x -> throwError (badArgs "reverse" [x])
+    x -> throwError =<< badArgs "reverse" [x]
 
 sortFn :: Evaluator Prim
 sortFn = lookUp "x" >>= \case
     (MeowList x) -> (return . MeowList . List.sort) x
-    x -> throwError (badArgs "sort" [x])
-
+    x -> throwError =<< badArgs "sort" [x]
 
 {- Conversion -}
 ----------------------------------------------------------
@@ -63,11 +62,11 @@ toInt = lookUp "x" >>= \case
     (MeowDouble x) -> (return . MeowInt . floor) x
     (MeowString x) -> MeowInt <$> readInt x
     (MeowBool x) -> (return . MeowInt . fromEnum) x
-    x -> throwError (badArgs "int" [x])
+    x -> throwError =<< badArgs "int" [x]
 
 readInt :: Text.Text -> Evaluator Int
 readInt txt = case Read.signed Read.decimal txt of
-    (Left er) -> throwError (badValue "int" (Text.pack er) [MeowString txt])
+    (Left er) -> throwError =<< badValue "int" (Text.pack er) [MeowString txt]
     (Right x) -> (return . fst) x
 
 toDouble :: Evaluator Prim
@@ -76,11 +75,11 @@ toDouble = lookUp "x" >>= \case
     (MeowInt x) -> (return . MeowDouble . fromIntegral) x
     (MeowString x) -> MeowDouble <$> readDouble x
     (MeowBool x) -> (return . MeowDouble . fromIntegral . fromEnum) x
-    x -> throwError (badArgs "float" [x])
+    x -> throwError =<< badArgs "float" [x]
 
 readDouble :: Text.Text -> Evaluator Double
 readDouble txt = case Read.signed Read.double txt of
-    (Left er) -> throwError (badValue "float" (Text.pack er) [MeowString txt])
+    (Left er) -> throwError =<< badValue "float" (Text.pack er) [MeowString txt]
     (Right x) -> (return . fst) x
 
 toBool :: Evaluator Prim
