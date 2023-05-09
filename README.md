@@ -1,12 +1,14 @@
 # Meowscript
 
-Meowscript is a cat-themed esoteric programming language. It's an imperative, dynamically typed, interpreted language with impractical cat-themed syntax and support for a subset of features from OOP and FP. It takes a lot of inspiration from the Lua language—just with a lot more cats. \_(:3」∠)\_
+Meowscript is a cat-themed esoteric programming language. It's an imperative, dynamically typed, interpreted language with impractical cat-themed syntax and support for a subset of features from OOP and FP.
 
-I wrote this language entirely in Haskell as my first 'big' Haskell project. It was a really fun learning experience! <3 It made me really realize how beautiful of a language Haskell is!! I'm addicted now!! This project also used Megaparsec for the lexing/parsing. It's an amazing library!
+It takes a lot of inspiration from the Lua language—just with a lot more cats. \_(:3」∠)\_
+
+I wrote this language entirely in Haskell as my first 'big' Haskell project. It was a really fun learning experience! <3 <3 <3 It made me really realize how beautiful of a language Haskell is!! I'm addicted now!! This project also uses Megaparsec for the lexing/parsing. It's an amazing library!
 
 I think the best way to show an esolang is with an example, so here's a Meowscript snippet that:
 1. Defines a function that asks the user for their name and prints it out n times.
-2. Calling that function with the number '10'.
+2. Calls that function passing the number '10' as argument.
 
 ```lua
 =^.x.^= greet(n)
@@ -30,6 +32,15 @@ A Meowscript file's name should end in '.meows' for organization.
 Meowscript is dynamically typed and indentation-sensitive! As for the syntax:
 
 ### Syntax
+
+String literals:
+`"example"`
+
+Integers:
+`10`
+
+Floatint-point numbers:
+`10.0`
 
 Primitives:
 | Value | Meaning |
@@ -59,9 +70,9 @@ meow meow
 Control flow:
 ```lua
 mew? (...)
-    -- if block
+    -- if block _(:3」∠)_
 hiss!
-    -- else block
+    -- else block _(:3」∠)_
 meow meow
 ```
 
@@ -78,6 +89,11 @@ take (...) and do (...) while (...)
     -- _(:3」∠)_
 meow meow
 ```
+
+To Do:
+1. Write an operator table.
+2. Explain the built-in functions.
+3. Add a REPL and put this somewhere with some syntax highlighting (?).
 
 ### Shelves and Boxes
 Meowscript has only two core data structures: **stacks** (nicknamed 'shelves') and **objects/maps** (nicknamed 'boxes'). It does not have arrays/lists: One must make do with knocking items off shelves instead, as a cat should.
