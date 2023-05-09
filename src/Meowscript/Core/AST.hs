@@ -13,7 +13,9 @@ module Meowscript.Core.AST
 , Key
 , Overwrite
 , Name
-, Params , Environment
+, Params
+, Environment
+, Closure
 , Evaluator
 , InnerFunc
 , Condition
@@ -38,6 +40,7 @@ type Overwrite = Bool
 type InnerFunc = Evaluator Prim
 
 type Environment = IORef ObjectMap
+type Closure = Environment
 type Evaluator a = ReaderT Environment (ExceptT Text.Text IO) a
 
 data Prim =
@@ -48,10 +51,9 @@ data Prim =
     | MeowDouble Double
     | MeowLonely
     | MeowList [Prim]
-    | MeowFunc Params [Statement]
+    | MeowFunc Params [Statement] Closure
     | MeowObject ObjectMap
     | MeowIFunc Params InnerFunc
-    | MeowModule Environment
 
 data KeyType =
       KeyModify Key
@@ -71,10 +73,9 @@ instance Show Prim where
     show (MeowDouble x) = show x
     show MeowLonely = "<lonely>"
     show (MeowList xs) = concat [ "[", (intercalate ", " . map show) xs, "]" ]
-    show (MeowFunc _ _) = "<func>"
+    show (MeowFunc {}) = "<func>"
     show (MeowObject _) = "<object>"
     show (MeowIFunc _ _) = "<inner-func>"
-    show (MeowModule _) = "<module>"
 
 instance Show KeyType where
     show (KeyModify x) = Text.unpack x

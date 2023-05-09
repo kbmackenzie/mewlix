@@ -2,7 +2,6 @@ module Meowscript.Core.Keys
 ( keyLookup 
 , assignment
 , ensureValue
-, funcLookup
 , assignNew
 ) where
 
@@ -24,12 +23,6 @@ assignment key value = case key of
 ensureValue :: Prim -> Evaluator Prim
 ensureValue (MeowKey key) = keyLookup key >>= ensureValue
 ensureValue x = return x
-
-funcLookup :: KeyType -> FnCallback -> Evaluator Prim
-funcLookup key f = case key of 
-    (KeyModify x) -> runFunction x f
-    (KeyNew x) -> runFunction x f
-    (KeyTrail xs) -> runMethod xs f
 
 assignNew :: Key -> Prim -> Evaluator ()
 assignNew key value = insertVar key value True

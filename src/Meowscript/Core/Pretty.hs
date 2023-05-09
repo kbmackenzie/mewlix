@@ -34,9 +34,8 @@ showMeow (MeowObject x) = do
     let pretty (key, value) = return $ Text.concat [ key, ": ", value ]
     pairs <- mapM evalPair (Map.toList x) >>= mapM pretty
     return $ Text.concat [ "[ ", Text.intercalate ", " pairs , " ]" ]
-showMeow (MeowFunc _ _) = return "<func>"
+showMeow (MeowFunc {}) = return "<func>"
 showMeow (MeowIFunc _ _) = return "<inner-func>"
-showMeow (MeowModule _) = return "<module>"
 
 -- Special version that pretty-prints strings,
 -- for use in lists and objects.

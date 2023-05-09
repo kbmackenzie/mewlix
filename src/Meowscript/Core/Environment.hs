@@ -14,17 +14,17 @@ module Meowscript.Core.Environment
 , overwriteVar
 , localEnv
 , runLocal
+, runClosure
 , allocNew
 , evalRef
 , createObject
 , modifyObject
+, peekObject 
+, peekAsObject
 , Callback
 , lookUpTrail
 , insertTrail
 , trailAction
-, FnCallback
-, runMethod
-, runFunction
 ) where
 
 import Meowscript.Core.AST
@@ -84,11 +84,10 @@ localEnv :: Evaluator Environment
 localEnv = ask >>= liftIO . readIORef >>= liftIO . newIORef
 
 runLocal :: Evaluator a -> Evaluator a
---runLocal action = localEnv >>= \x -> local (const x) action
-runLocal action = do
-    env <- ask >>= liftIO . readIORef
-    new <- (liftIO . newIORef) env
-    local (const new) action
+runLocal action = localEnv >>= \x -> local (const x) action
+
+runClosure :: ObjectMap -> Evaluator a -> Evaluator a
+runClosure closure action = (liftIO . newIORef) closure >>= \x -> local (const x) action
 
 allocNew :: Prim -> Evaluator PrimRef
 allocNew = liftIO . newIORef
@@ -129,12 +128,7 @@ trailAction (key:keys) f = (liftIO . TextIO.putStrLn) key >> lookUpVar' key >>= 
 
 innerAction :: [Key] -> Callback -> PrimRef -> Evaluator Prim
 innerAction [] f ref = f ref
-innerAction (key:keys) f ref = evalRef ref >>= \case
-    (MeowModule env) -> do
-        ref' <- (liftIO . readIORef) env >>= peekObject key
-        local (const env) (innerAction keys f ref')
-    (MeowObject obj) -> peekObject key obj >>= innerAction keys f
-    _ -> throwError "not object"
+innerAction (key:keys) f ref = evalRef ref >>= peekAsObject key >>= innerAction keys f
 
 lookUpTrail :: [Key] -> Evaluator Prim
 lookUpTrail keys = trailAction keys evalRef
@@ -152,6 +146,7 @@ insertTrail keys value
 -- todo: better system than peeking into the parent object
 -- maybe closures?
 
+{-
 type FnCallback = Prim -> Evaluator Prim
 
 runMethod :: [Key] -> FnCallback -> Evaluator Prim
@@ -168,3 +163,4 @@ runMethod keys callback
         
 runFunction :: Key -> FnCallback -> Evaluator Prim
 runFunction key f = runLocal $ lookUp key >>= f
+-}

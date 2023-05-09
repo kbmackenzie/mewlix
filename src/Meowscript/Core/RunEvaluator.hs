@@ -21,7 +21,7 @@ import qualified Data.Map as Map
 import qualified Data.List as List
 import Control.Monad.Reader (ask, ReaderT, runReaderT, liftIO)
 import Control.Monad.Except (runExceptT, throwError)
-import Control.Monad (join, void)
+import Control.Monad (join, void, liftM)
 import Data.IORef
 
 type EvalCallback a = [Statement] -> Evaluator a
@@ -94,7 +94,9 @@ addImport (StmImport file qualified) = (liftIO . getImportEnv) file >>= \case
             ask >>= (\s -> liftIO $ writeIORef s z)
             return ()
         (Just x) -> do
-            let imp = MeowModule import'
-            insertVar x imp True
+            -- todo: fix this
+            imp <- (liftIO . readIORef) import'
+            imp' <- (liftIO . newIORef) (MeowObject imp)
+            insertRef x imp'
             return ()
 addImport _ = throwError (showException MeowBadImport "Critical error: Statement is not an import!")

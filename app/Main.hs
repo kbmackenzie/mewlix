@@ -7,6 +7,6 @@ import qualified Data.Text.IO as TextIO
 
 main :: IO ()
 main = do
-    let path = "meowscript_practice3.txt"
+    let path = "meowscript_practice6.txt"
     return ()
     runBasic path 

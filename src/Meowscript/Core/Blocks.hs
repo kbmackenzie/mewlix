@@ -18,10 +18,11 @@ import Meowscript.Core.Exceptions
 import qualified Data.Text as Text
 import qualified Data.Map as Map
 import qualified Data.List as List
-import Control.Monad.Reader (liftIO)
+import Control.Monad.Reader (ask, asks, liftIO)
 import Control.Monad.Except (throwError)
 import Control.Monad (void, join, when)
 import Data.Functor ((<&>))
+import Data.IORef (readIORef)
 
 type Args = [Expr]
 
@@ -35,11 +36,11 @@ evaluate (ExpObject object) = do
     let toPrim (key, expr) = (evaluate expr >>= ensureValue) <&> (key,)
     pairs <- mapM toPrim object
     MeowObject <$> (liftIO . createObject) pairs
-evaluate (ExpLambda args expr) = return (MeowFunc args [StmReturn expr])    
+evaluate (ExpLambda args expr) = asks (MeowFunc args [StmReturn expr])
 evaluate x@(ExpTrail {}) = MeowKey . KeyTrail <$> asTrail x
 evaluate (ExpCall args funcKey) = evaluate funcKey >>= \case
-    (MeowKey key) -> funcLookup key (funWrapper key args)
-    lambda@(MeowFunc _ _) -> funWrapper (KeyNew "<lambda>") args lambda
+    (MeowKey key) -> funcLookup key args
+    lambda@(MeowFunc {}) -> runFunc "<lambda>" args lambda
     x -> throwError (notFunc x)
 evaluate (ExpYarn expr) = evaluate expr >>= \case
     (MeowString str) -> (return . MeowKey . KeyNew) str
@@ -125,10 +126,55 @@ runExprStatement = evaluate
 
 {-- Functions --}
 runFuncDef :: KeyType -> Params -> [Statement] -> Evaluator ReturnValue
-runFuncDef key params body = do
-    let func = MeowFunc params body
-    assignment key func
+runFuncDef key params body = do 
+    asks (MeowFunc params body) >>= assignment key
     return RetVoid
+
+{- Run Functions -}
+funcLookup :: KeyType -> Args -> Evaluator Prim
+funcLookup key args = case key of 
+    (KeyModify x) -> runMeow x
+    (KeyNew x) -> runMeow x
+    (KeyTrail xs) -> asMethod xs args
+    where runMeow x = lookUp x >>= runFunc x args
+
+asMethod :: [Key] -> Args -> Evaluator Prim
+asMethod keys args
+    | length keys <= 1 = throwError "Invalid trail"
+    | otherwise = trailAction (init keys) $ \ref -> do
+        let parent = ref
+        let key = last keys
+        fn <- evalRef ref >>= peekAsObject key >>= evalRef
+        runMethod key args parent fn
+
+meowFunc :: Key -> Params -> Args -> [Statement] -> Evaluator Prim
+meowFunc key params args body = do
+    paramGuard key args params
+    addFunArgs (zip params args)
+    returnAsPrim <$> runBlock body
+
+iFunc :: Key -> Params -> Args -> InnerFunc -> Evaluator Prim
+iFunc key params args fn = do
+    paramGuard key args params
+    addFunArgs (zip params args)
+    fn
+    
+runFunc :: Key -> Args -> Prim -> Evaluator Prim
+runFunc key args (MeowIFunc params fn) = runLocal $ iFunc key params args fn
+runFunc key args (MeowFunc params body closure) = do 
+    closure' <- (liftIO . readIORef) closure
+    runClosure closure' $ meowFunc key params args body
+runFunc _ _ _ = throwError "not function"
+
+runMethod :: Key -> Args -> PrimRef -> Prim -> Evaluator Prim
+runMethod key args _ (MeowIFunc params fn) =
+    runLocal $ iFunc key params args fn
+runMethod key args parent (MeowFunc params body closure) = do 
+    closure' <- (liftIO . readIORef) closure
+    runClosure closure' $ do
+        insertRef "home" parent
+        meowFunc key params args body
+runMethod _ _ _ _ = throwError "not function"
 
 addFunArgs :: [(Key, Expr)] -> Evaluator ()
 {-# INLINABLE addFunArgs #-}
@@ -137,22 +183,11 @@ addFunArgs ((key, expr):xs) = do
     evaluate expr >>= ensureValue >>= assignNew key
     addFunArgs xs
 
-paramGuard :: KeyType -> Args -> Params -> Evaluator ()
+paramGuard :: Key -> Args -> Params -> Evaluator ()
 {-# INLINABLE paramGuard #-}
 paramGuard key args params = do
-    when (length params < length args) ((throwError . manyArgs . showT) key)
-    when (length params > length args) ((throwError . manyArgs . showT) key)
-
-funWrapper :: KeyType -> Args -> FnCallback
-funWrapper key args (MeowIFunc params fn) = do
-    paramGuard key args params
-    addFunArgs (zip params args)
-    fn
-funWrapper key args (MeowFunc params body) = do
-    paramGuard key args params
-    addFunArgs (zip params args)
-    returnAsPrim <$> runBlock body
-funWrapper _ _ _ = throwError "not function"
+    when (length params < length args) ((throwError . manyArgs) key)
+    when (length params > length args) ((throwError . manyArgs) key)
 
 ------------------------------------------------------------------------
 
