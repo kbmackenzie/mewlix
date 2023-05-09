@@ -138,7 +138,7 @@ meow meow
 ### Functions
 Functions, nicknamed 'adventures', are first-class citizens *and* value types. You can return a value from a function with the 'bring' keyword:
 
-```
+```lua
 =^.x.^= sum(a, b)
     bring a + b
 meow meow
@@ -148,7 +148,7 @@ Meowscript supports higher-order functions. Any function can take a function as 
 Additionally, functions can be nested inside other functions, which can be nested inside other functions, and so on, infinitely. Adventures inside adventures are a fun pattern!
 
 Meowscript also has lambdas! They can be defined in a single line like normal expressions:
-```
+```lua
 sum = ( ^.x.^)> (a, b) => (a + b)
 ```
 Meowscript lambdas support closures, and will happily capture any local variables a cat uses inside them, so a cat should feel free to use as many as they want.
