@@ -15,6 +15,7 @@ import Meowscript.Core.Environment
 import Meowscript.Core.Keys
 import Meowscript.Core.Pretty
 import Meowscript.Core.Exceptions
+import Meowscript.Parser.Keywords
 import qualified Data.Text as Text
 import qualified Data.List as List
 import Control.Monad.Reader (asks, liftIO)
@@ -84,26 +85,32 @@ isImport _ = False
 {-- Blocks --}
 
 -- Run block in proper order: Function definitions, then other statements.
-runBlock :: [Statement] -> Evaluator ReturnValue
+runBlock :: Block -> IsLoop -> Evaluator ReturnValue
 {-# INLINABLE runBlock #-}
-runBlock xs = do
+runBlock xs isLoop = do
     let (funcDefs, rest) = List.partition isFuncDef xs
-    (void . runStatements) funcDefs
-    runStatements rest
+    void $ runStatements funcDefs False
+    runStatements rest isLoop
 
 -- Running Statements
-runStatements :: [Statement] -> Evaluator ReturnValue
-runStatements [] = return RetVoid
-runStatements ((StmReturn value):_) = RetValue <$> (evaluate value >>= ensureValue)
-runStatements (StmBreak:_) = return RetBreak
-runStatements (StmContinue:_) = return RetVoid
-runStatements ((StmExpr expression):xs) = runExprStatement expression >> runStatements xs
-runStatements ((StmFuncDef name args body):xs) = runFuncDef (KeyNew name) args body >> runStatements xs
-runStatements (statement:xs) = do
+runStatements :: Block -> IsLoop -> Evaluator ReturnValue
+runStatements [] _ = return RetVoid
+runStatements ((StmReturn value):_) _ = RetValue <$> (evaluate value >>= ensureValue)
+runStatements (StmBreak:_) isLoop = if isLoop
+                                        then return RetBreak
+                                        else throwError (notInLoop meowBreak)
+runStatements (StmContinue:_) isLoop = if isLoop
+                                        then return RetVoid
+                                        else throwError (notInLoop meowContinue)
+runStatements ((StmExpr expression):xs) isLoop =
+    runExprStatement expression >> runStatements xs isLoop
+runStatements ((StmFuncDef name args body):xs) isLoop =
+    runFuncDef (KeyNew name) args body >> runStatements xs isLoop
+runStatements (statement:xs) isLoop = do
     ret <- runLocal $ runTable statement
     if ret /= RetVoid
         then return ret
-        else runStatements xs
+        else runStatements xs isLoop
 
 -- Action table for all other statement blocks.
 runTable :: Statement -> Evaluator ReturnValue
@@ -126,7 +133,7 @@ runExprStatement = evaluate
 ------------------------------------------------------------------------
 
 {-- Functions --}
-runFuncDef :: KeyType -> Params -> [Statement] -> Evaluator ReturnValue
+runFuncDef :: KeyType -> Params -> Block -> Evaluator ReturnValue
 runFuncDef key params body = do 
     asks (MeowFunc params body) >>= assignment key
     return RetVoid
@@ -152,7 +159,7 @@ meowFunc :: Key -> Params -> Args -> [Statement] -> Evaluator Prim
 meowFunc key params args body = do
     paramGuard key args params
     addFunArgs (zip params args)
-    returnAsPrim <$> runBlock body
+    returnAsPrim <$> runBlock body False
 
 iFunc :: Key -> Params -> Args -> InnerFunc -> Evaluator Prim
 iFunc key params args fn = do
@@ -193,32 +200,32 @@ paramGuard key args params = do
 ------------------------------------------------------------------------
 
 {- If Else -}
-runIf :: Expr -> [Statement] -> Evaluator ReturnValue
+runIf :: Condition -> Block -> Evaluator ReturnValue
 runIf x body = do
     condition <- asCondition x 
     if condition
-      then runBlock body
+      then runBlock body False
       else return RetVoid
 
-runIfElse :: Expr -> [Statement] -> [Statement] -> Evaluator ReturnValue
+runIfElse :: Condition -> Block -> Block -> Evaluator ReturnValue
 runIfElse x ifB elseB = do
     condition <- asCondition x
     if condition
-        then runBlock ifB
-        else runBlock elseB
+        then runBlock ifB False
+        else runBlock elseB False
 
 {- While Loop -}
 -- Notes: Any return value that isn't RetVoid implies the end of the loop.
-runWhile :: Expr -> [Statement] -> Evaluator ReturnValue
+runWhile :: Condition -> Block -> Evaluator ReturnValue
 runWhile x body = do
     condition <- asCondition x
     if condition
         then innerWhile x body
         else return RetVoid
 
-innerWhile :: Expr -> [Statement] -> Evaluator ReturnValue
+innerWhile :: Condition -> Block -> Evaluator ReturnValue
 innerWhile x body = runLocal $ do
-    ret <- runBlock body
+    ret <- runBlock body True
     condition <- asCondition x
     let shouldBreak = ret /= RetVoid
     if condition && not shouldBreak
@@ -227,7 +234,7 @@ innerWhile x body = runLocal $ do
 
 {- For Loop -}
 -- Notes: Any return value that isn't RetVoid implies the end of the loop.
-runFor :: (Expr, Expr, Expr) -> [Statement] -> Evaluator ReturnValue
+runFor :: (Expr, Expr, Expr) -> Block -> Evaluator ReturnValue
 runFor xs@(init', _, cond) body = do
     (void . evaluate) init'
     condition <- asCondition cond
@@ -235,9 +242,9 @@ runFor xs@(init', _, cond) body = do
         then innerFor xs body
         else return RetVoid
 
-innerFor :: (Expr, Expr, Expr) -> [Statement] -> Evaluator ReturnValue
+innerFor :: (Expr, Expr, Expr) -> Block -> Evaluator ReturnValue
 innerFor xs@(_, incr, cond) body = runLocal $ do
-    ret <- runBlock body
+    ret <- runBlock body True
     (void . evaluate) incr
     condition <- asCondition cond
     let shouldBreak = ret /= RetVoid

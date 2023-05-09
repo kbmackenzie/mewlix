@@ -7,6 +7,7 @@ module Meowscript.Core.Exceptions
 , opException
 , divByZero
 , catOnComputer
+, notInLoop
 , badKey
 , badBox
 , notBox
@@ -41,6 +42,7 @@ data MeowException =
     | MeowBadIFunc
     | MeowBadValue
     | MeowCatOnComputer
+    | MeowBadKeyword
     deriving (Eq, Ord)
 
 instance Show MeowException where
@@ -57,6 +59,7 @@ instance Show MeowException where
     show MeowBadIFunc = exc "InvalidInnerFunction"
     show MeowBadValue = exc "InvalidValue"
     show MeowCatOnComputer = exc "CatOnComputer"
+    show MeowBadKeyword = exc "KeywordException"
 
 exc :: String -> String
 exc = (++ "Exception")
@@ -81,6 +84,10 @@ divByZero = showException' MeowDivByZero "Cannot divide by zero!"
 
 catOnComputer :: Text.Text -> Text.Text
 catOnComputer = showException MeowCatOnComputer
+
+notInLoop :: Text.Text -> Text.Text
+notInLoop = showException MeowBadKeyword . \x -> Text.concat
+    [ "The '", x, "' keyword can only be used inside loops!" ]
 
 badKey :: Text.Text -> Text.Text
 badKey = showException MeowBadVar . \x -> Text.concat 

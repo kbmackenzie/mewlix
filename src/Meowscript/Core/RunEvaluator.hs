@@ -59,7 +59,7 @@ runProgram :: [Statement] -> Evaluator Prim
 runProgram xs = do
     let (imps, rest) = List.partition isImport xs
     mapM_ addImport imps
-    returnAsPrim <$> runBlock rest
+    returnAsPrim <$> runBlock rest False
 
 runAsImport :: [Statement] -> Evaluator Environment
 runAsImport xs = runProgram xs >> ask -- Return the environment.

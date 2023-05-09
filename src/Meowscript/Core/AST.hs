@@ -21,6 +21,7 @@ module Meowscript.Core.AST
 , Condition
 , Block
 , Qualified
+, IsLoop
 , meowBool
 , returnAsPrim
 ) where
@@ -100,6 +101,7 @@ type Params = [Key]
 type Condition = Expr
 type Block = [Statement]
 type Qualified = Maybe Text.Text
+type IsLoop = Bool
 
 data Statement =
       StmExpr Expr
