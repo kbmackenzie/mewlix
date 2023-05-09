@@ -20,6 +20,7 @@ module Meowscript.Parser.Keywords
 , meowPush
 , meowKnock
 , meowTakes
+, reservedKeywords
 ) where
 
 import Data.Text (Text)
@@ -80,3 +81,33 @@ meowKnock = "knock over"
 
 meowTakes :: (Text, Text)
 meowTakes = ("takes", "as")
+
+reservedKeywords :: [Text]
+{-# INLINE reservedKeywords #-}
+reservedKeywords =
+    [ "purr"
+    , "paw"
+    , "claw"
+    , "mew"
+    , "mew?"
+    , "hiss!"
+    , "bring"
+    , "catnap"
+    , "run"
+    , "off"
+    , "and"
+    , "or"
+    , "at"
+    , "do"
+    , "take"
+    , "takes"
+    , "box"
+    , "poke"
+    , "push"
+    , "peek"
+    , "knock"
+    , "over"
+    , "yummy"
+    , "icky"
+    , "lonely"
+    , "meowmeow"]

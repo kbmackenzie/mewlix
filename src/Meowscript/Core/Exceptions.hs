@@ -58,9 +58,6 @@ instance Show MeowException where
     show MeowBadValue = exc "InvalidValue"
     show MeowCatOnComputer = exc "CatOnComputer"
 
--- TO DO: 
--- Make these functions use a pretty-printing function instead of 'show'.
-
 exc :: String -> String
 exc = (++ "Exception")
 

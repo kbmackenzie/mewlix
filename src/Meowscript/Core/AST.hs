@@ -63,7 +63,7 @@ data KeyType =
 
 {- This is extremely different from actually pretty-printing Meowscript values!!!
  - Since Meowscript handles IORefs as primitives, a pretty-printing function
- - wrapped in an IO monad has to be used, and this 'show' instance is far from enough. ><
+ - has to be wrapped in an IO monad to be used, and this 'show' instance is far from enough. ><
  - Thus, I'm using this to facilitate my debugging instead. -}
 instance Show Prim where
     show (MeowString x) = Text.unpack x

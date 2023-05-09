@@ -93,30 +93,6 @@ keyword k = lexeme . (<?> "keyword") $ do
 tryKeyword :: Text.Text -> Parser ()
 tryKeyword = Mega.try . keyword
 
-reservedKeywords :: [Text.Text]
-reservedKeywords =
-    [ "purr"
-    , "paw"
-    , "hiss!"
-    , "mew?"
-    , "scratch"
-    , "leave"
-    , "bring"
-    , "rest"
-    , "run"
-    , "away"
-    , "poke"
-    , "nudge"
-    , "peek"
-    , "sneak"
-    , "push"
-    , "bap"
-    , "knock"
-    , "over"
-    , "lonely"
-    , "yummy"
-    , "icky" ]
-
 validKeyChar :: Char -> Bool
 validKeyChar c = isAlphaNum c || c `elem` ['\'', '^', '_']
 
