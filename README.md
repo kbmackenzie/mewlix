@@ -243,7 +243,7 @@ Lambdas are also very lightweight in Meowscript: They're stored the exact same w
 
 Additionally, stacks are value types in Meowscript, so performing operations on them is always safe: There's no need to worry about references and potentially modifying another stack by accident.
 
-The standard library *(currently in progress)* defined a variety of higher order functions, including (but not limited to): map, fold, filter, take\_n, drop\_n, take\_while, drop\_while, among others.
+The standard library *(currently in progress)* defined a variety of higher order functions, including (but not limited to): `map`, `fold`, `filter`, `take_n`, `drop_n`, `take_while`, `drop_while`, among others.
 
 
 ## Importing Meows
