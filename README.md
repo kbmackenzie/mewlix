@@ -34,13 +34,19 @@ Meowscript is dynamically typed and indentation-sensitive! As for the syntax:
 ### Syntax
 
 String literals:
-`"example"`
+```lua
+"example"
+```
 
 Integers:
-`10`
+```lua
+10
+```
 
 Floatint-point numbers:
-`10.0`
+```lua
+10.0
+```
 
 Primitives:
 | Value | Meaning |
@@ -239,11 +245,11 @@ Yay!
 ## Functional Meowing
 Meowscript functions are value types and first-class citizens.
 
-Lambdas are also very lightweight in Meowscript: They're stored the exact same way normal functions are. Don't be afraid of using many lambdas! They're fun!
+Lambdas are also very lightweight in Meowscript: They're stored the exact same way normal functions are. A cat shouldn't be afraid of using many lambdas: they're fun!
 
 Additionally, stacks are value types in Meowscript, so performing operations on them is always safe: There's no need to worry about references and potentially modifying another stack by accident.
 
-The standard library *(currently in progress)* defined a variety of higher order functions, including (but not limited to): `map`, `fold`, `filter`, `take_n`, `drop_n`, `take_while`, `drop_while`, among others.
+The standard library *(currently in progress)* defined a variety of higher order functions, including (but not limited to): `map`, `fold`, `filter`, `take_while`, `drop_while`, among others.
 
 
 ## Importing Meows
