@@ -208,7 +208,7 @@ runIfElse x ifB elseB = do
         else runBlock elseB
 
 {- While Loop -}
--- Notes: Any return value that isn't MeowVoid implies the end of the loop.
+-- Notes: Any return value that isn't RetVoid implies the end of the loop.
 runWhile :: Expr -> [Statement] -> Evaluator ReturnValue
 runWhile x body = do
     condition <- asCondition x
@@ -226,7 +226,7 @@ innerWhile x body = runLocal $ do
         else return ret
 
 {- For Loop -}
--- Notes: Any return value that isn't MeowVoid implies the end of the loop.
+-- Notes: Any return value that isn't RetVoid implies the end of the loop.
 runFor :: (Expr, Expr, Expr) -> [Statement] -> Evaluator ReturnValue
 runFor xs@(init', _, cond) body = do
     (void . evaluate) init'
