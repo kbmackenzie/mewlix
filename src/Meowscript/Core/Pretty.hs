@@ -15,15 +15,18 @@ import Data.Functor ((<&>))
 import Data.IORef (readIORef)
 
 showT :: (Show a) => a -> Text.Text
+{-# INLINABLE showT #-}
 {-# SPECIALISE showT :: Prim -> Text.Text #-}
 showT = Text.pack . show 
 
 -- Defining it here to avoid cyclical dependencies. c':
 -- This way, 'Environment.hs' can reference this file.
 evalRef :: PrimRef -> Evaluator Prim
+{-# INLINABLE evalRef #-}
 evalRef = liftIO . readIORef
 
 showMeow :: Prim -> Evaluator Text.Text
+{-# INLINABLE showMeow #-}
 showMeow (MeowString x) = return x
 showMeow (MeowKey x) = return $ Text.concat ["<key: \"", showT x, "\">" ]
 showMeow (MeowInt x) = return $ showT x

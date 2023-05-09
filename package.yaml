@@ -2,9 +2,9 @@ name:                Meowscript
 version:             0.1.0.0
 github:              "githubuser/Meowscript"
 license:             MIT
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2023 Author name here"
+author:              "KBMackenzie"
+maintainer:          "kelly.a.betty@gmail.com"
+copyright:           "2023 KBMackenzie" 
 
 extra-source-files:
 - README.md

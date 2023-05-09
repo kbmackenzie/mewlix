@@ -40,20 +40,25 @@ newEnv :: IO Environment
 newEnv = newIORef Map.empty
 
 lookUpVar :: Key -> Evaluator (Maybe PrimRef)
+{-# INLINABLE lookUpVar #-}
 lookUpVar key = (ask >>= liftIO . readIORef) <&> Map.lookup key
 
 lookUpVar' :: Key -> Evaluator PrimRef
+{-# INLINABLE lookUpVar' #-}
 lookUpVar' key = lookUpVar key >>= \case
     (Just x) -> return x
     Nothing -> throwError (badKey key)
 
 keyExists :: Key -> Evaluator Bool
+{-# INLINABLE keyExists #-}
 keyExists key = (ask >>= liftIO . readIORef) <&> Map.member key
 
 lookUp :: Key -> Evaluator Prim
+{-# INLINABLE lookUp #-}
 lookUp key = lookUpVar' key >>= (liftIO . readIORef)
 
 createVar :: Key -> Prim -> Evaluator ()
+{-# INLINABLE createVar #-}
 createVar key value = do
     env <- ask >>= liftIO . readIORef
     value' <- (liftIO . newIORef) value
@@ -61,15 +66,18 @@ createVar key value = do
     ask >>= liftIO . flip writeIORef env'
 
 modifyVar :: PrimRef -> Prim -> Evaluator ()
+{-# INLINABLE modifyVar #-}
 modifyVar ref value = liftIO $ writeIORef ref value
 
 insertVar :: Key -> Prim -> Overwrite -> Evaluator ()
+{-# INLINABLE insertVar #-}
 insertVar key value True = overwriteVar key value
 insertVar key value False = lookUpVar key >>= \case
     Nothing -> createVar key value
     (Just x) -> modifyVar x value
 
 insertRef :: Key -> PrimRef -> Evaluator ()
+{-# INLINABLE insertRef #-}
 insertRef key ref = do
     env <- ask >>= liftIO . readIORef
     let env' = Map.insert key ref env
@@ -80,28 +88,35 @@ overwriteVar :: Key -> Prim -> Evaluator ()
 overwriteVar = createVar
 
 localEnv :: Evaluator Environment
+{-# INLINABLE localEnv #-}
 localEnv = ask >>= liftIO . readIORef >>= liftIO . newIORef
 
 runLocal :: Evaluator a -> Evaluator a
+{-# INLINABLE runLocal #-}
 runLocal action = localEnv >>= \x -> local (const x) action
 
 runClosure :: ObjectMap -> Evaluator a -> Evaluator a
+{-# INLINABLE runClosure #-}
 runClosure closure action = (liftIO . newIORef) closure >>= \x -> local (const x) action
 
 allocNew :: Prim -> Evaluator PrimRef
+{-# INLINABLE allocNew #-}
 allocNew = liftIO . newIORef
 
 evalRef :: PrimRef -> Evaluator Prim
+{-# INLINABLE evalRef #-}
 evalRef = liftIO . readIORef
 
 
 {- Object Handling -}
 peekObject :: Key -> ObjectMap -> Evaluator PrimRef
+{-# INLINABLE peekObject #-}
 peekObject key obj = case Map.lookup key obj of
     (Just x) -> return x
     Nothing -> throwError (badKey key)
 
 createObject :: [(Key, Prim)] -> IO ObjectMap
+{-# INLINABLE createObject #-}
 createObject [] = return Map.empty
 createObject xs = do
     let asRef (key, value) = newIORef value <&> (key,)
@@ -109,11 +124,13 @@ createObject xs = do
     return $ Map.fromList pairs
 
 modifyObject :: PrimRef -> (ObjectMap -> ObjectMap) -> Evaluator ()
+{-# INLINABLE modifyObject #-}
 modifyObject ref f = evalRef ref >>= \case
     (MeowObject obj) -> (liftIO . writeIORef ref . MeowObject . f) obj
     x -> throwError =<< notBox x
 
 peekAsObject :: Key -> Prim -> Evaluator PrimRef
+{-# INLINABLE peekAsObject #-}
 peekAsObject key (MeowObject x) = peekObject key x
 peekAsObject _ x = throwError =<< notBox x
 
