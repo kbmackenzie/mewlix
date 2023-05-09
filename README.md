@@ -2,13 +2,13 @@
 
 Meowscript is a cat-themed esotering programming language. It's an imperative, dynamically typed language with obscure cat-themed syntax and support for a subset of features from OOP and FP. It takes a lot of inspiration from the Lua language, but with a lot more cats.
 
-I wrote this language entirely in Haskell as my first 'big' Haskell project. It was a really fun learning experience! c: It made me really realize how beautiful of a language Haskell is. I'm addicted now.
+I wrote this language entirely in Haskell as my first 'big' Haskell project. It was a really fun learning experience! <3 It made me really realize how beautiful of a language Haskell is!! I'm addicted now!!
 
 I think the best way to show an esolang is with an example, so here's a Meowscript snippet that:
 1. Defines a function that asks the user for their name and prints it out n times.
 2. Calling that function with the number '10'.
 
-```
+```lua
 =^.x.^= greet(n)
     mew name = listen()
     take (mew i = 0) and do (paw at i) while (i < n)
@@ -25,6 +25,13 @@ Still, I'll write documentation for it, solely because I can't contain the urge 
 
 ## Syntax
 
+Primitives:
+| Value | Meaning |
+|-------|---------|
+| yummy | true    |
+| icky  | false   |
+| lonely| null/nil|
+
 Comments:
 ```lua
 -- This is a line comment.
@@ -37,15 +44,15 @@ Yes, this whole thing.
 ```
 
 Functions:
-```
+```lua
 =^.x.^= sum (a, b)
     bring a + b
 meow meow
 ```
 
 Control flow:
-```
-mew? (<your-condition>)
+```lua
+mew? (...)
     -- if block
 hiss!
     -- else block
@@ -53,14 +60,21 @@ meow meow
 ```
 
 While loops:
+```lua
+meowmeowmeow (...)
+    -- ...
+meow meow
 ```
-meowmeowmeow (<your-condition->)
+
+For loops:
+```lua
+take (...) and do (...) while (...)
     -- ...
 meow meow
 ```
 
 ## Shelves and Boxes
-Meowscript has only two core data structures: **stacks** (nicknamed 'shelves') and **objects/maps** (nicknamed 'boxes'). It does not have arrays/lists: You must make do with knocking items off shelves instead, as a cat should.
+Meowscript has only two core data structures: **stacks** (nicknamed 'shelves') and **objects/maps** (nicknamed 'boxes'). It does not have arrays/lists: One must make do with knocking items off shelves instead, as a cat should.
 
 A shelf is, as you might expect, a *stack.* You cannot index it, and you can only perform three operations on it:
 1. 'knock over', which pops the item at the top of the stack.
@@ -82,11 +96,11 @@ meow(books)
 
 As for boxes, I believe they're best explained by example: 
 
-```
+```lua
 -- A house is really just a very big box, after all.
 house_cats = ~(  ^.x.^) BOX!! [
-    jake: "orange tabby",
-    princess: "brown tabby"
+    jake: "tabby",
+    princess: "tabby"
 ]
 
 meow(cats)
@@ -94,18 +108,17 @@ meow(cats.jake)
 meow(cats.princess)
 ```
 
-Boxes can contain methods, too, and you can use them for OOP. I go into detail on this later.
+Boxes can contain methods, too, and a cat can use them for OOP. I'll go into detail on this further below.
 
-Additionally, Meowscript has the following features:
+## Value Types
+All types in Meowscript are value types—*except* boxes. They're the only exception.
 
 ### Lexical scoping
-Meowscript supports lexical scoping. A variable is always local to the block it was first defined in, be it a function, loop or control flow statement.
+Meowscript supports lexical scoping. A variable is always local to the block it was first defined in. If a variable already exists in the global scope, however, it can (and will) be mutated inside functions.
 
-If a variable already exists in the global scope, however, it can (and will) be mutated inside functions.
+To ensure a variable will always be local and will always overshadow any variable with the same name in the outer scope, a cat can use the 'mew' keyword. It's very similar to the 'local' keyword in Lua!
 
-To ensure a variable will always be local and overshadow any other variables with the same name in the outer scope, a cat can use the 'mew' keyword. It's very similar to the 'local' keyword in Lua!
-
-```
+```lua
 cat = "Jake" -- This variable is global.
 
 =^.x.^= local_cat()
@@ -133,18 +146,18 @@ Meowscript also has lambdas! They can be defined in a single line like normal ex
 ```
 sum = ( ^.x.^)> (a, b) => (a + b)
 ```
-Meowscript lambdas support closures, and will happily capture any local variables you use inside them, so feel free to use as many as you want.
+Meowscript lambdas support closures, and will happily capture any local variables a cat uses inside them, so a cat should feel free to use as many as they want.
 
 
 ## Dynamic Identifiers
-Any string can be used as a variable name if you prepend the "~~" operator to it, even if the string is filled with Unicode characters. An example: 
-```
+Any string can be used as a variable name if a cat prepends the "~~" operator to it, even if the string is filled with Unicode characters. An example: 
+```lua
 ~~"(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧" = "SPARKLES!!"
 meow(~~"(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧") -- prints "SPARKLES!!"
 ```
 The '~~' operator is nicknamed the "yarn" operator in Meowscript.
 
-**Note:** All variables created from the yarn operator are very, very local.
+**Note:** All variables created from the yarn operator are local (implicitly declared with 'mew').
 
 
 ## Box-Oriented Feline Programming
@@ -152,21 +165,21 @@ The '~~' operator is nicknamed the "yarn" operator in Meowscript.
 Meowscript supports some features of OOP with boxes; namely, boxes can hold methods, and those methods can access the box they're contained in with the 'home' keyword.
 
 An example:
-```
+```lua
+-- A house is just a really big box.
 house = ~(  ^.x.^) BOX!! [
    cats = [ "Jake", "Princess" ],
    get_cats = ( ^.x.^)> () => (home.cats)
 ]
 
-meow(house.get_cats()) -- prints '[ "Jake", "Princess" ]'
+meow( house.get_cats() )
+-- prints '[ "Jake", "Princess" ]'
+```
 
-<(=^.x.^= )~
-Lambdas are fun, but defining functions properly and then adding them to
-a box is a cleaner way of defining methods.
-Let's define a function to add a cat to our list, and then add it as a
-method in our box:
-~( =^.x.^=)>
+Lambdas are fun, but defining functions properly and then adding them to a box is a cleaner way of defining methods:
 
+```lua
+-- Define a function for our box.
 =^.x.^= add_cat(cat)
     cat push home.cats
 meow meow 
@@ -182,7 +195,7 @@ meow( house.get_cats() ) -- prints '[ "Cody", "Jake", "Princess" ]'
 
 Creating constructor-like functions to create and return more complex boxes is a good pattern.
 
-```
+```lua
 =^.x.^= new_cat (name, breed, class)
     cat = ~(  ^.x.^) BOX!! [
         name: name,
@@ -198,10 +211,30 @@ meow meow
 bob = new_cat("Bob", "Tabby", "Wizard")
 meow(bob)
 ```
-Boxes are very important.
 
+Yay!
 
 ## Functional Meowing
 Meowscript functions are value types and first-class citizens.
 
 Lambdas are also very lightweight in Meowscript: They're stored the exact same way normal functions are. Don't be afraid of using many lambdas! They're fun!
+
+Additionally, lists are value types in Meowscript, so performing operations on them is always safe: There's no need to worry about references and potentially modifying another list by accident.
+
+The standard library *(currently in progress)* defined a variety of higher order functions, including (but not limited to): *map, fold, filter, take, drop, take_while, drop_while*, among others.
+
+
+## Importing Meows
+Meowscript has an import system. You can import `.meows` files either anonymously or with a name:
+
+```lua
+-- Importing anonymously. All of the contents of this file are dumped into the current environment.
+takes "example.meows"
+
+-- Importing with a name. The contents of this file are stored in an object with the chosen name.
+takes "example.meows" as example
+```
+
+
+## Notes
+[ To Do ]
