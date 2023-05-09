@@ -2,7 +2,7 @@
 
 Meowscript is a cat-themed esoteric programming language. It's an imperative, dynamically typed, interpreted language with impractical cat-themed syntax and support for a subset of features from OOP and FP. It takes a lot of inspiration from the Lua language—just with a lot more cats. \_(:3」∠)\_
 
-I wrote this language entirely in Haskell as my first 'big' Haskell project. It was a really fun learning experience! <3 It made me really realize how beautiful of a language Haskell is!! I'm addicted now!!
+I wrote this language entirely in Haskell as my first 'big' Haskell project. It was a really fun learning experience! <3 It made me really realize how beautiful of a language Haskell is!! I'm addicted now!! This project also used Megaparsec for the lexing/parsing. It's an amazing library!
 
 I think the best way to show an esolang is with an example, so here's a Meowscript snippet that:
 1. Defines a function that asks the user for their name and prints it out n times.
@@ -225,7 +225,7 @@ Meowscript functions are value types and first-class citizens.
 
 Lambdas are also very lightweight in Meowscript: They're stored the exact same way normal functions are. Don't be afraid of using many lambdas! They're fun!
 
-Additionally, lists are value types in Meowscript, so performing operations on them is always safe: There's no need to worry about references and potentially modifying another list by accident.
+Additionally, stacks are value types in Meowscript, so performing operations on them is always safe: There's no need to worry about references and potentially modifying another stack by accident.
 
 The standard library *(currently in progress)* defined a variety of higher order functions, including (but not limited to): *map, fold, filter, take, drop, take_while, drop_while*, among others.
 
