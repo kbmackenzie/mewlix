@@ -6,6 +6,7 @@ module Meowscript.Core.RunEvaluator
 , runExpr
 , runMeow'
 , runExpr'
+, runMeowDebug
 ) where
 
 import Meowscript.Core.AST
@@ -19,9 +20,8 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map
 import qualified Data.List as List
-import Control.Monad.Reader (ask, ReaderT, runReaderT, liftIO)
+import Control.Monad.Reader (ask, runReaderT, liftIO)
 import Control.Monad.Except (runExceptT, throwError)
-import Control.Monad (join, void, liftM)
 import Data.IORef
 
 type EvalCallback a = [Statement] -> Evaluator a
@@ -43,31 +43,33 @@ runExpr lib path = exprParse path >>= \case
         env <- (<>) <$> lib <*> baseLibrary
         (runEvaluator (return env) . evaluate) expr
 
--- No additional library variants:
+-- Variants that default to no additional libraries:
 runMeow' :: FilePath -> IO (Either Text.Text Prim)
 runMeow' = runMeow (return Map.empty) runProgram
 
 runExpr' :: FilePath -> IO (Either Text.Text Prim)
 runExpr' = runExpr (return Map.empty)
 
+runMeowDebug :: FilePath -> IO (Either Text.Text Prim)
+runMeowDebug = runMeow (return Map.empty) runDebug
+
+
 {- Run program with imports. -}
 runProgram :: [Statement] -> Evaluator Prim
 runProgram xs = do
     let (imps, rest) = List.partition isImport xs
     mapM_ addImport imps
-    ret <- returnAsPrim <$> runBlock rest
-    x <- ask >>= liftIO . readIORef
-    x' <- showMeow (MeowObject x)
-    (liftIO . TextIO.putStrLn) x'
-    (liftIO . print) =<< keyExists "meep"
-    return ret
+    returnAsPrim <$> runBlock rest
 
 asImport :: [Statement] -> Evaluator Environment
-asImport xs = do
-    let (imps, rest) = List.partition isImport xs
-    mapM_ addImport imps
-    (void . runBlock) rest
-    ask -- Return the environment.
+asImport xs = runProgram xs >> ask -- Return the environment.
+
+runDebug :: [Statement] -> Evaluator Prim
+runDebug xs = do
+    ret <- runProgram xs
+    x <- (ask >>= liftIO . readIORef) >>= showMeow . MeowObject
+    (liftIO . TextIO.putStrLn) x
+    return ret
 
 {- Imports -}
 {- A few things about imports:
@@ -79,10 +81,6 @@ getImportEnv path = runMeow (return Map.empty) asImport path >>= \case
     (Left exception) -> (return . Left) exception
     (Right output) -> (return . Right) output
 
-{- Unpack environment as a regular map. -}
-unpackEnv :: Environment -> IO ObjectMap
-unpackEnv = readIORef
-
 addImport :: Statement -> Evaluator ()
 addImport (StmImport file qualified) = (liftIO . getImportEnv) file >>= \case
     (Left ex) -> throwError (badImport file ex)
@@ -90,13 +88,8 @@ addImport (StmImport file qualified) = (liftIO . getImportEnv) file >>= \case
         Nothing -> do
             x <- ask >>= liftIO . readIORef
             y <- (liftIO . readIORef) import'
-            let z = x <> y
-            ask >>= (\s -> liftIO $ writeIORef s z)
-            return ()
+            ask >>= liftIO . flip writeIORef (x <> y)
         (Just x) -> do
-            -- todo: fix this
-            imp <- (liftIO . readIORef) import'
-            imp' <- (liftIO . newIORef) (MeowObject imp)
-            insertRef x imp'
-            return ()
+            imp <- (liftIO . readIORef) import' >>= liftIO . newIORef . MeowObject
+            insertRef x imp
 addImport _ = throwError (showException MeowBadImport "Critical error: Statement is not an import!")

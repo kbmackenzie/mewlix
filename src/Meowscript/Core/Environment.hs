@@ -29,6 +29,7 @@ module Meowscript.Core.Environment
 
 import Meowscript.Core.AST
 import Data.IORef
+import Meowscript.Core.Exceptions
 import qualified Data.Map as Map
 import Control.Monad.Reader (ask, liftIO, local)
 import Control.Monad.Except (throwError)
@@ -45,7 +46,7 @@ lookUpVar key = (ask >>= liftIO . readIORef) <&> Map.lookup key
 lookUpVar' :: Key -> Evaluator PrimRef
 lookUpVar' key = lookUpVar key >>= \case
     (Just x) -> return x
-    Nothing -> throwError (Text.concat [ "Key ", key, " doesn't exist!" ])
+    Nothing -> throwError (badKey key)
 
 keyExists :: Key -> Evaluator Bool
 keyExists key = (ask >>= liftIO . readIORef) <&> Map.member key
@@ -99,7 +100,7 @@ evalRef = liftIO . readIORef
 peekObject :: Key -> ObjectMap -> Evaluator PrimRef
 peekObject key obj = case Map.lookup key obj of
     (Just x) -> return x
-    Nothing -> throwError "Key not found" 
+    Nothing -> throwError (badKey key)
 
 createObject :: [(Key, Prim)] -> IO ObjectMap
 createObject [] = return Map.empty
@@ -111,11 +112,11 @@ createObject xs = do
 modifyObject :: PrimRef -> (ObjectMap -> ObjectMap) -> Evaluator ()
 modifyObject ref f = evalRef ref >>= \case
     (MeowObject obj) -> (liftIO . writeIORef ref . MeowObject . f) obj
-    _ -> throwError "??????????"
+    x -> throwError (badBox $ showT x)
 
 peekAsObject :: Key -> Prim -> Evaluator PrimRef
 peekAsObject key (MeowObject x) = peekObject key x
-peekAsObject _ _ = throwError "Not object!"
+peekAsObject _ x = throwError (badBox $ showT x)
 
 {- Trail : Actions -}
 
@@ -138,28 +139,3 @@ insertTrail keys value
     | otherwise = void $ trailAction (init keys) $ \x -> do
         allocNew value >>= modifyObject x . Map.insert (last keys)
         return value
-
-
-{- Meowscript Functions -}
-
--- todo: better system than peeking into the parent object
--- maybe closures?
-
-{-
-type FnCallback = Prim -> Evaluator Prim
-
-runMethod :: [Key] -> FnCallback -> Evaluator Prim
-runMethod keys callback
-    | length keys <= 1 = throwError "aaaaaa"
-    | otherwise = trailAction (init keys) $ \parent -> runLocal $ do
-        insertRef "home" parent
-        -- Look up function:
-        fn <- evalRef parent >>= peekAsObject (last keys) >>= evalRef
-        -- Function callback should:
-        -- 1. Push arguments to stack
-        -- 2. Run the entire function
-        callback fn
-        
-runFunction :: Key -> FnCallback -> Evaluator Prim
-runFunction key f = runLocal $ lookUp key >>= f
--}

@@ -22,6 +22,7 @@ module Meowscript.Core.AST
 , Block
 , Qualified
 , meowBool
+, showT
 , returnAsPrim
 ) where
 

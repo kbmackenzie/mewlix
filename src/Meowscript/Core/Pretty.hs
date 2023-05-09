@@ -9,14 +9,20 @@ module Meowscript.Core.Pretty
 ) where
 
 import Meowscript.Core.AST
-import Meowscript.Core.Environment
 import qualified Data.Text as Text
 import qualified Data.Map as Map
+import Control.Monad.Reader (liftIO)
 import Data.Functor ((<&>))
+import Data.IORef (readIORef)
 
 showT :: (Show a) => a -> Text.Text
 {-# SPECIALISE showT :: Prim -> Text.Text #-}
 showT = Text.pack . show 
+
+-- Defining it here to avoid cyclical dependencies. c':
+-- This way, 'Environment.hs' can reference this file.
+evalRef :: PrimRef -> Evaluator Prim
+evalRef = liftIO . readIORef
 
 showMeow :: Prim -> Evaluator Text.Text
 showMeow (MeowString x) = return x
