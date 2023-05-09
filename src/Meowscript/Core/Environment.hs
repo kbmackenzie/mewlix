@@ -97,10 +97,10 @@ peekObject key obj = case Map.lookup key obj of
     (Just x) -> return x
     Nothing -> throwError "Key not found" 
 
-createObject :: [(Key, Prim)] -> Evaluator ObjectMap
+createObject :: [(Key, Prim)] -> IO ObjectMap
 createObject [] = return Map.empty
 createObject xs = do
-    let asRef (key, value) = (liftIO . newIORef) value <&> (key,)
+    let asRef (key, value) = newIORef value <&> (key,)
     pairs <- mapM asRef xs
     return $ Map.fromList pairs
 

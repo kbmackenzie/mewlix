@@ -28,12 +28,14 @@ library
       Lib
       Meowscript
       Meowscript.Core.AST
+      Meowscript.Core.Base
       Meowscript.Core.Blocks
       Meowscript.Core.Environment
       Meowscript.Core.Exceptions
       Meowscript.Core.Keys
       Meowscript.Core.Operations
       Meowscript.Core.Pretty
+      Meowscript.Core.RunEvaluator
       Meowscript.Parser.Core
       Meowscript.Parser.Expr
       Meowscript.Parser.Keywords

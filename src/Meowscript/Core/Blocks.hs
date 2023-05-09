@@ -4,6 +4,7 @@
 
 module Meowscript.Core.Blocks
 ( evaluate
+, runBlock
 , isFuncDef
 , isImport
 ) where
@@ -17,6 +18,7 @@ import Meowscript.Core.Exceptions
 import qualified Data.Text as Text
 import qualified Data.Map as Map
 import qualified Data.List as List
+import Control.Monad.Reader (liftIO)
 import Control.Monad.Except (throwError)
 import Control.Monad (void, join, when)
 import Data.Functor ((<&>))
@@ -32,7 +34,7 @@ evaluate (ExpList list) = mapM evaluate list <&> MeowList
 evaluate (ExpObject object) = do
     let toPrim (key, expr) = (evaluate expr >>= ensureValue) <&> (key,)
     pairs <- mapM toPrim object
-    MeowObject <$> createObject pairs
+    MeowObject <$> (liftIO . createObject) pairs
 evaluate (ExpLambda args expr) = return (MeowFunc args [StmReturn expr])    
 evaluate x@(ExpTrail {}) = MeowKey . KeyTrail <$> asTrail x
 evaluate (ExpCall args funcKey) = evaluate funcKey >>= \case
