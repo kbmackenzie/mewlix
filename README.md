@@ -114,8 +114,8 @@ An example:
 books = ["How To Cat", "All About Servals", "Learn You A Haskell For Great Good"]
 
 -- Knock "How To Cat" off the shelf.
-meow(knock over books)
-meow(books) 
+knock over books
+meow(books)
 
 -- Put "How To Cat" back on the shelf. That's a good book.
 "How To Cat" push books
@@ -224,13 +224,13 @@ meow( house.get_cats() ) -- prints '[ "Cody", "Jake", "Princess" ]'
 Creating constructor-like functions to create and return more complex boxes is a good pattern.
 
 ```lua
-=^.x.^= new_cat (name, breed, class)
+=^.x.^= new_cat (name, coat, class)
     cat = ~(  ^.x.^) BOX!! [
         name: name,
-        breed: breed,
+        coat: coat,
         class: class,
         get_name:  ( ^.x.^)> () => (home.name),
-        get_breed: ( ^.x.^)> () => (home.breed),
+        get_coat:  ( ^.x.^)> () => (home.coat),
         get_class: ( ^.x.^)> () => (home.class)
     ]
     bring cat
