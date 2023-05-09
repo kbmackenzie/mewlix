@@ -10,9 +10,10 @@ I think the best way to show an esolang is with an example, so here's a Meowscri
 
 ```lua
 =^.x.^= greet(n)
+    meow("Meow meow meow?")
     mew name = listen()
     take (mew i = 0) and do (paw at i) while (i < n)
-        meow("Hello, "..name.."!")
+        meow("Meow meow, "..name.."!")
     meow meow
 meow meow
 
@@ -24,7 +25,7 @@ As is the nature of esolangs, Meowscript is a joke language and not designed for
 Still, I'll write documentation for it, solely because I can't contain the urge to.
 
 ## Basics
-A Meowscript file should end in '.meows' for organization.
+A Meowscript file's name should end in '.meows' for organization.
 
 Meowscript is dynamically typed and indentation-sensitive! As for the syntax:
 
