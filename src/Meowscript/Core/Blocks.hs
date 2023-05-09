@@ -98,8 +98,8 @@ runStatements (StmBreak:_) = return RetBreak
 runStatements (StmContinue:_) = return RetVoid
 runStatements ((StmExpr expression):xs) = runExprStatement expression >> runStatements xs
 runStatements ((StmFuncDef name args body):xs) = runFuncDef (KeyNew name) args body >> runStatements xs
-runStatements (statement:xs) = runLocal $ do
-    ret <- runTable statement
+runStatements (statement:xs) = do
+    ret <- runLocal $ runTable statement
     if ret /= RetVoid
         then return ret
         else runStatements xs
