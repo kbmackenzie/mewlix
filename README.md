@@ -22,7 +22,9 @@ meow meow
 greet(10)
 ```
 
-As is the nature of esotering languages, Meowscript is a joke language and not designed for practical use.
+As is the nature of esoteric languages, Meowscript is a joke language and not designed for practical use.
+
+It's also still under development, so no releases yet. \_(:3」∠)\_
 
 Still, I'll write documentation for it, solely because I can't contain the urge to.
 
