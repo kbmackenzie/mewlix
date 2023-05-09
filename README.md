@@ -6,8 +6,8 @@ It takes a lot of inspiration from the Lua language—just with a lot more cats.
 
 I wrote this language entirely in Haskell as my first 'big' Haskell project. It was a really fun learning experience! <3 <3 <3 It made me really realize how beautiful of a language Haskell is!! I'm addicted now!! This project also uses Megaparsec for the lexing/parsing. It's an amazing library!
 
-I think the best way to show an esolang is with an example, so here's a Meowscript snippet that:
-1. Defines a function that asks the user for their name and prints it out n times.
+I think the best way to showcase an esolang is with an example, so here's a Meowscript snippet that:
+1. Defines a function that asks the user for their name and prints a greeting n times.
 2. Calls that function passing the number '10' as argument.
 
 ```lua
@@ -104,7 +104,7 @@ To Do:
 ### Shelves and Boxes
 Meowscript has only two core data structures: **stacks** (nicknamed 'shelves') and **objects/maps** (nicknamed 'boxes'). It does not have arrays/lists: One must make do with knocking items off shelves instead, as a cat should.
 
-A shelf is, as you might expect, a *stack.* You cannot index it, and you can only perform three operations on it:
+A shelf is, as mentioned, a *stack.* You cannot index it, and you can only perform three operations on it:
 1. 'knock over', which pops the item at the top of the stack.
 2. 'peek', which peeks and returns the value at the top of the stack, without popping.
 3. 'push', an infix operator that pushes the item on the left to the top of the stack on the right.
@@ -121,6 +121,10 @@ meow(books)
 "How To Cat" push books
 meow(books)
 ```
+
+The base library contains a few internal functions that make working with stacks a little easier; namely `sort` and `reverse`. They're implemented internally and are faster than a normal Meowscript function, so don't be afraid of using them! \_(:3」∠)\_
+
+The standard library *(current in progress)* defines a lot of functions that operate on shelves, too: namely `map`, `filter`, `fold`, `take_n`, `drop_n`, among others. It also adds an `index()` function, but you shouldn't use it for two reasons: 1. It's O(n), and 2. Knocking items off shelves is far more fun!
 
 As for boxes, I believe they're best explained by example: 
 
@@ -249,7 +253,7 @@ Lambdas are also very lightweight in Meowscript: They're stored the exact same w
 
 Additionally, stacks are value types in Meowscript, so performing operations on them is always safe: There's no need to worry about references and potentially modifying another stack by accident.
 
-The standard library *(currently in progress)* defined a variety of higher order functions, including (but not limited to): `map`, `fold`, `filter`, `take_while`, `drop_while`, among others.
+The standard library *(currently in progress)* defines a variety of higher order functions, including (but not limited to): `map`, `fold`, `filter`, `take_while`, `drop_while`, among others.
 
 
 ## Importing Meows
