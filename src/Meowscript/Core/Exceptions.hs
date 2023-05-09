@@ -6,6 +6,7 @@ module Meowscript.Core.Exceptions
 , showException'
 , opException
 , divByZero
+, catOnComputer
 , badKey
 , badBox
 , notBox
@@ -39,6 +40,7 @@ data MeowException =
     | MeowBadImport
     | MeowBadIFunc
     | MeowBadValue
+    | MeowCatOnComputer
     deriving (Eq, Ord)
 
 instance Show MeowException where
@@ -54,6 +56,7 @@ instance Show MeowException where
     show MeowBadImport = exc "InvalidImport"
     show MeowBadIFunc = exc "InvalidInnerFunction"
     show MeowBadValue = exc "InvalidValue"
+    show MeowCatOnComputer = exc "CatOnComputer"
 
 -- TO DO: 
 -- Make these functions use a pretty-printing function instead of 'show'.
@@ -78,6 +81,9 @@ opException = showException' MeowInvalidOp . \x -> Text.concat
 
 divByZero :: [Prim] -> Evaluator Text.Text
 divByZero = showException' MeowDivByZero "Cannot divide by zero!"
+
+catOnComputer :: Text.Text -> Text.Text
+catOnComputer = showException MeowCatOnComputer
 
 badKey :: Text.Text -> Text.Text
 badKey = showException MeowBadVar . \x -> Text.concat 

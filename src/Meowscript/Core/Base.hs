@@ -27,7 +27,9 @@ baseLibrary = createObject
     , ("int"     , MeowIFunc  ["x"] toInt     )
     , ("float"   , MeowIFunc  ["x"] toDouble  )
     , ("string"  , MeowIFunc  ["x"] toString  )
-    , ("taste"   , MeowIFunc  ["x"] toBool    )]
+    , ("taste"   , MeowIFunc  ["x"] toBool    )
+    , ("type_of" , MeowIFunc  ["x"] typeOf    )
+    , ("throw"   , MeowIFunc  ["x"] throwEx   )]
 
 {- IO -} 
 ----------------------------------------------------------
@@ -84,3 +86,32 @@ readDouble txt = case Read.signed Read.double txt of
 
 toBool :: Evaluator Prim
 toBool = lookUp "x" <&> (MeowBool . meowBool)
+
+
+{- Reflection -}
+----------------------------------------------------------
+
+typeOf :: Evaluator Prim
+typeOf = lookUp "x" >>= \x -> return . MeowString $ case x of
+    (MeowString _)  -> "string"
+    (MeowInt _)     -> "int"
+    (MeowDouble _)  -> "float"
+    (MeowBool _)    -> "bool"
+    (MeowList _)    -> "list"
+    (MeowObject _)  -> "object"
+    (MeowFunc {})   -> "function"
+    (MeowIFunc {})  -> "inner-function"
+    MeowLonely      -> "lonely"
+    (MeowKey _)     -> "key" -- This shouldn't be evaluated, but alas.
+
+
+
+{- Exceptions -}
+----------------------------------------------------------
+-- Allow users to throw their own exceptions.
+-- This is shown a special exception, 'CatOnComputerException'.
+
+throwEx :: Evaluator Prim
+throwEx = lookUp "x" >>= \case
+    (MeowString x) -> throwError (catOnComputer x)
+    x -> throwError =<< badArgs "throw" [x]
