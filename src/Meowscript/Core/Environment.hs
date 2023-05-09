@@ -33,7 +33,6 @@ import qualified Data.Map as Map
 import Control.Monad.Reader (ask, liftIO, local)
 import Control.Monad.Except (throwError)
 import qualified Data.Text as Text
-import qualified Data.Text.IO as TextIO
 import Data.Functor ((<&>))
 import Control.Monad (void)
 
@@ -124,7 +123,7 @@ type Callback = PrimRef -> Evaluator Prim
 
 trailAction :: [Key] -> Callback -> Evaluator Prim
 trailAction [] _ = throwError "empty trail"
-trailAction (key:keys) f = (liftIO . TextIO.putStrLn) key >> lookUpVar' key >>= innerAction keys f
+trailAction (key:keys) f = lookUpVar' key >>= innerAction keys f
 
 innerAction :: [Key] -> Callback -> PrimRef -> Evaluator Prim
 innerAction [] f ref = f ref
