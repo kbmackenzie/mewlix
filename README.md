@@ -124,7 +124,11 @@ meow(books)
 
 The base library contains a few internal functions that make working with stacks a little easier; namely `sort` and `reverse`. They're implemented internally and are faster than a normal Meowscript function, so don't be afraid of using them! \_(:3」∠)\_
 
-The standard library *(current in progress)* defines a lot of functions that operate on shelves, too: namely `map`, `filter`, `fold`, `take_n`, `drop_n`, among others. It also adds an `index()` function, but you shouldn't use it for two reasons: 1. It's O(n), and 2. Knocking items off shelves is far more fun!
+The standard library *(currently in progress)* defines a lot of functions for working with stacks: `map`, `filter`, `fold`, `take_n`, `drop_n`, among others.
+
+The standard library also adds an `index()` function, but you shouldn't use it for two reasons:
+1. It's O(n), merely traversing the stack.
+2. Knocking items off shelves is far more fun!
 
 As for boxes, I believe they're best explained by example: 
 
@@ -229,7 +233,7 @@ Creating constructor-like functions to create and return more complex boxes is a
 
 ```lua
 =^.x.^= new_cat (name, coat, class)
-    cat = ~(  ^.x.^) BOX!! [
+    mew cat = ~(  ^.x.^) BOX!! [
         name: name,
         coat: coat,
         class: class,
