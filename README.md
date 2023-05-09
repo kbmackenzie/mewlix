@@ -22,12 +22,12 @@ meow meow
 greet(10)
 ```
 
-As is the nature of esolangs, Meowscript is a joke language and not designed for practical use.
+As is the nature of esotering languages, Meowscript is a joke language and not designed for practical use.
 
 Still, I'll write documentation for it, solely because I can't contain the urge to.
 
 ## Basics
-A Meowscript file's name should end in '.meows' for organization.
+A Meowscript file's name should end in '.meows' for organization. \_(:3」∠)\_
 
 Meowscript is dynamically typed and indentation-sensitive! As for the syntax:
 
@@ -48,7 +48,7 @@ Floatint-point numbers:
 10.0
 ```
 
-Primitives:
+And other primitives:
 | Value | Meaning |
 |-------|---------|
 | yummy | true    |

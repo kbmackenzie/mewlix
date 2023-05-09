@@ -25,7 +25,6 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
       Meowscript
       Meowscript.Core.AST
       Meowscript.Core.Base
