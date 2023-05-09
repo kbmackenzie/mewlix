@@ -68,7 +68,7 @@ meow meow
 -- 'Take' function implementation.
 -- Takes n items from a shelf and returns a list of items.
 
-=^.x.^= take (shelf, n)
+=^.x.^= take_n (shelf, n)
     mew output = []
     take (mew i = 0) and do (paw at i) while (i < n)
         (peek shelf) push output
@@ -83,7 +83,7 @@ meow meow
 -- 'Drop' function implementation.
 -- Drops n items from a shself and returns the shelf.
 
-=^.x.^= drop (shelf, n)
+=^.x.^= drop_n (shelf, n)
     mew output = []
     take (mew i = 0) and do (paw at i) while (i < n)
         knock over shelf
@@ -106,8 +106,8 @@ meow meow
 -- It uses shelves, yay!
 
 =^.x.^= substring (str, start, length)
-    mew temp = drop(str, start) -- Start at specified index.
-    temp = take(str, length) -- Take length of chars.
+    mew temp = drop_n(str, start) -- Start at specified index.
+    temp = take_n(str, length) -- Take length of chars.
 
     -- This gives us a list of strings. ('Take' returns a list!)
     -- Now we have to flatten it into a string!
@@ -117,7 +117,7 @@ meow meow
 
 ------------------------------------------------
 
--- 'Take while' function implementation. Like 'take', but with
+-- 'Take while' function implementation. Like 'take_n', but with
 -- a predicate instead of a number!
 -- Takes n items while the top of the shelf satisfies the predicate.
 -- It returns a list.
@@ -133,7 +133,7 @@ meow meow
 
 ------------------------------------------------
 
--- 'Drop while' function implementation. Like 'drop', but with
+-- 'Drop while' function implementation. Like 'drop_n', but with
 -- a predicate instead of a number!
 -- Drops n items while the top of the shelf satisfies the predicate.
 -- It returns the shelf.
@@ -176,10 +176,10 @@ meow meow
 -- bring index ([1, 2, 3], 2)
 
 -- Take n (success!)
--- bring take ([1, 2, 3], 3)
+-- bring take_n ([1, 2, 3], 3)
 
 -- Drop n (success!)
--- bring drop ([1, 2, 3], 2)
+-- bring drop_n ([1, 2, 3], 2)
 
 -- Substring fn (success!)
 -- bring substring("hello world", 0, 5)
