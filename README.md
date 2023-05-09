@@ -88,7 +88,7 @@ A shelf is, as you might expect, a *stack.* You cannot index it, and you can onl
 3. 'push', an infix operator that pushes the item on the left to the top of the stack on the right.
 
 An example: 
-```
+```lua
 books = ["How To Cat", "All About Servals", "Learn You A Haskell For Great Good"]
 
 -- Knock "How To Cat" off the shelf.
