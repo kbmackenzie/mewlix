@@ -4,10 +4,8 @@
  - and core functions. -}
 
 module Meowscript
-( 
+( runBasic
 ) where
-
-{-
 
 import Meowscript.Core.AST
 import Meowscript.Core.RunEvaluator
@@ -21,5 +19,3 @@ runBasic path = do
     case output of
         (Right x) -> print time >> print x
         (Left x) -> TextIO.putStrLn x
-
--}

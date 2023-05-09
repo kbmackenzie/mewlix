@@ -2,15 +2,11 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Meowscript.Core.RunEvaluator
-(
-) where
-{-
 ( runMeow
 , runExpr
 , runMeow'
 , runExpr'
 ) where
--}
 
 import Meowscript.Core.AST
 import Meowscript.Core.Base
@@ -18,6 +14,7 @@ import Meowscript.Core.Environment
 import Meowscript.Core.Blocks
 import Meowscript.Parser.RunParser
 import Meowscript.Core.Exceptions
+import Meowscript.Core.Pretty
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map
@@ -58,10 +55,15 @@ runProgram :: [Statement] -> Evaluator Prim
 runProgram xs = do
     let (imps, rest) = List.partition isImport xs
     mapM_ addImport imps
-    returnAsPrim <$> runBlock rest
+    ret <- returnAsPrim <$> runBlock rest
+    x <- ask >>= liftIO . readIORef
+    x' <- showMeow (MeowObject x)
+    (liftIO . TextIO.putStrLn) x'
+    (liftIO . print) =<< keyExists "meep"
+    return ret
 
-runProgramAsImport :: [Statement] -> Evaluator Environment
-runProgramAsImport xs = do
+asImport :: [Statement] -> Evaluator Environment
+asImport xs = do
     let (imps, rest) = List.partition isImport xs
     mapM_ addImport imps
     (void . runBlock) rest
@@ -73,7 +75,7 @@ runProgramAsImport xs = do
  - They can be imported qualified or not. One is easier than the other. @x@ -}
 
 getImportEnv :: FilePath -> IO (Either Text.Text Environment)
-getImportEnv path = runMeow (return Map.empty) runProgramAsImport path >>= \case
+getImportEnv path = runMeow (return Map.empty) asImport path >>= \case
     (Left exception) -> (return . Left) exception
     (Right output) -> (return . Right) output
 

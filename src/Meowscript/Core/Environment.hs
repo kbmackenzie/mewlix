@@ -32,6 +32,8 @@ import Data.IORef
 import qualified Data.Map as Map
 import Control.Monad.Reader (ask, liftIO, local)
 import Control.Monad.Except (throwError)
+import qualified Data.Text as Text
+import qualified Data.Text.IO as TextIO
 import Data.Functor ((<&>))
 import Control.Monad (void)
 
@@ -44,7 +46,7 @@ lookUpVar key = (ask >>= liftIO . readIORef) <&> Map.lookup key
 lookUpVar' :: Key -> Evaluator PrimRef
 lookUpVar' key = lookUpVar key >>= \case
     (Just x) -> return x
-    Nothing -> throwError "todo"
+    Nothing -> throwError (Text.concat [ "Key ", key, " doesn't exist!" ])
 
 keyExists :: Key -> Evaluator Bool
 keyExists key = (ask >>= liftIO . readIORef) <&> Map.member key
@@ -82,7 +84,11 @@ localEnv :: Evaluator Environment
 localEnv = ask >>= liftIO . readIORef >>= liftIO . newIORef
 
 runLocal :: Evaluator a -> Evaluator a
-runLocal action = localEnv >>= \x -> local (const x) action
+--runLocal action = localEnv >>= \x -> local (const x) action
+runLocal action = do
+    env <- ask >>= liftIO . readIORef
+    new <- (liftIO . newIORef) env
+    local (const new) action
 
 allocNew :: Prim -> Evaluator PrimRef
 allocNew = liftIO . newIORef
@@ -119,13 +125,13 @@ type Callback = PrimRef -> Evaluator Prim
 
 trailAction :: [Key] -> Callback -> Evaluator Prim
 trailAction [] _ = throwError "empty trail"
-trailAction (key:keys) f = lookUpVar' key >>= innerAction keys f
+trailAction (key:keys) f = (liftIO . TextIO.putStrLn) key >> lookUpVar' key >>= innerAction keys f
 
 innerAction :: [Key] -> Callback -> PrimRef -> Evaluator Prim
 innerAction [] f ref = f ref
 innerAction (key:keys) f ref = evalRef ref >>= \case
     (MeowModule env) -> do
-        ref' <- evalRef ref >>= peekAsObject key
+        ref' <- (liftIO . readIORef) env >>= peekObject key
         local (const env) (innerAction keys f ref')
     (MeowObject obj) -> peekObject key obj >>= innerAction keys f
     _ -> throwError "not object"
@@ -143,6 +149,9 @@ insertTrail keys value
 
 {- Meowscript Functions -}
 
+-- todo: better system than peeking into the parent object
+-- maybe closures?
+
 type FnCallback = Prim -> Evaluator Prim
 
 runMethod :: [Key] -> FnCallback -> Evaluator Prim
@@ -158,4 +167,4 @@ runMethod keys callback
         callback fn
         
 runFunction :: Key -> FnCallback -> Evaluator Prim
-runFunction key f = lookUp key >>= f
+runFunction key f = runLocal $ lookUp key >>= f

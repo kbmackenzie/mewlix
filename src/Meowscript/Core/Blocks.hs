@@ -49,8 +49,15 @@ evaluate (ExpYarn expr) = evaluate expr >>= \case
 
 {- Trails -}
 asTrail :: Expr -> Evaluator [Text.Text]
-asTrail x@(ExpTrail _ _) = unwrap x >>= mapM evaluate >>= mapM showMeow
+asTrail x@(ExpTrail _ _) = unwrap x >>= mapM evaluate >>= mapM asKey
 asTrail _ = throwError "aa"
+
+asKey :: Prim -> Evaluator Text.Text
+asKey (MeowKey key) = case key of
+    (KeyModify x) -> return x
+    (KeyNew x) -> return x
+    _ -> throwError "trail!!"
+asKey _ = throwError "invalid key in trail!!"
 
 unwrap :: Expr -> Evaluator [Expr]
 unwrap (ExpTrail x y) = (x:) <$> unwrap y
