@@ -2,6 +2,7 @@
 
 module Meowscript.Parser.Keywords
 ( meowCatface
+, meowLocal
 , meowEnd
 , meowReturn
 , meowContinue
@@ -26,6 +27,9 @@ import Data.Text (Text)
 meowCatface :: Text
 meowCatface = "=^.x.^="
 
+meowLocal :: Text
+meowLocal = "mew"
+
 meowEnd :: Text
 meowEnd = "meow meow"
 
@@ -45,7 +49,7 @@ meowElse :: Text
 meowElse = "hiss!"
 
 meowWhile :: Text
-meowWhile = "purr"
+meowWhile = "meowmeow"
 
 meowFor :: (Text, Text, Text)
 meowFor = ("take", "and do", "while")

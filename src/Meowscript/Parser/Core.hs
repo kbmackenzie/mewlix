@@ -28,6 +28,7 @@
  ) where
 
 import Meowscript.Core.AST
+import Meowscript.Parser.Keywords
 import qualified Data.Text as Text
 import qualified Text.Megaparsec as Mega
 import Text.Megaparsec ((<|>), (<?>))
@@ -123,7 +124,7 @@ parseKey :: Parser Prim
 parseKey = MeowKey <$> (parseKeyNew <|> parseKey')
 
 parseKeyNew :: Parser KeyType
-parseKeyNew = (Mega.try . lexeme . keyword) "mew" >> KeyNew <$> keyText
+parseKeyNew = (Mega.try . lexeme . keyword) meowLocal >> KeyNew <$> keyText
 
 parseKey' :: Parser KeyType
 parseKey' = KeyModify <$> keyText

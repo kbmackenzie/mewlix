@@ -1,8 +1,8 @@
 # Meowscript
 
-Meowscript is a cat-themed esotering programming language. It's an imperative, dynamically typed language with obscure cat-themed syntax and features from both OOP and functional programming. It takes lots of inspiration from Lua syntax--with a kitty flair.
+Meowscript is a cat-themed esotering programming language. It's an imperative, dynamically typed language with obscure cat-themed syntax and support for a subset of features from OOP and FP. It takes a lot of inspiration from the Lua language, but with a lot more cats.
 
-I wrote this language entirely in Haskell as my first 'big' Haskell project. It was a really fun learning experience! It made me really realize how beautiful of a language Haskell is.
+I wrote this language entirely in Haskell as my first 'big' Haskell project. It was a really fun learning experience! c: It made me really realize how beautiful of a language Haskell is. I'm addicted now.
 
 I think the best way to show an esolang is with an example, so here's a Meowscript snippet that:
 1. Defines a function that asks the user for their name and prints it out n times.
@@ -10,8 +10,8 @@ I think the best way to show an esolang is with an example, so here's a Meowscri
 
 ```
 =^.x.^= greet(n)
-    name = listen()
-    take (i = 0) and do (paw at i) while (i < n)
+    mew name = listen()
+    take (mew i = 0) and do (paw at i) while (i < n)
         meow("Hello, "..name.."!")
     meow meow
 meow meow
@@ -19,21 +19,57 @@ meow meow
 greet(10)
 ```
 
-As is the nature of esolangs, Meowscript is a joke and not designed for practical use. No non-feline creatures should use it (especially those of the canine variety).
+As is the nature of esolangs, Meowscript is a joke language and not designed for practical use.
 
 Still, I'll write documentation for it, solely because I can't contain the urge to.
 
-## Shelves and Boxes
-Meowscript has only two core data structures: **stacks** (nicknamed 'shelves') and **objects/maps** (nicknamed 'boxes'). It does not have arrays/lists: You must make do with knocking items off shelves instead, as a true feline should.
+## Syntax
 
-A stack is, as you might expect, a *stack.* You cannot index it, and you can only perform three operations on it:
+Comments:
+```lua
+-- This is a line comment.
+-- Just like in Haskell and Lua!
+
+<(=^.x.^= )~
+This is a block comment.
+Yes, this whole thing.
+~( =^.x.^=)>
+```
+
+Functions:
+```
+=^.x.^= sum (a, b)
+    bring a + b
+meow meow
+```
+
+Control flow:
+```
+mew? (<your-condition>)
+    -- if block
+hiss!
+    -- else block
+meow meow
+```
+
+While loops:
+```
+meowmeowmeow (<your-condition->)
+    -- ...
+meow meow
+```
+
+## Shelves and Boxes
+Meowscript has only two core data structures: **stacks** (nicknamed 'shelves') and **objects/maps** (nicknamed 'boxes'). It does not have arrays/lists: You must make do with knocking items off shelves instead, as a cat should.
+
+A shelf is, as you might expect, a *stack.* You cannot index it, and you can only perform three operations on it:
 1. 'knock over', which pops the item at the top of the stack.
 2. 'peek', which peeks and returns the value at the top of the stack, without popping.
 3. 'push', an infix operator that pushes the item on the left to the top of the stack on the right.
 
 An example: 
 ```
-books = ["How To Cat", "The C Programming Language", "Learn You A Haskell For Great Good"]
+books = ["How To Cat", "All About Servals", "Learn You A Haskell For Great Good"]
 
 -- Knock "How To Cat" off the shelf.
 meow(knock over books)
@@ -50,7 +86,7 @@ As for boxes, I believe they're best explained by example:
 -- A house is really just a very big box, after all.
 house_cats = ~(  ^.x.^) BOX!! [
     jake: "orange tabby",
-    princess: "orange tabby"
+    princess: "brown tabby"
 ]
 
 meow(cats)
@@ -58,53 +94,47 @@ meow(cats.jake)
 meow(cats.princess)
 ```
 
+Boxes can contain methods, too, and you can use them for OOP. I go into detail on this later.
+
 Additionally, Meowscript has the following features:
 
 ### Lexical scoping
+Meowscript supports lexical scoping. A variable is always local to the block it was first defined in, be it a function, loop or control flow statement.
 
-Variables are always local to the block they're defined in. If you want to mutate a global variable, you must use the 'bold' keyword:
+If a variable already exists in the global scope, however, it can (and will) be mutated inside functions.
+
+To ensure a variable will always be local and overshadow any other variables with the same name in the outer scope, a cat can use the 'mew' keyword. It's very similar to the 'local' keyword in Lua!
+
 ```
 cat = "Jake" -- This variable is global.
 
 =^.x.^= local_cat()
-    cat = "Princess" -- This is a different, local variable. This function changes nothing.
+    mew cat = "Princess" -- This is a different, local variable.
 meow meow
 
 =^.x.^= global_cat()
-    mew cat = "Princess" -- This mutates the global variable 'cat'.
-meow meow
-```
-
-Do note, however, that the 'mew' keyword looks for the closest variable with that name in the stack, from top to bottom. This means if there's already a local variable named 'cat', 'mew' will choose the local variable.
-
-```
-cat = "Jake"
-
-=^.x.^= silly_cat()
-    cat = "Princess" -- Local variable overshadows global variable 'cat'.
-    mew cat = "Bob" -- This does not mutate the global variable!
+    cat = "Princess" -- This mutates the global variable 'cat'.
 meow meow
 ```
 
 ## Functions
-Functions, nicknamed 'adventures', are first-class objects *and* value types. You can return a value from a function with the 'bring' keyword:
+Functions, nicknamed 'adventures', are first-class citizens *and* value types. You can return a value from a function with the 'bring' keyword:
 
 ```
 =^.x.^= sum(a, b)
     bring a + b
 meow meow
 ```
-
 Meowscript supports higher-order functions. Any function can take a function as argument and return a function as a result.
 
 Additionally, functions can be nested inside other functions, which can be nested inside other functions, and so on, infinitely. Adventures inside adventures are a fun pattern!
 
-Feline lambdas are also a thing. In Meowscript, they're nicknamed 'mini-adventures'.
-They can be defined in a single line like normal expressions:
+Meowscript also has lambdas! They can be defined in a single line like normal expressions:
 ```
 sum = ( ^.x.^)> (a, b) => (a + b)
 ```
-**Note:** Meowscript lamdas do not capture variables. Do not use local variables inside lambdas you intend to use outside of that local scope. If you really want to return them, just put everything inside a box.
+Meowscript lambdas support closures, and will happily capture any local variables you use inside them, so feel free to use as many as you want.
+
 
 ## Dynamic Identifiers
 Any string can be used as a variable name if you prepend the "~~" operator to it, even if the string is filled with Unicode characters. An example: 
@@ -114,7 +144,8 @@ meow(~~"(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧") -- prints "SPARKLES!!"
 ```
 The '~~' operator is nicknamed the "yarn" operator in Meowscript.
 
-**Note:** All variables created from the yarn operator are local. Always. They cannot be mew-ed.
+**Note:** All variables created from the yarn operator are very, very local.
+
 
 ## Box-Oriented Feline Programming
 
@@ -144,10 +175,10 @@ meow meow
 house.add_cat = add_cat
 
 house.add_cat("Cody")
-meow(house.get_cats()) -- prints '[ "Cody", "Jake", "Princess" ]'
+meow( house.get_cats() ) -- prints '[ "Cody", "Jake", "Princess" ]'
 ```
 
-As all boxes are value types, creating new instances of a box is as easy as just copying it. There's no need to worry about shallow copying. Copying a given box creates a new instance of it.
+**Note:** Boxes are reference types. They're Meowscript's only reference type. Thus, when copying them, a cat should be wary of shallow-copying.
 
 Creating constructor-like functions to create and return more complex boxes is a good pattern.
 
@@ -167,8 +198,10 @@ meow meow
 bob = new_cat("Bob", "Tabby", "Wizard")
 meow(bob)
 ```
+Boxes are very important.
 
-As any proper feline would agree, boxes are very important.
 
 ## Functional Meowing
-Meowscript functions are value types and first-class objects.
+Meowscript functions are value types and first-class citizens.
+
+Lambdas are also very lightweight in Meowscript: They're stored the exact same way normal functions are. Don't be afraid of using many lambdas! They're fun!
