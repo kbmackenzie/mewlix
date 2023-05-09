@@ -23,7 +23,12 @@ As is the nature of esolangs, Meowscript is a joke language and not designed for
 
 Still, I'll write documentation for it, solely because I can't contain the urge to.
 
-## Syntax
+## Basics
+A Meowscript file should end in '.meows' for organization.
+
+Meowscript is indentation-sensitive. As for the syntax:
+
+### Syntax
 
 Primitives:
 | Value | Meaning |
@@ -73,7 +78,7 @@ take (...) and do (...) while (...)
 meow meow
 ```
 
-## Shelves and Boxes
+### Shelves and Boxes
 Meowscript has only two core data structures: **stacks** (nicknamed 'shelves') and **objects/maps** (nicknamed 'boxes'). It does not have arrays/lists: One must make do with knocking items off shelves instead, as a cat should.
 
 A shelf is, as you might expect, a *stack.* You cannot index it, and you can only perform three operations on it:
@@ -110,7 +115,7 @@ meow(cats.princess)
 
 Boxes can contain methods, too, and a cat can use them for OOP. I'll go into detail on this further below.
 
-## Value Types
+### Value Types
 All types in Meowscript are value types—*except* boxes. They're the only exception.
 
 ### Lexical scoping
@@ -130,7 +135,7 @@ meow meow
 meow meow
 ```
 
-## Functions
+### Functions
 Functions, nicknamed 'adventures', are first-class citizens *and* value types. You can return a value from a function with the 'bring' keyword:
 
 ```
@@ -149,7 +154,7 @@ sum = ( ^.x.^)> (a, b) => (a + b)
 Meowscript lambdas support closures, and will happily capture any local variables a cat uses inside them, so a cat should feel free to use as many as they want.
 
 
-## Dynamic Identifiers
+### Dynamic Identifiers
 Any string can be used as a variable name if a cat prepends the "~~" operator to it, even if the string is filled with Unicode characters. An example: 
 ```lua
 ~~"(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧" = "SPARKLES!!"
@@ -234,7 +239,6 @@ takes "example.meows"
 -- Importing with a name. The contents of this file are stored in an object with the chosen name.
 takes "example.meows" as example
 ```
-
 
 ## Notes
 [ To Do ]

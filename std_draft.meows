@@ -1,0 +1,196 @@
+-- std.meows
+
+------------------------------------------------
+
+-- Map implementation.
+-- Callback function should take one argument.
+
+=^.x.^= map (shelf, fn)
+    mew output = []
+    meowmeow (shelf)
+        fn(peek shelf) push output
+        knock over shelf
+    meow meow
+    bring reverse(output) -- Reverse to get back to the original order, because shelf.
+meow meow
+
+------------------------------------------------
+
+-- Foldl implementation.
+-- Callback function should take two arguments!
+
+=^.x.^= fold (shelf, fn, init)
+    mew output = init
+    meowmeow (shelf)
+        output = fn(output, peek shelf)
+        knock over shelf
+    meow meow
+    bring output
+meow meow
+
+------------------------------------------------
+
+-- Filter implementation.
+-- Callback should take one argument.
+
+=^.x.^= filter (shelf, fn)
+    mew output = []
+    meowmeow (shelf)
+        mew item = peek shelf
+        mew? (fn(item))
+            item push output
+        meow meow
+        knock over shelf
+    meow meow
+    bring reverse(output) -- Reversing because shelf.
+meow meow
+
+
+------------------------------------------------
+
+-- Indexing function implementation.
+-- It's O(n) and highly discouraged, because shelves!
+
+=^.x.^= index (shelf, num)
+    take (mew i = 0) and do (paw at i) while (i < num)
+        knock over shelf
+    meow meow 
+    bring peek shelf
+meow meow
+
+-- Note this function does not throw exceptions when an
+-- index goes out of bounds, because of how
+-- knocking over items from shelves works in Meowscript.
+-- It returns 'lonely' instead.
+
+------------------------------------------------
+
+-- 'Take' function implementation.
+-- Takes n items from a shelf and returns a list of items.
+
+=^.x.^= take (shelf, n)
+    mew output = []
+    take (mew i = 0) and do (paw at i) while (i < n)
+        (peek shelf) push output
+        knock over shelf
+    meow meow
+    bring reverse(output) -- Reversing because stack.
+meow meow
+
+
+------------------------------------------------
+
+-- 'Drop' function implementation.
+-- Drops n items from a shself and returns the shelf.
+
+=^.x.^= drop (shelf, n)
+    mew output = []
+    take (mew i = 0) and do (paw at i) while (i < n)
+        knock over shelf
+    meow meow
+    bring shelf
+meow meow
+
+------------------------------------------------
+
+-- Flatten a list of strings into a string.
+-- It uses a fold, because yay!
+
+=^.x.^= str_flatten (shelf)
+    bring fold (shelf, ( ^.x.^)> (x, y) => (x..y), "")
+meow meow
+
+------------------------------------------------
+
+-- Substring function implemetation.
+-- It uses shelves, yay!
+
+=^.x.^= substring (str, start, length)
+    mew temp = drop(str, start) -- Start at specified index.
+    temp = take(str, length) -- Take length of chars.
+
+    -- This gives us a list of strings. ('Take' returns a list!)
+    -- Now we have to flatten it into a string!
+
+    bring str_flatten(temp) -- Convert from list to string. 
+meow meow
+
+------------------------------------------------
+
+-- 'Take while' function implementation. Like 'take', but with
+-- a predicate instead of a number!
+-- Takes n items while the top of the shelf satisfies the predicate.
+-- It returns a list.
+
+=^.x.^= take_while (shelf, fn)
+    mew output = []
+    meowmeow (fn(peek shelf))
+        (peek shelf) push output
+        knock over shelf
+    meow meow
+    bring reverse(output) -- Reversing because stack.
+meow meow
+
+------------------------------------------------
+
+-- 'Drop while' function implementation. Like 'drop', but with
+-- a predicate instead of a number!
+-- Drops n items while the top of the shelf satisfies the predicate.
+-- It returns the shelf.
+
+=^.x.^= drop_while (shelf, fn)
+    meowmeow (fn(peek shelf))
+        knock over shelf
+    meow meow
+    bring shelf
+meow meow
+
+------------------------------------------------
+
+-- 'Trim' function implemntation!
+-- Trims whitespace from both ends of a string.
+
+=^.x.^= trim (str)
+    mew fn = ( ^.x.^)> (x) => (x == " ")
+    str = drop_while(str, fn)
+    str = drop_while(reverse(str), fn)
+    bring reverse(str) -- Reversing again.
+meow meow
+
+------------------------------------------------
+
+
+
+-- TESTS
+
+-- Increment map (success!)
+--bring map ([1, 2, 3], ( ^.x.^)> (x) => (x + 1))
+
+-- Sum fold (success!)
+--bring fold ([1, 2, 3, 10, 20], ( ^.x.^)> (x, y) => (x + y), 0)
+
+-- Filter odd numbers (success!)
+-- bring filter ([1, 2, 3, 4], ( ^.x.^)> (x) => (x % 2 == 0))
+
+-- Index shelf (O(n)) (success!)
+-- bring index ([1, 2, 3], 2)
+
+-- Take n (success!)
+-- bring take ([1, 2, 3], 3)
+
+-- Drop n (success!)
+-- bring drop ([1, 2, 3], 2)
+
+-- Substring fn (success!)
+-- bring substring("hello world", 0, 5)
+
+-- Take while (success!)
+-- bring take_while ([2, 4, 3], ( ^.x.^)> (x) => (x % 2 == 0))
+
+-- Drop while (success!)
+-- bring drop_while ([2, 4, 3], ( ^.x.^)> (x) => (x % 2 == 0))
+
+-- Trim str (success!)
+-- bring trim("    meow    ")
+
+-- throw("You got a little too silly with it")
