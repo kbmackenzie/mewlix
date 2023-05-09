@@ -4,8 +4,7 @@
 module Meowscript.Core.Pretty
 ( showT
 , showMeow
-, showMeow'
-, meowStr
+, prettyMeow
 ) where
 
 import Meowscript.Core.AST
@@ -32,11 +31,11 @@ showMeow (MeowDouble x) = return $ showT x
 showMeow (MeowBool x) = return $ if x then "yummy" else "icky"
 showMeow MeowLonely = return "lonely"
 showMeow (MeowList x) = do 
-    prims <- mapM showMeow' x
+    prims <- mapM prettyMeow x
     let prims' = Text.intercalate ", " prims
     return $ Text.concat [ "[ ", prims', " ]" ]
 showMeow (MeowObject x) = do
-    let evalPair (key, value) = (evalRef value >>= showMeow') <&> (key,)
+    let evalPair (key, value) = (evalRef value >>= prettyMeow) <&> (key,)
     let pretty (key, value) = return $ Text.concat [ key, ": ", value ]
     pairs <- mapM evalPair (Map.toList x) >>= mapM pretty
     return $ Text.concat [ "[ ", Text.intercalate ", " pairs , " ]" ]
@@ -45,10 +44,7 @@ showMeow (MeowIFunc _ _) = return "<inner-func>"
 
 -- Special version that pretty-prints strings,
 -- for use in lists and objects.
-showMeow' :: Prim -> Evaluator Text.Text
-showMeow' (MeowString x) = return $ Text.concat [ "\"", x, "\"" ]
-showMeow' x = showMeow x
-
-meowStr :: Prim -> Evaluator Text.Text
-{-# INLINE meowStr #-}
-meowStr = showMeow'
+prettyMeow :: Prim -> Evaluator Text.Text
+{-# INLINE prettyMeow #-}
+prettyMeow (MeowString x) = return $ Text.concat [ "\"", x, "\"" ]
+prettyMeow x = showMeow x

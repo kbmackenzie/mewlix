@@ -13,6 +13,7 @@ module Meowscript.Core.Exceptions
 , fewArgs
 , badFunc
 , badTrail
+, shortTrail
 , notFunc
 , badArgs
 , badValue
@@ -63,16 +64,16 @@ showException :: MeowException -> Text.Text -> Text.Text
 showException meowe message = Text.concat
     ["[", (Text.pack . show) meowe, "]", ": ", message]
 
-showException' :: (Show a) => MeowException -> Text.Text -> [a] -> Text.Text
-showException' meowe text xs = (showException meowe . Text.concat) message
+showException' :: (Show a) => MeowException -> Text.Text -> [a] -> Evaluator Text.Text
+showException' meowEx text xs = (return . showException meowEx . Text.concat) message
     where terms = Text.intercalate ", " (map showT xs)
           message = [text, " | Terms: [", terms, "]"]
 
-opException :: Text.Text -> [Prim] -> Text.Text
+opException :: Text.Text -> [Prim] -> Evaluator Text.Text
 opException = showException' MeowInvalidOp . \x -> Text.concat
     [ "Invalid operands for '", x, "'!" ]
 
-divByZero :: [Prim] -> Text.Text
+divByZero :: [Prim] -> Evaluator Text.Text
 divByZero = showException' MeowDivByZero "Cannot divide by zero!"
 
 badKey :: Text.Text -> Text.Text
@@ -104,11 +105,16 @@ notFunc = showException MeowBadFunc . \x -> let prim = showT x in Text.concat
 badTrail :: Text.Text -> Text.Text
 badTrail = showException MeowBadTrail . Text.append "Invalid token in trail: "
 
-badArgs :: Text.Text -> [Prim] -> Text.Text
+shortTrail :: [Key] -> Text.Text
+shortTrail = showException MeowBadTrail
+    . Text.append "Trail is too short. | Terms: "
+    . Text.intercalate "."
+
+badArgs :: Text.Text -> [Prim] -> Evaluator Text.Text
 badArgs = showException' MeowBadArgs . \x -> Text.concat
     [ "Invalid argument(s) passed to function '", x, "'!" ]
 
-badValue :: Text.Text -> Text.Text -> [Prim] -> Text.Text
+badValue :: Text.Text -> Text.Text -> [Prim] -> Evaluator Text.Text
 badValue fn = showException' MeowBadValue . Text.append
     (Text.concat [ "In function: '", fn, "': " ])
 

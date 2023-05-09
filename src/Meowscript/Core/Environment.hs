@@ -29,6 +29,7 @@ module Meowscript.Core.Environment
 
 import Meowscript.Core.AST
 import Data.IORef
+import Meowscript.Core.Pretty
 import Meowscript.Core.Exceptions
 import qualified Data.Map as Map
 import Control.Monad.Reader (ask, liftIO, local)
@@ -112,18 +113,18 @@ createObject xs = do
 modifyObject :: PrimRef -> (ObjectMap -> ObjectMap) -> Evaluator ()
 modifyObject ref f = evalRef ref >>= \case
     (MeowObject obj) -> (liftIO . writeIORef ref . MeowObject . f) obj
-    x -> throwError (badBox $ showT x)
+    x -> prettyMeow x >>= throwError . badBox
 
 peekAsObject :: Key -> Prim -> Evaluator PrimRef
 peekAsObject key (MeowObject x) = peekObject key x
-peekAsObject _ x = throwError (badBox $ showT x)
+peekAsObject _ x = prettyMeow x >>= throwError . badBox
 
 {- Trail : Actions -}
 
 type Callback = PrimRef -> Evaluator Prim
 
 trailAction :: [Key] -> Callback -> Evaluator Prim
-trailAction [] _ = throwError "empty trail"
+trailAction [] _ = throwError emptyTrail
 trailAction (key:keys) f = lookUpVar' key >>= innerAction keys f
 
 innerAction :: [Key] -> Callback -> PrimRef -> Evaluator Prim
@@ -135,7 +136,7 @@ lookUpTrail keys = trailAction keys evalRef
 
 insertTrail :: [Key] -> Prim -> Evaluator ()
 insertTrail keys value
-    | length keys <= 1 = throwError "aaaaa"
+    | length keys <= 1 = throwError (shortTrail keys)
     | otherwise = void $ trailAction (init keys) $ \x -> do
         allocNew value >>= modifyObject x . Map.insert (last keys)
         return value

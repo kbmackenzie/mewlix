@@ -44,21 +44,21 @@ evaluate (ExpCall args funcKey) = evaluate funcKey >>= \case
     x -> throwError (notFunc x)
 evaluate (ExpYarn expr) = evaluate expr >>= \case
     (MeowString str) -> (return . MeowKey . KeyNew) str
-    x -> throwError (opException "Yarn" [x])
+    x -> throwError =<< opException "Yarn" [x]
 
 ------------------------------------------------------------------------
 
 {- Trails -}
 asTrail :: Expr -> Evaluator [Text.Text]
 asTrail x@(ExpTrail _ _) = unwrap x >>= mapM evaluate >>= mapM asKey
-asTrail _ = throwError "aa"
+asTrail x = throwError ("Critical failure in trail! Trace:" `Text.append` showT x)
 
 asKey :: Prim -> Evaluator Text.Text
 asKey (MeowKey key) = case key of
     (KeyModify x) -> return x
     (KeyNew x) -> return x
-    _ -> throwError "trail!!"
-asKey _ = throwError "invalid key in trail!!"
+    (KeyTrail xs) -> throwError ("Trails cannot be nested!" `Text.append` showT xs)
+asKey x = showMeow x >>= throwError . badTrail
 
 unwrap :: Expr -> Evaluator [Expr]
 unwrap (ExpTrail x y) = (x:) <$> unwrap y
@@ -112,7 +112,7 @@ runTable (StmFor a b) = runFor a b
 runTable (StmIfElse a b c) = runIfElse a b c
 runTable (StmIf a b) = runIf a b
 runTable (StmImport a _) = throwError (nestedImport a)
-runTable _ = throwError "Invalid statement"
+runTable x = throwError ("Critical failure: Invalid statement. Trace: " `Text.append` showT x)
 
 asCondition :: Expr -> Evaluator Bool
 {-# INLINABLE asCondition #-}
@@ -140,7 +140,7 @@ funcLookup key args = case key of
 
 asMethod :: [Key] -> Args -> Evaluator Prim
 asMethod keys args
-    | length keys <= 1 = throwError "Invalid trail"
+    | length keys <= 1 = throwError (shortTrail keys)
     | otherwise = trailAction (init keys) $ \ref -> do
         let parent = ref
         let key = last keys
@@ -164,7 +164,7 @@ runFunc key args (MeowIFunc params fn) = runLocal $ iFunc key params args fn
 runFunc key args (MeowFunc params body closure) = do 
     closure' <- (liftIO . readIORef) closure
     runClosure closure' $ meowFunc key params args body
-runFunc _ _ _ = throwError "not function"
+runFunc key _ _ = throwError (badFunc key)
 
 runMethod :: Key -> Args -> PrimRef -> Prim -> Evaluator Prim
 runMethod key args _ (MeowIFunc params fn) =
@@ -174,7 +174,7 @@ runMethod key args parent (MeowFunc params body closure) = do
     runClosure closure' $ do
         insertRef "home" parent
         meowFunc key params args body
-runMethod _ _ _ _ = throwError "not function"
+runMethod key _ _ _ = throwError (badFunc key)
 
 addFunArgs :: [(Key, Expr)] -> Evaluator ()
 {-# INLINABLE addFunArgs #-}
