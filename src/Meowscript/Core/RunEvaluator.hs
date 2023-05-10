@@ -7,6 +7,7 @@ module Meowscript.Core.RunEvaluator
 , runMeow'
 , runExpr'
 , runMeowDebug
+, getImportEnv
 , EvalCallback
 , ExprCallback
 ) where
@@ -57,7 +58,6 @@ runExpr' = runExpr (return Map.empty) evaluate
 
 runMeowDebug :: FilePath -> IO (Either Text.Text Prim)
 runMeowDebug = runMeow (return Map.empty) runDebug
-
 
 {- Run program with imports. -}
 runProgram :: [Statement] -> Evaluator Prim

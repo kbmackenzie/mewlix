@@ -40,7 +40,10 @@ library
       Meowscript.Parser.Keywords
       Meowscript.Parser.RunParser
       Meowscript.Parser.Statements
+      Meowscript.REPL.Commands
       Meowscript.REPL.Loop
+      Meowscript.REPL.ParseArgs
+      Meowscript.REPL.Utils
   other-modules:
       Paths_Meowscript
   hs-source-dirs:

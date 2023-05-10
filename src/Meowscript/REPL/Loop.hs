@@ -11,6 +11,7 @@ import Meowscript.Core.Pretty
 import Meowscript.Core.RunEvaluator 
 import Meowscript.Core.Keys
 import Meowscript.Core.Blocks (evaluate)
+import Meowscript.REPL.Utils
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map
@@ -34,19 +35,16 @@ exprLoop env = TextIO.getLine >>= runExpression env >>= \case
         let newEnv = env <> env'
         return (showT x, newEnv)
 
--- Flush stdout after printing so that it happens before getLine.
-printLine :: Text.Text -> IO ()
-printLine line = TextIO.putStr line >> hFlush stdout
-
 mainLoop :: ObjectMap -> IO ()
 mainLoop env = do
-    printLine "( ^.x.^)> :: " 
+    printStr "( ^.x.^)> :: " 
     (ret, env') <- exprLoop env
     TextIO.putStrLn ret
     mainLoop env'
 
 startRepl :: IO ()
 startRepl = do
+    TextIO.putStrLn "-------------------------------"
     TextIO.putStrLn "Welcome to the Meowscript REPL!"
     TextIO.putStrLn "-------------------------------"
     hFlush stdout
