@@ -7,6 +7,8 @@ module Meowscript.Core.RunEvaluator
 , runMeow'
 , runExpr'
 , runMeowDebug
+, EvalCallback
+, ExprCallback
 ) where
 
 import Meowscript.Core.AST
@@ -25,10 +27,12 @@ import Control.Monad.Except (runExceptT, throwError)
 import Data.IORef
 
 type EvalCallback a = [Statement] -> Evaluator a
+type ExprCallback a = Expr -> Evaluator a
 
 runEvaluator :: IO ObjectMap -> Evaluator a -> IO (Either Text.Text a)
 runEvaluator env eval = env >>= newIORef >>= (runExceptT . runReaderT eval)
 
+-- Evaluate contents from file.
 runMeow :: IO ObjectMap -> EvalCallback a -> FilePath -> IO (Either Text.Text a)
 runMeow lib fn path = meowParse path >>= \case
     (Left exception) -> (return . Left) exception
@@ -36,19 +40,20 @@ runMeow lib fn path = meowParse path >>= \case
         env <- (<>) <$> lib <*> baseLibrary
         (runEvaluator (return env) . fn) program
 
-runExpr :: IO ObjectMap -> FilePath -> IO (Either Text.Text Prim)
-runExpr lib path = exprParse path >>= \case
+-- Evaluate contents from string.
+runExpr :: IO ObjectMap -> ExprCallback a -> Text.Text -> IO (Either Text.Text a)
+runExpr lib fn str = exprString str >>= \case
     (Left exception) -> (return . Left) exception
     (Right expr) -> do 
         env <- (<>) <$> lib <*> baseLibrary
-        (runEvaluator (return env) . evaluate) expr
+        (runEvaluator (return env) . fn) expr
 
 -- Variants that default to no additional libraries:
 runMeow' :: FilePath -> IO (Either Text.Text Prim)
 runMeow' = runMeow (return Map.empty) runProgram
 
-runExpr' :: FilePath -> IO (Either Text.Text Prim)
-runExpr' = runExpr (return Map.empty)
+runExpr' :: Text.Text -> IO (Either Text.Text Prim)
+runExpr' = runExpr (return Map.empty) evaluate
 
 runMeowDebug :: FilePath -> IO (Either Text.Text Prim)
 runMeowDebug = runMeow (return Map.empty) runDebug
