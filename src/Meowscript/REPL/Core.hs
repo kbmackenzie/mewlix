@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Meowscript.REPL.Commands
+module Meowscript.REPL.Core
 ( LineCommand(..)
 , Line(..)
 , REPL

@@ -6,7 +6,7 @@ module Meowscript.REPL.ParseCommands
 ) where
 
 import Meowscript.Parser.Core (Parser)
-import Meowscript.REPL.Commands
+import Meowscript.REPL.Core
 import qualified Data.Text as Text
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar

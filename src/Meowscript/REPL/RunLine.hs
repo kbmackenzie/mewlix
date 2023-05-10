@@ -7,7 +7,7 @@ module Meowscript.Core.RunLine
 
 import Meowscript.Core.AST
 import Meowscript.Core.Base
-import Meowscript.REPL.Commands
+import Meowscript.REPL.Core
 import Meowscript.REPL.ParseCommands
 import Meowscript.Core.Keys
 import Meowscript.Core.Environment

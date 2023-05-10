@@ -40,7 +40,7 @@ library
       Meowscript.Parser.Keywords
       Meowscript.Parser.RunParser
       Meowscript.Parser.Statements
-      Meowscript.REPL.Commands
+      Meowscript.REPL.Core
       Meowscript.REPL.Loop
       Meowscript.REPL.ParseCommands
       Meowscript.REPL.RunLine
