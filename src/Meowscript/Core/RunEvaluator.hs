@@ -3,19 +3,21 @@
 
 module Meowscript.Core.RunEvaluator
 ( runMeow
-, runExpr
+, runLine
+, runCore
 , runMeow'
-, runExpr'
+, runExpr
 , runMeowDebug
 , getImportEnv
 , EvalCallback
-, ExprCallback
 ) where
 
 import Meowscript.Core.AST
 import Meowscript.Core.Base
 import Meowscript.Core.Environment
 import Meowscript.Core.Blocks
+import Meowscript.Parser.Expr (parseExpr')
+import Meowscript.Parser.Core (Parser, lexemeLn)
 import Meowscript.Parser.RunParser
 import Meowscript.Core.Exceptions
 import Meowscript.Core.Pretty
@@ -27,37 +29,41 @@ import Control.Monad.Reader (ask, runReaderT, liftIO)
 import Control.Monad.Except (runExceptT, throwError)
 import Data.IORef
 
-type EvalCallback a = [Statement] -> Evaluator a
-type ExprCallback a = Expr -> Evaluator a
+type EvalCallback a b = a -> Evaluator b
 
 runEvaluator :: IO ObjectMap -> Evaluator a -> IO (Either Text.Text a)
 runEvaluator env eval = env >>= newIORef >>= (runExceptT . runReaderT eval)
 
--- Evaluate contents from file.
-runMeow :: IO ObjectMap -> EvalCallback a -> FilePath -> IO (Either Text.Text a)
+-- Evaluate the contents from a .meows file.
+runMeow :: IO ObjectMap -> EvalCallback [Statement] b -> FilePath -> IO (Either Text.Text b)
 runMeow lib fn path = meowParse path >>= \case
     (Left exception) -> (return . Left) exception
-    (Right program) -> do
-        env <- (<>) <$> lib <*> baseLibrary
-        (runEvaluator (return env) . fn) program
+    (Right program) -> runCore lib fn program
 
--- Evaluate contents from string.
-runExpr :: IO ObjectMap -> ExprCallback a -> Text.Text -> IO (Either Text.Text a)
-runExpr lib fn str = exprString str >>= \case
+-- Evaluate a single line. It's gonna be used in the REPL!
+runLine :: IO ObjectMap -> Parser a -> EvalCallback a b -> Text.Text -> IO (Either Text.Text b)
+runLine lib parser fn str = specialLine parser str >>= \case
     (Left exception) -> (return . Left) exception
-    (Right expr) -> do 
-        env <- (<>) <$> lib <*> baseLibrary
-        (runEvaluator (return env) . fn) expr
+    (Right output) -> runCore lib fn output
+
+runCore :: IO ObjectMap -> EvalCallback a b -> a -> IO (Either Text.Text b)
+runCore lib fn input = do
+    env <- (<>) <$> lib <*> baseLibrary
+    (runEvaluator (return env) . fn) input
+
+--------------------------------------------------------------
 
 -- Variants that default to no additional libraries:
 runMeow' :: FilePath -> IO (Either Text.Text Prim)
 runMeow' = runMeow (return Map.empty) runProgram
 
-runExpr' :: Text.Text -> IO (Either Text.Text Prim)
-runExpr' = runExpr (return Map.empty) evaluate
+runExpr :: Text.Text -> IO (Either Text.Text Prim)
+runExpr = runLine (return Map.empty) (lexemeLn parseExpr') evaluate
 
 runMeowDebug :: FilePath -> IO (Either Text.Text Prim)
 runMeowDebug = runMeow (return Map.empty) runDebug
+
+--------------------------------------------------------------
 
 {- Run program with imports. -}
 runProgram :: [Statement] -> Evaluator Prim
@@ -92,4 +98,5 @@ addImport (StmImport file qualified) = (liftIO . getImportEnv) file >>= \case
         (Just x) -> do
             imp <- (liftIO . readIORef) import' >>= liftIO . newIORef . MeowObject
             insertRef x imp
-addImport x = throwError (showException MeowBadImport "Critical error: Statement is not an import! Trace: " `Text.append` showT x)
+addImport x = throwError (showException MeowBadImport
+    "Critical error: Statement is not an import! Trace: " `Text.append` showT x)

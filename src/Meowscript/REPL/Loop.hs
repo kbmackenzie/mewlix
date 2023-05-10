@@ -21,12 +21,6 @@ import Data.IORef
 import Data.Functor((<&>))
 import System.IO (hFlush, stdout)
 
-exprAndEnv :: ExprCallback (Prim, Environment)
-exprAndEnv x = (,) <$> (evaluate x >>= ensureValue) <*> ask
-
-runExpression :: ObjectMap -> Text.Text -> IO (Either Text.Text (Prim, Environment))
-runExpression env = runExpr (return env) exprAndEnv
-
 exprLoop :: ObjectMap -> IO (Text.Text, ObjectMap)
 exprLoop env = TextIO.getLine >>= runExpression env >>= \case
     (Left x) -> return (x, env)

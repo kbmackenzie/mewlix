@@ -42,7 +42,8 @@ library
       Meowscript.Parser.Statements
       Meowscript.REPL.Commands
       Meowscript.REPL.Loop
-      Meowscript.REPL.ParseArgs
+      Meowscript.REPL.ParseCommands
+      Meowscript.REPL.RunLine
       Meowscript.REPL.Utils
   other-modules:
       Paths_Meowscript
