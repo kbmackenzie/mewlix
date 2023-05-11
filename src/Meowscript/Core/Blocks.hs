@@ -195,7 +195,7 @@ paramGuard :: Key -> Args -> Params -> Evaluator ()
 {-# INLINABLE paramGuard #-}
 paramGuard key args params = do
     when (length params < length args) (throwError =<< manyArgs key args)
-    when (length params > length args) (throwError =<< manyArgs key args)
+    when (length params > length args) (throwError =<< fewArgs  key args)
 
 ------------------------------------------------------------------------
 
