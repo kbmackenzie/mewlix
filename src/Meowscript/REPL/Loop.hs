@@ -6,6 +6,7 @@ module Meowscript.REPL.Loop
 
 import Meowscript.Core.AST
 import Meowscript.REPL.Core
+import Meowscript.Core.Base
 import Meowscript.REPL.Utils
 import Meowscript.REPL.RunLine
 import qualified Data.Text as Text
@@ -23,7 +24,6 @@ repl = runREPL startRepl
 
 mainLoop :: ObjectMap -> REPL ()
 mainLoop env = do
-    (liftIO . print . Map.keys) $ env
     liftIO $ printStr "( ^.x.^)> :: " 
     (ret, env') <- takeLine env =<< liftIO TextIO.getLine
     when ret (mainLoop env')
@@ -34,4 +34,4 @@ startRepl = do
     replPrint "Welcome to the Meowscript REPL!"
     replPrint "-------------------------------"
     liftIO $ hFlush stdout
-    mainLoop Map.empty
+    liftIO baseLibrary >>= mainLoop
