@@ -15,6 +15,7 @@ import qualified Data.Text as Text
 import qualified Data.Map as Map
 import Control.Monad.Except (throwError)
 import Control.Monad (join)
+import Data.Functor ((<&>))
 
 {- Binary Operations -}
 binop :: Binop -> Prim -> Prim -> Evaluator Prim
@@ -101,6 +102,7 @@ meowPush a (MeowKey b) = do
     list <- keyLookup b >>= meowPush' a'
     assignment b list
     return list
+meowPush a (MeowList b) = ensureValue a <&> MeowList . (:b)
 meowPush a b = throwError =<< opException "push" [a, b]
 
 meowPush' :: Prim -> Prim -> Evaluator Prim
@@ -114,6 +116,9 @@ meowKnock (MeowKey a) = do
     list <- keyLookup a >>= meowKnock'
     assignment a list
     return list
+meowKnock (MeowList a) = (return . MeowList) $ case a of
+    [] -> []
+    (_:xs) -> xs
 meowKnock a = throwError =<< opException "knock over" [a]
  
 
