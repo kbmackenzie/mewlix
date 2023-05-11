@@ -3,9 +3,9 @@
 module Meowscript.Parser.RunParser
 ( meowParse
 , exprParse
-, parseLine
-, specialLine
-, exprLine
+, parseText
+, parseSpecial
+, parseExprLine
 ) where
 
 import Meowscript.Core.AST
@@ -32,13 +32,13 @@ meowParse = parseFile root
 exprParse :: FilePath -> IO (Either Text.Text Expr)
 exprParse = parseFile parseExpr'
 
-parseLine :: Parser a -> Text.Text -> IO (Either Text.Text a)
-parseLine parser str = case Mega.parse parser "<str>" str of
-    (Right program) -> (return . Right) program
-    (Left x) -> (return . Left . Text.pack . errorBundlePretty) x
+parseText :: Parser a -> Text.Text -> Either Text.Text a
+parseText parser str = case Mega.parse parser "<str>" str of
+    (Right program) -> Right program
+    (Left x) -> (Left . Text.pack . errorBundlePretty) x
 
-specialLine :: Parser a -> Text.Text -> IO (Either Text.Text a)
-specialLine = parseLine . Mega.between whitespaceLn Mega.eof
+parseSpecial :: Parser a -> Text.Text -> Either Text.Text a
+parseSpecial = parseText . Mega.between whitespaceLn Mega.eof
 
-exprLine :: Text.Text -> IO (Either Text.Text Expr)
-exprLine = specialLine (lexemeLn parseExpr)
+parseExprLine :: Text.Text -> Either Text.Text Expr
+parseExprLine = parseSpecial (lexemeLn parseExpr)

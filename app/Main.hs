@@ -18,4 +18,4 @@ main' = do
     runBasic path 
 
 main :: IO ()
-main = startRepl
+main = repl

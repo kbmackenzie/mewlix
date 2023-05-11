@@ -1,45 +1,37 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE LambdaCase #-}
 
 module Meowscript.REPL.Loop
-( mainLoop
-, startRepl
+( repl
 ) where
 
 import Meowscript.Core.AST
-import Meowscript.Core.Pretty
-import Meowscript.Core.RunEvaluator 
-import Meowscript.Core.Keys
-import Meowscript.Core.Blocks (evaluate)
+import Meowscript.REPL.Core
 import Meowscript.REPL.Utils
+import Meowscript.REPL.RunLine
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map
-import Control.Monad (void, join)
-import Control.Monad.Reader (ask)
-import Data.IORef
-import Data.Functor((<&>))
+import Control.Monad (when)
+import Control.Monad.Reader (ask, liftIO)
 import System.IO (hFlush, stdout)
 
-exprLoop :: ObjectMap -> IO (Text.Text, ObjectMap)
-exprLoop env = TextIO.getLine >>= runExpression env >>= \case
-    (Left x) -> return (x, env)
-    (Right (x, y)) -> do
-        env' <- readIORef y
-        let newEnv = env <> env'
-        return (showT x, newEnv)
+replPrint :: Text.Text -> REPL ()
+replPrint = liftIO . printStrLn
 
-mainLoop :: ObjectMap -> IO ()
+repl :: IO ()
+repl = runREPL startRepl
+
+mainLoop :: ObjectMap -> REPL ()
 mainLoop env = do
-    printStr "( ^.x.^)> :: " 
-    (ret, env') <- exprLoop env
-    TextIO.putStrLn ret
-    mainLoop env'
+    (liftIO . print . Map.keys) $ env
+    liftIO $ printStr "( ^.x.^)> :: " 
+    (ret, env') <- takeLine env =<< liftIO TextIO.getLine
+    when ret (mainLoop env')
 
-startRepl :: IO ()
+startRepl :: REPL ()
 startRepl = do
-    TextIO.putStrLn "-------------------------------"
-    TextIO.putStrLn "Welcome to the Meowscript REPL!"
-    TextIO.putStrLn "-------------------------------"
-    hFlush stdout
+    replPrint "-------------------------------"
+    replPrint "Welcome to the Meowscript REPL!"
+    replPrint "-------------------------------"
+    liftIO $ hFlush stdout
     mainLoop Map.empty

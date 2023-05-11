@@ -42,7 +42,7 @@ runMeow lib fn path = meowParse path >>= \case
 
 -- Evaluate a single line. It's gonna be used in the REPL!
 runLine :: IO ObjectMap -> Parser a -> EvalCallback a b -> Text.Text -> IO (Either Text.Text b)
-runLine lib parser fn str = specialLine parser str >>= \case
+runLine lib parser fn str = case parseSpecial parser str of
     (Left exception) -> (return . Left) exception
     (Right output) -> runCore lib fn output
 

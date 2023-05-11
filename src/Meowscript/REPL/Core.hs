@@ -6,7 +6,7 @@ module Meowscript.REPL.Core
 , Line(..)
 , REPL
 , Command
-, IOCallback
+, Continue
 , CommandMap
 , runREPL
 , commands
@@ -27,6 +27,17 @@ import Data.Functor((<&>))
 import System.IO (hFlush, stdout)
 import Control.Monad.Reader (ReaderT, runReaderT)
 
+{-
+ - -- REPL LOOP --
+ -
+ - 1. Main branches off into two paths:
+ -   A. Line command
+ -   B. Expression
+ - 2. Main is passed as a callback to the function it calls.
+ - 3. The function it called calls back to main.
+ -
+ -}
+
 data LineCommand = LineCommand
     { getName :: Text.Text
     , getArgs :: [Text.Text] }
@@ -34,8 +45,8 @@ data LineCommand = LineCommand
 data Line = Meta LineCommand | Expression Expr
 type REPL a = ReaderT CommandMap IO a
 
-type Command = LineCommand -> ObjectMap -> IOCallback -> IO ()
-type IOCallback = ObjectMap -> IO ()
+type Command = LineCommand -> ObjectMap -> IO (Continue, ObjectMap)
+type Continue = Bool
 type CommandMap = Map.Map Text.Text Command
 
 runREPL :: REPL a -> IO a
@@ -47,17 +58,17 @@ commands = Map.fromList
     , ("load" , addModule ) ]
 
 quit :: Command
-quit _ _ _ = return ()
+quit _ env = return (False, env)
 
 addModule :: Command
-addModule line env fn = case getArgs line of
-    [] -> fn env
+addModule line env = case getArgs line of
+    [] -> return (True, env)
     (x:_) -> getImportEnv (Text.unpack x) >>= \case
-        (Left x') -> printStrLn x'
+        (Left x') -> printStrLn x' >> return (True, env)
         (Right x') -> do
             env' <- readIORef x'
             let newEnv = env <> env'
-            addModule (popArg line) newEnv fn
+            addModule (popArg line) newEnv
 
 popArg :: LineCommand -> LineCommand
 popArg l@(LineCommand _ []) = l
