@@ -17,7 +17,7 @@ import Meowscript.Core.Blocks
 import Meowscript.Core.RunEvaluator
 import Meowscript.Core.Exceptions
 import Meowscript.Utils.IO
-import Meowscript.Parser.Expr (parseExpr)
+import Meowscript.Parser.Expr (parseExpr')
 import Meowscript.Parser.RunParser (parseSpecial)
 import Control.Monad.Reader (ask, asks, liftIO)
 import qualified Data.Text as Text
@@ -29,7 +29,7 @@ import Data.Functor ((<&>))
 replLine :: Parser Line
 replLine = Mega.choice
     [ Meta       <$> parseCommand
-    , Expression <$> parseExpr   ]
+    , Expression <$> parseExpr'   ]
 
 replParse :: Text.Text -> Either Text.Text Line
 replParse = parseSpecial replLine

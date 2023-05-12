@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Meowscript.Utils.IO
@@ -51,10 +52,12 @@ textSplit char str = (a', b')
           b' = if Text.null b then b else Text.tail b
 
 printError :: Text.Text -> IO ()
-printError txt = do
-    let (exception, message) = textSplit ']' txt 
-    colorPrint errorColor exception
-    printStrLn message
+printError txt
+    | "[" `Text.isPrefixOf` txt = do
+        let (exception, message) = textSplit ']' txt 
+        colorPrint errorColor exception
+        printStrLn message
+    | otherwise = printStrLn txt
 
 ----------------------------------------------------------
 

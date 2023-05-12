@@ -1,6 +1,33 @@
 -- std.meows
 
 ------------------------------------------------
+-- Operator functions
+------------------------------------------------
+-- +
+add = ( ^.x.^)> (a, b) => ( a + b )
+-- -
+sub = ( ^.x.^)> (a, b) => (a - b)
+-- *
+mul = ( ^.x.^)> (a, b) => (a * b)
+-- /
+div = ( ^.x.^)> (a, b) => (a / b)
+-- %
+mod = ( ^.x.^)> (a, b) => (a % b)
+-- ..
+join = ( ^.x.^)> (a, b) => (a .. b)
+-- ?
+length = ( ^.x.^)> (a) => (a?)
+
+
+-- special:
+
+-- integer division
+int_div = ( ^.x.^)> (a, b) => (int(a / b))
+
+
+------------------------------------------------
+-- Stack/list functions
+------------------------------------------------
 
 -- Map implementation.
 -- Callback function should take one argument.
@@ -14,7 +41,6 @@
     bring reverse(output) -- Reverse to get back to the original order, because shelf.
 meow meow
 
-------------------------------------------------
 
 -- Foldl implementation.
 -- Callback function should take two arguments!
@@ -28,7 +54,6 @@ meow meow
     bring output
 meow meow
 
-------------------------------------------------
 
 -- Filter implementation.
 -- Callback should take one argument.
@@ -46,7 +71,6 @@ meow meow
 meow meow
 
 
-------------------------------------------------
 
 -- Indexing function implementation.
 -- It's O(n) and highly discouraged, because shelves!
@@ -63,7 +87,7 @@ meow meow
 -- knocking over items from shelves works in Meowscript.
 -- It returns 'lonely' instead.
 
-------------------------------------------------
+
 
 -- 'Take' function implementation.
 -- Takes n items from a shelf and returns a list of items.
@@ -78,7 +102,6 @@ meow meow
 meow meow
 
 
-------------------------------------------------
 
 -- 'Drop' function implementation.
 -- Drops n items from a shself and returns the shelf.
@@ -91,31 +114,7 @@ meow meow
     bring shelf
 meow meow
 
-------------------------------------------------
 
--- Flatten a list of strings into a string.
--- It uses a fold, because yay!
-
-=^.x.^= str_flatten (shelf)
-    bring fold (shelf, ( ^.x.^)> (x, y) => (x..y), "")
-meow meow
-
-------------------------------------------------
-
--- Substring function implemetation.
--- It uses shelves, yay!
-
-=^.x.^= substring (str, start, length)
-    mew temp = drop_n(str, start) -- Start at specified index.
-    temp = take_n(str, length) -- Take length of chars.
-
-    -- This gives us a list of strings. ('Take' returns a list!)
-    -- Now we have to flatten it into a string!
-
-    bring str_flatten(temp) -- Convert from list to string. 
-meow meow
-
-------------------------------------------------
 
 -- 'Take while' function implementation. Like 'take_n', but with
 -- a predicate instead of a number!
@@ -131,12 +130,12 @@ meow meow
     bring reverse(output) -- Reversing because stack.
 meow meow
 
-------------------------------------------------
 
 -- 'Drop while' function implementation. Like 'drop_n', but with
 -- a predicate instead of a number!
 -- Drops n items while the top of the shelf satisfies the predicate.
 -- It returns the shelf.
+
 
 =^.x.^= drop_while (shelf, fn)
     meowmeow (fn(peek shelf))
@@ -145,7 +144,35 @@ meow meow
     bring shelf
 meow meow
 
+
+
 ------------------------------------------------
+-- String functions
+------------------------------------------------
+
+-- Flatten a list of strings into a string.
+-- It uses a fold, because yay!
+
+=^.x.^= concat_str (shelf)
+    bring fold (shelf, join, "")
+meow meow
+
+
+
+-- Substring function implemetation.
+-- It uses shelves, yay!
+
+=^.x.^= substring (str, start, length)
+    mew temp = drop_n(str, start) -- Start at specified index.
+    temp = take_n(str, length) -- Take length of chars.
+
+    -- This gives us a list of strings. ('Take' returns a list!)
+    -- Now we have to flatten it into a string!
+
+    bring concat_str(temp) -- Convert from list to string. 
+meow meow
+
+
 
 -- 'Trim' function implemntation!
 -- Trims whitespace from both ends of a string.
@@ -157,7 +184,33 @@ meow meow
     bring reverse(str) -- Reversing again.
 meow meow
 
+
+
+
 ------------------------------------------------
+-- Partial function application
+------------------------------------------------
+
+-- Takes an (a -> b -> c) function and makes it a (b -> c).
+-- Returns a new function!
+
+=^.x.^= partial (fn, a)
+    bring ( ^.x.^)> (b) => (fn(a, b))
+meow meow
+
+
+-- Takes an (a -> b -> c -> d) function and makes it (b -> c -> d).
+
+=^.x.^= partial2 (fn, a)
+    bring ( ^.x.^)> (b, c) => (fn(a, b, c))
+meow meow
+
+
+-- Takes an (a -> b -> c -> d -> e) function and amkes it (b -> c -> d -> e).
+
+=^.x.^= partial3 (fn, a)
+    bring ( ^.x.^)> (b, c, d) => (fn(a, b, c, d))
+meow meow
 
 
 
@@ -193,4 +246,4 @@ meow meow
 -- Trim str (success!)
 -- bring trim("    meow    ")
 
--- throw("You got a little too silly with it!")
+throw("><")

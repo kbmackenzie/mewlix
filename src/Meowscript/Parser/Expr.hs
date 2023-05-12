@@ -15,9 +15,9 @@ import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 import Control.Monad (void)
 
 exprTerm :: Parser Expr
-exprTerm = ((lexeme . parens) parseExpr <?> "parens"    )
-    <|> (lexeme parseBox                <?> "box"       )
-    <|> (lexeme parseList               <?> "list"      )
+exprTerm = ((lexeme . parens) parseExpr'  <?> "parens"    )
+    <|> (lexeme parseBox                  <?> "box"       )
+    <|> (lexeme parseList                 <?> "list"      )
     <|> (ExpPrim <$> lexeme parsePrim                     ) 
 
 parseExpr :: Parser Expr
