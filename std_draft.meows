@@ -166,10 +166,10 @@ meow meow
     mew temp = drop_n(str, start) -- Start at specified index.
     temp = take_n(str, length) -- Take length of chars.
 
-    -- This gives us a list of strings. ('Take' returns a list!)
-    -- Now we have to flatten it into a string!
+    -- This gives us a list of single-char strings. ('take_n' returns a list!)
+    -- Now we have to flatten it into a single string!
 
-    bring concat_str(temp) -- Convert from list to string. 
+    bring concat_str(temp) -- Convert from a list to a single string. 
 meow meow
 
 
@@ -246,4 +246,4 @@ meow meow
 -- Trim str (success!)
 -- bring trim("    meow    ")
 
-throw("><")
+-- throw("><")
