@@ -82,6 +82,13 @@ isImport _ = False
 
 ------------------------------------------------------------------------
 
+funcTrace :: Key -> Args -> Evaluator a -> Evaluator a
+funcTrace key args = stackTrace $ do
+    args' <- mapM prettyMeow args <&> Text.intercalate ", "
+    return $ Text.concat [ "In function '", key, "'. Arguments: [", args', "]" ]
+
+------------------------------------------------------------------------
+
 {-- Blocks --}
 
 -- Run block in proper order: Function definitions, then other statements.
@@ -169,7 +176,7 @@ iFunc key params args fn = do
     
 runFunc :: Key -> Args -> Prim -> Evaluator Prim
 runFunc key args (MeowIFunc params fn) = runLocal $ iFunc key params args fn
-runFunc key args (MeowFunc params body closure) = do 
+runFunc key args (MeowFunc params body closure) = funcTrace key args $ do 
     closure' <- (liftIO . readIORef) closure
     runClosure closure' $ meowFunc key params args body
 runFunc key _ _ = throwError (badFunc key)
@@ -177,7 +184,7 @@ runFunc key _ _ = throwError (badFunc key)
 runMethod :: Key -> Args -> PrimRef -> Prim -> Evaluator Prim
 runMethod key args _ (MeowIFunc params fn) =
     runLocal $ iFunc key params args fn
-runMethod key args parent (MeowFunc params body closure) = do 
+runMethod key args parent (MeowFunc params body closure) = funcTrace key args $ do 
     closure' <- (liftIO . readIORef) closure
     runClosure closure' $ do
         insertRef "home" parent

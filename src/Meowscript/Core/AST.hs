@@ -81,7 +81,7 @@ instance Show Prim where
 instance Show KeyType where
     show (KeyModify x) = Text.unpack x
     show (KeyNew x) = Text.unpack x
-    show (KeyTrail xs) = (Text.unpack . Text.intercalate ", ") xs
+    show (KeyTrail xs) = (Text.unpack . Text.intercalate ".") xs
 
 data Expr =
       ExpPrim Prim

@@ -4,6 +4,7 @@ module Meowscript.Core.Exceptions
 ( MeowException(..)
 , showException
 , showException'
+, stackTrace
 , opException
 , divByZero
 , catOnComputer
@@ -27,6 +28,8 @@ module Meowscript.Core.Exceptions
 import Meowscript.Core.AST
 import Meowscript.Core.Pretty
 import qualified Data.Text as Text
+import Control.Monad.Except (throwError, catchError)
+import Data.Functor ((<&>))
 
 data MeowException =
       MeowBadVar
@@ -66,14 +69,20 @@ exc = (++ "Exception")
 
 showException :: MeowException -> Text.Text -> Text.Text
 showException meowe message = Text.concat
-    ["[", (Text.pack . show) meowe, "]", ": ", message]
+    ["[", (Text.pack . show) meowe, "]", ": ", message, "\n  - Stack trace:" ]
 
 showException' :: MeowException -> Text.Text -> [Prim] -> Evaluator Text.Text
 showException' meowEx text xs = do
-    prims <- mapM showMeow xs
+    prims <- mapM prettyMeow xs
     let terms = Text.intercalate ", " prims
     let message = [text, " | Terms: [", terms, "]"]
     (return . showException meowEx . Text.concat) message
+
+
+stackTrace :: Evaluator Text.Text -> Evaluator a -> Evaluator a
+stackTrace txt action = action `catchError` \x -> do
+    message <- txt <&> ("\n    " `Text.append`)
+    throwError (x `Text.append` message)
     
 opException :: Text.Text -> [Prim] -> Evaluator Text.Text
 opException = showException' MeowInvalidOp . \x -> Text.concat
@@ -97,7 +106,7 @@ badBox :: Text.Text -> Text.Text
 badBox = showException MeowBadBox . \x -> Text.concat ["Value in key '", x, "' is not a box!"]
 
 notBox :: Prim -> Evaluator Text.Text
-notBox prim = showMeow prim >>= \x -> return $ showException MeowBadBox
+notBox prim = prettyMeow prim >>= \x -> return $ showException MeowBadBox
     $ Text.concat [ "Value '", x, "' is not a box!" ]
 
 emptyTrail :: Text.Text
@@ -115,7 +124,7 @@ badFunc :: Text.Text -> Text.Text
 badFunc = showException MeowBadFunc . \x -> Text.concat ["Key '", x, "' is not a function!"]
 
 notFunc :: Prim -> Evaluator Text.Text
-notFunc prim = showMeow prim >>= \x -> return $ showException MeowBadFunc
+notFunc prim = prettyMeow prim >>= \x -> return $ showException MeowBadFunc
     $ Text.concat ["Attempted to call '", x, "' as a function," , " but '", x, "' is not a function!" ]
 
 badTrail :: Text.Text -> Text.Text
@@ -132,7 +141,7 @@ badArgs = showException' MeowBadArgs . \x -> Text.concat
 
 badValue :: Text.Text -> Text.Text -> [Prim] -> Evaluator Text.Text
 badValue fn = showException' MeowBadValue . Text.append
-    (Text.concat [ "In function: '", fn, "': " ])
+    (Text.concat [ "In function '", fn, "': " ])
 
 nestedImport :: FilePath -> Text.Text
 nestedImport = showException MeowBadImport . \x -> Text.concat

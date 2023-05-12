@@ -15,6 +15,7 @@ import Meowscript.Core.Keys
 import Meowscript.Core.Pretty
 import Meowscript.Core.Blocks
 import Meowscript.Core.RunEvaluator
+import Meowscript.Core.Exceptions
 import Meowscript.Utils.IO
 import Meowscript.Parser.Expr (parseExpr)
 import Meowscript.Parser.RunParser (parseSpecial)
@@ -42,7 +43,10 @@ textAndEnv :: EvalCallback Expr (Text.Text, Environment)
 textAndEnv x = (,) <$> (evaluate x >>= ensureValue >>= showMeow) <*> ask
 
 evaluateExpr :: ObjectMap -> Expr -> IO (Either Text.Text (Text.Text, Environment))
-evaluateExpr env = runCore (return env) textAndEnv
+evaluateExpr env = runCore (return env) (replTrace . textAndEnv)
+
+replTrace :: Evaluator a -> Evaluator a
+replTrace = stackTrace (return "In <repl>.")
 
 ---------------------------------------------------------------
 
@@ -55,7 +59,7 @@ takeLine env line = case replParse line of
 
 runExpression :: ObjectMap -> Expr -> REPL ObjectMap
 runExpression env expr = liftIO $ evaluateExpr env expr >>= \case
-    (Left exception) -> printStrLn exception >> return env
+    (Left exception) -> printError exception >> return env
     (Right (output, env')) -> printStrLn output >> readIORef env'
 
 notCommand :: Text.Text -> Text.Text

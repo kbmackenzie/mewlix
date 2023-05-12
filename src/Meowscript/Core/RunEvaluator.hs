@@ -38,7 +38,7 @@ runEvaluator env eval = env >>= newIORef >>= (runExceptT . runReaderT eval)
 runFile :: IO ObjectMap -> EvalCallback [Statement] b -> FilePath -> IO (Either Text.Text b)
 runFile lib fn path = meowParse path >>= \case
     (Left exception) -> (return . Left) exception
-    (Right program) -> runCore lib fn program
+    (Right program) -> runCore lib (asMain . fn) program
 
 -- Evaluate a single line. It's gonna be used in the REPL!
 runLine :: IO ObjectMap -> Parser a -> EvalCallback a b -> Text.Text -> IO (Either Text.Text b)
@@ -65,6 +65,13 @@ runMeowDebug = runFile (return Map.empty) runDebug
 
 --------------------------------------------------------------
 
+{- Stack trace. -}
+asMain :: Evaluator a -> Evaluator a
+asMain = stackTrace (return "In <main>.")
+
+asImport :: FilePath -> Evaluator a -> Evaluator a
+asImport path = stackTrace (return $ Text.concat [ "In import: ", showT path ])
+
 {- Run program with imports. -}
 runProgram :: [Statement] -> Evaluator Prim
 runProgram xs = do
@@ -73,20 +80,20 @@ runProgram xs = do
     returnAsPrim <$> runBlock rest False
 
 runProgram' :: [Statement] -> Evaluator Text.Text
-runProgram' xs = runProgram xs >>= showMeow
+runProgram' xs = runProgram xs >>= prettyMeow
 
-runAsImport :: [Statement] -> Evaluator Environment
-runAsImport xs = runProgram xs >> ask -- Return the environment.
+runImport :: FilePath -> [Statement] -> Evaluator Environment
+runImport path xs = asImport path $ runProgram xs >> ask -- Return the environment.
 
 runDebug :: [Statement] -> Evaluator Text.Text
 runDebug xs = do
-    ret <- runProgram xs >>= showMeow
+    ret <- runProgram xs >>= prettyMeow
     x <- (ask >>= liftIO . readIORef) >>= showMeow . MeowObject
     (liftIO . TextIO.putStrLn) x
     return ret
 
 getImportEnv :: FilePath -> IO (Either Text.Text Environment)
-getImportEnv path = runFile (return Map.empty) runAsImport path >>= \case
+getImportEnv path = runFile (return Map.empty) (runImport path) path >>= \case
     (Left exception) -> (return . Left) exception
     (Right output) -> (return . Right) output
 

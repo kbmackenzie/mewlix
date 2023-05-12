@@ -18,4 +18,4 @@ main' = do
     runBasic path 
 
 main :: IO ()
-main = meow "std_draft.meows" --repl
+main = repl -- meow "std_draft.meows" --repl
