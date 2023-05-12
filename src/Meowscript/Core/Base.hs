@@ -35,6 +35,16 @@ baseLibrary = createObject
     , ("values"  , MeowIFunc  ["x"] getValues )
     , ("type_of" , MeowIFunc  ["x"] typeOf    )
     , ("throw"   , MeowIFunc  ["x"] throwEx   )
+    , ("pi"      , MeowIFunc  ["x"] meowPi    )
+    , ("exp"     , MeowIFunc  ["x"] meowExp   )
+    , ("sqrt"    , MeowIFunc  ["x"] meowSqrt  )
+    , ("log"     , MeowIFunc  ["x"] meowLog   )
+    , ("sin"     , MeowIFunc  ["x"] meowSin   )
+    , ("cos"     , MeowIFunc  ["x"] meowCos   )
+    , ("tan"     , MeowIFunc  ["x"] meowTan   )
+    , ("asin"    , MeowIFunc  ["x"] meowAsin  )
+    , ("acos"    , MeowIFunc  ["x"] meowAcos  )
+    , ("atan"    , MeowIFunc  ["x"] meowAtan  )
     -- File IO --
     , ("read_file"   , MeowIFunc ["path"]             meowRead   )
     , ("write_file"  , MeowIFunc ["path", "contents"] meowWrite  )
@@ -96,6 +106,47 @@ readDouble txt = case Read.signed Read.double txt of
 toBool :: Evaluator Prim
 toBool = lookUp "x" <&> (MeowBool . meowBool)
 
+
+{- Math -}
+----------------------------------------------------------
+
+meowPi :: Evaluator Prim
+meowPi = (return . MeowDouble) pi
+
+mathFn :: (Double -> Double) -> Text.Text -> Evaluator Prim
+mathFn fn name = lookUp "x" >>= \case
+    (MeowDouble x) -> (return . MeowDouble . fn) x
+    (MeowInt x) -> (return . MeowDouble . fn . fromIntegral) x
+    x -> throwError =<< badArgs name [x]
+
+meowExp :: Evaluator Prim
+meowExp = mathFn exp "exp"
+
+meowSqrt :: Evaluator Prim
+meowSqrt = mathFn sqrt "sqrt"
+
+meowLog :: Evaluator Prim
+meowLog = mathFn log "log"
+
+meowSin :: Evaluator Prim
+meowSin = mathFn sin "sin"
+
+meowCos :: Evaluator Prim
+meowCos = mathFn cos "cos"
+
+meowTan :: Evaluator Prim
+meowTan = mathFn tan "tan"
+
+meowAsin :: Evaluator Prim
+meowAsin = mathFn asin "asin"
+
+meowAcos :: Evaluator Prim
+meowAcos = mathFn acos "acos"
+
+meowAtan :: Evaluator Prim
+meowAtan = mathFn atan "atan"
+
+
 {- Boxes -}
 ----------------------------------------------------------
 
@@ -108,6 +159,7 @@ getValues :: Evaluator Prim
 getValues = lookUp "x" >>= \case
     (MeowObject x) -> MeowList <$> mapM (evalRef >=> ensureValue) (Map.elems x)
     x -> throwError =<< badArgs "values" [x]
+
 
 {- Reflection -}
 ----------------------------------------------------------
