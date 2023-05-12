@@ -16,6 +16,8 @@ module Meowscript.Parser.Keywords
 , meowBox
 , meowLambda
 , meowNot
+, meowAnd
+, meowOr
 , meowPeek
 , meowPush
 , meowKnock
@@ -62,13 +64,19 @@ meowClaw :: Text
 meowClaw = "claw at"
 
 meowBox :: Text
-meowBox = "~(  ^.x.^) BOX!!"
+meowBox = "~( ^.x.^) BOX!!"
 
 meowLambda :: Text
 meowLambda = "( ^.x.^)>"
 
 meowNot :: Text
-meowNot = "poke"
+meowNot = "not"
+
+meowAnd :: Text
+meowAnd = "and"
+
+meowOr :: Text
+meowOr = "or"
 
 meowPush :: Text
 meowPush = "push"

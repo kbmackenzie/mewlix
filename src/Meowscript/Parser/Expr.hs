@@ -52,8 +52,8 @@ operators =
         , InfixL  (ExpBinop (MeowCompare [GT])        <$ symbol ">"            ) ]
       , [ InfixL  (ExpBinop (MeowCompare [EQ])        <$ trySymbol "=="        )
         , InfixL  (ExpBinop (MeowCompare [LT, GT])    <$ trySymbol "!="        ) ]
-      , [ InfixL  (ExpBinop MeowAnd                   <$ tryKeyword "and"      ) ]
-      , [ InfixL  (ExpBinop MeowOr                    <$ tryKeyword "or"       ) ]
+      , [ InfixL  (ExpBinop MeowAnd                   <$ tryKeyword meowAnd    ) ]
+      , [ InfixL  (ExpBinop MeowOr                    <$ tryKeyword meowOr     ) ]
       , [ Prefix  parseLambda                                                  ]
       , [ InfixR  (ExpBinop MeowAssign                <$ symbol "="            ) ]
     ]

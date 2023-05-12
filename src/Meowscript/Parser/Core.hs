@@ -151,8 +151,8 @@ parseFloat = Mega.try $ do
 
 parseBool :: Parser Prim
 parseBool = MeowBool <$> Mega.choice
-    [ True <$ keyword "yummy"
-    , False <$ keyword "icky" ]
+    [ True  <$ keyword "happy"
+    , False <$ keyword "sad" ]
 
 parseLonely :: Parser Prim
 parseLonely = MeowLonely <$ keyword "lonely"
