@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Meowscript
+      Meowscript.API.Console
       Meowscript.Core.AST
       Meowscript.Core.Base
       Meowscript.Core.Blocks
@@ -44,14 +45,16 @@ library
       Meowscript.REPL.Loop
       Meowscript.REPL.ParseCommands
       Meowscript.REPL.RunLine
-      Meowscript.REPL.Utils
+      Meowscript.Utils.IO
+      Meowscript.Utils.Show
   other-modules:
       Paths_Meowscript
   hs-source-dirs:
       src
   ghc-options: -O3 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
-      base >=4.7 && <5
+      ansi-terminal
+    , base >=4.7 && <5
     , bytestring
     , containers
     , filepath
@@ -71,6 +74,7 @@ executable Meowscript-exe
   ghc-options: -O3 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-M128m
   build-depends:
       Meowscript
+    , ansi-terminal
     , base >=4.7 && <5
     , bytestring
     , containers
@@ -92,6 +96,7 @@ test-suite Meowscript-test
   ghc-options: -O3 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-M128m
   build-depends:
       Meowscript
+    , ansi-terminal
     , base >=4.7 && <5
     , bytestring
     , containers

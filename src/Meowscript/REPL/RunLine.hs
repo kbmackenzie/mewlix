@@ -15,7 +15,7 @@ import Meowscript.Core.Keys
 import Meowscript.Core.Pretty
 import Meowscript.Core.Blocks
 import Meowscript.Core.RunEvaluator
-import Meowscript.REPL.Utils
+import Meowscript.Utils.IO
 import Meowscript.Parser.Expr (parseExpr)
 import Meowscript.Parser.RunParser (parseSpecial)
 import Control.Monad.Reader (ask, asks, liftIO)

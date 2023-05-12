@@ -81,4 +81,53 @@ packages:
       sha256: 3e62393d5c7671b21d8aa84ef9ee0550334053711c80b5beeca295466a6615c7
   original:
     hackage: clock-0.8.3@sha256:a692159828c2cd278eaec317b3a7e9fb6d7b787c8a19f086004d15d9fa1fd72c,4601
+- completed:
+    hackage: ansi-terminal-0.11.4@sha256:410737137c798e23339a08435a5511785ebf1db08700e37debbd7801cf73fc82,3584
+    pantry-tree:
+      size: 1462
+      sha256: 49bc6ef92292ee8b663a40cf5170af1efaaa4ed84155b65ad41eabf1faf9b18f
+  original:
+    hackage: ansi-terminal-0.11.4@sha256:410737137c798e23339a08435a5511785ebf1db08700e37debbd7801cf73fc82,3584
+- completed:
+    hackage: Win32-2.13.4.0@sha256:9b8a82743985f8a95c03b2bc64be33ad1cd603e2493cb8b48d3cb923556dbb61,5585
+    pantry-tree:
+      size: 8011
+      sha256: aec6e0f00f4cc90416e3a6cb4bf972ebdf8927784900579acf72bfe4febb7744
+  original:
+    hackage: Win32-2.13.4.0@sha256:9b8a82743985f8a95c03b2bc64be33ad1cd603e2493cb8b48d3cb923556dbb61,5585
+- completed:
+    hackage: colour-2.3.6@sha256:ebdcbf15023958838a527e381ab3c3b1e99ed12d1b25efeb7feaa4ad8c37664a,2378
+    pantry-tree:
+      size: 1183
+      sha256: 03f8e22f364deb86098dbfbe0bf83c896437b2355f139abdac0402658fb6ac7e
+  original:
+    hackage: colour-2.3.6@sha256:ebdcbf15023958838a527e381ab3c3b1e99ed12d1b25efeb7feaa4ad8c37664a,2378
+- completed:
+    hackage: filepath-1.4.100.3@sha256:ab6e3330c42817b0effb14cae9c60d5cdc41d61f7354d04bc529ed031113f27c,5623
+    pantry-tree:
+      size: 3407
+      sha256: f1b2b6c62b0de17f7a63a1ee7e9a9810fc6a76ecd1d5db7e7b1c44802d83ea10
+  original:
+    hackage: filepath-1.4.100.3@sha256:ab6e3330c42817b0effb14cae9c60d5cdc41d61f7354d04bc529ed031113f27c,5623
+- completed:
+    hackage: bytestring-0.11.4.0@sha256:55390b63bbd7846aab6b16b7b255cf5108a3a422798a1e9a3b674eb0c68ac20c,7491
+    pantry-tree:
+      size: 4019
+      sha256: 316f6236418a55418c760077f59e5e6e46d969e7601c833e0d87cd6dfb90e42d
+  original:
+    hackage: bytestring-0.11.4.0@sha256:55390b63bbd7846aab6b16b7b255cf5108a3a422798a1e9a3b674eb0c68ac20c,7491
+- completed:
+    hackage: binary-0.8.9.1@sha256:81f468c1c75fd6535152ab69b2d32ac6cfcc03e345267b069abe4da56ec95801,6523
+    pantry-tree:
+      size: 1976
+      sha256: 956ecd662408f69615977b87a92e042abcdc447b7824b8aabf5788c4393c10c5
+  original:
+    hackage: binary-0.8.9.1@sha256:81f468c1c75fd6535152ab69b2d32ac6cfcc03e345267b069abe4da56ec95801,6523
+- completed:
+    hackage: text-2.0.2@sha256:d495b2a2a53da7e66163477a5837d2109074f8818fc938739b9ecf27d506050a,9565
+    pantry-tree:
+      size: 7514
+      sha256: 278df79382157ad1bd9fe18ce3836cf0278348f140a656280396b71991353d9e
+  original:
+    hackage: text-2.0.2@sha256:d495b2a2a53da7e66163477a5837d2109074f8818fc938739b9ecf27d506050a,9565
 snapshots: []

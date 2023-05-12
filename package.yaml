@@ -29,6 +29,7 @@ dependencies:
 - stopwatch
 - bytestring
 - filepath
+- ansi-terminal
 
 ghc-options:
 - -O3

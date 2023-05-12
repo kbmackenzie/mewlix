@@ -193,4 +193,4 @@ meow meow
 -- Trim str (success!)
 -- bring trim("    meow    ")
 
--- throw("You got a little too silly with it")
+throw("You got a little too silly with it!")

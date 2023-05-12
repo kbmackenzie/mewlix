@@ -17,7 +17,7 @@ import Meowscript.Core.Pretty
 import Meowscript.Core.RunEvaluator 
 import Meowscript.Core.Keys
 import Meowscript.Core.Blocks (evaluate)
-import Meowscript.REPL.Utils
+import Meowscript.Utils.IO
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map

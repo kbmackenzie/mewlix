@@ -7,7 +7,7 @@ module Meowscript.REPL.Loop
 import Meowscript.Core.AST
 import Meowscript.REPL.Core
 import Meowscript.Core.Base
-import Meowscript.REPL.Utils
+import Meowscript.Utils.IO
 import Meowscript.REPL.RunLine
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO

@@ -13,11 +13,7 @@ import qualified Data.Map as Map
 import Control.Monad.Reader (liftIO)
 import Data.Functor ((<&>))
 import Data.IORef (readIORef)
-
-showT :: (Show a) => a -> Text.Text
-{-# INLINABLE showT #-}
-{-# SPECIALISE showT :: Prim -> Text.Text #-}
-showT = Text.pack . show 
+import Meowscript.Utils.Show (showT)
 
 -- Defining it here to avoid cyclical dependencies. c':
 -- This way, 'Environment.hs' can reference this file.

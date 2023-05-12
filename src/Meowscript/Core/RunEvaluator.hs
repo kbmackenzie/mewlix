@@ -3,9 +3,9 @@
 
 module Meowscript.Core.RunEvaluator
 ( runMeow
+, runFile
 , runLine
 , runCore
-, runMeow'
 , runExpr
 , runMeowDebug
 , getImportEnv
@@ -35,8 +35,8 @@ runEvaluator :: IO ObjectMap -> Evaluator a -> IO (Either Text.Text a)
 runEvaluator env eval = env >>= newIORef >>= (runExceptT . runReaderT eval)
 
 -- Evaluate the contents from a .meows file.
-runMeow :: IO ObjectMap -> EvalCallback [Statement] b -> FilePath -> IO (Either Text.Text b)
-runMeow lib fn path = meowParse path >>= \case
+runFile :: IO ObjectMap -> EvalCallback [Statement] b -> FilePath -> IO (Either Text.Text b)
+runFile lib fn path = meowParse path >>= \case
     (Left exception) -> (return . Left) exception
     (Right program) -> runCore lib fn program
 
@@ -54,14 +54,14 @@ runCore lib fn input = do
 --------------------------------------------------------------
 
 -- Variants that default to no additional libraries:
-runMeow' :: FilePath -> IO (Either Text.Text Prim)
-runMeow' = runMeow (return Map.empty) runProgram
+runMeow :: FilePath -> IO (Either Text.Text Text.Text)
+runMeow = runFile (return Map.empty) runProgram'
 
 runExpr :: Text.Text -> IO (Either Text.Text Prim)
 runExpr = runLine (return Map.empty) (lexemeLn parseExpr') evaluate
 
-runMeowDebug :: FilePath -> IO (Either Text.Text Prim)
-runMeowDebug = runMeow (return Map.empty) runDebug
+runMeowDebug :: FilePath -> IO (Either Text.Text Text.Text)
+runMeowDebug = runFile (return Map.empty) runDebug
 
 --------------------------------------------------------------
 
@@ -72,18 +72,21 @@ runProgram xs = do
     mapM_ addImport imps
     returnAsPrim <$> runBlock rest False
 
+runProgram' :: [Statement] -> Evaluator Text.Text
+runProgram' xs = runProgram xs >>= showMeow
+
 runAsImport :: [Statement] -> Evaluator Environment
 runAsImport xs = runProgram xs >> ask -- Return the environment.
 
-runDebug :: [Statement] -> Evaluator Prim
+runDebug :: [Statement] -> Evaluator Text.Text
 runDebug xs = do
-    ret <- runProgram xs
+    ret <- runProgram xs >>= showMeow
     x <- (ask >>= liftIO . readIORef) >>= showMeow . MeowObject
     (liftIO . TextIO.putStrLn) x
     return ret
 
 getImportEnv :: FilePath -> IO (Either Text.Text Environment)
-getImportEnv path = runMeow (return Map.empty) runAsImport path >>= \case
+getImportEnv path = runFile (return Map.empty) runAsImport path >>= \case
     (Left exception) -> (return . Left) exception
     (Right output) -> (return . Right) output
 

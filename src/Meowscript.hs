@@ -4,10 +4,12 @@
  - and core functions. -}
 
 module Meowscript
-( runBasic
+( meow
+, runBasic
 ) where
 
 import Meowscript.Core.AST
+import Meowscript.API.Console
 import Meowscript.Core.RunEvaluator
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO

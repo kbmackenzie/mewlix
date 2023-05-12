@@ -2,7 +2,7 @@
 --{-# LANGUAGE BangPatterns #-}
 module Main (main) where
 
-import Meowscript (runBasic)
+import Meowscript
 import Meowscript.REPL.Loop
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map
@@ -18,4 +18,4 @@ main' = do
     runBasic path 
 
 main :: IO ()
-main = repl
+main = meow "std_draft.meows" --repl
