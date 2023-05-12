@@ -8,6 +8,7 @@ module Meowscript.Core.Base
 import Meowscript.Core.AST
 import Meowscript.Core.Exceptions
 import Meowscript.Core.Environment
+import Meowscript.Core.Keys
 import Meowscript.Core.Pretty
 import qualified Data.Map as Map
 import qualified Data.Text as Text
@@ -17,6 +18,7 @@ import qualified Data.Text.Read as Read
 import Control.Monad.Except(throwError)
 import Control.Monad.State(liftIO)
 import Data.Functor((<&>))
+import Control.Monad((>=>))
 
 baseLibrary :: IO ObjectMap
 baseLibrary = createObject
@@ -28,6 +30,8 @@ baseLibrary = createObject
     , ("float"   , MeowIFunc  ["x"] toDouble  )
     , ("string"  , MeowIFunc  ["x"] toString  )
     , ("taste"   , MeowIFunc  ["x"] toBool    )
+    , ("keys"    , MeowIFunc  ["x"] getKeys   )
+    , ("values"  , MeowIFunc  ["x"] getValues )
     , ("type_of" , MeowIFunc  ["x"] typeOf    )
     , ("throw"   , MeowIFunc  ["x"] throwEx   )]
 
@@ -87,6 +91,18 @@ readDouble txt = case Read.signed Read.double txt of
 toBool :: Evaluator Prim
 toBool = lookUp "x" <&> (MeowBool . meowBool)
 
+{- Boxes -}
+----------------------------------------------------------
+
+getKeys :: Evaluator Prim
+getKeys = lookUp "x" >>= \case
+    (MeowObject x) -> (return . MeowList) (MeowString <$> Map.keys x)
+    x -> throwError =<< badArgs "keys" [x]
+
+getValues :: Evaluator Prim
+getValues = lookUp "x" >>= \case
+    (MeowObject x) -> MeowList <$> mapM (evalRef >=> ensureValue) (Map.elems x)
+    x -> throwError =<< badArgs "values" [x]
 
 {- Reflection -}
 ----------------------------------------------------------
@@ -103,7 +119,6 @@ typeOf = lookUp "x" >>= \x -> return . MeowString $ case x of
     (MeowIFunc {})  -> "inner-function"
     MeowLonely      -> "lonely"
     (MeowKey _)     -> "key" -- This shouldn't be evaluated, but alas.
-
 
 
 {- Exceptions -}
