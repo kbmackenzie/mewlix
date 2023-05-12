@@ -10,6 +10,7 @@ import Meowscript.Core.Exceptions
 import Meowscript.Core.Environment
 import Meowscript.Core.Keys
 import Meowscript.Core.Pretty
+import Meowscript.Utils.IO
 import qualified Data.Map as Map
 import qualified Data.Text as Text
 import qualified Data.List as List
@@ -33,12 +34,16 @@ baseLibrary = createObject
     , ("keys"    , MeowIFunc  ["x"] getKeys   )
     , ("values"  , MeowIFunc  ["x"] getValues )
     , ("type_of" , MeowIFunc  ["x"] typeOf    )
-    , ("throw"   , MeowIFunc  ["x"] throwEx   )]
+    , ("throw"   , MeowIFunc  ["x"] throwEx   )
+    -- File IO --
+    , ("read_file"   , MeowIFunc ["path"]             meowRead   )
+    , ("write_file"  , MeowIFunc ["path", "contents"] meowWrite  )
+    , ("append_file" , MeowIFunc ["path", "contents"] meowAppend )]
 
 {- IO -} 
 ----------------------------------------------------------
 meow :: Evaluator Prim
-meow = lookUp "x" >>= showMeow >>= (liftIO . TextIO.putStrLn) >> return MeowLonely
+meow = lookUp "x" >>= showMeow >>= (liftIO . printStrLn) >> return MeowLonely
 
 listen :: Evaluator Prim
 listen = liftIO TextIO.getLine <&> MeowString
@@ -130,3 +135,30 @@ throwEx :: Evaluator Prim
 throwEx = lookUp "x" >>= \case
     (MeowString x) -> throwError (catOnComputer x)
     x -> throwError =<< badArgs "throw" [x]
+
+
+{- File IO -}
+----------------------------------------------------------
+
+meowRead :: Evaluator Prim
+meowRead = lookUp "path" >>= \case
+    (MeowString path) -> (liftIO . safeReadFile . Text.unpack) path >>= \case
+        (Left exception) -> throwError (badFile path "read_file" exception)
+        (Right contents) -> (return . MeowString) contents
+    x -> throwError =<< badArgs "read_file" [x]
+
+meowWrite :: Evaluator Prim
+meowWrite = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
+    (MeowString path, MeowString contents) ->
+        liftIO (safeWriteFile (Text.unpack path) contents) >>= \case
+            (Left exception) -> throwError (badFile path  "write_file" exception)
+            (Right _) -> (return . MeowString) contents
+    (x, y) -> throwError =<< badArgs "write_file" [x, y]
+
+meowAppend :: Evaluator Prim
+meowAppend = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
+    (MeowString path, MeowString contents) ->
+        liftIO (safeAppendFile (Text.unpack path) contents) >>= \case
+            (Left exception) -> throwError (badFile path  "append_file" exception)
+            (Right _) -> (return . MeowString) contents
+    (x, y) -> throwError =<< badArgs "append_file" [x, y]
