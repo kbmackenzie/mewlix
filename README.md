@@ -53,8 +53,8 @@ Floatint-point numbers:
 And other primitives:
 | Value | Meaning |
 |-------|---------|
-| yummy | true    |
-| icky  | false   |
+| happy | true    |
+| sad   | false   |
 | lonely| null/nil|
 
 Comments:
@@ -136,7 +136,7 @@ As for boxes, I believe they're best explained by example:
 
 ```lua
 -- A house is really just a very big box, after all.
-house_cats = ~(  ^.x.^) BOX!! [
+house_cats = ~( ^.x.^) BOX!! [
     jake: "tabby",
     princess: "tabby"
 ]
@@ -205,7 +205,7 @@ Meowscript supports some features of OOP with boxes; namely, boxes can hold meth
 An example:
 ```lua
 -- A house is just a really big box.
-house = ~(  ^.x.^) BOX!! [
+house = ~( ^.x.^) BOX!! [
    cats = [ "Jake", "Princess" ],
    get_cats = ( ^.x.^)> () => (home.cats)
 ]
