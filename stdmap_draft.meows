@@ -1,0 +1,14 @@
+-- Dictionary.
+
+--example = ( ^.x.^)> () => (home.a.b.c)
+
+=^.x.^= dictionary()
+    bring ~( ^.x.^) BOX!! [
+        _pairs: ~( ^.x.^) BOX!! [],
+        length: ( ^.x.^)> () => (home._pairs?),
+        keys:   ( ^.x.^)> () => (keys(home._pairs)),
+        values: ( ^.x.^)> () => (values(home._pairs)),
+        add:    ( ^.x.^)> (key, value) => (home._pairs.~~(string(key)) = value),
+        get:    ( ^.x.^)> (key) => (home._pairs.~~(string(key)))
+    ]
+meow meow

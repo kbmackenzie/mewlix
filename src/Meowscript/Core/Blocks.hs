@@ -64,7 +64,7 @@ evaluate (ExpMeowOr exprA exprB) = boolEval exprA >>= \case
 
 {- Trails -}
 asTrail :: Expr -> Evaluator [Text.Text]
-asTrail x@(ExpTrail _ _) = unwrap x >>= mapM evaluate >>= mapM asKey
+asTrail x@(ExpTrail _ _) = (unwrap x >>= mapM evaluate . reverse) >>= mapM asKey
 asTrail x = throwError ("Critical failure in trail! Trace:" `Text.append` showT x)
 
 asKey :: Prim -> Evaluator Text.Text
@@ -75,7 +75,7 @@ asKey (MeowKey key) = case key of
 asKey x = showMeow x >>= throwError . badTrail
 
 unwrap :: Expr -> Evaluator [Expr]
-unwrap (ExpTrail x y) = (x:) <$> unwrap y
+unwrap (ExpTrail x y) = (y:) <$> unwrap x
 unwrap x = return [x]
 
 {-- Helpers --}

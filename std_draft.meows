@@ -18,11 +18,8 @@ join = ( ^.x.^)> (a, b) => (a .. b)
 -- ?
 length = ( ^.x.^)> (a) => (a?)
 
-
--- special:
-
 -- integer division
-int_div = ( ^.x.^)> (a, b) => (int(a / b))
+int_div = ( ^.x.^)> (a, b) => (floor(a / b))
 
 
 ------------------------------------------------
@@ -71,6 +68,22 @@ meow meow
 meow meow
 
 
+-- 'Contains' function.
+-- Checks if an item exists in the shelf.
+=^.x.^= contains (shelf, item)
+    meowmeow (shelf)
+        mew? (peek shelf == item)
+            bring happy
+        meow meow
+        knock over shelf
+    meow meow
+    bring sad
+meow meow
+
+
+------------------------------------------------
+-- Additional stack/list functions
+------------------------------------------------
 
 -- Indexing function implementation.
 -- It's O(n) and highly discouraged, because shelves!
@@ -88,7 +101,6 @@ meow meow
 -- It returns 'lonely' instead.
 
 
-
 -- 'Take' function implementation.
 -- Takes n items from a shelf and returns a list of items.
 
@@ -102,7 +114,6 @@ meow meow
 meow meow
 
 
-
 -- 'Drop' function implementation.
 -- Drops n items from a shself and returns the shelf.
 
@@ -113,8 +124,6 @@ meow meow
     meow meow
     bring shelf
 meow meow
-
-
 
 -- 'Take while' function implementation. Like 'take_n', but with
 -- a predicate instead of a number!
@@ -130,12 +139,10 @@ meow meow
     bring reverse(output) -- Reversing because stack.
 meow meow
 
-
 -- 'Drop while' function implementation. Like 'drop_n', but with
 -- a predicate instead of a number!
 -- Drops n items while the top of the shelf satisfies the predicate.
 -- It returns the shelf.
-
 
 =^.x.^= drop_while (shelf, fn)
     meowmeow (fn(peek shelf))
@@ -158,7 +165,6 @@ meow meow
 meow meow
 
 
-
 -- Substring function implemetation.
 -- It uses shelves, yay!
 
@@ -173,7 +179,6 @@ meow meow
 meow meow
 
 
-
 -- 'Trim' function implemntation!
 -- Trims whitespace from both ends of a string.
 
@@ -185,7 +190,21 @@ meow meow
 meow meow
 
 
+------------------------------------------------
+-- Dictionary
+------------------------------------------------
 
+=^.x.^= dictionary()
+    bring ~( ^.x.^) BOX!! [
+        _pairs: ~( ^.x.^) BOX!! [],
+        length:   ( ^.x.^)> () => (home._pairs?),
+        keys:     ( ^.x.^)> () => (keys(home._pairs)),
+        values:   ( ^.x.^)> () => (values(home._pairs)),
+        add:      ( ^.x.^)> (key, value) => (home._pairs.~~(string(key)) = value),
+        get:      ( ^.x.^)> (key) => (home._pairs.~~(string(key))),
+        contains: ( ^.x.^)> (key) => (contains(home.keys(), string(key)))
+    ]
+meow meow
 
 ------------------------------------------------
 -- Partial function application
