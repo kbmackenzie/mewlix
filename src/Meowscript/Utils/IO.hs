@@ -32,7 +32,7 @@ printStrLn line = TextIO.putStrLn line >> hFlush stdout
 
 colorPrint :: Color -> Text.Text -> IO ()
 colorPrint color txt = do
-    Console.setSGR [SetColor Foreground Dull color]
+    Console.setSGR [SetColor Foreground Vivid color, SetConsoleIntensity BoldIntensity]
     printStr txt
     Console.setSGR [Reset]
     return ()

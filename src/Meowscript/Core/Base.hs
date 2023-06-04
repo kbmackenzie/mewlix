@@ -30,7 +30,7 @@ baseLibrary = createObject
     , ("int"     , MeowIFunc  ["x"] toInt     )
     , ("float"   , MeowIFunc  ["x"] toDouble  )
     , ("string"  , MeowIFunc  ["x"] toString  )
-    , ("taste"   , MeowIFunc  ["x"] toBool    )
+    , ("nuzzle"  , MeowIFunc  ["x"] toBool    )
     , ("keys"    , MeowIFunc  ["x"] getKeys   )
     , ("values"  , MeowIFunc  ["x"] getValues )
     , ("type_of" , MeowIFunc  ["x"] typeOf    )
