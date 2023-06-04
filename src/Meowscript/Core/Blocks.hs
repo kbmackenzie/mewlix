@@ -38,16 +38,30 @@ evaluate (ExpObject object) = do
     MeowObject <$> (liftIO . createObject) pairs
 evaluate (ExpLambda args expr) = asks (MeowFunc args [StmReturn expr])
 evaluate x@(ExpTrail {}) = MeowKey . KeyTrail <$> asTrail x
+
+-- Function call
 evaluate (ExpCall args funcKey) = do
     args' <- mapM (evaluate >=> ensureValue) args
     evaluate funcKey >>= \case
         (MeowKey key) -> funcLookup key args'
         lambda@(MeowFunc {}) -> runFunc "<lambda>" args' lambda
         x -> throwError =<< notFunc x
+
+-- Yarn operator
 evaluate (ExpYarn expr) = evaluate expr >>= \case
     (MeowString str) -> (return . MeowKey . KeyNew) str
     x -> throwError =<< opException "Yarn" [x]
 
+-- Boolean operators (||, &&)
+evaluate (ExpMeowAnd exprA exprB) = do
+    boolEval exprA >>= \case
+        False -> (return . MeowBool) False
+        True -> MeowBool <$> boolEval exprB
+evaluate (ExpMeowOr exprA exprB) = do
+    boolEval exprA >>= \case
+        True -> (return . MeowBool) True
+        False -> MeowBool <$> boolEval exprB
+    
 ------------------------------------------------------------------------
 
 {- Trails -}
@@ -79,6 +93,9 @@ isImport :: Statement -> Bool
 isImport (StmImport {}) = True
 isImport _ = False
 
+boolEval :: Expr -> Evaluator Bool
+{-# INLINABLE boolEval #-}
+boolEval x = (evaluate >=> ensureValue) x <&> meowBool
 
 ------------------------------------------------------------------------
 
@@ -128,10 +145,6 @@ runTable (StmIfElse a b c) = runIfElse a b c
 runTable (StmIf a b) = runIf a b
 runTable (StmImport a _) = throwError (nestedImport a)
 runTable x = throwError ("Critical failure: Invalid statement. Trace: " `Text.append` showT x)
-
-asCondition :: Expr -> Evaluator Bool
-{-# INLINABLE asCondition #-}
-asCondition x = meowBool <$> (evaluate x >>= ensureValue)
 
 runExprStatement :: Expr -> Evaluator Prim
 {-# INLINABLE runExprStatement #-}
@@ -209,14 +222,14 @@ paramGuard key args params = do
 {- If Else -}
 runIf :: Condition -> Block -> Evaluator ReturnValue
 runIf x body = do
-    condition <- asCondition x 
+    condition <- boolEval x 
     if condition
       then runBlock body False
       else return RetVoid
 
 runIfElse :: Condition -> Block -> Block -> Evaluator ReturnValue
 runIfElse x ifB elseB = do
-    condition <- asCondition x
+    condition <- boolEval x
     if condition
         then runBlock ifB False
         else runBlock elseB False
@@ -225,7 +238,7 @@ runIfElse x ifB elseB = do
 -- Notes: Any return value that isn't RetVoid implies the end of the loop.
 runWhile :: Condition -> Block -> Evaluator ReturnValue
 runWhile x body = do
-    condition <- asCondition x
+    condition <- boolEval x
     if condition
         then innerWhile x body
         else return RetVoid
@@ -233,7 +246,7 @@ runWhile x body = do
 innerWhile :: Condition -> Block -> Evaluator ReturnValue
 innerWhile x body = runLocal $ do
     ret <- runBlock body True
-    condition <- asCondition x
+    condition <- boolEval x
     let shouldBreak = ret /= RetVoid
     if condition && not shouldBreak
         then innerWhile x body
@@ -244,7 +257,7 @@ innerWhile x body = runLocal $ do
 runFor :: (Expr, Expr, Expr) -> Block -> Evaluator ReturnValue
 runFor xs@(init', _, cond) body = do
     (void . evaluate) init'
-    condition <- asCondition cond
+    condition <- boolEval cond
     if condition
         then innerFor xs body
         else return RetVoid
@@ -253,7 +266,7 @@ innerFor :: (Expr, Expr, Expr) -> Block -> Evaluator ReturnValue
 innerFor xs@(_, incr, cond) body = runLocal $ do
     ret <- runBlock body True
     (void . evaluate) incr
-    condition <- asCondition cond
+    condition <- boolEval cond
     let shouldBreak = ret /= RetVoid
     if condition && not shouldBreak
         then innerFor xs body

@@ -90,6 +90,8 @@ data Expr =
     | ExpList [Expr]
     | ExpObject [(Key, Expr)]
     | ExpLambda [Key] Expr
+    | ExpMeowAnd Expr Expr
+    | ExpMeowOr Expr Expr
     | ExpCall [Expr] Expr
     | ExpTrail Expr Expr
     | ExpYarn Expr
@@ -133,8 +135,6 @@ data Binop =
     | MeowMul 
     | MeowDiv 
     | MeowMod
-    | MeowAnd 
-    | MeowOr 
     | MeowCompare [Ordering]
     | MeowAssign
     | MeowConcat 

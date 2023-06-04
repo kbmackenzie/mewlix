@@ -29,8 +29,6 @@ binop op = binopVar $ case op of
     MeowDiv -> meowDiv
     MeowMod -> meowMod
     (MeowCompare ord) -> meowCompare ord
-    MeowAnd -> meowAnd
-    MeowOr -> meowOr
     MeowConcat -> meowConcat
 
 {- Unary Operations -}
@@ -177,16 +175,6 @@ meowCompare ord a b = (return . MeowBool) (c `elem` ord)
 -- Not
 meowNot :: Prim -> Evaluator Prim
 meowNot = return . MeowBool . not . meowBool
-
--- And
-meowAnd :: Prim -> Prim -> Evaluator Prim
-meowAnd x y = (return . MeowBool) (meowBool x && meowBool y)
-
--- Or
-meowOr :: Prim -> Prim -> Evaluator Prim
-meowOr x y = (return . MeowBool) (meowBool x || meowBool y)
-
-
 
 {- String/List Manipulation -}
 
