@@ -34,13 +34,13 @@ replLine = Mega.choice
 replParse :: Text.Text -> Either Text.Text Line
 replParse = parseSpecial replLine
 
-exprAndEnv :: EvalCallback Expr (Prim, Environment)
-exprAndEnv x = (,) <$> (evaluate x >>= ensureValue) <*> ask
+--exprAndEnv :: EvalCallback Expr (Prim, Environment)
+--exprAndEnv x = (,) <$> (evaluate x >>= ensureValue) <*> ask
 
 -- Get pretty-printed primitive from the evaluator itself!
 -- I can't pretty-print it afterward, after all. @. @
 textAndEnv :: EvalCallback Expr (Text.Text, Environment)
-textAndEnv x = (,) <$> (evaluate x >>= ensureValue >>= showMeow) <*> ask
+textAndEnv x = (,) <$> (evaluate x >>= ensureValue >>= prettyMeow) <*> ask
 
 evaluateExpr :: ObjectMap -> Expr -> IO (Either Text.Text (Text.Text, Environment))
 evaluateExpr env = runCore (return env) (replTrace . textAndEnv)

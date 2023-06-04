@@ -33,7 +33,7 @@ baseLibrary = createObject
     , ("nuzzle"  , MeowIFunc  ["x"] toBool    )
     , ("keys"    , MeowIFunc  ["x"] getKeys   )
     , ("values"  , MeowIFunc  ["x"] getValues )
-    , ("type_of" , MeowIFunc  ["x"] typeOf    )
+    , ("typeof"  , MeowIFunc  ["x"] typeOf    )
     , ("throw"   , MeowIFunc  ["x"] throwEx   )
     , ("pi"      , MeowIFunc  ["x"] meowPi    )
     , ("exp"     , MeowIFunc  ["x"] meowExp   )
