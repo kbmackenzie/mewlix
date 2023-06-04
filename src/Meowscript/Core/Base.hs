@@ -45,6 +45,8 @@ baseLibrary = createObject
     , ("asin"    , MeowIFunc  ["x"] meowAsin  )
     , ("acos"    , MeowIFunc  ["x"] meowAcos  )
     , ("atan"    , MeowIFunc  ["x"] meowAtan  )
+    , ("upper"   , MeowIFunc  ["x"] meowUpper )
+    , ("lower"   , MeowIFunc  ["x"] meowLower )
     -- File IO --
     , ("read_file"   , MeowIFunc ["path"]             meowRead   )
     , ("write_file"  , MeowIFunc ["path", "contents"] meowWrite  )
@@ -145,6 +147,20 @@ meowAcos = mathFn acos "acos"
 
 meowAtan :: Evaluator Prim
 meowAtan = mathFn atan "atan"
+
+
+{- Text -}
+----------------------------------------------------------
+meowStrFn :: (Text.Text -> Text.Text) -> Text.Text -> Evaluator Prim
+meowStrFn fn name = lookUp "x" >>= \case
+    (MeowString x) -> (return . MeowString . fn) x
+    x -> throwError =<< badArgs name [x]
+
+meowUpper :: Evaluator Prim
+meowUpper = meowStrFn Text.toUpper "upper"
+
+meowLower :: Evaluator Prim
+meowLower = meowStrFn Text.toLower "lower"
 
 
 {- Boxes -}
