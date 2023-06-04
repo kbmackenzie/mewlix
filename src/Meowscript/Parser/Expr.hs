@@ -38,10 +38,10 @@ operators =
         , Postfix (ExpUnop  MeowLen                   <$ trySymbol "?!"        )
         , InfixL  (ExpBinop MeowConcat                <$ trySymbol ".."        ) ]
       , [ Prefix  (ExpUnop  MeowPaw                   <$ tryKeyword meowPaw    )
-        , Prefix  (ExpUnop  MeowClaw                  <$ tryKeyword meowClaw   )
-        , Prefix  (ExpUnop  MeowNegate                <$ symbol "-"            )
-        , Prefix  (ExpUnop  MeowNot                   <$ tryKeyword meowNot    ) ]
+        , Prefix  (ExpUnop  MeowClaw                  <$ tryKeyword meowClaw   ) ]
       , [ InfixL  (ExpBinop MeowPow                   <$ trySymbol "**"        ) ]
+      , [ Prefix  (ExpUnop  MeowNegate                <$ symbol "-"            )
+        , Prefix  (ExpUnop  MeowNot                   <$ tryKeyword meowNot    ) ]
       , [ InfixL  (ExpBinop MeowMul                   <$ symbol "*"            )
         , InfixL  (ExpBinop MeowDiv                   <$ symbol "/"            )
         , InfixL  (ExpBinop MeowMod                   <$ symbol "%"            ) ]
