@@ -36,7 +36,7 @@ baseLibrary = createObject
     , ("values"  , MeowIFunc  ["x"] getValues )
     , ("typeof"  , MeowIFunc  ["x"] typeOf    )
     , ("throw"   , MeowIFunc  ["x"] throwEx   )
-    , ("pi"      , MeowIFunc  ["x"] meowPi    )
+    , ("pi"      , MeowIFunc  [   ] meowPi    )
     , ("exp"     , MeowIFunc  ["x"] meowExp   )
     , ("sqrt"    , MeowIFunc  ["x"] meowSqrt  )
     , ("log"     , MeowIFunc  ["x"] meowLog   )
