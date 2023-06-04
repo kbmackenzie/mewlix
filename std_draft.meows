@@ -11,6 +11,12 @@ mul = ( ^.x.^)> (a, b) => (a * b)
 div = ( ^.x.^)> (a, b) => (a / b)
 mod = ( ^.x.^)> (a, b) => (a % b)
 
+pow = ( ^.x.^)> (a, b) => (a ** b)
+sqr = ( ^.x.^)> (a) => (a ** 2)
+
+min = ( ^.x.^)> (a, b) => (a < b ? a : b)
+max = ( ^.x.^)> (a, b) => (a > b ? a : b)
+
 -- String/shelf join
 join = ( ^.x.^)> (a, b) => (a..b)
 
