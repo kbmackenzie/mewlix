@@ -48,19 +48,17 @@ evaluate (ExpCall args funcKey) = do
         x -> throwError =<< notFunc x
 
 -- Yarn operator
-evaluate (ExpYarn expr) = evaluate expr >>= \case
+evaluate (ExpYarn expr) = (evaluate >=> ensureValue) expr >>= \case
     (MeowString str) -> (return . MeowKey . KeyNew) str
     x -> throwError =<< opException "Yarn" [x]
 
--- Boolean operators (||, &&)
-evaluate (ExpMeowAnd exprA exprB) = do
-    boolEval exprA >>= \case
-        False -> (return . MeowBool) False
-        True -> MeowBool <$> boolEval exprB
-evaluate (ExpMeowOr exprA exprB) = do
-    boolEval exprA >>= \case
-        True -> (return . MeowBool) True
-        False -> MeowBool <$> boolEval exprB
+-- Boolean operators (&&, ||)
+evaluate (ExpMeowAnd exprA exprB) = boolEval exprA >>= \case
+    False -> (return . MeowBool) False
+    True -> MeowBool <$> boolEval exprB
+evaluate (ExpMeowOr exprA exprB) = boolEval exprA >>= \case
+    True -> (return . MeowBool) True
+    False -> MeowBool <$> boolEval exprB
     
 ------------------------------------------------------------------------
 
