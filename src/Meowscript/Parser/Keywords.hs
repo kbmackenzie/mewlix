@@ -93,10 +93,9 @@ meowTakes = ("takes", "as")
 reservedKeywords :: [Text]
 {-# INLINE reservedKeywords #-}
 reservedKeywords =
-    [ "purr"
+    [ "mew"
     , "paw"
     , "claw"
-    , "mew"
     , "mew?"
     , "hiss!"
     , "bring"
@@ -115,7 +114,7 @@ reservedKeywords =
     , "peek"
     , "knock"
     , "over"
-    , "yummy"
-    , "icky"
+    , "happy"
+    , "sad"
     , "lonely"
     , "meowmeow"]

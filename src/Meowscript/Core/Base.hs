@@ -24,6 +24,7 @@ import Control.Monad((>=>))
 baseLibrary :: IO ObjectMap
 baseLibrary = createObject
     [ ("meow"    , MeowIFunc  ["x"] meow      )
+    , ("purr"    , MeowIFunc  ["x"] purr      )
     , ("listen"  , MeowIFunc  [   ] listen    )
     , ("reverse" , MeowIFunc  ["x"] reverseFn )
     , ("sort"    , MeowIFunc  ["x"] sortFn    )
@@ -56,6 +57,9 @@ baseLibrary = createObject
 ----------------------------------------------------------
 meow :: Evaluator Prim
 meow = lookUp "x" >>= showMeow >>= (liftIO . printStrLn) >> return MeowLonely
+
+purr :: Evaluator Prim
+purr = lookUp "x" >>= showMeow >>= (liftIO . printStr) >> return MeowLonely
 
 listen :: Evaluator Prim
 listen = liftIO TextIO.getLine <&> MeowString
