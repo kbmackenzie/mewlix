@@ -3,27 +3,28 @@
 ------------------------------------------------
 -- Operator functions
 ------------------------------------------------
--- +
-add = ( ^.x.^)> (a, b) => ( a + b )
--- -
+
+-- Arithmetic operations
+add = ( ^.x.^)> (a, b) => (a + b)
 sub = ( ^.x.^)> (a, b) => (a - b)
--- *
 mul = ( ^.x.^)> (a, b) => (a * b)
--- /
 div = ( ^.x.^)> (a, b) => (a / b)
--- %
 mod = ( ^.x.^)> (a, b) => (a % b)
--- ..
-join = ( ^.x.^)> (a, b) => (a .. b)
--- ?
+
+-- String/shelf join
+join = ( ^.x.^)> (a, b) => (a..b)
+
+-- String/shelf length
 length = ( ^.x.^)> (a) => (a?)
 
--- integer division
+-- Equality
+is_equal ( ^.x.^)> (a, b) = (a == b)
+
+-- Integer division
 int_div = ( ^.x.^)> (a, b) => (floor(a / b))
 
-
 ------------------------------------------------
--- Stack/list functions
+-- Stack/shelf functions
 ------------------------------------------------
 
 -- Map implementation.
@@ -35,7 +36,7 @@ int_div = ( ^.x.^)> (a, b) => (floor(a / b))
         fn(peek shelf) push output
         knock over shelf
     meow meow
-    bring reverse(output) -- Reverse to get back to the original order, because shelf.
+    bring reverse(output) -- Reverse because stack.
 meow meow
 
 
@@ -64,7 +65,7 @@ meow meow
         meow meow
         knock over shelf
     meow meow
-    bring reverse(output) -- Reversing because shelf.
+    bring reverse(output) -- Reversing because stack.
 meow meow
 
 
@@ -82,11 +83,16 @@ meow meow
 
 
 ------------------------------------------------
--- Additional stack/list functions
+-- Additional stack/shelf functions
 ------------------------------------------------
 
 -- Indexing function implementation.
 -- It's O(n) and highly discouraged, because shelves!
+
+-- Note this function does not throw exceptions when an
+-- index goes out of bounds, because of how
+-- knocking over items from shelves works in Meowscript.
+-- It returns 'lonely' instead.
 
 =^.x.^= index (shelf, num)
     take (mew i = 0) and do (paw at i) while (i < num)
@@ -94,11 +100,6 @@ meow meow
     meow meow 
     bring peek shelf
 meow meow
-
--- Note this function does not throw exceptions when an
--- index goes out of bounds, because of how
--- knocking over items from shelves works in Meowscript.
--- It returns 'lonely' instead.
 
 
 -- 'Take' function implementation.
@@ -160,7 +161,7 @@ meow meow
 -- Flatten a list of strings into a string.
 -- It uses a fold, because yay!
 
-=^.x.^= concat_str (shelf)
+=^.x.^= concat_as_str (shelf)
     bring fold (shelf, join, "")
 meow meow
 
@@ -171,11 +172,7 @@ meow meow
 =^.x.^= substring (str, start, length)
     mew temp = drop_n(str, start) -- Start at specified index.
     temp = take_n(str, length) -- Take length of chars.
-
-    -- This gives us a list of single-char strings. ('take_n' returns a list!)
-    -- Now we have to flatten it into a single string!
-
-    bring concat_str(temp) -- Convert from a list to a single string. 
+    bring concat_as_str(temp) -- Flatten list of strings into a single string.
 meow meow
 
 

@@ -24,6 +24,7 @@ module Meowscript.Core.Exceptions
 , nestedImport
 , badImport
 , badFile
+, meowUnexpected
 ) where
 
 import Meowscript.Core.AST
@@ -48,6 +49,7 @@ data MeowException =
     | MeowCatOnComputer
     | MeowBadKeyword
     | MeowBadFile
+    | MeowUnexpected
     deriving (Eq, Ord)
 
 instance Show MeowException where
@@ -66,6 +68,7 @@ instance Show MeowException where
     show MeowCatOnComputer = exc "CatOnComputer"
     show MeowBadKeyword = exc "KeywordException"
     show MeowBadFile = exc "File"
+    show MeowUnexpected = exc "Unexpected"
 
 exc :: String -> String
 exc = (++ "Exception")
@@ -158,3 +161,6 @@ badImport file exception = showException MeowBadImport
 badFile :: Text.Text -> Text.Text -> Text.Text -> Text.Text
 badFile path fn message = showException MeowBadFile $ Text.concat
     [ "In '", fn, "': ", message, " | File: \"", path, "\"" ]
+
+meowUnexpected :: Text.Text -> Text.Text -> Text.Text
+meowUnexpected x y = showException MeowUnexpected (Text.concat [x, " | ", y])

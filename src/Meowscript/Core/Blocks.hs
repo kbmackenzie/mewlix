@@ -65,13 +65,13 @@ evaluate (ExpMeowOr exprA exprB) = boolEval exprA >>= \case
 {- Trails -}
 asTrail :: Expr -> Evaluator [Text.Text]
 asTrail x@(ExpTrail _ _) = (unwrap x >>= mapM evaluate . reverse) >>= mapM asKey
-asTrail x = throwError ("Critical failure in trail! Trace:" `Text.append` showT x)
+asTrail x = throwError $ meowUnexpected "Token misinterpreted as trail!" (showT x)
 
 asKey :: Prim -> Evaluator Text.Text
 asKey (MeowKey key) = case key of
     (KeyModify x) -> return x
     (KeyNew x) -> return x
-    (KeyTrail xs) -> throwError ("Trails cannot be nested!" `Text.append` showT xs)
+    (KeyTrail xs) -> throwError $ meowUnexpected "Nested trail!" (showT xs)
 asKey x = showMeow x >>= throwError . badTrail
 
 unwrap :: Expr -> Evaluator [Expr]
