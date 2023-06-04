@@ -35,12 +35,13 @@ operators =
       , [ Prefix  (ExpUnop  MeowPeek                  <$ tryKeyword meowPeek   )
         , InfixL  (ExpBinop MeowPush                  <$ tryKeyword meowPush   )
         , Prefix  (ExpUnop  MeowKnockOver             <$ tryKeyword meowKnock  )
-        , Postfix (ExpUnop  MeowLen                   <$ symbol "?"            )
+        , Postfix (ExpUnop  MeowLen                   <$ trySymbol "?!"        )
         , InfixL  (ExpBinop MeowConcat                <$ trySymbol ".."        ) ]
       , [ Prefix  (ExpUnop  MeowPaw                   <$ tryKeyword meowPaw    )
         , Prefix  (ExpUnop  MeowClaw                  <$ tryKeyword meowClaw   )
         , Prefix  (ExpUnop  MeowNegate                <$ symbol "-"            )
         , Prefix  (ExpUnop  MeowNot                   <$ tryKeyword meowNot    ) ]
+      , [ InfixL  (ExpBinop MeowPow                   <$ trySymbol "**"        ) ]
       , [ InfixL  (ExpBinop MeowMul                   <$ symbol "*"            )
         , InfixL  (ExpBinop MeowDiv                   <$ symbol "/"            )
         , InfixL  (ExpBinop MeowMod                   <$ symbol "%"            ) ]
@@ -55,6 +56,7 @@ operators =
       , [ InfixL  (ExpMeowAnd                         <$ tryKeyword meowAnd    ) ]
       , [ InfixL  (ExpMeowOr                          <$ tryKeyword meowOr     ) ]
       , [ Prefix  parseLambda                                                  ]
+      , [ TernR   ((ExpTernary <$ symbol ":")         <$ trySymbol "?"         ) ]
       , [ InfixR  (ExpBinop MeowAssign                <$ symbol "="            ) ]
     ]
 

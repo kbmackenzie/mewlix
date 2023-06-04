@@ -30,6 +30,7 @@ binop op = binopVar $ case op of
     MeowMod -> meowMod
     (MeowCompare ord) -> meowCompare ord
     MeowConcat -> meowConcat
+    MeowPow -> meowPow
 
 {- Unary Operations -}
 unop :: Unop -> Prim -> Evaluator Prim
@@ -162,6 +163,12 @@ meowMod a b@(MeowInt 0) = throwError =<< divByZero [a, b]
 meowMod a b@(MeowDouble 0) = throwError =<< divByZero [a, b]
 meowMod (MeowInt a) (MeowInt b) = (return . MeowInt) (a `mod` b)
 meowMod x y = throwError =<< opException "%" [x, y]
+
+-- Power
+meowPow :: Prim -> Prim -> Evaluator Prim
+meowPow (MeowInt a) (MeowInt b) = (return . MeowDouble) (fromIntegral a ^ b)
+meowPow (MeowDouble a) (MeowInt b) = (return . MeowDouble) (a ^ b)
+meowPow x y = throwError =<< opException "**" [x, y]
 
 
 -- Comparison

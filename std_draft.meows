@@ -15,10 +15,10 @@ mod = ( ^.x.^)> (a, b) => (a % b)
 join = ( ^.x.^)> (a, b) => (a..b)
 
 -- String/shelf length
-length = ( ^.x.^)> (a) => (a?)
+length = ( ^.x.^)> (a) => (a?!)
 
 -- Equality
-is_equal ( ^.x.^)> (a, b) = (a == b)
+is_equal = ( ^.x.^)> (a, b) => (a == b)
 
 -- Integer division
 int_div = ( ^.x.^)> (a, b) => (floor(a / b))
@@ -194,7 +194,7 @@ meow meow
 =^.x.^= dictionary()
     bring ~( ^.x.^) BOX!! [
         _pairs: ~( ^.x.^) BOX!! [],
-        length:   ( ^.x.^)> () => (home._pairs?),
+        length:   ( ^.x.^)> () => (home._pairs?!),
         keys:     ( ^.x.^)> () => (keys(home._pairs)),
         values:   ( ^.x.^)> () => (values(home._pairs)),
         add:      ( ^.x.^)> (key, value) => (home._pairs.~~(string(key)) = value),

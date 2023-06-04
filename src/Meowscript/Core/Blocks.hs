@@ -59,6 +59,11 @@ evaluate (ExpMeowAnd exprA exprB) = boolEval exprA >>= \case
 evaluate (ExpMeowOr exprA exprB) = boolEval exprA >>= \case
     True -> (return . MeowBool) True
     False -> MeowBool <$> boolEval exprB
+
+-- Ternary operator
+evaluate (ExpTernary cond exprA exprB) = boolEval cond >>= \case
+    True -> evaluate exprA
+    False -> evaluate exprB
     
 ------------------------------------------------------------------------
 

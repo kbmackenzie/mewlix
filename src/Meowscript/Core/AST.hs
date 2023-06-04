@@ -95,6 +95,7 @@ data Expr =
     | ExpCall [Expr] Expr
     | ExpTrail Expr Expr
     | ExpYarn Expr
+    | ExpTernary Expr Expr Expr
     deriving (Show)
 
 type Name = Text.Text
@@ -139,6 +140,7 @@ data Binop =
     | MeowAssign
     | MeowConcat 
     | MeowPush
+    | MeowPow
     deriving (Show)
 
 data ReturnValue =
