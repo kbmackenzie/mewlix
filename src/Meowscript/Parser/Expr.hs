@@ -32,13 +32,13 @@ operators =
         [ Prefix  (ExpYarn                            <$ trySymbol "~~"        ) ]
       , [ InfixL  (ExpTrail                           <$ parseDotOp            ) ]
       , [ Postfix (Mega.try functionCall                                       ) ]
+      , [ Prefix  (ExpUnop  MeowPaw                   <$ tryKeyword meowPaw    )
+        , Prefix  (ExpUnop  MeowClaw                  <$ tryKeyword meowClaw   ) ]
       , [ Prefix  (ExpUnop  MeowPeek                  <$ tryKeyword meowPeek   )
         , InfixL  (ExpBinop MeowPush                  <$ tryKeyword meowPush   )
         , Prefix  (ExpUnop  MeowKnockOver             <$ tryKeyword meowKnock  )
         , Postfix (ExpUnop  MeowLen                   <$ trySymbol "?!"        )
         , InfixL  (ExpBinop MeowConcat                <$ trySymbol ".."        ) ]
-      , [ Prefix  (ExpUnop  MeowPaw                   <$ tryKeyword meowPaw    )
-        , Prefix  (ExpUnop  MeowClaw                  <$ tryKeyword meowClaw   ) ]
       , [ InfixL  (ExpBinop MeowPow                   <$ trySymbol "**"        ) ]
       , [ Prefix  (ExpUnop  MeowNegate                <$ symbol "-"            )
         , Prefix  (ExpUnop  MeowNot                   <$ tryKeyword meowNot    ) ]
