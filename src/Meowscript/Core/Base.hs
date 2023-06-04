@@ -46,6 +46,9 @@ baseLibrary = createObject
     , ("asin"    , MeowIFunc  ["x"] meowAsin  )
     , ("acos"    , MeowIFunc  ["x"] meowAcos  )
     , ("atan"    , MeowIFunc  ["x"] meowAtan  )
+    , ("round"   , MeowIFunc  ["x"] meowRound )
+    , ("ceiling" , MeowIFunc  ["x"] meowCeil  )
+    , ("floor"   , MeowIFunc  ["x"] meowFloor )
     , ("upper"   , MeowIFunc  ["x"] meowUpper )
     , ("lower"   , MeowIFunc  ["x"] meowLower )
     -- File IO --
@@ -86,7 +89,7 @@ toString = lookUp "x" >>= showMeow <&> MeowString
 toInt :: Evaluator Prim
 toInt = lookUp "x" >>= \case
     a@(MeowInt _) -> return a
-    (MeowDouble x) -> (return . MeowInt . floor) x
+    (MeowDouble x) -> (return . MeowInt . round) x
     (MeowString x) -> MeowInt <$> readInt x
     (MeowBool x) -> (return . MeowInt . fromEnum) x
     x -> throwError =<< badArgs "int" [x]
@@ -151,6 +154,21 @@ meowAcos = mathFn acos "acos"
 
 meowAtan :: Evaluator Prim
 meowAtan = mathFn atan "atan"
+
+meowFloatFn :: (Double -> Int) -> Text.Text -> Evaluator Prim
+meowFloatFn fn name = lookUp "x" >>= \case
+    (MeowDouble x) -> (return . MeowInt . fn) x
+    (MeowInt x) -> (return . MeowInt) x
+    x -> throwError =<< badArgs name [x]
+
+meowRound :: Evaluator Prim
+meowRound = meowFloatFn round "round"
+
+meowCeil :: Evaluator Prim
+meowCeil = meowFloatFn ceiling "ceiling"
+
+meowFloor :: Evaluator Prim
+meowFloor = meowFloatFn floor "floor"
 
 
 {- Text -}
