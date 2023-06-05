@@ -60,6 +60,9 @@ parseIf = lexeme . Lexer.indentBlock whitespaceLn $ do
     condition <- parensExpression
     return (Lexer.IndentMany Nothing (return . (condition,)) statements)
 
+parseIf' :: Parser MeowIf
+parseIf' = parseIf >>= \(cond, block) -> return (MeowIf cond block)
+
 parseElse :: Parser [Statement]
 parseElse = lexeme . Lexer.indentBlock whitespaceLn $ do
     (Mega.try . void . lexeme . keyword) meowElse
@@ -67,9 +70,9 @@ parseElse = lexeme . Lexer.indentBlock whitespaceLn $ do
 
 parseIfElse :: Parser Statement
 parseIfElse = lexeme $ do
-    (cond, ifBody) <- parseIf
-    let elseS = parseElse <&> StmIfElse cond ifBody
-    let onlyIf = return (StmIf cond ifBody)
+    ifs <- Mega.many parseIf'
+    let elseS = parseElse <&> StmIfElse ifs
+    let onlyIf = return (StmIf ifs)
     (Mega.try elseS <|> onlyIf) <* parseEnd
 
 {- Functions -}

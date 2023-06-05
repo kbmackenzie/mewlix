@@ -144,8 +144,8 @@ runTable :: Statement -> IsLoop -> Evaluator ReturnValue
 {-# INLINABLE runTable #-}
 runTable (StmWhile a b) _ = runWhile a b
 runTable (StmFor a b) _ = runFor a b
-runTable (StmIfElse a b c) isLoop = runIfElse a b c isLoop
-runTable (StmIf a b) isLoop = runIf a b isLoop
+runTable (StmIfElse as b) isLoop = runIfElse as b isLoop
+runTable (StmIf as) isLoop = runIf as isLoop
 runTable (StmImport a _) _ = throwError (nestedImport a)
 runTable x _ = throwError ("Critical failure: Invalid statement. Trace: " `Text.append` showT x)
 
@@ -223,19 +223,21 @@ paramGuard key args params = do
 ------------------------------------------------------------------------
 
 {- If Else -}
-runIf :: Condition -> Block -> IsLoop -> Evaluator ReturnValue
-runIf x body isLoop = do
-    condition <- boolEval x 
+runIf :: [MeowIf] -> IsLoop -> Evaluator ReturnValue
+runIf [] _ = return RetVoid
+runIf ((MeowIf cond body):xs) isLoop = do
+    condition <- boolEval cond
     if condition
       then runBlock body isLoop
-      else return RetVoid
+      else runIf xs isLoop
 
-runIfElse :: Condition -> Block -> Block -> IsLoop -> Evaluator ReturnValue
-runIfElse x ifB elseB isLoop = do
-    condition <- boolEval x
+runIfElse :: [MeowIf] -> Block -> IsLoop -> Evaluator ReturnValue
+runIfElse [] elseBlock isLoop = runBlock elseBlock isLoop
+runIfElse ((MeowIf cond body):xs) elseBlock isLoop = do
+    condition <- boolEval cond
     if condition
-        then runBlock ifB isLoop
-        else runBlock elseB isLoop
+        then runBlock body isLoop
+        else runIfElse xs elseBlock isLoop
 
 {- While Loop -}
 -- Notes: Any return value that isn't RetVoid implies the end of the loop.

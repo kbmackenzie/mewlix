@@ -5,6 +5,7 @@ module Meowscript.Core.AST
 , Expr(..)
 , Unop(..)
 , Binop(..)
+, MeowIf(..)
 , Statement(..)
 , KeyType(..)
 , ReturnValue(..)
@@ -107,12 +108,14 @@ type Block = [Statement]
 type Qualified = Maybe Text.Text
 type IsLoop = Bool
 
+data MeowIf = MeowIf Condition Block deriving(Show)
+
 data Statement =
       StmExpr Expr
     | StmWhile Condition Block
     | StmFor (Expr, Expr, Expr) Block
-    | StmIf Condition Block
-    | StmIfElse Condition Block Block
+    | StmIf [MeowIf]
+    | StmIfElse [MeowIf] Block
     | StmFuncDef Name Params [Statement]
     | StmReturn Expr
     | StmImport FilePath (Maybe Key)

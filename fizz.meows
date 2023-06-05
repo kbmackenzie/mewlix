@@ -1,0 +1,25 @@
+-- Fizzbuzzbazz
+
+consts = ~( ^.x.^) BOX!! [
+    fizz: "fizz",
+    buzz: "buzz",
+    bazz: "bazz"
+]
+
+=^.x.^= fizzbuzzbazz(xs)
+    take (mew i = 0) and do (paw at i) while (i < xs)
+        mew output = ""
+
+        mew? (i % 3 == 0)
+            output = output..consts.fizz
+        mew? (i % 5 == 0)
+            output = output..consts.buzz
+        mew? (i % 7 == 0)
+            output = output..consts.bazz
+        hiss!
+            output = string(i)
+        meow meow
+
+        meow(output)
+    meow meow
+meow meow
