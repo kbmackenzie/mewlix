@@ -39,7 +39,7 @@ operators =
         , Prefix  (ExpUnop  MeowKnockOver             <$ tryKeyword meowKnock  )
         , Postfix (ExpUnop  MeowLen                   <$ trySymbol "?!"        )
         , InfixL  (ExpBinop MeowConcat                <$ trySymbol ".."        ) ]
-      , [ InfixL  (ExpBinop MeowPow                   <$ trySymbol "**"        ) ]
+      , [ InfixL  (ExpBinop MeowPow                   <$ trySymbol "^"         ) ]
       , [ Prefix  (ExpUnop  MeowNegate                <$ symbol "-"            )
         , Prefix  (ExpUnop  MeowNot                   <$ tryKeyword meowNot    ) ]
       , [ InfixL  (ExpBinop MeowMul                   <$ symbol "*"            )

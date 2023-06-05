@@ -19,3 +19,5 @@ extra-deps:
 - bytestring-0.11.4.0
 - binary-0.8.9.1
 - text-2.0.2
+- random-1.2.1.1
+- splitmix-0.1.0.4

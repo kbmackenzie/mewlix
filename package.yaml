@@ -30,6 +30,7 @@ dependencies:
 - bytestring
 - filepath
 - ansi-terminal
+- random
 
 ghc-options:
 - -O3

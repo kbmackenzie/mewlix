@@ -11,8 +11,8 @@ mul = ( ^.x.^)> (a, b) => (a * b)
 div = ( ^.x.^)> (a, b) => (a / b)
 mod = ( ^.x.^)> (a, b) => (a % b)
 
-pow = ( ^.x.^)> (a, b) => (a ** b)
-sqr = ( ^.x.^)> (a) => (a ** 2)
+pow = ( ^.x.^)> (a, b) => (a ^ b)
+sqr = ( ^.x.^)> (a) => (a ^ 2)
 
 min = ( ^.x.^)> (a, b) => (a < b ? a : b)
 max = ( ^.x.^)> (a, b) => (a > b ? a : b)
@@ -23,8 +23,15 @@ join = ( ^.x.^)> (a, b) => (a..b)
 -- String/shelf length
 length = ( ^.x.^)> (a) => (a?!)
 
--- Equality
-is_equal = ( ^.x.^)> (a, b) => (a == b)
+-- Comparison 
+
+compare = ~( ^.x.^) BOX!! [
+    equal:   ( ^.x.^)> (a, b) => (a == b),
+    lesser:  ( ^.x.^)> (a, b) => (a < b),
+    greater: ( ^.x.^)> (a, b) => (a > b),
+    lesser_or_equal:  ( ^.x.^)> (a, b) => (a <= b),
+    greater_or_equal: ( ^.x.^)> (a, b) => (a >= b)
+]
 
 -- Integer division
 int_div = ( ^.x.^)> (a, b) => (floor(a / b))
