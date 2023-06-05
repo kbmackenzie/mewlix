@@ -31,7 +31,7 @@ evaluate :: Expr -> Evaluator Prim
 evaluate (ExpPrim prim) = return prim
 evaluate (ExpBinop op a b) = join (binop op <$> evaluate a <*> evaluate b)
 evaluate (ExpUnop op a) = evaluate a >>= unop op
-evaluate (ExpList list) = mapM evaluate list <&> MeowList
+evaluate (ExpList list) = mapM (evaluate >=> ensureValue) list <&> MeowList
 evaluate (ExpObject object) = do
     let toPrim (key, expr) = (evaluate expr >>= ensureValue) <&> (key,)
     pairs <- mapM toPrim object

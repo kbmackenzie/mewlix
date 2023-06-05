@@ -125,6 +125,29 @@ meow meow
     bring sad
 meow meow
 
+-- 'Any' function.
+-- Checks if any item in the shelf satisfies a condition.
+=^.x.^= any (shelf, fn)
+    meowmeow (shelf)
+        mew? (fn(peek shelf))
+            bring happy
+        meow meow
+        knock over shelf
+    meow meow
+    bring sad
+meow meow
+
+-- 'All' function.
+-- Checks if all items in the shelf satisfy a condition.
+=^.x.^= all (shelf, fn)
+    meowmeow (shelf)
+        mew? (not fn(peek shelf))
+            bring sad
+        meow meow
+        knock over shelf
+    meow meow
+    bring happy
+meow meow
 
 ------------------------------------------------
 -- Additional stack/shelf functions
@@ -249,23 +272,23 @@ meow meow
 -- Partial function application
 ------------------------------------------------
 
--- Takes an (a -> b -> c) function and makes it a (b -> c).
--- Returns a new function!
+-- Flip a function's arguments.
+-- Accepts only (a -> b -> c) functions.
+=^.x.^= flip (fn)
+    bring ( ^.x.^)> (a, b) => (fn(b, a))
+meow meow
 
+-- Takes an (a -> b -> c) function and makes it a (b -> c).
 =^.x.^= partial (fn, a)
     bring ( ^.x.^)> (b) => (fn(a, b))
 meow meow
 
-
 -- Takes an (a -> b -> c -> d) function and makes it (b -> c -> d).
-
 =^.x.^= partial2 (fn, a)
     bring ( ^.x.^)> (b, c) => (fn(a, b, c))
 meow meow
 
-
 -- Takes an (a -> b -> c -> d -> e) function and amkes it (b -> c -> d -> e).
-
 =^.x.^= partial3 (fn, a)
     bring ( ^.x.^)> (b, c, d) => (fn(a, b, c, d))
 meow meow
