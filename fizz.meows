@@ -7,7 +7,7 @@ consts = ~( ^.x.^) BOX!! [
 ]
 
 =^.x.^= fizzbuzzbazz(xs)
-    take (mew i = 0) and do (paw at i) while (i < xs)
+    take (mew i = 1) and do (paw at i) while (i <= xs)
         mew output = ""
 
         mew? (i % 3 == 0)

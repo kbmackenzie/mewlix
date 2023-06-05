@@ -120,7 +120,7 @@ emptyTrail = showException MeowBadTrail "Trail is empty!"
 
 fewArgs :: Text.Text -> [Prim] -> Evaluator Text.Text
 fewArgs x = showException' MeowBadArgs
-    $ Text.concat [ "Not enough arguments passed to function '", x, "'! | Terms:" ]
+    $ Text.concat [ "Not enough arguments passed to function '", x, "'!" ]
 
 manyArgs :: Text.Text -> [Prim] -> Evaluator Text.Text
 manyArgs x = showException' MeowBadArgs 
