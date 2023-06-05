@@ -140,10 +140,9 @@ meow meow
     bring shelf
 meow meow
 
--- 'Take while' function implementation. Like 'take_n', but with
--- a predicate instead of a number!
--- Takes n items while the top of the shelf satisfies the predicate.
--- It returns a list.
+
+-- 'Take while' function implementation.
+-- Takes items while the top of the shelf satisfies the predicate.
 
 =^.x.^= take_while (shelf, fn)
     mew output = []
@@ -154,10 +153,9 @@ meow meow
     bring reverse(output) -- Reversing because stack.
 meow meow
 
--- 'Drop while' function implementation. Like 'drop_n', but with
--- a predicate instead of a number!
--- Drops n items while the top of the shelf satisfies the predicate.
--- It returns the shelf.
+
+-- 'Drop while' function implementation.
+-- Drops items while the top of the shelf satisfies the predicate.
 
 =^.x.^= drop_while (shelf, fn)
     meowmeow (fn(peek shelf))
@@ -172,7 +170,7 @@ meow meow
 -- String functions
 ------------------------------------------------
 
--- Flatten a list of strings into a string.
+-- Flatten a shelf into a string.
 -- It uses a fold, because yay!
 
 =^.x.^= concat_as_str (shelf)
@@ -181,12 +179,12 @@ meow meow
 
 
 -- Substring function implemetation.
--- It uses shelves, yay!
+-- It's not good for very long strings.
 
 =^.x.^= substring (str, start, length)
-    mew temp = drop_n(str, start) -- Start at specified index.
-    temp = take_n(str, length) -- Take length of chars.
-    bring concat_as_str(temp) -- Flatten list of strings into a single string.
+    mew output = drop_n(str, start) -- Start at specified index.
+    output = take_n(output, length) -- Take length.
+    bring concat_as_str(output) -- Flatten list into string.
 meow meow
 
 
