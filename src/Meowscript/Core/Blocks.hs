@@ -127,27 +127,27 @@ runStatements (StmBreak:_) isLoop = if isLoop
                                         then return RetBreak
                                         else throwError (notInLoop meowBreak)
 runStatements (StmContinue:_) isLoop = if isLoop
-                                        then return RetVoid
+                                        then return RetContinue
                                         else throwError (notInLoop meowContinue)
 runStatements ((StmExpr expression):xs) isLoop =
     runExprStatement expression >> runStatements xs isLoop
 runStatements ((StmFuncDef name args body):xs) isLoop =
     runFuncDef (KeyNew name) args body >> runStatements xs isLoop
 runStatements (statement:xs) isLoop = do
-    ret <- runLocal $ runTable statement
+    ret <- runLocal $ runTable statement isLoop
     if ret /= RetVoid
         then return ret
         else runStatements xs isLoop
 
 -- Action table for all other statement blocks.
-runTable :: Statement -> Evaluator ReturnValue
+runTable :: Statement -> IsLoop -> Evaluator ReturnValue
 {-# INLINABLE runTable #-}
-runTable (StmWhile a b) = runWhile a b
-runTable (StmFor a b) = runFor a b
-runTable (StmIfElse a b c) = runIfElse a b c
-runTable (StmIf a b) = runIf a b
-runTable (StmImport a _) = throwError (nestedImport a)
-runTable x = throwError ("Critical failure: Invalid statement. Trace: " `Text.append` showT x)
+runTable (StmWhile a b) _ = runWhile a b
+runTable (StmFor a b) _ = runFor a b
+runTable (StmIfElse a b c) isLoop = runIfElse a b c isLoop
+runTable (StmIf a b) isLoop = runIf a b isLoop
+runTable (StmImport a _) _ = throwError (nestedImport a)
+runTable x _ = throwError ("Critical failure: Invalid statement. Trace: " `Text.append` showT x)
 
 runExprStatement :: Expr -> Evaluator Prim
 {-# INLINABLE runExprStatement #-}
@@ -223,19 +223,19 @@ paramGuard key args params = do
 ------------------------------------------------------------------------
 
 {- If Else -}
-runIf :: Condition -> Block -> Evaluator ReturnValue
-runIf x body = do
+runIf :: Condition -> Block -> IsLoop -> Evaluator ReturnValue
+runIf x body isLoop = do
     condition <- boolEval x 
     if condition
-      then runBlock body False
+      then runBlock body isLoop
       else return RetVoid
 
-runIfElse :: Condition -> Block -> Block -> Evaluator ReturnValue
-runIfElse x ifB elseB = do
+runIfElse :: Condition -> Block -> Block -> IsLoop -> Evaluator ReturnValue
+runIfElse x ifB elseB isLoop = do
     condition <- boolEval x
     if condition
-        then runBlock ifB False
-        else runBlock elseB False
+        then runBlock ifB isLoop
+        else runBlock elseB isLoop
 
 {- While Loop -}
 -- Notes: Any return value that isn't RetVoid implies the end of the loop.
@@ -250,8 +250,7 @@ innerWhile :: Condition -> Block -> Evaluator ReturnValue
 innerWhile x body = runLocal $ do
     ret <- runBlock body True
     condition <- boolEval x
-    let shouldBreak = ret /= RetVoid
-    if condition && not shouldBreak
+    if condition && not (shouldBreak ret)
         then innerWhile x body
         else return ret
 
@@ -270,7 +269,6 @@ innerFor xs@(_, incr, cond) body = runLocal $ do
     ret <- runBlock body True
     (void . evaluate) incr
     condition <- boolEval cond
-    let shouldBreak = ret /= RetVoid
-    if condition && not shouldBreak
+    if condition && not (shouldBreak ret)
         then innerFor xs body
         else return ret

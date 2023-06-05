@@ -30,7 +30,8 @@ compare = ~( ^.x.^) BOX!! [
     lesser:  ( ^.x.^)> (a, b) => (a < b),
     greater: ( ^.x.^)> (a, b) => (a > b),
     lesser_or_equal:  ( ^.x.^)> (a, b) => (a <= b),
-    greater_or_equal: ( ^.x.^)> (a, b) => (a >= b)
+    greater_or_equal: ( ^.x.^)> (a, b) => (a >= b),
+    not_equal: ( ^.x.^)> (a, b) => (a != b)
 ]
 
 -- Integer division

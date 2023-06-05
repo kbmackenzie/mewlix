@@ -23,6 +23,7 @@ module Meowscript.Core.AST
 , Qualified
 , IsLoop
 , meowBool
+, shouldBreak
 , returnAsPrim
 ) where
 
@@ -146,14 +147,21 @@ data Binop =
 data ReturnValue =
       RetVoid
     | RetBreak
+    | RetContinue
     | RetValue Prim
     deriving (Show)
 
 instance Eq ReturnValue where
     RetVoid == RetVoid = True
     RetBreak == RetBreak = True
+    RetContinue == RetContinue = True
     RetValue _ == RetValue _ = True
     _ == _ = False
+
+shouldBreak :: ReturnValue -> Bool
+shouldBreak RetBreak = True
+shouldBreak (RetValue _) = True
+shouldBreak _ = False
 
 returnAsPrim :: ReturnValue -> Prim
 returnAsPrim (RetValue x) = x
