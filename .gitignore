@@ -11,4 +11,4 @@ dist-newstyle/
 *.prof
 foo/
 *.zip
-tic.meows
+tic*.meows

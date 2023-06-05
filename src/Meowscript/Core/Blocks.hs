@@ -252,7 +252,9 @@ innerWhile x body = runLocal $ do
     condition <- boolEval x
     if condition && not (shouldBreak ret)
         then innerWhile x body
-        else return ret
+        else return $ case ret of
+            RetContinue -> RetVoid
+            ret' -> ret'
 
 {- For Loop -}
 -- Notes: Any return value that isn't RetVoid implies the end of the loop.
@@ -271,4 +273,6 @@ innerFor xs@(_, incr, cond) body = runLocal $ do
     condition <- boolEval cond
     if condition && not (shouldBreak ret)
         then innerFor xs body
-        else return ret
+        else return $ case ret of
+            RetContinue -> RetVoid
+            ret' -> ret'
