@@ -15,16 +15,16 @@ module Meowscript.REPL.Core
 import Meowscript.Core.AST
 import Meowscript.Core.Pretty
 import Meowscript.Core.RunEvaluator 
-import Meowscript.Core.Keys
-import Meowscript.Core.Blocks (evaluate)
+--import Meowscript.Core.Keys
+--import Meowscript.Core.Blocks (evaluate)
 import Meowscript.Utils.IO
 import qualified Data.Text as Text
-import qualified Data.Text.IO as TextIO
+--import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map
-import Control.Monad (void, join)
+--import Control.Monad (void, join)
 import Data.IORef
-import Data.Functor((<&>))
-import System.IO (hFlush, stdout)
+--import Data.Functor((<&>))
+--import System.IO (hFlush, stdout)
 import Control.Monad.Reader (ReaderT, runReaderT)
 
 {-
@@ -55,7 +55,8 @@ runREPL repl = runReaderT repl commands
 commands :: CommandMap
 commands = Map.fromList
     [ ("quit" , quit      )
-    , ("load" , addModule ) ]
+    , ("help" , showHelp  )
+    , ("load" , addModule )]
 
 quit :: Command
 quit _ env = return (False, env)
@@ -73,3 +74,16 @@ addModule line env = case getArgs line of
 popArg :: LineCommand -> LineCommand
 popArg l@(LineCommand _ []) = l
 popArg (LineCommand name (_:xs)) = LineCommand name xs
+
+helpMessage :: [Text.Text]
+helpMessage =
+    [ "-------------------------------"
+    , "Welcome to the Meowscript REPL!"
+    , "You can use the following commands to navigate the REPL:"
+    , ":help -> Show 'help' message. (You're here!)"
+    , ":load -> Load a module into the current context."
+    , ":quit -> Quit the REPL."
+    , "-------------------------------"]
+
+showHelp :: Command
+showHelp _ env = printStrLn (Text.intercalate "\n" helpMessage) >> return (True, env)
