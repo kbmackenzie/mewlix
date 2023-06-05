@@ -20,6 +20,7 @@ import Control.Monad.Except(throwError)
 import Control.Monad.State(liftIO)
 import Data.Functor((<&>))
 import Control.Monad((>=>))
+import System.Random(randomIO)
 
 baseLibrary :: IO ObjectMap
 baseLibrary = createObject
@@ -51,6 +52,7 @@ baseLibrary = createObject
     , ("floor"   , MeowIFunc  ["x"] meowFloor )
     , ("upper"   , MeowIFunc  ["x"] meowUpper )
     , ("lower"   , MeowIFunc  ["x"] meowLower )
+    , ("random"  , MeowIFunc  [   ] meowRand  )
     -- File IO --
     , ("read_file"   , MeowIFunc ["path"]             meowRead   )
     , ("write_file"  , MeowIFunc ["path", "contents"] meowWrite  )
@@ -169,6 +171,9 @@ meowCeil = meowFloatFn ceiling "ceiling"
 
 meowFloor :: Evaluator Prim
 meowFloor = meowFloatFn floor "floor"
+
+meowRand :: Evaluator Prim
+meowRand = MeowDouble <$> liftIO (randomIO :: IO Double)
 
 
 {- Text -}

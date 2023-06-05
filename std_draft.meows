@@ -45,6 +45,29 @@ assert = ( ^.x.^)> (a) => (a or throw("Assertion failed."))
 
 
 ------------------------------------------------
+-- Random
+------------------------------------------------
+
+-- Random float in range.
+-- 'max' is not inclusive.
+=^.x.^= random_range(min, max)
+    bring random() * (max - min) + min
+meow meow
+
+-- Random float between 0 and num.
+-- 'num' is not inclusive.
+=^.x.^= random_until(num)
+    bring random() * num
+meow meow
+
+-- Random int in range.
+-- 'max' is inclusive.
+=^.x.^= random_int(min, max)
+    bring round(random_range(min, max))
+meow meow
+
+
+------------------------------------------------
 -- Stack/shelf functions
 ------------------------------------------------
 
