@@ -32,6 +32,7 @@ startRepl :: REPL ()
 startRepl = do
     replPrint "-------------------------------"
     replPrint "Welcome to the Meowscript REPL!"
+    replPrint "Type :help if you need help."
     replPrint "-------------------------------"
     liftIO $ hFlush stdout
     liftIO baseLibrary >>= mainLoop

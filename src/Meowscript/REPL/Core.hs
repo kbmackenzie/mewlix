@@ -77,13 +77,13 @@ popArg (LineCommand name (_:xs)) = LineCommand name xs
 
 helpMessage :: [Text.Text]
 helpMessage =
-    [ "-------------------------------"
-    , "Welcome to the Meowscript REPL!"
+    [ "\n-- ~( ^.x.^)> --\n"
+    , "Welcome to the Meowscript REPL!\n"
     , "You can use the following commands to navigate the REPL:"
     , ":help -> Show 'help' message. (You're here!)"
-    , ":load -> Load a module into the current context."
+    , ":load -> Load a yarn ball into the REPL."
     , ":quit -> Quit the REPL."
-    , "-------------------------------"]
+    , "\n-- <(^.x.^ )~ --\n" ]
 
 showHelp :: Command
 showHelp _ env = printStrLn (Text.intercalate "\n" helpMessage) >> return (True, env)
