@@ -224,34 +224,24 @@ meow meow
 -- String functions
 ------------------------------------------------
 
--- Flatten a shelf into a string.
--- It uses a fold, because yay!
-
-=^.x.^= concat_as_str (shelf)
-    bring fold (shelf, join, "")
+=^.x.^= is_empty(x)
+    bring nuzzle(x)
 meow meow
 
-
--- Substring function implemetation.
--- It's not good for very long strings.
-
-=^.x.^= substring (str, start, length)
-    mew output = drop_n(str, start) -- Start at specified index.
-    output = take_n(output, length) -- Take length.
-    bring concat_as_str(output) -- Flatten list into string.
+=^.x.^= split_at(str, n)
+    mew a = substring(str, 0, n)
+    mew b = substring(str, n, str?! - n)
+    bring [a, b]
 meow meow
 
-
--- 'Trim' function implemntation!
--- Trims whitespace from both ends of a string.
-
-=^.x.^= trim (str)
-    mew fn = ( ^.x.^)> (x) => (x == " ")
-    str = drop_while(str, fn)
-    str = drop_while(reverse(str), fn)
-    bring reverse(str) -- Reversing again.
+=^.x.^= starts_with(str, prefix)
+    bring substring(str, 0, prefix?!) == prefix
 meow meow
 
+=^.x.^= ends_with(str, suffix)
+    mew len = suffix?!
+    bring substring(str, str?! - len, len) == suffix
+meow meow
 
 ------------------------------------------------
 -- Dictionary

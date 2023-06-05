@@ -50,13 +50,18 @@ baseLibrary = createObject
     , ("round"   , MeowIFunc  ["x"] meowRound )
     , ("ceiling" , MeowIFunc  ["x"] meowCeil  )
     , ("floor"   , MeowIFunc  ["x"] meowFloor )
-    , ("upper"   , MeowIFunc  ["x"] meowUpper )
-    , ("lower"   , MeowIFunc  ["x"] meowLower )
-    , ("random"  , MeowIFunc  [   ] meowRand  )
-    -- File IO --
+        -- File IO --
     , ("read_file"   , MeowIFunc ["path"]             meowRead   )
     , ("write_file"  , MeowIFunc ["path", "contents"] meowWrite  )
-    , ("append_file" , MeowIFunc ["path", "contents"] meowAppend )]
+    , ("append_file" , MeowIFunc ["path", "contents"] meowAppend )
+        -- Text --
+    , ("upper"     , MeowIFunc  ["x"]                   meowUpper   )
+    , ("lower"     , MeowIFunc  ["x"]                   meowLower   )
+    , ("random"    , MeowIFunc  [   ]                   meowRand    )
+    , ("trim"      , MeowIFunc  ["x"]                   meowTrim    )
+    , ("split"     , MeowIFunc  ["str", "token"]        meowSplit   )
+    , ("substring" , MeowIFunc  ["str", "start", "len"] meowSubstr  )
+    , ("replace"   , MeowIFunc  ["str", "token", "rep"] meowReplace )]
 
 {- IO -} 
 ----------------------------------------------------------
@@ -188,6 +193,31 @@ meowUpper = meowStrFn Text.toUpper "upper"
 
 meowLower :: Evaluator Prim
 meowLower = meowStrFn Text.toLower "lower"
+
+meowSubstr :: Evaluator Prim
+meowSubstr = (,,) <$> lookUp "str" <*> lookUp "start" <*> lookUp "len" >>= \case
+    (MeowString str, MeowInt start, MeowInt len) ->
+        (return . MeowString . Text.take len . Text.drop start) str
+    (x, y, z) -> throwError =<< badArgs "substring" [x, y, z]
+
+meowSplit :: Evaluator Prim
+meowSplit = (,) <$> lookUp "str" <*> lookUp "token" >>= \case
+    (MeowString str, MeowString token) -> if (not . Text.null) token
+        then (return . MeowList . (MeowString <$>)) (Text.splitOn token str)
+        else throwError =<< badArgs "split" [MeowString str, MeowString token]
+    (x, y) -> throwError =<< badArgs "split" [x, y]
+
+meowTrim :: Evaluator Prim
+meowTrim = lookUp "x" >>= \case
+    (MeowString x) -> (return . MeowString . Text.strip) x
+    x -> throwError =<< badArgs "trim" [x]
+
+meowReplace :: Evaluator Prim
+meowReplace = (,,) <$> lookUp "str" <*> lookUp "token" <*> lookUp "rep" >>= \case
+    (MeowString str, MeowString token, MeowString replacement) -> if (not . Text.null) token
+        then (return . MeowString) (Text.replace token replacement str)
+        else throwError =<< badArgs "replace" (MeowString <$> [str, token, replacement])
+    (x, y, z) -> throwError =<< badArgs "replace" [x, y, z]
 
 
 {- Boxes -}

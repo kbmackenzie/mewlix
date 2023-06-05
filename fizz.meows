@@ -1,6 +1,6 @@
 -- Fizzbuzzbazz
 
-consts = ~( ^.x.^) BOX!! [
+words = ~( ^.x.^) BOX!! [
     fizz: "fizz",
     buzz: "buzz",
     bazz: "bazz"
@@ -11,11 +11,11 @@ consts = ~( ^.x.^) BOX!! [
         mew output = ""
 
         mew? (i % 3 == 0)
-            output = output..consts.fizz
+            output = output..words.fizz
         mew? (i % 5 == 0)
-            output = output..consts.buzz
+            output = output..words.buzz
         mew? (i % 7 == 0)
-            output = output..consts.bazz
+            output = output..words.bazz
         hiss!
             output = string(i)
         meow meow
