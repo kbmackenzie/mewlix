@@ -11,3 +11,4 @@ dist-newstyle/
 *.prof
 foo/
 *.zip
+std_backup/

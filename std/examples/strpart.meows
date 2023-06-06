@@ -1,0 +1,22 @@
+~( ^.x.^)> -----------------------------------------------
+'Optimal Partition of String' Leetcode problem.
+https://leetcode.com/problems/optimal-partition-of-string/
+----------------------------------------------- <(^.x.^ )~
+
+takes "std_draft.meows"
+
+=^.x.^= partitionString(str)
+    mew chars = set()
+    mew min = 1
+    meowmeow(str)
+        mew c = peek str
+        mew? (not chars.contains(c))
+            chars.add(c) 
+            knock over str
+            catnap
+        meow meow
+        paw at min
+        chars.clear()
+    meow meow
+    bring min
+meow meow

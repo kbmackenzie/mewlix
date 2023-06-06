@@ -20,6 +20,7 @@ import Control.Monad.Except(throwError)
 import Control.Monad.State(liftIO)
 import Data.Functor((<&>))
 import Control.Monad((>=>))
+import Data.IORef(readIORef)
 import System.Random(randomIO)
 
 baseLibrary :: IO ObjectMap
@@ -54,14 +55,17 @@ baseLibrary = createObject
     , ("read_file"   , MeowIFunc ["path"]             meowRead   )
     , ("write_file"  , MeowIFunc ["path", "contents"] meowWrite  )
     , ("append_file" , MeowIFunc ["path", "contents"] meowAppend )
+        -- Boxes --
+    , ("lookup"      , MeowIFunc  ["box", "key"]      meowLookup )
+    , ("haskey"      , MeowIFunc  ["box", "key"]      meowHasKey )
         -- Text --
-    , ("upper"     , MeowIFunc  ["x"]                   meowUpper   )
-    , ("lower"     , MeowIFunc  ["x"]                   meowLower   )
-    , ("random"    , MeowIFunc  [   ]                   meowRand    )
-    , ("trim"      , MeowIFunc  ["x"]                   meowTrim    )
-    , ("split"     , MeowIFunc  ["str", "token"]        meowSplit   )
-    , ("substring" , MeowIFunc  ["str", "start", "len"] meowSubstr  )
-    , ("replace"   , MeowIFunc  ["str", "token", "rep"] meowReplace )]
+    , ("upper"       , MeowIFunc  ["x"]                   meowUpper   )
+    , ("lower"       , MeowIFunc  ["x"]                   meowLower   )
+    , ("random"      , MeowIFunc  [   ]                   meowRand    )
+    , ("trim"        , MeowIFunc  ["x"]                   meowTrim    )
+    , ("split"       , MeowIFunc  ["str", "token"]        meowSplit   )
+    , ("substring"   , MeowIFunc  ["str", "start", "len"] meowSubstr  )
+    , ("replace"     , MeowIFunc  ["str", "token", "rep"] meowReplace )]
 
 {- IO -} 
 ----------------------------------------------------------
@@ -232,6 +236,18 @@ getValues :: Evaluator Prim
 getValues = lookUp "x" >>= \case
     (MeowObject x) -> MeowList <$> mapM (evalRef >=> ensureValue) (Map.elems x)
     x -> throwError =<< badArgs "values" [x]
+
+meowLookup :: Evaluator Prim
+meowLookup = (,) <$> lookUp "box" <*> lookUp "key" >>= \case
+    (MeowObject box, MeowString key) -> case Map.lookup key box of
+        (Just ref) -> (liftIO . readIORef) ref
+        Nothing -> return MeowLonely
+    (x, y) -> throwError =<< badArgs "lookup" [x, y]
+
+meowHasKey :: Evaluator Prim
+meowHasKey = (,) <$> lookUp "box" <*> lookUp "key" >>= \case
+    (MeowObject box, MeowString key) -> (return . MeowBool) (Map.member key box)
+    (x, y) -> throwError =<< badArgs "haskey" [x, y]
 
 
 {- Reflection -}

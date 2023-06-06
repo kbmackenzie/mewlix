@@ -283,13 +283,31 @@ meow meow
 
 =^.x.^= dictionary()
     bring ~( ^.x.^) BOX!! [
-        _pairs: ~( ^.x.^) BOX!! [],
-        length:   ( ^.x.^)> () => (home._pairs?!),
-        keys:     ( ^.x.^)> () => (keys(home._pairs)),
-        values:   ( ^.x.^)> () => (values(home._pairs)),
-        add:      ( ^.x.^)> (key, value) => (home._pairs.~~(string(key)) = value),
-        get:      ( ^.x.^)> (key) => (home._pairs.~~(string(key))),
-        contains: ( ^.x.^)> (key) => (contains(home.keys(), string(key)))
+        pairs:   ~( ^.x.^) BOX!! [],
+        length:   ( ^.x.^)> () => (home.pairs?!),
+        keys:     ( ^.x.^)> () => (keys(home.pairs)),
+        values:   ( ^.x.^)> () => (values(home.pairs)),
+        add:      ( ^.x.^)> (key, value) => (home.pairs.~~(string(key)) = value),
+        get:      ( ^.x.^)> (key) => (lookup(home.pairs, string(key))),
+        contains: ( ^.x.^)> (key) => (haskey(home.pairs, string(key))),
+        clear:    ( ^.x.^)> () => (home.pairs = ~( ^.x.^) BOX!! [])
+    ]
+meow meow
+
+
+
+~( ^.x.^)> --------
+        Set
+-------- <(^.x.^ )~
+
+=^.x.^= set()
+    bring ~( ^.x.^) BOX!! [
+        pairs:   ~( ^.x.^) BOX!! [],
+        length:   ( ^.x.^)> () => (home.pairs?!),
+        items:    ( ^.x.^)> () => (values(home.pairs)),
+        add:      ( ^.x.^)> (item) => (home.pairs.~~(string(item)) = item),
+        contains: ( ^.x.^)> (item) => (haskey(home.pairs, string(item))),
+        clear:    ( ^.x.^)> () => (home.pairs = ~( ^.x.^) BOX!! [])
     ]
 meow meow
 
