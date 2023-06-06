@@ -256,6 +256,7 @@ innerWhile x body = runLocal $ do
         then innerWhile x body
         else return $ case ret of
             RetContinue -> RetVoid
+            RetBreak -> RetVoid
             ret' -> ret'
 
 {- For Loop -}
@@ -277,4 +278,5 @@ innerFor xs@(_, incr, cond) body = runLocal $ do
         then innerFor xs body
         else return $ case ret of
             RetContinue -> RetVoid
+            RetBreak -> RetVoid
             ret' -> ret'
