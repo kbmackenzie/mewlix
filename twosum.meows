@@ -1,0 +1,26 @@
+~( ^.x.^)> ---------------------------
+'Two Sum' Leetcode problem.
+https://leetcode.com/problems/two-sum/
+
+The solution was adapted to work with
+Meowscript's limitation of only
+having stacks and no indexable lists.
+
+The solution remains O(n).
+--------------------------- <(^.x.^ )~
+
+takes "std_draft.meows"
+
+=^.x.^= two_sum(nums, target)
+    cache = dictionary()
+    mew i = 0
+    meowmeow (nums)
+        mew diff = target - peek nums
+        mew? (cache.contains(diff))
+            bring [cache.get(diff), i]
+        meow meow
+        cache.add(peek nums, i)
+        paw at i
+        knock over nums
+    meow meow
+meow meow

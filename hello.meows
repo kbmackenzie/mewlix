@@ -1,0 +1,7 @@
+-- 'Hello' program.
+
+=^.x.^= hello()
+    purr("Enter your name: ")
+    mew name = listen()
+    meow("Hello, "..name.."!")
+meow meow

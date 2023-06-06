@@ -100,7 +100,8 @@ meow meow
     mew current_turn = turn.x
     mew board_state = has_won(board)
     meowmeow (not board_state.win and not is_draw(board))
-        meow("Turn: "..(current_turn == turn.x ? tile.x : tile.o))
+        mew turn_tile = current_turn == turn.x ? tile.x : tile.o
+        meow("Turn: "..turn_tile)
         print_board(board)
 
         mew i = board_input("row")
@@ -111,10 +112,9 @@ meow meow
             catnap
         meow meow
 
-        board.add([i, j], current_turn == turn.x ? tile.x : tile.o)
-        current_turn = current_turn == turn.x ? turn.o : turn.x
-
+        board.add([i, j], turn_tile)
         board_state = has_won(board)
+        current_turn = current_turn == turn.x ? turn.o : turn.x
     meow meow
 
     print_board(board)
