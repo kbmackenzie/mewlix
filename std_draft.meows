@@ -36,9 +36,9 @@ compare = ~( ^.x.^) BOX!! [
 ]
 
 
-~( ^.x.^)> -----------
-       Debugging 
------------ <(^.x.^ )~
+~( ^.x.^)> ----------
+      Debugging 
+---------- <(^.x.^ )~
 
 assert = ( ^.x.^)> (a) => (a or throw("Assertion failed."))
 
