@@ -44,7 +44,7 @@ lineComment :: Parser ()
 lineComment = Lexer.skipLineComment "--"
 
 blockComment :: Parser ()
-blockComment = Lexer.skipBlockComment "<(=^.x.^= )~" "~( =^.x.^=)>"
+blockComment = Lexer.skipBlockComment "~( ^.x.^)>" "<(^.x.^ )~" 
 
 spaceChars :: Parser ()
 spaceChars = (void . Mega.some . Mega.choice) (MChar.char <$> [ ' ', '\t' ])
