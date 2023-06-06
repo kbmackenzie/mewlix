@@ -62,10 +62,10 @@ Comments:
 -- This is a line comment.
 -- Just like in Haskell and Lua!
 
-<(=^.x.^= )~
+~( ^.x.^)>
 This is a block comment.
 Yes, this whole thing. _(:3」∠)_
-~( =^.x.^=)>
+<(^.x.^ )~
 ```
 
 Functions:
