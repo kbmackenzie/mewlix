@@ -1,0 +1,126 @@
+-- Tic tac toe!
+
+takes "std_draft.meows"
+
+tile = ~( ^.x.^) BOX!! [
+    empty: " ",
+    x: "x",
+    o: "o"
+]
+
+turn = ~( ^.x.^) BOX!! [
+    x: 0,
+    o: 1
+]
+
+=^.x.^= make_board()
+    mew board = dictionary()
+    take (mew i = 0) and do (paw at i) while (i < 3)
+        take (mew j = 0) and do (paw at j) while (j < 3)
+            board.add([i, j], tile.empty)
+        meow meow
+    meow meow
+    bring board
+meow meow
+
+=^.x.^= print_board(board)
+    take (mew i = 0) and do (paw at i) while (i < 3)
+        purr("[")
+        take (mew j = 0) and do (paw at j) while (j < 3)
+            purr(" "..board.get([i, j]).." ")
+            mew? (j < 2)
+                purr("|")
+            meow meow
+        meow meow
+        purr("]\n")
+    meow meow
+meow meow
+
+=^.x.^= has_won(board)
+    mew winner = ( ^.x.^)> (x) => (~( ^.x.^) BOX!! [ win: happy, winner: x ])
+
+    take (mew i = 0) and do (paw at i) while (i < 3)
+        mew row_start = board.get([i, 0])
+        mew? (row_start != tile.empty                   \
+                and row_start == board.get([i, 1])      \
+                and row_start == board.get([i, 2]))
+            bring winner(row_start)
+        meow meow
+
+        mew column_start = board.get([0, i])
+        mew? (column_start != tile.empty                \
+                and column_start == board.get([1, i])   \
+                and column_start == board.get([2, i]))
+            bring winner(column_start)
+        meow meow
+    meow meow
+
+    mew top_left_corner = board.get([0, 0])
+    mew? (top_left_corner != tile.empty                 \
+            and top_left_corner == board.get([1, 1])    \
+            and top_left_corner == board.get([2, 2]))
+        bring winner(top_left_corner)
+    meow meow
+
+    mew top_right_corner = board.get([0, 2])
+    mew? (top_right_corner != tile.empty                \
+            and top_right_corner == board.get([1, 1])   \
+            and top_right_corner == board.get([2, 0]))
+        bring winner(top_right_corner)
+    meow meow
+
+    bring ~( ^.x.^) BOX!! [ win: sad ]
+meow meow
+
+=^.x.^= is_draw(board)
+    take (mew i = 0) and do (paw at i) while (i < 3)
+        take (mew j = 0) and do (paw at j) while (j < 3)
+            mew? (board.get([i, j]) == tile.empty)
+                bring sad
+            meow meow
+        meow meow
+    meow meow
+    bring happy
+meow meow
+
+=^.x.^= board_input(name)
+    meowmeow(happy)
+        purr("Enter a "..name..": ")
+        mew x = int(listen()) - 1
+        mew? (x < 0 or x > 2)
+            meow("Invalid "..name.." number!")
+        hiss!
+            bring x
+        meow meow
+    meow meow
+meow meow
+
+=^.x.^= tictactoe()
+    mew board = make_board()
+    mew current_turn = turn.x
+    mew board_state = has_won(board)
+    meowmeow (not board_state.win and not is_draw(board))
+        meow("Turn: "..(current_turn == turn.x ? tile.x : tile.o))
+        print_board(board)
+
+        mew i = board_input("row")
+        mew j = board_input("column")
+
+        mew? (board.get([i, j]) != tile.empty)
+            meow("Tile is already filled!")
+            catnap
+        meow meow
+
+        board.add([i, j], current_turn == turn.x ? tile.x : tile.o)
+        current_turn = current_turn == turn.x ? turn.o : turn.x
+
+        board_state = has_won(board)
+    meow meow
+
+    print_board(board)
+    mew? (board_state.win)
+        meow("The winner is "..board_state.winner.."!")
+    hiss!
+        meow("It's a draw!")
+    meow meow
+meow meow
