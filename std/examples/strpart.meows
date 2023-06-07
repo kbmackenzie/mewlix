@@ -3,7 +3,7 @@
 https://leetcode.com/problems/optimal-partition-of-string/
 ----------------------------------------------- <(^.x.^ )~
 
-takes "std_draft.meows"
+takes "std.meows"
 
 =^.x.^= partitionString(str)
     mew chars = set()

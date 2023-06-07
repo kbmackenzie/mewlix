@@ -9,7 +9,7 @@ having stacks and no indexable lists.
 The solution remains O(n).
 --------------------------- <(^.x.^ )~
 
-takes "std_draft.meows"
+takes "std.meows"
 
 =^.x.^= two_sum(nums, target)
     cache = dictionary()

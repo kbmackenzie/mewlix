@@ -1,14 +1,14 @@
 -- Tic tac toe!
 
-takes "std_draft.meows"
+takes "std.meows"
 
-tile = ~( ^.x.^) BOX!! [
+Tile = ~( ^.x.^) BOX!! [
     empty: " ",
     x: "x",
     o: "o"
 ]
 
-turn = ~( ^.x.^) BOX!! [
+Turn = ~( ^.x.^) BOX!! [
     x: 0,
     o: 1
 ]
@@ -17,7 +17,7 @@ turn = ~( ^.x.^) BOX!! [
     mew board = dictionary()
     take (mew i = 0) and do (paw at i) while (i < 3)
         take (mew j = 0) and do (paw at j) while (j < 3)
-            board.add([i, j], tile.empty)
+            board.add([i, j], Tile.empty)
         meow meow
     meow meow
     bring board
@@ -41,14 +41,14 @@ meow meow
 
     take (mew i = 0) and do (paw at i) while (i < 3)
         mew row_start = board.get([i, 0])
-        mew? (row_start != tile.empty                   \
+        mew? (row_start != Tile.empty                   \
                 and row_start == board.get([i, 1])      \
                 and row_start == board.get([i, 2]))
             bring winner(row_start)
         meow meow
 
         mew column_start = board.get([0, i])
-        mew? (column_start != tile.empty                \
+        mew? (column_start != Tile.empty                \
                 and column_start == board.get([1, i])   \
                 and column_start == board.get([2, i]))
             bring winner(column_start)
@@ -56,14 +56,14 @@ meow meow
     meow meow
 
     mew top_left_corner = board.get([0, 0])
-    mew? (top_left_corner != tile.empty                 \
+    mew? (top_left_corner != Tile.empty                 \
             and top_left_corner == board.get([1, 1])    \
             and top_left_corner == board.get([2, 2]))
         bring winner(top_left_corner)
     meow meow
 
     mew top_right_corner = board.get([0, 2])
-    mew? (top_right_corner != tile.empty                \
+    mew? (top_right_corner != Tile.empty                \
             and top_right_corner == board.get([1, 1])   \
             and top_right_corner == board.get([2, 0]))
         bring winner(top_right_corner)
@@ -75,7 +75,7 @@ meow meow
 =^.x.^= is_draw(board)
     take (mew i = 0) and do (paw at i) while (i < 3)
         take (mew j = 0) and do (paw at j) while (j < 3)
-            mew? (board.get([i, j]) == tile.empty)
+            mew? (board.get([i, j]) == Tile.empty)
                 bring sad
             meow meow
         meow meow
@@ -97,24 +97,24 @@ meow meow
 
 =^.x.^= tictactoe()
     mew board = make_board()
-    mew current_turn = turn.x
+    mew current_turn = Turn.x
     mew board_state = has_won(board)
     meowmeow (not board_state.win and not is_draw(board))
-        mew turn_tile = current_turn == turn.x ? tile.x : tile.o
-        meow("Turn: "..turn_tile)
+        mew tile = current_turn == Turn.x ? Tile.x : Tile.o
+        meow("Turn: "..tile)
         print_board(board)
 
         mew i = board_input("row")
         mew j = board_input("column")
 
-        mew? (board.get([i, j]) != tile.empty)
+        mew? (board.get([i, j]) != Tile.empty)
             meow("Tile is already filled!")
             catnap
         meow meow
 
-        board.add([i, j], turn_tile)
+        board.add([i, j], tile)
         board_state = has_won(board)
-        current_turn = current_turn == turn.x ? turn.o : turn.x
+        current_turn = current_turn == Turn.x ? Turn.o : Turn.x
     meow meow
 
     print_board(board)
