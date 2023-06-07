@@ -27,7 +27,7 @@ import qualified Data.Map.Strict as Map
 import qualified Data.List as List
 import Control.Monad.Reader (ask, runReaderT, liftIO)
 import Control.Monad.Except (runExceptT, throwError)
-import Data.IORef
+import Data.IORef (newIORef)
 import Meowscript.Utils.IO
 import Data.Either (fromRight)
 
@@ -94,7 +94,7 @@ runImport path xs = asImport path $ runProgram xs >> ask -- Return the environme
 runDebug :: [Statement] -> Evaluator Text.Text
 runDebug xs = do
     ret <- runProgram xs >>= prettyMeow
-    x <- (ask >>= liftIO . readIORef) >>= showMeow . MeowObject
+    x <- (ask >>= readMeowRef) >>= showMeow . MeowObject
     (liftIO . TextIO.putStrLn) x
     return ret
 
@@ -108,11 +108,11 @@ addImport (StmImport file qualified) = (liftIO . getImportEnv) file >>= \case
     (Left ex) -> throwError (badImport file ex)
     (Right import') -> case qualified of
         Nothing -> do
-            x <- ask >>= liftIO . readIORef
-            y <- (liftIO . readIORef) import'
-            ask >>= liftIO . flip writeIORef (x <> y)
+            x <- ask >>= readMeowRef
+            y <- readMeowRef import'
+            ask >>= flip writeMeowRef (x <> y)
         (Just x) -> do
-            imp <- (liftIO . readIORef) import' >>= liftIO . newIORef . MeowObject
+            imp <- readMeowRef import' >>= liftIO . newIORef . MeowObject
             insertRef x imp
 addImport x = throwError (showException MeowBadImport
     "Critical error: Statement is not an import! Trace: " `Text.append` showT x)

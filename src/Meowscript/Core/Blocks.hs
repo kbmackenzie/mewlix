@@ -22,7 +22,6 @@ import Control.Monad.Reader (asks, liftIO)
 import Control.Monad.Except (throwError)
 import Control.Monad (void, join, when, (>=>))
 import Data.Functor ((<&>))
-import Data.IORef (readIORef)
 
 type Args = [Prim]
 
@@ -175,7 +174,7 @@ asMethod keys args
     | otherwise = trailAction (init keys) $ \ref -> do
         let parent = ref
         let key = last keys
-        fn <- evalRef ref >>= peekAsObject key >>= evalRef
+        fn <- readMeowRef ref >>= peekAsObject key >>= readMeowRef 
         runMethod key args parent fn
 
 meowFunc :: Key -> Params -> Args -> [Statement] -> Evaluator Prim
@@ -193,7 +192,7 @@ iFunc key params args fn = do
 runFunc :: Key -> Args -> Prim -> Evaluator Prim
 runFunc key args (MeowIFunc params fn) = runLocal $ iFunc key params args fn
 runFunc key args (MeowFunc params body closure) = funcTrace key args $ do 
-    closure' <- (liftIO . readIORef) closure
+    closure' <- readMeowRef closure
     runClosure closure' $ meowFunc key params args body
 runFunc key _ _ = throwError (badFunc key)
 
@@ -201,7 +200,7 @@ runMethod :: Key -> Args -> PrimRef -> Prim -> Evaluator Prim
 runMethod key args _ (MeowIFunc params fn) =
     runLocal $ iFunc key params args fn
 runMethod key args parent (MeowFunc params body closure) = funcTrace key args $ do 
-    closure' <- (liftIO . readIORef) closure
+    closure' <- readMeowRef closure
     runClosure closure' $ do
         insertRef "home" parent
         meowFunc key params args body

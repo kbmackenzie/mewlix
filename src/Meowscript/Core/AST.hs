@@ -32,7 +32,7 @@ import qualified Data.Text as Text
 import qualified Data.Map.Strict as Map
 import Control.Monad.Reader (ReaderT)
 import Control.Monad.Except (ExceptT)
-import Data.IORef
+import Data.IORef (IORef)
 import Data.List (intercalate)
 
 type PrimRef = IORef Prim

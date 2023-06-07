@@ -16,11 +16,10 @@ import qualified Data.Text as Text
 import qualified Data.List as List
 import qualified Data.Text.IO as TextIO
 import qualified Data.Text.Read as Read
-import Control.Monad.Except(throwError)
-import Control.Monad.State(liftIO)
-import Data.Functor((<&>))
-import Control.Monad((>=>))
-import Data.IORef(readIORef)
+import Control.Monad.Except (throwError)
+import Control.Monad.State (liftIO)
+import Data.Functor ((<&>))
+import Control.Monad ((>=>))
 import System.Random(randomIO)
 
 baseLibrary :: IO ObjectMap
@@ -234,13 +233,13 @@ getKeys = lookUp "x" >>= \case
 
 getValues :: Evaluator Prim
 getValues = lookUp "x" >>= \case
-    (MeowObject x) -> MeowList <$> mapM (evalRef >=> ensureValue) (Map.elems x)
+    (MeowObject x) -> MeowList <$> mapM (readMeowRef >=> ensureValue) (Map.elems x)
     x -> throwError =<< badArgs "values" [x]
 
 meowLookup :: Evaluator Prim
 meowLookup = (,) <$> lookUp "box" <*> lookUp "key" >>= \case
     (MeowObject box, MeowString key) -> case Map.lookup key box of
-        (Just ref) -> (liftIO . readIORef) ref
+        (Just ref) -> readMeowRef ref
         Nothing -> return MeowLonely
     (x, y) -> throwError =<< badArgs "lookup" [x, y]
 
