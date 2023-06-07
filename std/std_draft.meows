@@ -16,7 +16,7 @@ sqr = ( ^.x.^)> (a) => (a ^ 2)
 min = ( ^.x.^)> (a, b) => (a < b ? a : b)
 max = ( ^.x.^)> (a, b) => (a > b ? a : b)
 
-int_div = ( ^.x.^)> (a, b) => (floor(a / b))
+intdiv = ( ^.x.^)> (a, b) => (floor(a / b))
 
 
 ~( ^.x.^)> -----------

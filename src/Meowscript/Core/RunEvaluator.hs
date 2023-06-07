@@ -23,20 +23,26 @@ import Meowscript.Core.Exceptions
 import Meowscript.Core.Pretty
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import qualified Data.List as List
 import Control.Monad.Reader (ask, runReaderT, liftIO)
 import Control.Monad.Except (runExceptT, throwError)
 import Data.IORef
+import Meowscript.Utils.IO
+import Data.Either (fromRight)
 
 type EvalCallback a b = a -> Evaluator b
 
 runEvaluator :: IO ObjectMap -> Evaluator a -> IO (Either Text.Text a)
 runEvaluator env eval = env >>= newIORef >>= (runExceptT . runReaderT eval)
 
+
+removeLater :: FilePath -> IO Text.Text
+removeLater path = fromRight "" <$> safeReadFile path
+
 -- Evaluate the contents from a .meows file.
 runFile :: IO ObjectMap -> EvalCallback [Statement] b -> FilePath -> IO (Either Text.Text b)
-runFile lib fn path = meowParse path >>= \case
+runFile lib fn path = removeLater path >>= meowParse path >>= \case
     (Left exception) -> (return . Left) exception
     (Right program) -> runCore lib (asMain . fn) program
 

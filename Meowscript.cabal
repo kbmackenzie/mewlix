@@ -36,6 +36,7 @@ library
       Meowscript.Core.Operations
       Meowscript.Core.Pretty
       Meowscript.Core.RunEvaluator
+      Meowscript.Core.SearchPath
       Meowscript.Parser.Core
       Meowscript.Parser.Expr
       Meowscript.Parser.Keywords
@@ -57,6 +58,7 @@ library
     , base >=4.7 && <5
     , bytestring
     , containers
+    , directory
     , filepath
     , megaparsec >=9.3.0
     , mtl
@@ -79,6 +81,7 @@ executable Meowscript-exe
     , base >=4.7 && <5
     , bytestring
     , containers
+    , directory
     , filepath
     , megaparsec >=9.3.0
     , mtl
@@ -102,6 +105,7 @@ test-suite Meowscript-test
     , base >=4.7 && <5
     , bytestring
     , containers
+    , directory
     , filepath
     , megaparsec >=9.3.0
     , mtl

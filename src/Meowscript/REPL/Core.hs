@@ -20,7 +20,7 @@ import Meowscript.Core.RunEvaluator
 import Meowscript.Utils.IO
 import qualified Data.Text as Text
 --import qualified Data.Text.IO as TextIO
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 --import Control.Monad (void, join)
 import Data.IORef
 --import Data.Functor((<&>))

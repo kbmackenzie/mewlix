@@ -12,7 +12,7 @@ import Meowscript.Core.Keys
 import Meowscript.Core.Exceptions
 import Meowscript.Core.Pretty (showMeow)
 import qualified Data.Text as Text
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import Control.Monad.Except (throwError)
 import Control.Monad (join)
 import Data.Functor ((<&>))

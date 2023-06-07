@@ -31,6 +31,7 @@ dependencies:
 - filepath
 - ansi-terminal
 - random
+- directory
 
 ghc-options:
 - -O3

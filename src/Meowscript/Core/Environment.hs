@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+--{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TupleSections #-}
 
@@ -32,7 +32,7 @@ import Data.IORef
 import Meowscript.Core.Exceptions
 import Control.Monad.Reader (ask, liftIO, local)
 import Control.Monad.Except (throwError)
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import Data.Functor ((<&>))
 import Control.Monad (void)
 

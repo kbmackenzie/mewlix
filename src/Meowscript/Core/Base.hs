@@ -11,7 +11,7 @@ import Meowscript.Core.Environment
 import Meowscript.Core.Keys
 import Meowscript.Core.Pretty
 import Meowscript.Utils.IO
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import qualified Data.Text as Text
 import qualified Data.List as List
 import qualified Data.Text.IO as TextIO

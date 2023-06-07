@@ -29,7 +29,7 @@ module Meowscript.Core.AST
 ) where
 
 import qualified Data.Text as Text
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import Control.Monad.Reader (ReaderT)
 import Control.Monad.Except (ExceptT)
 import Data.IORef

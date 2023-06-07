@@ -21,7 +21,7 @@ import Meowscript.Parser.Expr (parseExpr')
 import Meowscript.Parser.RunParser (parseSpecial)
 import Control.Monad.Reader (ask, asks, liftIO)
 import qualified Data.Text as Text
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import qualified Text.Megaparsec as Mega
 import Data.IORef (readIORef)
 import Data.Functor ((<&>))

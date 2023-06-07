@@ -13,7 +13,6 @@ import Meowscript.Parser.Keywords
 import Text.Megaparsec ((<|>), (<?>))
 import qualified Data.Text as Text
 import qualified Text.Megaparsec as Mega
-import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
 import Control.Monad (void)
 import Data.Functor((<&>))

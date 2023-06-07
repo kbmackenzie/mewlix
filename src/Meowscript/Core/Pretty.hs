@@ -9,7 +9,7 @@ module Meowscript.Core.Pretty
 
 import Meowscript.Core.AST
 import qualified Data.Text as Text
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import Control.Monad.Reader (liftIO)
 import Data.Functor ((<&>))
 import Data.IORef (readIORef)

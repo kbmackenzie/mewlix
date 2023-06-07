@@ -8,6 +8,7 @@ module Meowscript.Utils.IO
 , safeReadFile
 , safeWriteFile
 , safeAppendFile
+, safeCurrentDir
 , printError
 ) where
 
@@ -17,6 +18,7 @@ import System.IO (hFlush, stdout)
 import Control.Exception (try, IOException)
 import System.Console.ANSI.Types
 import qualified System.Console.ANSI as Console
+import System.Directory (getCurrentDirectory)
 
 printStr :: Text.Text -> IO ()
 {-# INLINABLE printStr #-}
@@ -80,3 +82,14 @@ safeAppendFile :: FilePath -> Text.Text -> IO (Either Text.Text ())
 safeAppendFile path contents = (try $ TextIO.appendFile path contents :: IO (Either IOException ())) >>= \case
     (Left exception) -> (return . Left . Text.pack . show) exception
     (Right _) -> (return . Right) ()
+
+
+----------------------------------------------------------
+
+-- Directory Handling --
+
+safeCurrentDir :: IO (Either Text.Text Text.Text)
+{-# INLINABLE safeCurrentDir #-}
+safeCurrentDir = (try getCurrentDirectory :: IO (Either IOException String)) >>= \case
+    (Left exception) -> (return . Left . Text.pack . show) exception
+    (Right directory) -> (return . Right . Text.pack) directory
