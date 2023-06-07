@@ -47,6 +47,9 @@ ghc-options:
   #- -optc-O3
   #- -funfolding-use-threshold=16
 
+data-files:
+- std/*.meows
+
 library:
   source-dirs: src
 
