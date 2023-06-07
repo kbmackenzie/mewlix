@@ -38,7 +38,7 @@ library
       Meowscript.Core.Operations
       Meowscript.Core.Pretty
       Meowscript.Core.RunEvaluator
-      Meowscript.Core.SearchPath
+      Meowscript.Core.StdFiles
       Meowscript.Parser.Core
       Meowscript.Parser.Expr
       Meowscript.Parser.Keywords
