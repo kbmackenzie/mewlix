@@ -50,7 +50,7 @@ data MeowException =
     | MeowBadKeyword
     | MeowBadFile
     | MeowUnexpected
-    deriving (Eq, Ord, Read)
+    deriving (Eq, Ord, Enum, Bounded)
 
 instance Show MeowException where
     show MeowBadVar = exc "InvalidVariable"
@@ -68,7 +68,7 @@ instance Show MeowException where
     show MeowCatOnComputer = exc "CatOnComputer"
     show MeowBadKeyword = exc "KeywordException"
     show MeowBadFile = exc "File"
-    show MeowUnexpected = exc "Unexpected"
+    show MeowUnexpected = exc "Unexpected" 
 
 exc :: String -> String
 exc = (++ "Exception")
@@ -84,12 +84,14 @@ showException' meowEx text xs = do
     let message = [text, " | Terms: [", terms, "]"]
     (return . showException meowEx . Text.concat) message
 
-
 stackTrace :: Evaluator Text.Text -> Evaluator a -> Evaluator a
 stackTrace txt action = action `catchError` \x -> do
     message <- txt <&> ("\n    " `Text.append`)
     throwError (x `Text.append` message)
-    
+
+--meowExcs :: [MeowException]
+--meowExcs = [minBound..maxBound]
+
 opException :: Text.Text -> [Prim] -> Evaluator Text.Text
 opException = showException' MeowInvalidOp . \x -> Text.concat
     [ "Invalid operands for '", x, "'!" ]

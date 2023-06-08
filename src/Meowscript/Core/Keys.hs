@@ -17,7 +17,7 @@ import qualified Data.Text as Text
 import Meowscript.Core.Exceptions
 import Meowscript.Utils.Show
 import Control.Monad.Except (throwError)
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 
 keyLookup :: KeyType -> Evaluator Prim
 {-# INLINABLE keyLookup #-}
