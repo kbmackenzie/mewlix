@@ -61,7 +61,7 @@ operators =
     ]
 
 functionCall :: Parser (Expr -> Expr)
-functionCall = (lexeme . parens) $
+functionCall = (lexeme . parens . Mega.try) $
     whitespace >>
     ExpCall <$> sepByComma (lnLexeme parseExpr)
 

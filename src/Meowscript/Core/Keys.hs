@@ -7,6 +7,7 @@ module Meowscript.Core.Keys
 , ensureValue
 , assignNew
 , extractKey
+, ensureKey
 ) where
 
 import Meowscript.Core.AST
