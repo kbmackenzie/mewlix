@@ -4,6 +4,7 @@ module Meowscript.Core.Keys
 ( keyLookup 
 , assignment
 , pairAsRef
+, pairAsInsert
 , ensureValue
 , assignNew
 , extractKey
@@ -16,6 +17,7 @@ import qualified Data.Text as Text
 import Meowscript.Core.Exceptions
 import Meowscript.Utils.Show
 import Control.Monad.Except (throwError)
+import qualified Data.Map as Map
 
 keyLookup :: KeyType -> Evaluator Prim
 {-# INLINABLE keyLookup #-}
@@ -29,11 +31,16 @@ assignment :: KeyType -> Prim -> Evaluator ()
 assignment key value = case key of
     (KeyModify x) -> insertVar x value False
     (KeyNew x) -> insertVar x value True
-    (KeyRef x) -> pairAsRef x >>= flip writeMeowRef value
+    (KeyRef x) -> pairAsInsert x value
 
 pairAsRef :: (PrimRef, Prim) -> Evaluator PrimRef
 {-# INLINABLE pairAsRef #-}
 pairAsRef (ref, prim) = (,) <$> ensureKey prim <*> readMeowRef ref >>= uncurry peekAsObject
+
+pairAsInsert :: (PrimRef, Prim) -> Prim -> Evaluator ()
+pairAsInsert (ref, prim) value = ensureKey prim >>= \key -> do
+    valref <- newMeowRef value
+    modifyObject ref (Map.insert key valref)
 
 ensureValue :: Prim -> Evaluator Prim
 {-# INLINABLE ensureValue #-}

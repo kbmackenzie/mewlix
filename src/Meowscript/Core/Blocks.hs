@@ -36,7 +36,16 @@ evaluate (ExpObject object) = do
     pairs <- mapM toPrim object
     MeowObject <$> (liftIO . createObject) pairs
 evaluate (ExpLambda args expr) = asks (MeowFunc args [StmReturn expr])
-evaluate x@(ExpTrail {}) = MeowKey . KeyRef <$> trailReduce x
+
+-- Trail
+evaluate x@(ExpTrail {}) = do
+    (ref, expr) <- trailReduce x
+    case expr of
+        (ExpCall args funcKey) -> do
+            args' <- mapM (evaluate >=> ensureValue) args
+            fn <- evaluate funcKey
+            funcLookup (KeyRef (ref, fn)) args'
+        _ -> MeowKey . KeyRef . (ref,) <$> evaluate expr
 
 -- Function call
 evaluate (ExpCall args funcKey) = do
@@ -68,22 +77,29 @@ evaluate (ExpTernary cond exprA exprB) = boolEval cond >>= \case
 
 {- Trails -}
 
-trailToRef :: Expr -> Evaluator PrimRef
-trailToRef = trailReduce >=> pairAsRef
+--trailToRef :: Expr -> Evaluator PrimRef
+--trailToRef = trailReduce >=> pairAsRef
 
-trailReduce :: Expr -> Evaluator (PrimRef, Prim)
-trailReduce (ExpTrail x y) = (,) <$> innerTrail x <*> evaluate y
+trailReduce :: Expr -> Evaluator (PrimRef, Expr)
+trailReduce (ExpTrail x y) = (,y) <$> innerTrail x
 trailReduce other = throwError =<< (evaluate >=> badTrail . List.singleton) other
 
 innerTrail :: Expr -> Evaluator PrimRef
 innerTrail (ExpTrail x y) = do
-    key <- (evaluate >=> ensureKey) y
-    obj <- (innerTrail >=> readMeowRef) x
-    peekAsObject key obj
+    ref <- innerTrail x
+    obj <- readMeowRef ref
+    case y of
+        (ExpCall args funcKey) -> do
+            args' <- mapM (evaluate >=> ensureValue) args
+            fn <- evaluate funcKey
+            funcLookup (KeyRef (ref, fn)) args' >>= newMeowRef
+        _ -> (evaluate >=> ensureKey) y >>= flip peekAsObject obj
 innerTrail prim = evaluate prim >>= \case
     (MeowKey key) -> (extractKey >=> lookUpRef) key
     obj@(MeowObject _) -> newMeowRef obj
     other -> throwError =<< badTrail[other]
+
+--innerTrail :: Expr -> Ev
 
 {-
 trailReduce :: Expr -> Evaluator (PrimRef, Prim)

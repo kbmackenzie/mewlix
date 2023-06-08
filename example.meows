@@ -1,5 +1,5 @@
 p = ( ^.x.^)> (a, b) => (b)
 b = ~( ^.x.^) BOX!! [ x:2, y: ~( ^.x.^) BOX!! [ num: 0 ], change: ( ^.x.^)> (n) => (p(home.x = n, home)) ]
 meow(b.y.num)
-meow(b.change(3).y)
+meow(b.change(3).change(4).y)
 meow(b)
