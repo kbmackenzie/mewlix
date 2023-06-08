@@ -8,10 +8,13 @@ module Meowscript.Core.RunEvaluator
 , runLine
 , runCore
 , runExpr
-, runMeowDebug
-, getImportEnv
-, getImportEnv'
+, runImport
+, meowState
+, MeowParams(..)
+, MeowFile
 , EvalCallback
+, getImport
+, importEnv
 ) where
 
 import Meowscript.Core.AST
@@ -35,48 +38,61 @@ import Data.IORef (newIORef)
 import Meowscript.Utils.IO
 
 type EvalCallback a b = a -> Evaluator b
+type MeowFile = Either Text.Text Text.Text
 
-meowState :: [Text.Text] -> MeowState
-meowState args = MeowState
+data MeowParams a b = MeowParams
+    { getMeowState :: MeowState
+    , getMeowFn    :: EvalCallback a b }
+
+meowState :: [Text.Text] -> IO ObjectMap -> MeowState
+meowState args lib = MeowState
     { meowArgs = args
+    , meowLib = lib
     , meowStd = stdFiles }
 
 runEvaluator :: MeowState -> IO ObjectMap -> Evaluator a -> IO (Either Text.Text a)
 runEvaluator meow env eval = env >>= newIORef >>= (runExceptT . runReaderT eval . (meow,))
 
-runFile :: IO ObjectMap -> EvalCallback [Statement] b -> FilePath -> IO (Either Text.Text b)
-runFile lib fn path = safeReadFile path >>= runFileCore lib fn path
+runFile :: MeowParams [Statement] b -> FilePath -> IO (Either Text.Text b)
+runFile params path = safeReadFile path >>= runFileCore params path
 
 -- Evaluate the contents from a .meows file.
-runFileCore :: IO ObjectMap -> EvalCallback [Statement] b -> FilePath -> Either Text.Text Text.Text -> IO (Either Text.Text b)
-runFileCore lib fn path input = case input of
+runFileCore :: MeowParams [Statement] b -> FilePath -> MeowFile -> IO (Either Text.Text b)
+runFileCore params path input = case input of
     (Left exception) -> (return . Left) exception
     (Right contents) -> meowParse path contents >>= \case
         (Left exception) -> (return . Left) exception
-        (Right program) -> runCore lib (asMain . fn) program
+        (Right program) -> runCore state lib (asMain . fn) program
+    where state = getMeowState params
+          lib = meowLib state
+          fn = getMeowFn params
 
 -- Evaluate a single line. It's gonna be used in the REPL!
-runLine :: IO ObjectMap -> Parser a -> EvalCallback a b -> Text.Text -> IO (Either Text.Text b)
-runLine lib parser fn str = case parseSpecial parser str of
+runLine :: Parser a -> MeowParams a b -> Text.Text -> IO (Either Text.Text b)
+runLine parser params str = case parseSpecial parser str of
     (Left exception) -> (return . Left) exception
-    (Right output) -> runCore lib fn output
+    (Right output) -> runCore state lib fn output
+    where state = getMeowState params
+          lib = meowLib state
+          fn = getMeowFn params
 
-runCore :: IO ObjectMap -> EvalCallback a b -> a -> IO (Either Text.Text b)
-runCore lib fn input = do
+runCore :: MeowState -> IO ObjectMap -> EvalCallback a b -> a -> IO (Either Text.Text b)
+runCore state lib fn input = do
     env <- (<>) <$> lib <*> baseLibrary
-    (runEvaluator (meowState []) (return env) . fn) input
+    (runEvaluator state (return env) . fn) input
 
 --------------------------------------------------------------
 
 -- Variants that default to no additional libraries:
 runMeow :: FilePath -> IO (Either Text.Text Text.Text)
-runMeow = runFile (return Map.empty) runProgram'
+runMeow = runFile MeowParams
+    { getMeowState = meowState [] (return Map.empty)
+    , getMeowFn = runProgram' }
 
 runExpr :: Text.Text -> IO (Either Text.Text Prim)
-runExpr = runLine (return Map.empty) (lexemeLn parseExpr') evaluate
-
-runMeowDebug :: FilePath -> IO (Either Text.Text Text.Text)
-runMeowDebug = runFile (return Map.empty) runDebug
+runExpr = runLine (lexemeLn parseExpr') MeowParams
+    { getMeowState = meowState [] (return Map.empty)
+    , getMeowFn = evaluate }
 
 --------------------------------------------------------------
 
@@ -111,24 +127,28 @@ runDebug xs = do
 {- Modules -}
 --------------------------------------------------------
 
-readModule :: FilePath -> Evaluator (Either Text.Text Text.Text)
+readModule :: FilePath -> Evaluator MeowFile
 readModule path = asks (meowStd . fst) >>= \x -> if Set.member path' x
         then (liftIO . readStdFile) path'
         else (liftIO . safeReadFile) path
     where path' = Text.pack path
 
-getImportEnv :: FilePath -> Evaluator (Either Text.Text Environment)
-getImportEnv path = do 
+getImport :: FilePath -> Evaluator (Either Text.Text Environment)
+getImport path = do 
     x <- readModule path
-    liftIO (getImportEnv' path x)
+    state <- asks fst
+    liftIO (importEnv state path x)
 
-getImportEnv' :: FilePath -> Either Text.Text Text.Text -> IO (Either Text.Text Environment)
-getImportEnv' path x = runFileCore (return Map.empty) (runImport path) path x >>= \case
+importEnv :: MeowState -> FilePath -> MeowFile -> IO (Either Text.Text Environment)
+importEnv state path x = runFileCore params path x >>= \case
         (Left exception) -> (return . Left) exception
         (Right output) -> (return . Right) output
+    where params = MeowParams
+                { getMeowState = state
+                , getMeowFn = runImport path }
     
 addImport :: Statement -> Evaluator ()
-addImport (StmImport file qualified) = getImportEnv file >>= \case
+addImport (StmImport file qualified) = getImport file >>= \case
     (Left ex) -> throwError (badImport file ex)
     (Right import') -> case qualified of
         Nothing -> do

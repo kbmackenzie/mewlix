@@ -46,7 +46,8 @@ textAndEnv :: EvalCallback Expr (Text.Text, Environment)
 textAndEnv x = (,) <$> (evaluate x >>= ensureValue >>= prettyMeow) <*> asks snd
 
 evaluateExpr :: ObjectMap -> Expr -> IO (Either Text.Text (Text.Text, Environment))
-evaluateExpr env = runCore (return env) (replTrace . textAndEnv)
+evaluateExpr env = runCore state (return env) (replTrace . textAndEnv) 
+    where state = meowState [] (return env)
 
 replTrace :: Evaluator a -> Evaluator a
 replTrace = stackTrace (return "In <repl>.")

@@ -61,13 +61,14 @@ quit _ env = return (False, env)
 addModule :: Command
 addModule line env = case getArgs line of
     [] -> return (True, env)
-    (x:_) -> readModule path >>= getImportEnv' path >>= \case
+    (x:_) -> readModule path >>= importEnv state path >>= \case
         (Left x') -> printError x' >> return (True, env)
         (Right x') -> do
             env' <- readIORef x'
             let newEnv = env <> env'
             addModule (popArg line) newEnv
         where path = Text.unpack x
+              state = meowState [] (return Map.empty)
 
 readModule :: FilePath -> IO (Either Text.Text Text.Text)
 readModule path = if Set.member path' stdFiles

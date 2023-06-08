@@ -47,8 +47,9 @@ type InnerFunc = Evaluator Prim
 {- Meowscript State -}
 data MeowState = MeowState
     { meowArgs :: [Text.Text]
+    , meowLib  :: IO ObjectMap
     , meowStd  :: Set.Set Text.Text
-    } deriving (Eq, Show)
+    }
 
 {- To add:
  - Socket address.
