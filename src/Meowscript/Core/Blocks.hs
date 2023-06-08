@@ -72,6 +72,21 @@ trailToRef :: Expr -> Evaluator PrimRef
 trailToRef = trailReduce >=> pairAsRef
 
 trailReduce :: Expr -> Evaluator (PrimRef, Prim)
+trailReduce (ExpTrail x y) = (,) <$> innerTrail x <*> evaluate y
+trailReduce other = throwError =<< (evaluate >=> badTrail . List.singleton) other
+
+innerTrail :: Expr -> Evaluator PrimRef
+innerTrail (ExpTrail x y) = do
+    key <- (evaluate >=> ensureKey) y
+    obj <- (innerTrail >=> readMeowRef) x
+    peekAsObject key obj
+innerTrail prim = evaluate prim >>= \case
+    (MeowKey key) -> (extractKey >=> lookUpRef) key
+    obj@(MeowObject _) -> newMeowRef obj
+    other -> throwError =<< badTrail[other]
+
+{-
+trailReduce :: Expr -> Evaluator (PrimRef, Prim)
 trailReduce (ExpTrail x y) = evaluate x >>= \case
     (MeowKey key) -> (extractKey >=> lookUpRef) key >>= innerTrail y
     obj@(MeowObject _) -> newMeowRef obj >>= innerTrail y
@@ -82,6 +97,7 @@ innerTrail :: Expr -> PrimRef -> Evaluator (PrimRef, Prim)
 innerTrail (ExpTrail x y) ref = innerTrail y =<<
     ((,) <$> (evaluate >=> ensureKey) x <*> readMeowRef ref >>= uncurry peekAsObject)
 innerTrail prim ref = (ref,) <$> evaluate prim
+-}
 
 
 {-- Helpers --}
