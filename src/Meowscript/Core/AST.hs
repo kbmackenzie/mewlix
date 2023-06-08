@@ -42,9 +42,14 @@ type Key = Text.Text
 type Overwrite = Bool
 type InnerFunc = Evaluator Prim
 
+{- Meowscript State -}
+data MeowState = MeowState Int Int
+    deriving (Eq, Show)
+
+{- Meowscript Evaluator -}
 type Environment = IORef ObjectMap
 type Closure = Environment
-type Evaluator a = ReaderT Environment (ExceptT Text.Text IO) a
+type Evaluator a = ReaderT (MeowState, Environment) (ExceptT Text.Text IO) a
 
 data Prim =
       MeowString Text.Text

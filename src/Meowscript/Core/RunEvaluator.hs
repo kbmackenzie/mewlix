@@ -25,7 +25,7 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map.Strict as Map
 import qualified Data.List as List
-import Control.Monad.Reader (ask, runReaderT, liftIO)
+import Control.Monad.Reader (asks, runReaderT, liftIO)
 import Control.Monad.Except (runExceptT, throwError)
 import Data.IORef (newIORef)
 import Meowscript.Utils.IO
@@ -89,12 +89,12 @@ runProgram' :: [Statement] -> Evaluator Text.Text
 runProgram' xs = runProgram xs >>= prettyMeow
 
 runImport :: FilePath -> [Statement] -> Evaluator Environment
-runImport path xs = asImport path $ runProgram xs >> ask -- Return the environment.
+runImport path xs = asImport path $ runProgram xs >> asks snd -- Return the environment.
 
 runDebug :: [Statement] -> Evaluator Text.Text
 runDebug xs = do
     ret <- runProgram xs >>= prettyMeow
-    x <- (ask >>= readMeowRef) >>= showMeow . MeowObject
+    x <- (asks snd >>= readMeowRef) >>= showMeow . MeowObject
     (liftIO . TextIO.putStrLn) x
     return ret
 
@@ -108,9 +108,9 @@ addImport (StmImport file qualified) = (liftIO . getImportEnv) file >>= \case
     (Left ex) -> throwError (badImport file ex)
     (Right import') -> case qualified of
         Nothing -> do
-            x <- ask >>= readMeowRef
+            x <- asks snd >>= readMeowRef
             y <- readMeowRef import'
-            ask >>= flip writeMeowRef (x <> y)
+            asks snd >>= flip writeMeowRef (x <> y)
         (Just x) -> do
             imp <- readMeowRef import' >>= liftIO . newIORef . MeowObject
             insertRef x imp
