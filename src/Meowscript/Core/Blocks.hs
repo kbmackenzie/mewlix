@@ -77,43 +77,27 @@ evaluate (ExpTernary cond exprA exprB) = boolEval cond >>= \case
 
 {- Trails -}
 
---trailToRef :: Expr -> Evaluator PrimRef
---trailToRef = trailReduce >=> pairAsRef
-
 trailReduce :: Expr -> Evaluator (PrimRef, Expr)
+{-# INLINABLE trailReduce #-}
 trailReduce (ExpTrail x y) = (,y) <$> innerTrail x
 trailReduce other = throwError =<< (evaluate >=> badTrail . List.singleton) other
 
 innerTrail :: Expr -> Evaluator PrimRef
-innerTrail (ExpTrail x y) = do
-    ref <- innerTrail x
-    obj <- readMeowRef ref
-    case y of
-        (ExpCall args funcKey) -> do
-            args' <- mapM (evaluate >=> ensureValue) args
-            fn <- evaluate funcKey
-            funcLookup (KeyRef (ref, fn)) args' >>= newMeowRef
-        _ -> (evaluate >=> ensureKey) y >>= flip peekAsObject obj
+{-# INLINABLE innerTrail #-}
+innerTrail (ExpTrail x y) = case y of
+    (ExpCall args funcKey) -> do
+        args' <- mapM (evaluate >=> ensureValue) args
+        fn <- evaluate funcKey
+        innerTrail x >>= (flip funcLookup args' . KeyRef . (,fn)) >>= newMeowRef
+    _ -> do
+        obj <- (innerTrail >=> readMeowRef) x
+        key <- (evaluate >=> ensureKey) y
+        peekAsObject key obj
+    --(,) <$> (innerTrail >=> readMeowRef) x <*> (evaluate >=> ensureKey) y >>= peekAsObject
 innerTrail prim = evaluate prim >>= \case
     (MeowKey key) -> (extractKey >=> lookUpRef) key
     obj@(MeowObject _) -> newMeowRef obj
     other -> throwError =<< badTrail[other]
-
---innerTrail :: Expr -> Ev
-
-{-
-trailReduce :: Expr -> Evaluator (PrimRef, Prim)
-trailReduce (ExpTrail x y) = evaluate x >>= \case
-    (MeowKey key) -> (extractKey >=> lookUpRef) key >>= innerTrail y
-    obj@(MeowObject _) -> newMeowRef obj >>= innerTrail y
-    other -> throwError =<< badTrail [other]
-trailReduce x = throwError =<< (evaluate >=> ensureValue >=> badTrail . List.singleton) x
-
-innerTrail :: Expr -> PrimRef -> Evaluator (PrimRef, Prim)
-innerTrail (ExpTrail x y) ref = innerTrail y =<<
-    ((,) <$> (evaluate >=> ensureKey) x <*> readMeowRef ref >>= uncurry peekAsObject)
-innerTrail prim ref = (ref,) <$> evaluate prim
--}
 
 
 {-- Helpers --}
@@ -134,6 +118,8 @@ boolEval :: Expr -> Evaluator Bool
 boolEval x = (evaluate >=> ensureValue) x <&> meowBool
 
 ------------------------------------------------------------------------
+
+{-- Stack Tracing --}
 
 funcTrace :: Key -> Args -> Evaluator a -> Evaluator a
 funcTrace key args = stackTrace $ do

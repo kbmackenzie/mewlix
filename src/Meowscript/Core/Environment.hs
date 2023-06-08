@@ -24,10 +24,6 @@ module Meowscript.Core.Environment
 , primAsBox
 , peekObject 
 , peekAsObject
---, Callback
---, lookUpTrail
---, insertTrail
---, trailAction
 ) where
 
 import Meowscript.Core.AST
@@ -147,27 +143,3 @@ peekAsObject :: Key -> Prim -> Evaluator PrimRef
 {-# INLINABLE peekAsObject #-}
 peekAsObject key (MeowObject x) = peekObject key x
 peekAsObject _ x = throwError =<< notBox x
-
-{- Trail : Actions -}
-
-{-
-type Callback = PrimRef -> Evaluator Prim
-
-trailAction :: [Key] -> Callback -> Evaluator Prim
-trailAction [] _ = throwError emptyTrail
-trailAction (key:keys) f = lookUpRef key >>= innerAction keys f
-
-innerAction :: [Key] -> Callback -> PrimRef -> Evaluator Prim
-innerAction [] f ref = f ref
-innerAction (key:keys) f ref = readMeowRef ref >>= peekAsObject key >>= innerAction keys f
-
-lookUpTrail :: [Key] -> Evaluator Prim
-lookUpTrail keys = trailAction keys readMeowRef
-
-insertTrail :: [Key] -> Prim -> Evaluator ()
-insertTrail keys value
-    | length keys <= 1 = throwError (shortTrail keys)
-    | otherwise = void $ trailAction (init keys) $ \x -> do
-        newMeowRef value >>= modifyObject x . Map.insert (last keys)
-        return value
--}
