@@ -35,7 +35,7 @@ evaluate (ExpObject object) = do
     let toPrim (key, expr) = (evaluate expr >>= ensureValue) <&> (key,)
     pairs <- mapM toPrim object
     MeowObject <$> (liftIO . createObject) pairs
-evaluate (ExpLambda args expr) = asks (MeowFunc args [StmReturn expr])
+evaluate (ExpLambda args expr) = asks (MeowFunc args [StmReturn expr] . snd)
 
 -- Trail
 evaluate x@(ExpTrail {}) = do
@@ -177,7 +177,7 @@ runExprStatement = evaluate
 {-- Functions --}
 runFuncDef :: KeyType -> Params -> Block -> Evaluator ReturnValue
 runFuncDef key params body = do 
-    asks (MeowFunc params body) >>= assignment key
+    asks (MeowFunc params body . snd) >>= assignment key
     return RetVoid
 
 {- Run Functions -}

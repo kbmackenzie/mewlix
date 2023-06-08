@@ -15,6 +15,7 @@ module Meowscript.Core.AST
 , Overwrite
 , Name
 , Params
+, MeowState(..)
 , Environment
 , Closure
 , Evaluator
@@ -29,6 +30,7 @@ module Meowscript.Core.AST
 ) where
 
 import qualified Data.Text as Text
+import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
 import Control.Monad.Reader (ReaderT)
 import Control.Monad.Except (ExceptT)
@@ -43,8 +45,15 @@ type Overwrite = Bool
 type InnerFunc = Evaluator Prim
 
 {- Meowscript State -}
-data MeowState = MeowState Int Int
-    deriving (Eq, Show)
+data MeowState = MeowState
+    { meowArgs :: [Text.Text]
+    , meowStd  :: Set.Set Text.Text
+    } deriving (Eq, Show)
+
+{- To add:
+ - Socket address.
+ - Compile flags (?).
+ - 'Define'-style flags. (?) -}
 
 {- Meowscript Evaluator -}
 type Environment = IORef ObjectMap

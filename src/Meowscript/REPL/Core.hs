@@ -13,19 +13,16 @@ module Meowscript.REPL.Core
 ) where
 
 import Meowscript.Core.AST
-import Meowscript.Core.Pretty
+import Meowscript.Core.StdFiles
 import Meowscript.Core.RunEvaluator 
---import Meowscript.Core.Keys
---import Meowscript.Core.Blocks (evaluate)
 import Meowscript.Utils.IO
+import Meowscript.Utils.Data
 import qualified Data.Text as Text
---import qualified Data.Text.IO as TextIO
 import qualified Data.Map.Strict as Map
---import Control.Monad (void, join)
-import Data.IORef
---import Data.Functor((<&>))
---import System.IO (hFlush, stdout)
+import qualified Data.Set as Set
 import Control.Monad.Reader (ReaderT, runReaderT)
+import Data.IORef (readIORef)
+import Data.Functor((<&>))
 
 {-
  - -- REPL LOOP --
@@ -64,12 +61,19 @@ quit _ env = return (False, env)
 addModule :: Command
 addModule line env = case getArgs line of
     [] -> return (True, env)
-    (x:_) -> getImportEnv (Text.unpack x) >>= \case
+    (x:_) -> readModule path >>= getImportEnv' path >>= \case
         (Left x') -> printError x' >> return (True, env)
         (Right x') -> do
             env' <- readIORef x'
             let newEnv = env <> env'
             addModule (popArg line) newEnv
+        where path = Text.unpack x
+
+readModule :: FilePath -> IO (Either Text.Text Text.Text)
+readModule path = if Set.member path' stdFiles
+    then readStdFile path'
+    else safeReadFile path
+    where path' = Text.pack path
 
 popArg :: LineCommand -> LineCommand
 popArg l@(LineCommand _ []) = l

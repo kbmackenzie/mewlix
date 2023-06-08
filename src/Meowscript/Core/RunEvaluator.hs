@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TupleSections #-}
 
 module Meowscript.Core.RunEvaluator
 ( runMeow
@@ -9,6 +10,7 @@ module Meowscript.Core.RunEvaluator
 , runExpr
 , runMeowDebug
 , getImportEnv
+, getImportEnv'
 , EvalCallback
 ) where
 
@@ -21,30 +23,37 @@ import Meowscript.Parser.Core (Parser, lexemeLn)
 import Meowscript.Parser.RunParser
 import Meowscript.Core.Exceptions
 import Meowscript.Core.Pretty
+import Meowscript.Core.StdFiles
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map.Strict as Map
+import qualified Data.Set as Set
 import qualified Data.List as List
 import Control.Monad.Reader (asks, runReaderT, liftIO)
 import Control.Monad.Except (runExceptT, throwError)
 import Data.IORef (newIORef)
 import Meowscript.Utils.IO
-import Data.Either (fromRight)
 
 type EvalCallback a b = a -> Evaluator b
 
-runEvaluator :: IO ObjectMap -> Evaluator a -> IO (Either Text.Text a)
-runEvaluator env eval = env >>= newIORef >>= (runExceptT . runReaderT eval)
+meowState :: [Text.Text] -> MeowState
+meowState args = MeowState
+    { meowArgs = args
+    , meowStd = stdFiles }
 
+runEvaluator :: MeowState -> IO ObjectMap -> Evaluator a -> IO (Either Text.Text a)
+runEvaluator meow env eval = env >>= newIORef >>= (runExceptT . runReaderT eval . (meow,))
 
-removeLater :: FilePath -> IO Text.Text
-removeLater path = fromRight "" <$> safeReadFile path
+runFile :: IO ObjectMap -> EvalCallback [Statement] b -> FilePath -> IO (Either Text.Text b)
+runFile lib fn path = safeReadFile path >>= runFileCore lib fn path
 
 -- Evaluate the contents from a .meows file.
-runFile :: IO ObjectMap -> EvalCallback [Statement] b -> FilePath -> IO (Either Text.Text b)
-runFile lib fn path = removeLater path >>= meowParse path >>= \case
+runFileCore :: IO ObjectMap -> EvalCallback [Statement] b -> FilePath -> Either Text.Text Text.Text -> IO (Either Text.Text b)
+runFileCore lib fn path input = case input of
     (Left exception) -> (return . Left) exception
-    (Right program) -> runCore lib (asMain . fn) program
+    (Right contents) -> meowParse path contents >>= \case
+        (Left exception) -> (return . Left) exception
+        (Right program) -> runCore lib (asMain . fn) program
 
 -- Evaluate a single line. It's gonna be used in the REPL!
 runLine :: IO ObjectMap -> Parser a -> EvalCallback a b -> Text.Text -> IO (Either Text.Text b)
@@ -55,7 +64,7 @@ runLine lib parser fn str = case parseSpecial parser str of
 runCore :: IO ObjectMap -> EvalCallback a b -> a -> IO (Either Text.Text b)
 runCore lib fn input = do
     env <- (<>) <$> lib <*> baseLibrary
-    (runEvaluator (return env) . fn) input
+    (runEvaluator (meowState []) (return env) . fn) input
 
 --------------------------------------------------------------
 
@@ -98,13 +107,28 @@ runDebug xs = do
     (liftIO . TextIO.putStrLn) x
     return ret
 
-getImportEnv :: FilePath -> IO (Either Text.Text Environment)
-getImportEnv path = runFile (return Map.empty) (runImport path) path >>= \case
-    (Left exception) -> (return . Left) exception
-    (Right output) -> (return . Right) output
 
+{- Modules -}
+--------------------------------------------------------
+
+readModule :: FilePath -> Evaluator (Either Text.Text Text.Text)
+readModule path = asks (meowStd . fst) >>= \x -> if Set.member path' x
+        then (liftIO . readStdFile) path'
+        else (liftIO . safeReadFile) path
+    where path' = Text.pack path
+
+getImportEnv :: FilePath -> Evaluator (Either Text.Text Environment)
+getImportEnv path = do 
+    x <- readModule path
+    liftIO (getImportEnv' path x)
+
+getImportEnv' :: FilePath -> Either Text.Text Text.Text -> IO (Either Text.Text Environment)
+getImportEnv' path x = runFileCore (return Map.empty) (runImport path) path x >>= \case
+        (Left exception) -> (return . Left) exception
+        (Right output) -> (return . Right) output
+    
 addImport :: Statement -> Evaluator ()
-addImport (StmImport file qualified) = (liftIO . getImportEnv) file >>= \case
+addImport (StmImport file qualified) = getImportEnv file >>= \case
     (Left ex) -> throwError (badImport file ex)
     (Right import') -> case qualified of
         Nothing -> do

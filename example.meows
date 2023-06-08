@@ -1,3 +1,5 @@
+takes "std.meows"
+
 p = ( ^.x.^)> (a, b) => (b)
 b = ~( ^.x.^) BOX!! [ x:2, y: ~( ^.x.^) BOX!! [ num: 0 ], change: ( ^.x.^)> (n) => (p(home.x = n, home)) ]
 meow(b.y.num)
