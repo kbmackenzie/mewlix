@@ -30,7 +30,7 @@ operators :: [[Operator Parser Expr]]
 operators =
     [
         [ Prefix  (ExpYarn                            <$ trySymbol "~~"        ) ]
-      , [ InfixL  (ExpTrail                           <$ parseDotOp            ) ]
+      , [ InfixR  (ExpTrail                           <$ parseDotOp            ) ]
       , [ Postfix (Mega.try functionCall                                       ) ]
       , [ Prefix  (ExpUnop  MeowPaw                   <$ tryKeyword meowPaw    )
         , Prefix  (ExpUnop  MeowClaw                  <$ tryKeyword meowClaw   ) ]

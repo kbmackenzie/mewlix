@@ -61,7 +61,7 @@ data Prim =
 data KeyType =
       KeyModify Key
     | KeyNew Key
-    | KeyTrail [Key]
+    | KeyRef (PrimRef, Prim)
     deriving (Eq)
 
 {- This is extremely different from actually pretty-printing Meowscript values!!!
@@ -83,7 +83,7 @@ instance Show Prim where
 instance Show KeyType where
     show (KeyModify x) = Text.unpack x
     show (KeyNew x) = Text.unpack x
-    show (KeyTrail xs) = (Text.unpack . Text.intercalate ".") xs
+    show (KeyRef _) = "<ref>"
 
 data Expr =
       ExpPrim Prim

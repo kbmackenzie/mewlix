@@ -50,7 +50,7 @@ data MeowException =
     | MeowBadKeyword
     | MeowBadFile
     | MeowUnexpected
-    deriving (Eq, Ord)
+    deriving (Eq, Ord, Read)
 
 instance Show MeowException where
     show MeowBadVar = exc "InvalidVariable"
@@ -133,8 +133,8 @@ notFunc :: Prim -> Evaluator Text.Text
 notFunc prim = prettyMeow prim >>= \x -> return $ showException MeowBadFunc
     $ Text.concat ["Attempted to call '", x, "' as a function," , " but '", x, "' is not a function!" ]
 
-badTrail :: Text.Text -> Text.Text
-badTrail = showException MeowBadTrail . Text.append "Invalid token in trail: "
+badTrail :: [Prim] -> Evaluator Text.Text
+badTrail = showException' MeowBadTrail "Invalid token in trail: "
 
 shortTrail :: [Key] -> Text.Text
 shortTrail = showException MeowBadTrail

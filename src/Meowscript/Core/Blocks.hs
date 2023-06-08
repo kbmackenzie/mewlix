@@ -36,7 +36,7 @@ evaluate (ExpObject object) = do
     pairs <- mapM toPrim object
     MeowObject <$> (liftIO . createObject) pairs
 evaluate (ExpLambda args expr) = asks (MeowFunc args [StmReturn expr])
-evaluate x@(ExpTrail {}) = MeowKey . KeyTrail <$> asTrail x
+--evaluate x@(ExpTrail {}) = MeowKey . KeyTrail <$> asTrail x
 
 -- Function call
 evaluate (ExpCall args funcKey) = do
@@ -67,20 +67,33 @@ evaluate (ExpTernary cond exprA exprB) = boolEval cond >>= \case
 ------------------------------------------------------------------------
 
 {- Trails -}
-asTrail :: Expr -> Evaluator [Text.Text]
-asTrail x@(ExpTrail _ _) = (unwrap x >>= mapM evaluate . reverse) >>= mapM asKey
-asTrail x = throwError $ meowUnexpected "Token misinterpreted as trail!" (showT x)
 
-asKey :: Prim -> Evaluator Text.Text
-asKey (MeowKey key) = case key of
-    (KeyModify x) -> return x
-    (KeyNew x) -> return x
-    (KeyTrail xs) -> throwError $ meowUnexpected "Nested trail!" (showT xs)
-asKey x = showMeow x >>= throwError . badTrail
+trailToRef :: Expr -> Evaluator PrimRef
+trailToRef = unwrapTrail >=> trailReduce >=> pairAsRef
 
-unwrap :: Expr -> Evaluator [Expr]
-unwrap (ExpTrail x y) = (y:) <$> unwrap x
-unwrap x = return [x]
+unwrapTrail :: Expr -> Evaluator [Expr]
+unwrapTrail (ExpTrail a b) = (a :) <$> unwrapTrail b
+unwrapTrail c = return [c]
+
+trailReduce :: [Expr] -> Evaluator (PrimRef, Prim)
+trailReduce [] = throwError emptyTrail
+trailReduce (x:xs) = (evaluate >=> trailRef) x >>= traverseTrail xs
+
+traverseTrail :: [Expr] -> PrimRef -> Evaluator (PrimRef, Prim)
+traverseTrail [] _ = throwError emptyTrail
+traverseTrail [x] ref = (ref,) <$> evaluate x
+traverseTrail (x:xs) ref = evaluate x >>= \case
+    (MeowKey key) -> do
+        obj  <- readMeowRef ref
+        extractKey key >>= flip peekAsObject obj >>= traverseTrail xs
+    anyOther -> throwError =<< badTrail [anyOther]
+
+trailRef :: Prim -> Evaluator PrimRef
+trailRef (MeowKey key) = case key of
+    (KeyRef ref) -> return ref
+    k -> extractKey k >>= lookUpRef
+trailRef obj@(MeowObject _) = newMeowRef obj
+trailRef x = throwError =<< badTrail [x]
 
 {-- Helpers --}
 
@@ -165,7 +178,6 @@ funcLookup :: KeyType -> Args -> Evaluator Prim
 funcLookup key args = case key of 
     (KeyModify x) -> runMeow x
     (KeyNew x) -> runMeow x
-    (KeyTrail xs) -> asMethod xs args
     where runMeow x = lookUp x >>= runFunc x args
 
 asMethod :: [Key] -> Args -> Evaluator Prim

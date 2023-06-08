@@ -6,6 +6,7 @@ module Meowscript.Core.Environment
 ( newEnv
 , lookUp
 , lookUpVar
+, lookUpRef
 , keyExists
 , createVar
 , modifyVar
@@ -58,9 +59,9 @@ lookUpVar :: Key -> Evaluator (Maybe PrimRef)
 {-# INLINABLE lookUpVar #-}
 lookUpVar key = (ask >>= readMeowRef) <&> Map.lookup key
 
-lookUpVar' :: Key -> Evaluator PrimRef
-{-# INLINABLE lookUpVar' #-}
-lookUpVar' key = lookUpVar key >>= \case
+lookUpRef :: Key -> Evaluator PrimRef
+{-# INLINABLE lookUpRef #-}
+lookUpRef key = lookUpVar key >>= \case
     (Just x) -> return x
     Nothing -> throwError (badKey key)
 
@@ -70,7 +71,7 @@ keyExists key = (ask >>= readMeowRef) <&> Map.member key
 
 lookUp :: Key -> Evaluator Prim
 {-# INLINABLE lookUp #-}
-lookUp key = lookUpVar' key >>= readMeowRef
+lookUp key = lookUpRef key >>= readMeowRef
 
 createVar :: Key -> Prim -> Evaluator ()
 {-# INLINABLE createVar #-}
@@ -147,7 +148,7 @@ type Callback = PrimRef -> Evaluator Prim
 
 trailAction :: [Key] -> Callback -> Evaluator Prim
 trailAction [] _ = throwError emptyTrail
-trailAction (key:keys) f = lookUpVar' key >>= innerAction keys f
+trailAction (key:keys) f = lookUpRef key >>= innerAction keys f
 
 innerAction :: [Key] -> Callback -> PrimRef -> Evaluator Prim
 innerAction [] f ref = f ref

@@ -17,3 +17,9 @@ ideas:
 [semi-important]
 1. add std.meows and other standard library files as 'data-files' in Cabal!!
 2. let the base library always be included, let additional libraries on top of the base library be included more easily!
+
+[extremely important]
+1. pipe all meowscript exceptions to stderror instead of stdout .
+2. have important state flags and values stored in the Evaluator monad. it'll be called 'MeowState'.
+3. pipe to sockets in order to be able to call meowscript from anywhere. have socket number be an argument in meowr and a value in GlobalMeow
+4. rename 'lookUpVal'' to lookUpRef and 'peekAsObject' to 'peekRefAsObject'.
