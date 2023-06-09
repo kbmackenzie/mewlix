@@ -83,7 +83,7 @@ data KeyType =
  - has to be wrapped in an IO monad to be used, and this 'show' instance is far from enough. ><
  - Thus, I'm using this to facilitate my debugging instead. -}
 instance Show Prim where
-    show (MeowString x) = Text.unpack x
+    show (MeowString x) = show x
     show (MeowKey x) = concat ["<key: \"", show x, "\">" ]
     show (MeowInt x) = show x
     show (MeowBool x) = show x
