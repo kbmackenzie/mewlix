@@ -112,6 +112,7 @@ data Expr =
     | ExpTrail Expr Expr
     | ExpYarn Expr
     | ExpTernary Expr Expr Expr
+    | ExpBoxOp Expr Expr
     deriving (Show)
 
 type Params = [Key]

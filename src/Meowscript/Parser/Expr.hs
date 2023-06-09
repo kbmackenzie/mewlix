@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-} 
+{-# LANGUAGE LambdaCase #-}
 
 module Meowscript.Parser.Expr
 ( parseExpr
@@ -30,8 +31,7 @@ operators :: [[Operator Parser Expr]]
 operators =
     [
         [ Prefix  (ExpYarn                            <$ trySymbol "~~"        ) ]
-      , [ Postfix (foldl1 (flip (.)) <$> Mega.some parseBoxOp                  ) ]
-      , [ Postfix (foldl1 (flip (.)) <$> Mega.some functionCall                ) ]
+      , [ Postfix chainedOps                                                     ]
       , [ InfixL  (ExpTrail                           <$ parseDotOp            ) ]
       , [ Prefix  (ExpUnop  MeowPaw                   <$ tryKeyword meowPaw    )
         , Prefix  (ExpUnop  MeowClaw                  <$ tryKeyword meowClaw   ) ]
@@ -100,4 +100,7 @@ parseDotOp = Mega.try $ do
     Mega.notFollowedBy $ Mega.satisfy (== '.')
 
 parseBoxOp :: Parser (Expr -> Expr)
-parseBoxOp = (Mega.try . lexeme . brackets) (flip ExpTrail . ExpYarn <$> parseExpr')
+parseBoxOp = (Mega.try . lexeme . brackets) (flip ExpBoxOp . ExpYarn <$> parseExpr')
+
+chainedOps :: Parser (Expr -> Expr)
+chainedOps = foldr1 (flip (.)) <$> Mega.some (functionCall <|> parseBoxOp)

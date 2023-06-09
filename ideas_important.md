@@ -35,4 +35,7 @@ ideas:
 
 
 [changelog]
-1. added box["item"] operator, but it cannot be chained! keep this in mind.
+1. added box["item"] operator, but it cannot be chained! keep this in mind. (NEVERMIND THIS IS SOVLED!!!!!!!!!!!1 THEY CAN BE CHAINED!!!!!!!!!!!) 
+2. function names are expressions, but now their order matters. this is fine though , the order only matters inside of their block!
+3. have to add watch/catch...
+4. the box["item"] operator can be chained with "."s! the only exception is... a["b"].c. because of course it's a fucking exception haha lol help please!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

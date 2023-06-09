@@ -73,6 +73,12 @@ evaluate (ExpTernary cond exprA exprB) = boolEval cond >>= \case
     True -> evaluate exprA
     False -> evaluate exprB
 
+-- Box operator []
+evaluate (ExpBoxOp boxExpr expr) = do
+    box <- (evaluate >=> ensureValue) boxExpr
+    key <- (evaluate >=> ensureKey) expr
+    peekAsObject key box >>= readMeowRef
+
 ------------------------------------------------------------------------
 
 {- Trails -}
@@ -89,6 +95,7 @@ innerTrail (ExpTrail x y) = case y of
         args' <- mapM (evaluate >=> ensureValue) args
         fn <- evaluate funcKey
         innerTrail x >>= (flip funcLookup args' . KeyRef . (,fn)) >>= newMeowRef
+    (ExpBoxOp boxExpr expr) -> innerTrail (ExpTrail (ExpTrail x boxExpr) expr)
     _ -> do
         obj <- (innerTrail >=> readMeowRef) x
         key <- (evaluate >=> ensureKey) y
