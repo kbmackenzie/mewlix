@@ -37,24 +37,13 @@ evaluate (ExpObject object) = do
     MeowObject <$> (liftIO . createObject) pairs
 evaluate (ExpLambda args expr) = asks (MeowFunc args [StmReturn expr] . snd)
 
-{-
--- Trail
-evaluate x@(ExpTrail {}) = do
-    (ref, expr) <- trailReduce x
-    case expr of
-        (ExpCall args funcKey) -> do
-            args' <- mapM (evaluate >=> ensureValue) args
-            fn <- evaluate funcKey
-            funcLookup (KeyRef (ref, fn)) args'
-        _ -> MeowKey . KeyRef . (ref,) <$> evaluate expr
--}
-
+-- Dot operator (.)
 evaluate (ExpDotOp expr dot) = evaluate expr >>= \case
     (MeowKey key) -> MeowKey . KeyRef <$> ((,) <$> keyAsRef key <*> evaluate dot)
     obj@(MeowObject _) -> MeowKey . KeyRef <$> ((,) <$> newMeowRef obj <*> evaluate dot)
     _ -> throwError $ meowUnexpected "todo" "todo"
 
--- Function call
+-- Function call ()
 evaluate (ExpCall exprKey args) = do
     args' <- mapM (evaluate >=> ensureValue) args
     evaluate exprKey >>= \case
@@ -62,7 +51,7 @@ evaluate (ExpCall exprKey args) = do
         lambda@(MeowFunc {}) -> runFunc "<lambda>" args' lambda
         x -> throwError =<< notFunc x
 
--- Yarn operator
+-- Yarn operator (~~)
 evaluate (ExpYarn expr) = (evaluate >=> ensureValue) expr >>= \case
     (MeowString str) -> (return . MeowKey . KeyNew) str
     x -> throwError =<< opException "Yarn" [x]
@@ -75,7 +64,7 @@ evaluate (ExpMeowOr exprA exprB) = boolEval exprA >>= \case
     True -> (return . MeowBool) True
     False -> MeowBool <$> boolEval exprB
 
--- Ternary operator
+-- Ternary operator (: ?)
 evaluate (ExpTernary cond exprA exprB) = boolEval cond >>= \case
     True -> evaluate exprA
     False -> evaluate exprB
@@ -87,34 +76,6 @@ evaluate (ExpBoxOp boxExpr expr) = evaluate boxExpr >>= \case
     _ -> throwError $ meowUnexpected "todo" "todo"
 
 ------------------------------------------------------------------------
-
-{- Trails -}
-
-{-
-trailReduce :: Expr -> Evaluator (PrimRef, Expr)
-{-# INLINABLE trailReduce #-}
-trailReduce (ExpTrail x y) = (,y) <$> innerTrail x
-trailReduce other = throwError =<< (evaluate >=> badTrail . List.singleton) other
-
-innerTrail :: Expr -> Evaluator PrimRef
-{-# INLINABLE innerTrail #-}
-innerTrail (ExpTrail x y) = case y of
-    (ExpCall args funcKey) -> do
-        args' <- mapM (evaluate >=> ensureValue) args
-        fn <- evaluate funcKey
-        innerTrail x >>= (flip funcLookup args' . KeyRef . (,fn)) >>= newMeowRef
-    (ExpBoxOp boxExpr expr) -> innerTrail (ExpTrail (ExpTrail x boxExpr) expr)
-    _ -> do
-        obj <- (innerTrail >=> readMeowRef) x
-        key <- (evaluate >=> ensureKey) y
-        peekAsObject key obj
-    --(,) <$> (innerTrail >=> readMeowRef) x <*> (evaluate >=> ensureKey) y >>= peekAsObject
-innerTrail prim = evaluate prim >>= \case
-    (MeowKey key) -> (extractKey >=> lookUpRef) key
-    obj@(MeowObject _) -> newMeowRef obj
-    other -> throwError =<< badTrail[other]
--}
-
 
 {-- Helpers --}
 

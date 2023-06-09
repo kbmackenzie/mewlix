@@ -10,15 +10,14 @@ module Meowscript.Core.Exceptions
 , catOnComputer
 , notInLoop
 , badKey
+, notKey
+, badDot
 , badBox
 , notBox
-, emptyTrail
 , manyArgs
 , fewArgs
 , badFunc
 , badFuncDef
-, badTrail
-, shortTrail
 , notFunc
 , badArgs
 , badValue
@@ -41,7 +40,7 @@ data MeowException =
     | MeowStackOverflow
     | MeowBadBox
     | MeowDivByZero
-    | MeowBadTrail
+    | MeowNotKey
     | MeowBadArgs
     | MeowBadToken
     | MeowBadFunc
@@ -49,7 +48,7 @@ data MeowException =
     | MeowBadIFunc
     | MeowBadValue
     | MeowCatOnComputer
-    | MeowBadKeyword
+    | MeowNotKeyword
     | MeowBadFile
     | MeowBadFuncDef
     | MeowUnexpected
@@ -61,7 +60,7 @@ instance Show MeowException where
     show MeowStackOverflow = exc "StackOverflow"
     show MeowBadBox = exc "InvalidBox"
     show MeowDivByZero = exc "DivisionByZero"
-    show MeowBadTrail = exc "InvalidTrail"
+    show MeowNotKey = exc "InvalidKey"
     show MeowBadArgs = exc "Argument"
     show MeowBadToken = exc "InvalidToken"
     show MeowBadFunc = exc "InvalidFunction"
@@ -69,7 +68,7 @@ instance Show MeowException where
     show MeowBadIFunc = exc "InvalidInnerFunction"
     show MeowBadValue = exc "InvalidValue"
     show MeowCatOnComputer = exc "CatOnComputer"
-    show MeowBadKeyword = exc "KeywordException"
+    show MeowNotKeyword = exc "KeywordException"
     show MeowBadFile = exc "File"
     show MeowBadFuncDef = exc "FunctionDefinition"
     show MeowUnexpected = exc "Unexpected" 
@@ -106,13 +105,16 @@ divByZero = showException' MeowDivByZero "Cannot divide by zero!"
 catOnComputer :: Text.Text -> Text.Text
 catOnComputer = showException MeowCatOnComputer
 
-notInLoop :: Text.Text -> Text.Text
-notInLoop = showException MeowBadKeyword . \x -> Text.concat
-    [ "The '", x, "' keyword can only be used inside loops!" ]
-
 badKey :: Text.Text -> Text.Text
 badKey = showException MeowBadVar . \x -> Text.concat 
     ["Key '", x, "' doesn't exist in the current context!" ]
+
+notKey :: [Prim] -> Evaluator Text.Text
+notKey = showException' MeowNotKey "Token cannot be used as key: "
+
+badDot :: Text.Text -> Prim -> Evaluator Text.Text
+badDot key = showException' MeowBadVar message . List.singleton
+    where message = Text.concat [ "Key '", key, "' doesn't exist in object!" ]
 
 badBox :: Text.Text -> Text.Text
 badBox = showException MeowBadBox . \x -> Text.concat ["Value in key '", x, "' is not a box!"]
@@ -120,9 +122,6 @@ badBox = showException MeowBadBox . \x -> Text.concat ["Value in key '", x, "' i
 notBox :: Prim -> Evaluator Text.Text
 notBox prim = prettyMeow prim >>= \x -> return $ showException MeowBadBox
     $ Text.concat [ "Value '", x, "' is not a box!" ]
-
-emptyTrail :: Text.Text
-emptyTrail = showException MeowBadTrail "Trail is empty!"
 
 fewArgs :: Text.Text -> [Prim] -> Evaluator Text.Text
 fewArgs x = showException' MeowBadArgs
@@ -142,14 +141,6 @@ notFunc prim = prettyMeow prim >>= \x -> return $ showException MeowBadFunc
 badFuncDef :: Prim -> Evaluator Text.Text
 badFuncDef = showException' MeowBadArgs "Invalid function name: " . List.singleton
 
-badTrail :: [Prim] -> Evaluator Text.Text
-badTrail = showException' MeowBadTrail "Invalid token in trail: "
-
-shortTrail :: [Key] -> Text.Text
-shortTrail = showException MeowBadTrail
-    . Text.append "Trail is too short. | Trail: "
-    . Text.intercalate "."
-
 badArgs :: Text.Text -> [Prim] -> Evaluator Text.Text
 badArgs = showException' MeowBadArgs . \x -> Text.concat
     [ "Invalid argument(s) passed to function '", x, "'!" ]
@@ -157,6 +148,10 @@ badArgs = showException' MeowBadArgs . \x -> Text.concat
 badValue :: Text.Text -> Text.Text -> [Prim] -> Evaluator Text.Text
 badValue fn = showException' MeowBadValue . Text.append
     (Text.concat [ "In function '", fn, "': " ])
+
+notInLoop :: Text.Text -> Text.Text
+notInLoop = showException MeowNotKeyword . \x -> Text.concat
+    [ "The '", x, "' keyword can only be used inside loops!" ]
 
 nestedImport :: FilePath -> Text.Text
 nestedImport = showException MeowBadImport . \x -> Text.concat

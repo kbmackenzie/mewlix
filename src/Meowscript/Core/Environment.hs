@@ -35,6 +35,7 @@ import qualified Data.Map.Strict as Map
 import Data.Functor ((<&>))
 
 newEnv :: IO Environment
+{-# INLINABLE newEnv #-}
 newEnv = newIORef Map.empty
 
 {- IORef Utils -}
@@ -116,7 +117,7 @@ peekObject :: Key -> ObjectMap -> Evaluator PrimRef
 {-# INLINABLE peekObject #-}
 peekObject key obj = case Map.lookup key obj of
     (Just x) -> return x
-    Nothing -> throwError (badKey key)
+    Nothing -> throwError =<< badDot key (MeowObject obj)
 
 createObject :: [(Key, Prim)] -> IO ObjectMap
 {-# INLINABLE createObject #-}

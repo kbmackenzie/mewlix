@@ -67,4 +67,4 @@ extractKey x = throwError $ meowUnexpected "Cannot extract reference as key!" (s
 ensureKey :: Prim -> Evaluator Text.Text
 {-# INLINABLE ensureKey #-}
 ensureKey (MeowKey key) = extractKey key
-ensureKey x = throwError "????????" --throwError =<< badTrail [x]
+ensureKey x = throwError =<< notKey [x]
