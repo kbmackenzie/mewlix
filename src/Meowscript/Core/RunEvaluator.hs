@@ -116,12 +116,14 @@ runProgram' xs = runProgram xs >>= prettyMeow
 runImport :: FilePath -> [Statement] -> Evaluator Environment
 runImport path xs = asImport path $ runProgram xs >> asks snd -- Return the environment.
 
+{-
 runDebug :: [Statement] -> Evaluator Text.Text
 runDebug xs = do
     ret <- runProgram xs >>= prettyMeow
     x <- (asks snd >>= readMeowRef) >>= showMeow . MeowObject
     (liftIO . TextIO.putStrLn) x
     return ret
+-}
 
 
 {- Modules -}

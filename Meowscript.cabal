@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Meowscript
+      Meowscript.API.Args
       Meowscript.API.Console
       Meowscript.Core.AST
       Meowscript.Core.Base
@@ -71,7 +72,7 @@ library
     , text
   default-language: Haskell2010
 
-executable Meowscript-exe
+executable Meowscript
   main-is: Main.hs
   other-modules:
       Paths_Meowscript

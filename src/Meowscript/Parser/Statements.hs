@@ -14,6 +14,7 @@ import Text.Megaparsec ((<|>), (<?>))
 import qualified Data.Text as Text
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char.Lexer as Lexer
+import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 import Control.Monad (void)
 import Data.Functor((<&>))
 
@@ -82,10 +83,12 @@ funParams = (lexeme . parens) $ whitespace >> sepByComma (flexeme keyText)
 parseFunc :: Parser Statement
 parseFunc = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . keyword) meowCatface
-    name <- lexeme keyText
+    name <- lexeme funName
     args <- funParams
     return (Lexer.IndentMany Nothing ((<$ parseEnd) . StmFuncDef name args) statements)
 
+funName :: Parser Expr
+funName = makeExprParser (ExpPrim <$> lexeme parsePrim) [[ InfixL (ExpTrail <$ symbol ".") ]]
 
 {- Return -}
 

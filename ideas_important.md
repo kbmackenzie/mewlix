@@ -23,3 +23,12 @@ ideas:
 2. have important state flags and values stored in the Evaluator monad. it'll be called 'MeowState'.
 3. pipe to sockets in order to be able to call meowscript from anywhere. have socket number be an argument in meowr and a value in GlobalMeow
 4. rename 'lookUpVal'' to lookUpRef and 'peekAsObject' to 'peekRefAsObject'.
+
+
+[new ideas]
+1. filepathT
+2. meowr as folder
+3. box["item"] accessor
+4. watch/catch
+5. let function names be expressions!!!!!!!!!!! let them have KEYS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+6. above is DONE!!!!! HOWEVER!!!!!!!!!!!!!!!!!!! NOW I HAVE TO MAYBE MAKE FUNCTION ORDER MATTER AGAIN MAYBE?????????????????????

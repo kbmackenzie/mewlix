@@ -6,6 +6,7 @@ import Meowscript
 import Meowscript.REPL.Loop
 import qualified Data.Text.IO as TextIO
 import qualified Data.Map as Map
+import System.Environment (getArgs)
 
 -- To do:
 -- Make a proper CLI and REPL.

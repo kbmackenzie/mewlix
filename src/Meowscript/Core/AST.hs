@@ -13,7 +13,6 @@ module Meowscript.Core.AST
 , ObjectMap
 , Key
 , Overwrite
-, Name
 , Params
 , MeowState(..)
 , Environment
@@ -115,9 +114,7 @@ data Expr =
     | ExpTernary Expr Expr Expr
     deriving (Show)
 
-type Name = Text.Text
 type Params = [Key]
-
 type Condition = Expr
 type Block = [Statement]
 type Qualified = Maybe Text.Text
@@ -131,10 +128,9 @@ data Statement =
     | StmFor (Expr, Expr, Expr) Block
     | StmIf [MeowIf]
     | StmIfElse [MeowIf] Block
-    | StmFuncDef Name Params [Statement]
+    | StmFuncDef Expr Params [Statement]
     | StmReturn Expr
     | StmImport FilePath (Maybe Key)
-    | StmIFunc Name Prim
     | StmContinue
     | StmBreak
     deriving (Show)

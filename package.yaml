@@ -54,7 +54,7 @@ library:
   source-dirs: src
 
 executables:
-  Meowscript-exe:
+  Meowscript:
     main:                Main.hs
     source-dirs:         app
     ghc-options:

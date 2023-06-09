@@ -130,13 +130,24 @@ funcTrace key args = stackTrace $ do
 
 {-- Blocks --}
 
--- Run block in proper order: Function definitions, then other statements.
 runBlock :: Block -> IsLoop -> Evaluator ReturnValue
 {-# INLINABLE runBlock #-}
+runBlock = runStatements
+
+{-
+-- Run block in proper order: Function definitions, then other statements.
+-- ... We're going to do this later though.
+-- Functions are already 'hoisted' so long as you don't call a function in
+-- the global scope, so this is fine. I don't have to do all of that below.
+-- 
+-- I'm gonna keep the order of function definitions mattering exclusively if
+-- you try to call a function *in the global scope* before defining it.
+--
 runBlock xs isLoop = do
     let (funcDefs, rest) = List.partition isFuncDef xs
     void $ runStatements funcDefs False
     runStatements rest isLoop
+-}
 
 -- Running Statements
 runStatements :: Block -> IsLoop -> Evaluator ReturnValue
@@ -150,8 +161,9 @@ runStatements (StmContinue:_) isLoop = if isLoop
                                         else throwError (notInLoop meowContinue)
 runStatements ((StmExpr expression):xs) isLoop =
     runExprStatement expression >> runStatements xs isLoop
-runStatements ((StmFuncDef name args body):xs) isLoop =
-    runFuncDef (KeyNew name) args body >> runStatements xs isLoop
+runStatements ((StmFuncDef name args body):xs) isLoop = evaluate name >>= \case
+    (MeowKey key) -> runFuncDef key args body >> runStatements xs isLoop
+    x -> throwError =<< badFuncDef x
 runStatements (statement:xs) isLoop = do
     ret <- runLocal $ runTable statement isLoop
     if ret /= RetVoid

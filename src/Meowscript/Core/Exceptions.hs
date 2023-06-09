@@ -16,6 +16,7 @@ module Meowscript.Core.Exceptions
 , manyArgs
 , fewArgs
 , badFunc
+, badFuncDef
 , badTrail
 , shortTrail
 , notFunc
@@ -30,6 +31,7 @@ module Meowscript.Core.Exceptions
 import Meowscript.Core.AST
 import Meowscript.Core.Pretty
 import qualified Data.Text as Text
+import qualified Data.List as List
 import Control.Monad.Except (throwError, catchError)
 import Data.Functor ((<&>))
 
@@ -49,8 +51,9 @@ data MeowException =
     | MeowCatOnComputer
     | MeowBadKeyword
     | MeowBadFile
+    | MeowBadFuncDef
     | MeowUnexpected
-    deriving (Eq, Ord, Enum, Bounded)
+    deriving (Eq)
 
 instance Show MeowException where
     show MeowBadVar = exc "InvalidVariable"
@@ -68,6 +71,7 @@ instance Show MeowException where
     show MeowCatOnComputer = exc "CatOnComputer"
     show MeowBadKeyword = exc "KeywordException"
     show MeowBadFile = exc "File"
+    show MeowBadFuncDef = exc "FunctionDefinition"
     show MeowUnexpected = exc "Unexpected" 
 
 exc :: String -> String
@@ -134,6 +138,9 @@ badFunc = showException MeowBadFunc . \x -> Text.concat ["Key '", x, "' is not a
 notFunc :: Prim -> Evaluator Text.Text
 notFunc prim = prettyMeow prim >>= \x -> return $ showException MeowBadFunc
     $ Text.concat ["Attempted to call '", x, "' as a function," , " but '", x, "' is not a function!" ]
+
+badFuncDef :: Prim -> Evaluator Text.Text
+badFuncDef = showException' MeowBadArgs "Invalid function name: " . List.singleton
 
 badTrail :: [Prim] -> Evaluator Text.Text
 badTrail = showException' MeowBadTrail "Invalid token in trail: "
