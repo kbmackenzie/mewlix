@@ -6,6 +6,8 @@ meow(a.b["c"])
 meow(a["b"].c)
 meow(a.method1())
 meow(a.method1().method2())
+meow(a["method1"]().method2())
+meow(a.method1()["method2"]())
 
 =^.x.^= dictionary()
     bring ~( ^.x.^) BOX!! [

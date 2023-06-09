@@ -39,3 +39,6 @@ ideas:
 2. function names are expressions, but now their order matters. this is fine though , the order only matters inside of their block!
 3. have to add watch/catch...
 4. the box["item"] operator can be chained with "."s! the only exception is... a["b"].c. because of course it's a fucking exception haha lol help please!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+[changelog - MAJOR]
+1. dot operators **replace trails entirely now.** yay!!!!!! also, dot + box[] + call() can be chained now like this: "box["item"].method1().method2()" however much you want, yay!!
