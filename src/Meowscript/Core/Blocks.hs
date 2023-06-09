@@ -51,7 +51,7 @@ evaluate x@(ExpTrail {}) = do
 
 evaluate (ExpDotOp expr dot) = evaluate expr >>= \case
     (MeowKey key) -> MeowKey . KeyRef <$> ((,) <$> keyAsRef key <*> evaluate dot)
-    obj@(MeowObject _) -> MeowKey . KeyRef <$> ((,) <$> newMeowRef obj <*> evaluate expr)
+    obj@(MeowObject _) -> MeowKey . KeyRef <$> ((,) <$> newMeowRef obj <*> evaluate dot)
     _ -> throwError $ meowUnexpected "todo" "todo"
 
 -- Function call

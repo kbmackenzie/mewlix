@@ -288,7 +288,7 @@ meow meow
         keys:     ( ^.x.^)> () => (keys(home.pairs)),
         values:   ( ^.x.^)> () => (values(home.pairs)),
         add:      ( ^.x.^)> (key, value) => (home.pairs[string(key)] = value),
-        get:      ( ^.x.^)> (key) => (lookup(home.pairs[string(key)])),
+        get:      ( ^.x.^)> (key) => (lookup(home.pairs, string(key))),
         contains: ( ^.x.^)> (key) => (haskey(home.pairs, string(key))),
         clear:    ( ^.x.^)> () => (home.pairs = ~( ^.x.^) BOX!! [])
     ]

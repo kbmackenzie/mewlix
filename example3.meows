@@ -4,9 +4,9 @@ meow(a.b.c)
 meow(a["b"]["c"])
 meow(a.b["c"])
 meow(a["b"].c)
+meow(a.method1())
 meow(a.method1().method2())
 
-~( ^.x.^)>
 =^.x.^= dictionary()
     bring ~( ^.x.^) BOX!! [
         pairs:   ~( ^.x.^) BOX!! [],
@@ -14,9 +14,8 @@ meow(a.method1().method2())
         keys:     ( ^.x.^)> () => (keys(home.pairs)),
         values:   ( ^.x.^)> () => (values(home.pairs)),
         add:      ( ^.x.^)> (key, value) => (home.pairs[string(key)] = value),
-        get:      ( ^.x.^)> (key) => (lookup(home.pairs[string(key)])),
+        get:      ( ^.x.^)> (key) => (lookup(home.pairs, string(key))),
         contains: ( ^.x.^)> (key) => (haskey(home.pairs, string(key))),
         clear:    ( ^.x.^)> () => (home.pairs = ~( ^.x.^) BOX!! [])
     ]
 meow meow
-<(^.x.^ )~
