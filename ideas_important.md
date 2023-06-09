@@ -32,3 +32,7 @@ ideas:
 4. watch/catch
 5. let function names be expressions!!!!!!!!!!! let them have KEYS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 6. above is DONE!!!!! HOWEVER!!!!!!!!!!!!!!!!!!! NOW I HAVE TO MAYBE MAKE FUNCTION ORDER MATTER AGAIN MAYBE?????????????????????
+
+
+[changelog]
+1. added box["item"] operator, but it cannot be chained! keep this in mind.

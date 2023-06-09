@@ -72,7 +72,7 @@ evaluate (ExpMeowOr exprA exprB) = boolEval exprA >>= \case
 evaluate (ExpTernary cond exprA exprB) = boolEval cond >>= \case
     True -> evaluate exprA
     False -> evaluate exprB
-    
+
 ------------------------------------------------------------------------
 
 {- Trails -}

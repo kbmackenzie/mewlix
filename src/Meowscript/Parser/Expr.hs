@@ -30,7 +30,8 @@ operators :: [[Operator Parser Expr]]
 operators =
     [
         [ Prefix  (ExpYarn                            <$ trySymbol "~~"        ) ]
-      , [ Postfix functionCall                                                   ]
+      , [ Postfix (foldl1 (flip (.)) <$> Mega.some parseBoxOp                  ) ]
+      , [ Postfix (foldl1 (flip (.)) <$> Mega.some functionCall                ) ]
       , [ InfixL  (ExpTrail                           <$ parseDotOp            ) ]
       , [ Prefix  (ExpUnop  MeowPaw                   <$ tryKeyword meowPaw    )
         , Prefix  (ExpUnop  MeowClaw                  <$ tryKeyword meowClaw   ) ]
@@ -97,3 +98,6 @@ parseDotOp :: Parser ()
 parseDotOp = Mega.try $ do
     void $ MChar.char '.'
     Mega.notFollowedBy $ Mega.satisfy (== '.')
+
+parseBoxOp :: Parser (Expr -> Expr)
+parseBoxOp = (Mega.try . lexeme . brackets) (flip ExpTrail . ExpYarn <$> parseExpr')
