@@ -68,28 +68,23 @@ meowAssign a b = throwError =<< opException "assignment" [a, b]
 -- Paw (++)
 meowPaw :: Prim -> Evaluator Prim
 meowPaw (MeowKey a) = do
-    num <- keyLookup a >>= meowPaw'
+    num <- keyLookup a >>= meowPaw
     assignment a num
     return num
+meowPaw (MeowInt a) = (return . MeowInt . succ) a
+meowPaw (MeowDouble a) = (return . MeowDouble . succ) a
 meowPaw a = throwError =<< opException "paw" [a]
-
-meowPaw' :: Prim -> Evaluator Prim
-meowPaw' (MeowInt a) = (return . MeowInt . succ) a
-meowPaw' (MeowDouble a) = (return . MeowDouble . succ) a
-meowPaw' a = throwError =<< opException "paw" [a]
 
 -- Claw (--)
 meowClaw :: Prim -> Evaluator Prim
 meowClaw (MeowKey a) = do
-    num <- keyLookup a >>= meowClaw'
+    num <- keyLookup a >>= meowClaw
     assignment a num
     return num
+meowClaw (MeowInt a) = (return . MeowInt . pred) a
+meowClaw (MeowDouble a) = (return . MeowDouble . pred) a
 meowClaw a = throwError =<< opException "claw" [a]
 
-meowClaw' :: Prim -> Evaluator Prim
-meowClaw' (MeowInt a) = (return . MeowInt . pred) a
-meowClaw' (MeowDouble a) = (return . MeowDouble . pred) a
-meowClaw' a = throwError =<< opException "claw" [a]
 
 
 {- List Assignment -}
