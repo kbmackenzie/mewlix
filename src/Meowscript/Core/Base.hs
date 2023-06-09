@@ -253,6 +253,11 @@ meowHasKey = (,) <$> lookUp "box" <*> lookUp "key" >>= \case
 {- Reflection -}
 ----------------------------------------------------------
 
+meowExist :: Evaluator Prim 
+meowExist = lookUp "x" >>= \case
+    (MeowString key) -> MeowBool <$> keyExists key
+    x -> throwError =<< badArgs "exists" [x]
+
 typeOf :: Evaluator Prim
 typeOf = lookUp "x" >>= \x -> return . MeowString $ case x of
     (MeowString _)  -> "string"
@@ -265,11 +270,6 @@ typeOf = lookUp "x" >>= \x -> return . MeowString $ case x of
     (MeowIFunc {})  -> "inner-function"
     MeowLonely      -> "lonely"
     (MeowKey _)     -> "key" -- This shouldn't be evaluated, but alas.
-
-meowExist :: Evaluator Prim 
-meowExist = lookUp "x" >>= \case
-    (MeowString key) -> MeowBool <$> keyExists key
-    x -> throwError =<< badArgs "exists" [x]
 
 
 {- Exceptions -}
