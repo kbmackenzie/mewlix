@@ -88,7 +88,9 @@ parseFunc = lexeme . Lexer.indentBlock whitespaceLn $ do
     return (Lexer.IndentMany Nothing ((<$ parseEnd) . StmFuncDef name args) statements)
 
 funName :: Parser Expr
-funName = makeExprParser (ExpPrim <$> lexeme parsePrim) [[ InfixL (ExpTrail <$ symbol ".") ]]
+funName = makeExprParser (ExpPrim <$> lexeme parsePrim)
+    [ [ Prefix (ExpYarn  <$ trySymbol "~~") ]
+    , [ InfixL (ExpTrail <$ symbol "."    ) ]]
 
 {- Return -}
 
