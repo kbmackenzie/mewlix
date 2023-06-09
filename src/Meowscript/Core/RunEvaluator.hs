@@ -28,7 +28,6 @@ import Meowscript.Core.Exceptions
 import Meowscript.Core.Pretty
 import Meowscript.Core.StdFiles
 import qualified Data.Text as Text
-import qualified Data.Text.IO as TextIO
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Data.List as List

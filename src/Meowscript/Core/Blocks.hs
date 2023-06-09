@@ -17,7 +17,6 @@ import Meowscript.Core.Pretty
 import Meowscript.Core.Exceptions
 import Meowscript.Parser.Keywords
 import qualified Data.Text as Text
-import qualified Data.List as List
 import Control.Monad.Reader (asks, liftIO)
 import Control.Monad.Except (throwError)
 import Control.Monad (void, join, when, (>=>))
@@ -32,7 +31,7 @@ evaluate (ExpBinop op a b) = join (binop op <$> evaluate a <*> evaluate b)
 evaluate (ExpUnop op a) = evaluate a >>= unop op
 evaluate (ExpList list) = mapM (evaluate >=> ensureValue) list <&> MeowList
 evaluate (ExpObject object) = do
-    let toPrim (key, expr) = (evaluate expr >>= ensureValue) <&> (key,)
+    let toPrim (key, expr) = (evaluate >=> ensureValue) expr <&> (key,)
     pairs <- mapM toPrim object
     MeowObject <$> (liftIO . createObject) pairs
 evaluate (ExpLambda args expr) = asks (MeowFunc args [StmReturn expr] . snd)

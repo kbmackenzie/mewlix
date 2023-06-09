@@ -20,7 +20,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.State (liftIO)
 import Data.Functor ((<&>))
 import Control.Monad ((>=>))
-import System.Random(randomIO)
+import System.Random (randomIO)
 
 baseLibrary :: IO ObjectMap
 baseLibrary = createObject
