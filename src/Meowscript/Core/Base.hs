@@ -35,6 +35,7 @@ baseLibrary = createObject
     , ("nuzzle"  , MeowIFunc  ["x"] toBool    )
     , ("keys"    , MeowIFunc  ["x"] getKeys   )
     , ("values"  , MeowIFunc  ["x"] getValues )
+    , ("exists"  , MeowIFunc  ["x"] meowExist )
     , ("typeof"  , MeowIFunc  ["x"] typeOf    )
     , ("throw"   , MeowIFunc  ["x"] throwEx   )
     , ("pi"      , MeowIFunc  [   ] meowPi    )
@@ -264,6 +265,11 @@ typeOf = lookUp "x" >>= \x -> return . MeowString $ case x of
     (MeowIFunc {})  -> "inner-function"
     MeowLonely      -> "lonely"
     (MeowKey _)     -> "key" -- This shouldn't be evaluated, but alas.
+
+meowExist :: Evaluator Prim 
+meowExist = lookUp "x" >>= \case
+    (MeowString key) -> MeowBool <$> keyExists key
+    x -> throwError =<< badArgs "exists" [x]
 
 
 {- Exceptions -}
