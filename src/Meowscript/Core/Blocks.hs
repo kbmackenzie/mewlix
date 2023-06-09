@@ -37,6 +37,7 @@ evaluate (ExpObject object) = do
     MeowObject <$> (liftIO . createObject) pairs
 evaluate (ExpLambda args expr) = asks (MeowFunc args [StmReturn expr] . snd)
 
+{-
 -- Trail
 evaluate x@(ExpTrail {}) = do
     (ref, expr) <- trailReduce x
@@ -46,11 +47,17 @@ evaluate x@(ExpTrail {}) = do
             fn <- evaluate funcKey
             funcLookup (KeyRef (ref, fn)) args'
         _ -> MeowKey . KeyRef . (ref,) <$> evaluate expr
+-}
+
+evaluate (ExpDotOp expr dot) = evaluate expr >>= \case
+    (MeowKey key) -> MeowKey . KeyRef <$> ((,) <$> keyAsRef key <*> evaluate dot)
+    obj@(MeowObject _) -> MeowKey . KeyRef <$> ((,) <$> newMeowRef obj <*> evaluate expr)
+    _ -> throwError $ meowUnexpected "todo" "todo"
 
 -- Function call
-evaluate (ExpCall args funcKey) = do
+evaluate (ExpCall exprKey args) = do
     args' <- mapM (evaluate >=> ensureValue) args
-    evaluate funcKey >>= \case
+    evaluate exprKey >>= \case
         (MeowKey key) -> funcLookup key args'
         lambda@(MeowFunc {}) -> runFunc "<lambda>" args' lambda
         x -> throwError =<< notFunc x
@@ -74,15 +81,16 @@ evaluate (ExpTernary cond exprA exprB) = boolEval cond >>= \case
     False -> evaluate exprB
 
 -- Box operator []
-evaluate (ExpBoxOp boxExpr expr) = do
-    box <- (evaluate >=> ensureValue) boxExpr
-    key <- (evaluate >=> ensureKey) expr
-    peekAsObject key box >>= readMeowRef
+evaluate (ExpBoxOp boxExpr expr) = evaluate boxExpr >>= \case
+    (MeowKey key) -> MeowKey . KeyRef <$> ((,) <$> keyAsRef key <*> evaluate expr)
+    obj@(MeowObject _) -> MeowKey . KeyRef <$> ((,) <$> newMeowRef obj <*> evaluate expr)
+    _ -> throwError $ meowUnexpected "todo" "todo"
 
 ------------------------------------------------------------------------
 
 {- Trails -}
 
+{-
 trailReduce :: Expr -> Evaluator (PrimRef, Expr)
 {-# INLINABLE trailReduce #-}
 trailReduce (ExpTrail x y) = (,y) <$> innerTrail x
@@ -105,6 +113,7 @@ innerTrail prim = evaluate prim >>= \case
     (MeowKey key) -> (extractKey >=> lookUpRef) key
     obj@(MeowObject _) -> newMeowRef obj
     other -> throwError =<< badTrail[other]
+-}
 
 
 {-- Helpers --}
@@ -204,10 +213,9 @@ funcLookup :: KeyType -> Args -> Evaluator Prim
 funcLookup key args = case key of 
     (KeyModify x) -> runMeow x
     (KeyNew x) -> runMeow x
-    (KeyRef (ref, x)) -> do
-        funcKey <- ensureKey x
-        fn <- readMeowRef ref >>= peekAsObject funcKey >>= readMeowRef
-        runMethod funcKey args ref fn
+    x@(KeyRef (ref, k)) -> do
+        funcKey <- ensureKey k
+        keyLookup x >>= runMethod funcKey args ref
     where runMeow x = lookUp x >>= runFunc x args
 
 meowFunc :: Key -> Params -> Args -> [Statement] -> Evaluator Prim

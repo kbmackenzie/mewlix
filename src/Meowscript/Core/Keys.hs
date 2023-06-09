@@ -2,6 +2,7 @@
 
 module Meowscript.Core.Keys
 ( keyLookup 
+, keyAsRef
 , assignment
 , pairAsRef
 , pairAsInsert
@@ -25,6 +26,12 @@ keyLookup key = case key of
     (KeyModify x) -> lookUp x
     (KeyNew x) -> lookUp x
     (KeyRef x) -> pairAsRef x >>= readMeowRef
+
+keyAsRef :: KeyType -> Evaluator PrimRef
+keyAsRef key = case key of
+    (KeyModify x) -> lookUpRef x
+    (KeyNew x) -> lookUpRef x
+    (KeyRef x) -> pairAsRef x
 
 assignment :: KeyType -> Prim -> Evaluator ()
 {-# INLINABLE assignment #-}

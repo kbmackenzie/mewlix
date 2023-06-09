@@ -1,8 +1,10 @@
-a = ~( ^.x.^) BOX!! [ b: ~( ^.x.^) BOX!! [ c: 3 ]]
+a = ~( ^.x.^) BOX!! [ b: ~( ^.x.^) BOX!! [ c: 3 ], method1: ( ^.x.^)> () => (~( ^.x.^) BOX!! [ method2: ( ^.x.^)> () => (meow("><")) ]) ]
 meow(a["b"])
+meow(a.b.c)
 meow(a["b"]["c"])
 meow(a.b["c"])
 meow(a["b"].c)
+meow(a.method1().method2())
 
 ~( ^.x.^)>
 =^.x.^= dictionary()

@@ -4,6 +4,10 @@
 module Meowscript.Parser.Expr
 ( parseExpr
 , parseExpr'
+, chainedOps
+, parseDotOp
+, parseBoxOp
+, exprTerm
 ) where
 
 import Meowscript.Core.AST
@@ -32,7 +36,6 @@ operators =
     [
         [ Prefix  (ExpYarn                            <$ trySymbol "~~"        ) ]
       , [ Postfix chainedOps                                                     ]
-      , [ InfixL  (ExpTrail                           <$ parseDotOp            ) ]
       , [ Prefix  (ExpUnop  MeowPaw                   <$ tryKeyword meowPaw    )
         , Prefix  (ExpUnop  MeowClaw                  <$ tryKeyword meowClaw   ) ]
       , [ Prefix  (ExpUnop  MeowPeek                  <$ tryKeyword meowPeek   )
@@ -60,11 +63,6 @@ operators =
       , [ TernR   ((ExpTernary <$ symbol ":")         <$ trySymbol "?"         ) ]
       , [ InfixR  (ExpBinop MeowAssign                <$ symbol "="            ) ]
     ]
-
-functionCall :: Parser (Expr -> Expr)
-functionCall = (lexeme . parens . Mega.try) $
-    whitespace >>
-    ExpCall <$> sepByComma (lnLexeme parseExpr)
 
 parseList :: Parser Expr
 parseList = (lexeme . brackets) $
@@ -94,13 +92,20 @@ parseLambda = do
     (void . lexeme . MChar.string) "=>"
     return (ExpLambda args)
 
-parseDotOp :: Parser ()
-parseDotOp = Mega.try $ do
-    void $ MChar.char '.'
-    Mega.notFollowedBy $ Mega.satisfy (== '.')
+parseCall :: Parser (Expr -> Expr)
+parseCall = (lexeme . parens . Mega.try) $
+    whitespace >>
+    flip ExpCall <$> sepByComma (lnLexeme parseExpr)
+
+parseDotOp :: Parser (Expr -> Expr)
+parseDotOp = do
+    Mega.try $ do
+        void (MChar.char '.')
+        Mega.notFollowedBy (Mega.satisfy (== '.'))
+    flip ExpDotOp <$> lexeme exprTerm
 
 parseBoxOp :: Parser (Expr -> Expr)
 parseBoxOp = (Mega.try . lexeme . brackets) (flip ExpBoxOp . ExpYarn <$> parseExpr')
 
 chainedOps :: Parser (Expr -> Expr)
-chainedOps = foldr1 (flip (.)) <$> Mega.some (functionCall <|> parseBoxOp)
+chainedOps = foldr1 (flip (.)) <$> Mega.some (parseDotOp <|> parseCall <|> parseBoxOp)

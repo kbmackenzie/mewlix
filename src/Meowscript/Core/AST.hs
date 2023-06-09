@@ -108,11 +108,11 @@ data Expr =
     | ExpLambda [Key] Expr
     | ExpMeowAnd Expr Expr
     | ExpMeowOr Expr Expr
-    | ExpCall [Expr] Expr
-    | ExpTrail Expr Expr
     | ExpYarn Expr
     | ExpTernary Expr Expr Expr
+    | ExpDotOp Expr Expr
     | ExpBoxOp Expr Expr
+    | ExpCall Expr [Expr] 
     deriving (Show)
 
 type Params = [Key]
