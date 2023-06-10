@@ -63,7 +63,7 @@ addModule :: Command
 addModule line env = case getArgs line of
     [] -> return (True, env)
     (x:_) -> readModule x >>= importEnv state x >>= \case
-        (Left x') -> printError (snd x') >> return (True, env)
+        (Left x') -> printExc (snd x') >> return (True, env)
         (Right x') -> do
             env' <- readIORef x'
             let newEnv = env <> env'

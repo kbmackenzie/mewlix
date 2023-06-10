@@ -26,21 +26,31 @@ intdiv = ( ^.x.^)> (a, b) => (floor(a / b))
 join   = ( ^.x.^)> (a, b) => (a..b)
 length = ( ^.x.^)> (a) => (a?!)
 
-compare = ~( ^.x.^) BOX!! [
-    equal:   ( ^.x.^)> (a, b) => (a == b),
-    lesser:  ( ^.x.^)> (a, b) => (a < b),
-    greater: ( ^.x.^)> (a, b) => (a > b),
-    lesser_or_equal:  ( ^.x.^)> (a, b) => (a <= b),
-    greater_or_equal: ( ^.x.^)> (a, b) => (a >= b),
-    not_equal: ( ^.x.^)> (a, b) => (a != b)
-]
+equal          = ( ^.x.^)> (a, b) => (a == b)
+lesser         = ( ^.x.^)> (a, b) => (a < b)
+greater        = ( ^.x.^)> (a, b) => (a > b)
+lesser_equal   = ( ^.x.^)> (a, b) => (a <= b)
+greater_equal  = ( ^.x.^)> (a, b) => (a >= b)
+not_equal      = ( ^.x.^)> (a, b) => (a != b)
+
+
+~( ^.x.^)>
+Inspired by Haskell's 'id' and 'const' functions.
+(The const function would be flipped.)
+
+The 'mirror' function doubles as a shallow-copying
+function, too!
+<(^.x.^ )~
+
+mirror = ( ^.x.^)> (a) => (a)
+bounce = ( ^.x.^)> (a, b) => (b)
 
 
 ~( ^.x.^)> ----------
       Debugging 
 ---------- <(^.x.^ )~
 
-assert = ( ^.x.^)> (a) => (a or throw("Assertion failed."))
+assert = ( ^.x.^)> (a, b) => (a or throw("Assertion failed: "..b))
 
 
 
@@ -312,6 +322,58 @@ meow meow
 meow meow
 
 
+~( ^.x.^)> -----------
+       Highshelf 
+----------- <(^.x.^ )~
+
+~( ^.x.^)> 
+For query-like operations on lists.
+A few examples of its usage:
+
+numbers                                         \
+    .where(( ^.x.^)> (x) => (x > 10))           \
+    .first()
+
+strings                                         \
+    .where(( ^.x.^)> (x) => (not is_empty(x)))  \
+    .choose(10)
+
+The highshelf tries to make query-like operations
+work within Meowscript's set of limitations!
+
+It isn't lazy, however. Those operations can be
+costly and mean on the garbage collector.
+<(^.x.^ )~
+
+~( ^.x.^)>
+=^.x.^= highshelf(items)
+    bring ~( ^.x.^) BOX!! [
+        items: items,
+        length: ( ^.x.^)> ()   => (home.items?!),
+        add:    ( ^.x.^)> (a)  => (highshelf(a push mirror(home.items))),
+        choose: ( ^.x.^)> (n)  => (take_n(home.items, n)),
+        where:  ( ^.x.^)> (fn) => (highshelf(filter(home.items, fn))),
+        first:  ( ^.x.^)> ()   => (peek home.items),
+        last:   ( ^.x.^)> ()   => (peek reverse(home.items)),
+        tolist: ( ^.x.^)> ()   => (home.items)
+    ]
+meow meow
+<(^.x.^ )~
+
+=^.x.^= highshelf(items)
+    bring ~( ^.x.^) BOX!! [
+        items: items,
+        length: ( ^.x.^)> ()   => (home.items?!),
+        add:    ( ^.x.^)> (a)  => (bounce(a push home.items, home)),
+        choose: ( ^.x.^)> (n)  => (take_n(home.items, n)),
+        where:  ( ^.x.^)> (fn) => (bounce(home.items = filter(home.items, fn), home)),
+        first:  ( ^.x.^)> ()   => (peek home.items),
+        last:   ( ^.x.^)> ()   => (peek reverse(home.items)),
+        tolist: ( ^.x.^)> ()   => (home.items)
+    ]
+meow meow
+
+
 
 ~( ^.x.^)> ---------------------
   Partial function application
@@ -332,7 +394,7 @@ Partial function application. Returns a function.
 Takes an (a -> b -> c) function and makes it a (b -> c).
 <(^.x.^ )~
 
-=^.x.^= partial (fn, a)
+=^.x.^= poke (fn, a)
     bring ( ^.x.^)> (b) => (fn(a, b))
 meow meow
 
@@ -341,7 +403,7 @@ Partial function application. Returns a function.
 Takes an (a -> b -> c -> d) function and makes it (b -> c -> d).
 <(^.x.^ )~
 
-=^.x.^= partial2 (fn, a)
+=^.x.^= poke2 (fn, a)
     bring ( ^.x.^)> (b, c) => (fn(a, b, c))
 meow meow
 
@@ -350,6 +412,6 @@ Partial function application. Returns a function.
 Takes an (a -> b -> c -> d -> e) function and amkes it (b -> c -> d -> e).
 <(^.x.^ )~
 
-=^.x.^= partial3 (fn, a)
+=^.x.^= poke3 (fn, a)
     bring ( ^.x.^)> (b, c, d) => (fn(a, b, c, d))
 meow meow

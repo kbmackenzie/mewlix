@@ -45,9 +45,7 @@ pairAsRef :: (PrimRef, Prim) -> Evaluator PrimRef
 pairAsRef (ref, prim) = (,) <$> ensureKey prim <*> readMeowRef ref >>= uncurry peekAsObject
 
 pairAsInsert :: (PrimRef, Prim) -> Prim -> Evaluator ()
-pairAsInsert (ref, prim) value = ensureKey prim >>= \key -> do
-    valref <- newMeowRef value
-    modifyObject ref (Map.insert key valref)
+pairAsInsert (ref, prim) value = ensureKey prim >>= flip (insertObject ref) value
 
 ensureValue :: Prim -> Evaluator Prim
 {-# INLINABLE ensureValue #-}

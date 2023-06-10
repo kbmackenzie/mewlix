@@ -56,7 +56,7 @@ replTrace = stackTrace (return "In <repl>.")
 
 takeLine :: ObjectMap -> Text.Text -> REPL (Continue, ObjectMap)
 takeLine env line = case replParse line of
-    (Left exception) -> (liftIO . printError . snd . meowSyntaxExc) exception
+    (Left exception) -> (liftIO . printExc . snd . meowSyntaxExc) exception
                         >> return (True, env)
     (Right output) -> case output of
         (Meta com) -> runCommand env com
@@ -64,7 +64,7 @@ takeLine env line = case replParse line of
 
 runExpression :: ObjectMap -> Expr -> REPL ObjectMap
 runExpression env expr = liftIO $ evaluateExpr env expr >>= \case
-    (Left exception) -> printError (snd exception) >> return env
+    (Left exception) -> printExc (snd exception) >> return env
     (Right (output, env')) -> printStrLn output >> readIORef env'
 
 notCommand :: Text.Text -> Text.Text

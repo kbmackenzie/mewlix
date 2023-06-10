@@ -9,7 +9,7 @@ module Meowscript.Utils.IO
 , safeWriteFile
 , safeAppendFile
 , safeCurrentDir
-, printError
+, printExc
 ) where
 
 import qualified Data.Text as Text
@@ -27,6 +27,9 @@ printStr line = TextIO.putStr line >> hFlush stdout
 printStrLn :: Text.Text -> IO ()
 {-# INLINABLE printStrLn #-}
 printStrLn line = TextIO.putStrLn line >> hFlush stdout
+
+--printStderr :: Text.Text -> IO ()
+--printStderr = TextI
 
 ----------------------------------------------------------
 
@@ -53,8 +56,8 @@ textSplit char str = (a', b')
           a' = if Text.null b then a else a `Text.snoc` Text.head b
           b' = if Text.null b then b else Text.tail b
 
-printError :: Text.Text -> IO ()
-printError txt
+printExc :: Text.Text -> IO ()
+printExc txt
     | "[" `Text.isPrefixOf` txt = do
         let (exception, message) = textSplit ']' txt 
         colorPrint errorColor exception

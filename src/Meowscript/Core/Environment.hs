@@ -20,6 +20,7 @@ module Meowscript.Core.Environment
 , readMeowRef
 , writeMeowRef
 , createObject
+, insertObject
 , modifyObject
 , primAsBox
 , peekObject 
@@ -131,6 +132,15 @@ modifyObject :: PrimRef -> (ObjectMap -> ObjectMap) -> Evaluator ()
 {-# INLINABLE modifyObject #-}
 modifyObject ref f = readMeowRef ref >>= \case
     (MeowObject obj) -> (writeMeowRef ref . MeowObject . f) obj
+    x -> throwError =<< notBox x
+
+insertObject :: PrimRef -> Key -> Prim -> Evaluator ()
+insertObject ref key value = readMeowRef ref >>= \case
+    (MeowObject obj) -> if Map.member key obj
+        then writeMeowRef (obj Map.! key) value
+        else do
+            valueRef <- newMeowRef value
+            writeMeowRef ref $ MeowObject (Map.insert key valueRef obj)
     x -> throwError =<< notBox x
 
 primAsBox :: Prim -> Evaluator ObjectMap

@@ -14,6 +14,7 @@ import Meowscript.Utils.Data
 stdFiles :: Set.Set Text.Text
 stdFiles = Set.fromList
     [ "std.meows"
+    , "exc.meows"
     , "io.meows" ]
 
 asStd :: Text.Text -> Text.Text

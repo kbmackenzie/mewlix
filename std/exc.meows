@@ -1,4 +1,6 @@
--- Exception constants.
+~( ^.x.^)>
+Exception constants.
+<(^.x.^ )~
 
 mew __exc = ( ^.x.^)> (a) => (a.."Exception")
 

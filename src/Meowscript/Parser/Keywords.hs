@@ -119,7 +119,7 @@ reservedKeywords =
     , "watch"
     , "catch"
     , "box"
-    , "poke"
+    , "BOX"
     , "push"
     , "peek"
     , "knock"
