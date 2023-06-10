@@ -23,18 +23,21 @@ root = Mega.between whitespaceLn Mega.eof (Mega.many (lexemeLn statements))
 
 statements :: Parser Statement
 statements = Mega.choice
-    [  parseWhile                <?> "purr"
-     , parseFor                  <?> "take"
-     , parseIfElse               <?> "mew?"
-     , parseFunc                 <?> "=^.x.^="
-     , parseReturn               <?> "bring"
-     , parseContinue             <?> "catnap"
-     , parseBreak                <?> "run off"
-     , parseImport               <?> "takes"
+    [  parseWhile                <?> Text.unpack meowWhile
+     , parseFor                  <?> (Text.unpack . \(x,_,_) -> x) meowFor
+     , parseIfElse               <?> Text.unpack meowIf
+     , parseFunc                 <?> Text.unpack meowCatface
+     , parseReturn               <?> Text.unpack meowReturn
+     , parseContinue             <?> Text.unpack meowContinue
+     , parseBreak                <?> Text.unpack meowBreak
+     , parseImport               <?> (Text.unpack . fst) meowTakes
+     , parseTryCatch             <?> (Text.unpack . Text.concat) [ meowTry, meowCatch]
      , parseExpression           <?> "expression" ]
 
 parseEnd :: Parser ()
 parseEnd = whitespace >> (void . keyword) meowEnd
+    <|> fail (concat ["Expected '", Text.unpack meowEnd,
+                "': Block is unclosed instead!"])
 
 parensExpression :: Parser Expr
 parensExpression = (lexeme . parens) (whitespace >> parseExpr')
@@ -56,7 +59,7 @@ parseWhile = lexeme . Lexer.indentBlock whitespaceLn $ do
 
 parseIf :: Parser (Expr, [Statement])
 parseIf = lexeme . Lexer.indentBlock whitespaceLn $ do
-    (Mega.try . void . lexeme . keyword) meowIf
+    (Mega.try . void . keyword) meowIf
     condition <- parensExpression
     return (Lexer.IndentMany Nothing (return . (condition,)) statements)
 
@@ -65,7 +68,7 @@ parseIf' = parseIf >>= \(cond, block) -> return (MeowIf cond block)
 
 parseElse :: Parser [Statement]
 parseElse = lexeme . Lexer.indentBlock whitespaceLn $ do
-    (Mega.try . void . lexeme . keyword) meowElse
+    (Mega.try . void . keyword) meowElse
     return (Lexer.IndentMany Nothing return statements)
 
 parseIfElse :: Parser Statement
@@ -119,19 +122,39 @@ parseBreak = lexeme $ do
 parseFor :: Parser Statement
 parseFor = lexeme . Lexer.indentBlock whitespaceLn $ do
     let (start, middle, end) = meowFor
-    let getExp name = (void . lexeme . keyword) name >> parensExpression
+    let getExp name = (void . keyword) name >> parensExpression
     let first = Mega.try (getExp start)
     (a, b, c) <- (,,) <$> first <*> getExp middle <*> getExp end
     let expressions = (a, b, c)
     return $ Lexer.IndentMany Nothing ((<$ parseEnd) . StmFor expressions) statements
+
 
 {- Import -}
 
 parseImport :: Parser Statement
 parseImport = lexeme $ do
     let (start, end) = meowTakes
-    (void . Mega.try . lexeme . keyword) start
+    (void . Mega.try . keyword) start
     (MeowString filepath) <- lexeme parseStr 
-    let key = (void . Mega.try . lexeme . keyword) end >> lexeme keyText
+    let key = (void . Mega.try . keyword) end >> lexeme keyText
     maybeKey <- Mega.optional key
     return (StmImport filepath maybeKey)
+
+
+{- Watch/Catch -}
+
+parseTry :: Parser [Statement]
+parseTry = lexeme . Lexer.indentBlock whitespaceLn $ do
+    (void . Mega.try . keyword) meowTry
+    return $ Lexer.IndentMany Nothing return statements
+
+parseCatch :: Parser MeowCatch
+parseCatch = lexeme . Lexer.indentBlock whitespaceLn $ do
+    (void . Mega.try . keyword) meowCatch
+    expr <- Mega.optional $ (lexeme . parens) (whitespace >> exprTerm)
+    return $ Lexer.IndentMany Nothing (return . MeowCatch expr) statements
+
+parseTryCatch :: Parser Statement
+parseTryCatch = lexeme $ do
+    tryBlock <- parseTry
+    (StmTryCatch tryBlock <$> Mega.many parseCatch) <* parseEnd

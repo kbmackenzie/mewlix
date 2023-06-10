@@ -22,6 +22,7 @@ module Meowscript.Core.Exceptions
 , notFunc
 , badArgs
 , badValue
+, badTryCatch
 , nestedImport
 , badImport
 , notImport
@@ -113,6 +114,9 @@ badValue fn = showException' MeowBadValue . Text.append
 notInLoop :: Text.Text -> CatException
 notInLoop = showException MeowNotKeyword . \x -> Text.concat
     [ "The '", x, "' keyword can only be used inside loops!" ]
+
+badTryCatch :: Prim -> Evaluator CatException
+badTryCatch = showException' MeowBadValue "Invalid value in 'catch' block." . List.singleton
 
 nestedImport :: FilePathT -> CatException
 nestedImport = showException MeowBadImport . \x -> Text.concat

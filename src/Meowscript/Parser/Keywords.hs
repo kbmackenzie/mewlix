@@ -22,6 +22,8 @@ module Meowscript.Parser.Keywords
 , meowPush
 , meowKnock
 , meowTakes
+, meowTry
+, meowCatch
 , reservedKeywords
 ) where
 
@@ -90,6 +92,12 @@ meowKnock = "knock over"
 meowTakes :: (Text, Text)
 meowTakes = ("takes", "as")
 
+meowTry :: Text
+meowTry = "watch"
+
+meowCatch :: Text
+meowCatch = "catch"
+
 reservedKeywords :: [Text]
 {-# INLINE reservedKeywords #-}
 reservedKeywords =
@@ -108,6 +116,8 @@ reservedKeywords =
     , "do"
     , "take"
     , "takes"
+    , "watch"
+    , "catch"
     , "box"
     , "poke"
     , "push"

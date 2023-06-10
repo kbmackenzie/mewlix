@@ -18,7 +18,7 @@ import Meowscript.Core.Exceptions
 import Meowscript.Parser.Keywords
 import qualified Data.Text as Text
 import Control.Monad.Reader (asks, liftIO)
-import Control.Monad.Except (throwError)
+import Control.Monad.Except (throwError, catchError)
 import Control.Monad (void, join, when, (>=>))
 import Data.Functor ((<&>))
 
@@ -154,6 +154,7 @@ runTable (StmFor a b) _ = runFor a b
 runTable (StmIfElse as b) isLoop = runIfElse as b isLoop
 runTable (StmIf as) isLoop = runIf as isLoop
 runTable (StmImport a _) _ = throwError (nestedImport a)
+runTable (StmTryCatch a bs) isLoop = runTryCatch a bs isLoop
 runTable x _ = throwError $ meowUnexpected "Invalid statement." (showT x)
 
 runExprStatement :: Expr -> Evaluator Prim
@@ -280,3 +281,20 @@ innerFor xs@(_, incr, cond) body = runLocal $ do
             RetContinue -> RetVoid
             RetBreak -> RetVoid
             ret' -> ret'
+
+{- Try/Catch -}
+catchMeow :: IsLoop -> MeowCatch -> CatException -> Evaluator ReturnValue
+catchMeow isLoop (MeowCatch expr body) (x, y) = case expr of
+    (Just expr') -> (evaluate >=> ensureValue) expr' >>= \case
+        (MeowString str) -> if str == showT x
+            then runBlock body isLoop
+            else throwError (x, y)
+        other -> throwError =<< badTryCatch other
+    Nothing -> runBlock body isLoop
+
+runCatches :: [MeowCatch] -> IsLoop -> Evaluator ReturnValue -> Evaluator ReturnValue
+runCatches [] _      = id
+runCatches xs isLoop = foldl1 (flip (.)) (flip catchError . catchMeow isLoop <$> xs)
+
+runTryCatch :: Block -> [MeowCatch] -> IsLoop -> Evaluator ReturnValue
+runTryCatch tryBlock xs isLoop = runCatches xs isLoop (runBlock tryBlock isLoop)

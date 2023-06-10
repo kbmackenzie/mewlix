@@ -100,7 +100,7 @@ parseKey :: Parser Prim
 parseKey = MeowKey <$> (parseKeyNew <|> parseKey')
 
 parseKeyNew :: Parser KeyType
-parseKeyNew = (Mega.try . lexeme . keyword) meowLocal >> KeyNew <$> keyText
+parseKeyNew = (Mega.try . keyword) meowLocal >> KeyNew <$> keyText
 
 parseKey' :: Parser KeyType
 parseKey' = KeyModify <$> keyText

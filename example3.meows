@@ -9,6 +9,17 @@ meow(a.method1().method2())
 meow(a["method1"]().method2())
 meow(a.method1()["method2"]())
 
+watch
+    int(sddsdfgdfg)
+    -- The try-block below will catch this error!
+catch ("InvalidVariableException")
+    meow("silly...")
+    int(asdfgffdg)
+    -- The try-block below will catch this error too!
+catch
+    meow("caught it!")
+meow meow
+
 =^.x.^= dictionary()
     bring ~( ^.x.^) BOX!! [
         pairs:   ~( ^.x.^) BOX!! [],

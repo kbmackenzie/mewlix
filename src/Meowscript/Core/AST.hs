@@ -7,6 +7,7 @@ module Meowscript.Core.AST
 , Binop(..)
 , MeowIf(..)
 , KeyType(..)
+, MeowCatch(..)
 , Statement(..)
 , ReturnValue(..)
 , MeowException(..)
@@ -168,6 +169,7 @@ type Qualified = Maybe Text.Text
 type IsLoop = Bool
 
 data MeowIf = MeowIf Condition Block deriving(Show)
+data MeowCatch = MeowCatch (Maybe Expr) Block deriving (Show)
 
 data Statement =
       StmExpr Expr
@@ -178,6 +180,7 @@ data Statement =
     | StmFuncDef Expr Params [Statement]
     | StmReturn Expr
     | StmImport FilePathT (Maybe Key)
+    | StmTryCatch Block [MeowCatch]
     | StmContinue
     | StmBreak
     deriving (Show)
