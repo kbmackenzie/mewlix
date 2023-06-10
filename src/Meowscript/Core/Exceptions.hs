@@ -97,7 +97,7 @@ stackTrace txt action = action `catchError` \x -> do
 
 opException :: Text.Text -> [Prim] -> Evaluator Text.Text
 opException = showException' MeowInvalidOp . \x -> Text.concat
-    [ "Invalid operands for '", x, "'!" ]
+    [ "Invalid operands for '", x, "'." ]
 
 divByZero :: [Prim] -> Evaluator Text.Text
 divByZero = showException' MeowDivByZero "Cannot divide by zero!"

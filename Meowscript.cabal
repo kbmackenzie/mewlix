@@ -38,6 +38,7 @@ library
       Meowscript.Core.Keys
       Meowscript.Core.Operations
       Meowscript.Core.Pretty
+      Meowscript.Core.Primitives
       Meowscript.Core.RunEvaluator
       Meowscript.Core.StdFiles
       Meowscript.Parser.Core
@@ -65,6 +66,7 @@ library
     , directory
     , filepath
     , megaparsec >=9.3.0
+    , monadlist
     , mtl
     , parser-combinators
     , random
@@ -88,6 +90,7 @@ executable Meowscript
     , directory
     , filepath
     , megaparsec >=9.3.0
+    , monadlist
     , mtl
     , parser-combinators
     , random
@@ -112,6 +115,7 @@ test-suite Meowscript-test
     , directory
     , filepath
     , megaparsec >=9.3.0
+    , monadlist
     , mtl
     , parser-combinators
     , random

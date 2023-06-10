@@ -32,6 +32,7 @@ dependencies:
 - ansi-terminal
 - random
 - directory
+- monadlist
 
 ghc-options:
 - -O3

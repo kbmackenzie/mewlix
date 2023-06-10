@@ -9,6 +9,7 @@ module Meowscript.Core.Operations
 
 import Meowscript.Core.AST
 import Meowscript.Core.Keys
+import Meowscript.Core.Primitives
 import Meowscript.Core.Exceptions
 import Meowscript.Core.Pretty (showMeow)
 import qualified Data.Text as Text
@@ -168,8 +169,7 @@ meowPow x y = throwError =<< opException "**" [x, y]
 
 -- Comparison
 meowCompare :: [Ordering] -> Prim -> Prim -> Evaluator Prim
-meowCompare ord a b = (return . MeowBool) (c `elem` ord)
-    where c = a `compare` b
+meowCompare ord a b = MeowBool . (`elem` ord) <$> (a `primCompare` b)
 
 
 {-- Logical Operations --}

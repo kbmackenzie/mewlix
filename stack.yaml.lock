@@ -151,4 +151,11 @@ packages:
       size: 5642
   original:
     hackage: unix-2.8.1.1
+- completed:
+    hackage: monadlist-0.0.2@sha256:978305e3f03dd5f65c673b551124dac0c39a247c2c14d84739ca9a3405fbb63a,904
+    pantry-tree:
+      sha256: 3a30e1c54fd12824b5259b600dae6ba33c0162754d91c0c6a25435d0aae7ac7d
+      size: 222
+  original:
+    hackage: monadlist-0.0.2
 snapshots: []
