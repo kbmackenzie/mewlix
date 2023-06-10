@@ -20,4 +20,4 @@ runBasic path = do
     (output, time) <- stopWatch $ runMeow path
     case output of
         (Right x) -> print time >> print x
-        (Left x) -> TextIO.putStrLn x
+        (Left x) -> TextIO.putStrLn (snd x)

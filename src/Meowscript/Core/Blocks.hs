@@ -154,7 +154,7 @@ runTable (StmFor a b) _ = runFor a b
 runTable (StmIfElse as b) isLoop = runIfElse as b isLoop
 runTable (StmIf as) isLoop = runIf as isLoop
 runTable (StmImport a _) _ = throwError (nestedImport a)
-runTable x _ = throwError ("Critical failure: Invalid statement. Trace: " `Text.append` showT x)
+runTable x _ = throwError $ meowUnexpected "Invalid statement." (showT x)
 
 runExprStatement :: Expr -> Evaluator Prim
 {-# INLINABLE runExprStatement #-}

@@ -1,4 +1,5 @@
-{-# LANGUAGE OverloadedStrings #-} 
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections #-}
 
 module Meowscript.Core.Exceptions
 ( showException
@@ -7,6 +8,7 @@ module Meowscript.Core.Exceptions
 , opException
 , divByZero
 , catOnComputer
+, meowSyntaxExc
 , notInLoop
 , badKey
 , notKey
@@ -22,6 +24,7 @@ module Meowscript.Core.Exceptions
 , badValue
 , nestedImport
 , badImport
+, notImport
 , badFile
 , meowUnexpected
 ) where
@@ -33,11 +36,11 @@ import qualified Data.List as List
 import Control.Monad.Except (throwError, catchError)
 import Data.Functor ((<&>))
 
-showException :: MeowException -> Text.Text -> Text.Text
-showException meowe message = Text.concat
+showException :: MeowException -> Text.Text -> CatException
+showException meowe message = (meowe,) $ Text.concat
     ["[", (Text.pack . show) meowe, "]", ": ", message, "\n  - Stack trace:" ]
 
-showException' :: MeowException -> Text.Text -> [Prim] -> Evaluator Text.Text
+showException' :: MeowException -> Text.Text -> [Prim] -> Evaluator CatException
 showException' meowEx text xs = do
     prims <- mapM prettyMeow xs
     let terms = Text.intercalate ", " prims
@@ -45,83 +48,86 @@ showException' meowEx text xs = do
     (return . showException meowEx . Text.concat) message
 
 stackTrace :: Evaluator Text.Text -> Evaluator a -> Evaluator a
-stackTrace txt action = action `catchError` \x -> do
+stackTrace txt action = action `catchError` \(x, y) -> do
     message <- txt <&> ("\n    " `Text.append`)
-    throwError (x `Text.append` message)
+    throwError (x, y `Text.append` message)
 
---meowExcs :: [MeowException]
---meowExcs = [minBound..maxBound]
-
-opException :: Text.Text -> [Prim] -> Evaluator Text.Text
+opException :: Text.Text -> [Prim] -> Evaluator CatException
 opException = showException' MeowInvalidOp . \x -> Text.concat
     [ "Invalid operands for '", x, "'." ]
 
-divByZero :: [Prim] -> Evaluator Text.Text
+divByZero :: [Prim] -> Evaluator CatException
 divByZero = showException' MeowDivByZero "Cannot divide by zero!"
 
-catOnComputer :: Text.Text -> Text.Text
+catOnComputer :: Text.Text -> CatException
 catOnComputer = showException MeowCatOnComputer
 
-badKey :: Text.Text -> Text.Text
+meowSyntaxExc :: Text.Text -> CatException
+meowSyntaxExc = showException MeowBadSyntax . Text.cons '\n'
+
+badKey :: Text.Text -> CatException
 badKey = showException MeowBadVar . \x -> Text.concat 
     ["Key '", x, "' doesn't exist in the current context!" ]
 
-notKey :: [Prim] -> Evaluator Text.Text
+notKey :: [Prim] -> Evaluator CatException
 notKey = showException' MeowNotKey "Token cannot be used as key: "
 
-badDot :: Text.Text -> Prim -> Evaluator Text.Text
+badDot :: Text.Text -> Prim -> Evaluator CatException
 badDot key = showException' MeowBadVar message . List.singleton
     where message = Text.concat [ "Key '", key, "' doesn't exist in object!" ]
 
-badBox :: Text.Text -> Text.Text
+badBox :: Text.Text -> CatException
 badBox = showException MeowBadBox . \x -> Text.concat ["Value in key '", x, "' is not a box!"]
 
-notBox :: Prim -> Evaluator Text.Text
+notBox :: Prim -> Evaluator CatException
 notBox prim = prettyMeow prim >>= \x -> return $ showException MeowBadBox
     $ Text.concat [ "Value '", x, "' is not a box!" ]
 
-fewArgs :: Text.Text -> [Prim] -> Evaluator Text.Text
+fewArgs :: Text.Text -> [Prim] -> Evaluator CatException
 fewArgs x = showException' MeowBadArgs
     $ Text.concat [ "Not enough arguments passed to function '", x, "'!" ]
 
-manyArgs :: Text.Text -> [Prim] -> Evaluator Text.Text
+manyArgs :: Text.Text -> [Prim] -> Evaluator CatException
 manyArgs x = showException' MeowBadArgs 
     $ Text.concat [ "Too many arguments passed to function '", x, "'!" ]
 
-badFunc :: Text.Text -> Text.Text
+badFunc :: Text.Text -> CatException
 badFunc = showException MeowBadFunc . \x -> Text.concat ["Key '", x, "' is not a function!"]
 
-notFunc :: Prim -> Evaluator Text.Text
+notFunc :: Prim -> Evaluator CatException
 notFunc prim = prettyMeow prim >>= \x -> return $ showException MeowBadFunc
     $ Text.concat ["Attempted to call '", x, "' as a function," , " but '", x, "' is not a function!" ]
 
-badFuncDef :: Prim -> Evaluator Text.Text
+badFuncDef :: Prim -> Evaluator CatException
 badFuncDef = showException' MeowBadArgs "Invalid function name: " . List.singleton
 
-badArgs :: Text.Text -> [Prim] -> Evaluator Text.Text
+badArgs :: Text.Text -> [Prim] -> Evaluator CatException
 badArgs = showException' MeowBadArgs . \x -> Text.concat
     [ "Invalid argument(s) passed to function '", x, "'!" ]
 
-badValue :: Text.Text -> Text.Text -> [Prim] -> Evaluator Text.Text
+badValue :: Text.Text -> Text.Text -> [Prim] -> Evaluator CatException
 badValue fn = showException' MeowBadValue . Text.append
     (Text.concat [ "In function '", fn, "': " ])
 
-notInLoop :: Text.Text -> Text.Text
+notInLoop :: Text.Text -> CatException
 notInLoop = showException MeowNotKeyword . \x -> Text.concat
     [ "The '", x, "' keyword can only be used inside loops!" ]
 
-nestedImport :: FilePath -> Text.Text
+nestedImport :: FilePath -> CatException
 nestedImport = showException MeowBadImport . \x -> Text.concat
     [ "Can't import module '", Text.pack x,"' : "
     , "Import / 'takes as' statements cannot be nested!" ]
 
-badImport :: FilePath -> Text.Text -> Text.Text
+badImport :: FilePath -> Text.Text -> CatException
 badImport file exception = showException MeowBadImport
     (Text.concat ["Error when importing file '", Text.pack file, "':\n", exception])
 
-badFile :: Text.Text -> Text.Text -> Text.Text -> Text.Text
-badFile path fn message = showException MeowBadFile $ Text.concat
-    [ "In '", fn, "': ", message, " | File: \"", path, "\"" ]
+notImport :: Text.Text -> CatException
+notImport = showException MeowUnexpected . Text.append "Token is not an import: "
 
-meowUnexpected :: Text.Text -> Text.Text -> Text.Text
+badFile :: Text.Text -> Text.Text -> Text.Text -> CatException
+badFile path message exception = showException MeowBadFile $ Text.concat
+    [ message, ": ", exception, " | File: \"", path, "\"" ]
+
+meowUnexpected :: Text.Text -> Text.Text -> CatException
 meowUnexpected x y = showException MeowUnexpected (Text.concat [x, " | ", y])

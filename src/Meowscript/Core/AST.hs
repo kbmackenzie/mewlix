@@ -18,6 +18,7 @@ module Meowscript.Core.AST
 , Params
 , Environment
 , Closure
+, CatException
 , Evaluator
 , InnerFunc
 , Condition
@@ -60,7 +61,9 @@ type ObjectMap = Map.Map Key PrimRef
 
 type Environment = IORef ObjectMap
 type Closure = Environment
-type Evaluator a = ReaderT (MeowState, Environment) (ExceptT Text.Text IO) a
+type CatException = (MeowException, Text.Text)
+
+type Evaluator a = ReaderT (MeowState, Environment) (ExceptT CatException IO) a
 
 
 {- AST - Primitives -}
@@ -207,7 +210,7 @@ returnAsPrim _ = MeowLonely
 data MeowException =
       MeowBadVar
     | MeowInvalidOp
-    | MeowStackOverflow
+    | MeowBadSyntax
     | MeowBadBox
     | MeowDivByZero
     | MeowNotKey
@@ -226,8 +229,8 @@ data MeowException =
 
 instance Show MeowException where
     show MeowBadVar = exc "InvalidVariable"
+    show MeowBadSyntax = exc "Syntax"
     show MeowInvalidOp = exc "InvalidOperation"
-    show MeowStackOverflow = exc "StackOverflow"
     show MeowBadBox = exc "InvalidBox"
     show MeowDivByZero = exc "DivisionByZero"
     show MeowNotKey = exc "InvalidKey"

@@ -16,5 +16,5 @@ import qualified System.Console.ANSI as Console
 
 meow :: FilePath -> IO ()
 meow path = runMeow path >>= \case
-    (Left exception) -> printError exception
+    (Left exception) -> printError (snd exception)
     (Right output) -> printStrLn output

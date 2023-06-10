@@ -49,33 +49,33 @@ meowState args lib = MeowState
     , meowLib = lib
     , meowStd = stdFiles }
 
-runEvaluator :: MeowState -> IO ObjectMap -> Evaluator a -> IO (Either Text.Text a)
+runEvaluator :: MeowState -> IO ObjectMap -> Evaluator a -> IO (Either CatException a)
 runEvaluator meow env eval = env >>= newIORef >>= (runExceptT . runReaderT eval . (meow,))
 
-runFile :: MeowParams [Statement] b -> FilePath -> IO (Either Text.Text b)
+runFile :: MeowParams [Statement] b -> FilePath -> IO (Either CatException b)
 runFile params path = safeReadFile path >>= runFileCore params path
 
 -- Evaluate the contents from a .meows file.
-runFileCore :: MeowParams [Statement] b -> FilePath -> MeowFile -> IO (Either Text.Text b)
+runFileCore :: MeowParams [Statement] b -> FilePath -> MeowFile -> IO (Either CatException b)
 runFileCore params path input = case input of
-    (Left exception) -> (return . Left) exception
+    (Left exception) -> (return . Left) $ badFile (Text.pack path) "In import" exception
     (Right contents) -> meowParse path contents >>= \case
-        (Left exception) -> (return . Left) exception
+        (Left exception) -> (return . Left) $ meowSyntaxExc exception
         (Right program) -> runCore state lib (asMain . fn) program
     where state = getMeowState params
           lib = meowLib state
           fn = getMeowFn params
 
 -- Evaluate a single line. It's gonna be used in the REPL!
-runLine :: Parser a -> MeowParams a b -> Text.Text -> IO (Either Text.Text b)
+runLine :: Parser a -> MeowParams a b -> Text.Text -> IO (Either CatException b)
 runLine parser params str = case parseSpecial parser str of
-    (Left exception) -> (return . Left) exception
+    (Left exception) -> (return . Left) $ meowSyntaxExc exception
     (Right output) -> runCore state lib fn output
     where state = getMeowState params
           lib = meowLib state
           fn = getMeowFn params
 
-runCore :: MeowState -> IO ObjectMap -> EvalCallback a b -> a -> IO (Either Text.Text b)
+runCore :: MeowState -> IO ObjectMap -> EvalCallback a b -> a -> IO (Either CatException b)
 runCore state lib fn input = do
     env <- (<>) <$> lib <*> baseLibrary
     (runEvaluator state (return env) . fn) input
@@ -83,12 +83,12 @@ runCore state lib fn input = do
 --------------------------------------------------------------
 
 -- Variants that default to no additional libraries:
-runMeow :: FilePath -> IO (Either Text.Text Text.Text)
+runMeow :: FilePath -> IO (Either CatException Text.Text)
 runMeow = runFile MeowParams
     { getMeowState = meowState [] (return Map.empty)
     , getMeowFn = runProgram' }
 
-runExpr :: Text.Text -> IO (Either Text.Text Prim)
+runExpr :: Text.Text -> IO (Either CatException Prim)
 runExpr = runLine (lexemeLn parseExpr') MeowParams
     { getMeowState = meowState [] (return Map.empty)
     , getMeowFn = evaluate }
@@ -134,13 +134,13 @@ readModule path = asks (meowStd . fst) >>= \x -> if Set.member path' x
         else (liftIO . safeReadFile) path
     where path' = Text.pack path
 
-getImport :: FilePath -> Evaluator (Either Text.Text Environment)
+getImport :: FilePath -> Evaluator (Either CatException Environment)
 getImport path = do 
     x <- readModule path
     state <- asks fst
     liftIO (importEnv state path x)
 
-importEnv :: MeowState -> FilePath -> MeowFile -> IO (Either Text.Text Environment)
+importEnv :: MeowState -> FilePath -> MeowFile -> IO (Either CatException Environment)
 importEnv state path x = runFileCore params path x >>= \case
         (Left exception) -> (return . Left) exception
         (Right output) -> (return . Right) output
@@ -150,7 +150,7 @@ importEnv state path x = runFileCore params path x >>= \case
     
 addImport :: Statement -> Evaluator ()
 addImport (StmImport file qualified) = getImport file >>= \case
-    (Left ex) -> throwError (badImport file ex)
+    (Left ex) -> throwError ex
     (Right import') -> case qualified of
         Nothing -> do
             x <- asks snd >>= readMeowRef
@@ -159,5 +159,4 @@ addImport (StmImport file qualified) = getImport file >>= \case
         (Just x) -> do
             imp <- readMeowRef import' >>= liftIO . newIORef . MeowObject
             insertRef x imp
-addImport x = throwError (showException MeowBadImport
-    "Critical error: Statement is not an import! Trace: " `Text.append` showT x)
+addImport x = throwError $ notImport (showT x)

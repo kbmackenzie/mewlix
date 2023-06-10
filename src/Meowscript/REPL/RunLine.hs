@@ -19,7 +19,7 @@ import Meowscript.Core.Exceptions
 import Meowscript.Utils.IO
 import Meowscript.Parser.Expr (parseExpr')
 import Meowscript.Parser.RunParser (parseSpecial)
-import Control.Monad.Reader (ask, asks, liftIO)
+import Control.Monad.Reader (asks, liftIO)
 import qualified Data.Text as Text
 import qualified Data.Map.Strict as Map
 import qualified Text.Megaparsec as Mega
@@ -45,7 +45,7 @@ replParse = parseSpecial replLine
 textAndEnv :: EvalCallback Expr (Text.Text, Environment)
 textAndEnv x = (,) <$> (evaluate x >>= ensureValue >>= prettyMeow) <*> asks snd
 
-evaluateExpr :: ObjectMap -> Expr -> IO (Either Text.Text (Text.Text, Environment))
+evaluateExpr :: ObjectMap -> Expr -> IO (Either CatException (Text.Text, Environment))
 evaluateExpr env = runCore state (return env) (replTrace . textAndEnv) 
     where state = meowState [] (return env)
 
@@ -56,14 +56,15 @@ replTrace = stackTrace (return "In <repl>.")
 
 takeLine :: ObjectMap -> Text.Text -> REPL (Continue, ObjectMap)
 takeLine env line = case replParse line of
-    (Left exception) -> liftIO (printStrLn exception) >> return (True, env)
+    (Left exception) -> (liftIO . printError . snd . meowSyntaxExc) exception
+                        >> return (True, env)
     (Right output) -> case output of
         (Meta com) -> runCommand env com
         (Expression expr) -> runExpression env expr <&> (True,)
 
 runExpression :: ObjectMap -> Expr -> REPL ObjectMap
 runExpression env expr = liftIO $ evaluateExpr env expr >>= \case
-    (Left exception) -> printError exception >> return env
+    (Left exception) -> printError (snd exception) >> return env
     (Right (output, env')) -> printStrLn output >> readIORef env'
 
 notCommand :: Text.Text -> Text.Text
