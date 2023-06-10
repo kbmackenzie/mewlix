@@ -322,42 +322,28 @@ meow meow
 meow meow
 
 
+
 ~( ^.x.^)> -----------
-       Highshelf 
+       Highshelf       
 ----------- <(^.x.^ )~
 
 ~( ^.x.^)> 
 For query-like operations on lists.
 A few examples of its usage:
 
-numbers                                         \
+number_list                                     \
     .where(( ^.x.^)> (x) => (x > 10))           \
     .first()
 
-strings                                         \
+string_list                                     \
     .where(( ^.x.^)> (x) => (not is_empty(x)))  \
     .choose(10)
 
 The highshelf tries to make query-like operations
 work within Meowscript's set of limitations!
 
-It isn't lazy, however. Those operations can be
-costly and mean on the garbage collector.
-<(^.x.^ )~
-
-~( ^.x.^)>
-=^.x.^= highshelf(items)
-    bring ~( ^.x.^) BOX!! [
-        items: items,
-        length: ( ^.x.^)> ()   => (home.items?!),
-        add:    ( ^.x.^)> (a)  => (highshelf(a push mirror(home.items))),
-        choose: ( ^.x.^)> (n)  => (take_n(home.items, n)),
-        where:  ( ^.x.^)> (fn) => (highshelf(filter(home.items, fn))),
-        first:  ( ^.x.^)> ()   => (peek home.items),
-        last:   ( ^.x.^)> ()   => (peek reverse(home.items)),
-        tolist: ( ^.x.^)> ()   => (home.items)
-    ]
-meow meow
+It isn't lazy. however.
+It also modifies the box itself.
 <(^.x.^ )~
 
 =^.x.^= highshelf(items)
@@ -369,7 +355,7 @@ meow meow
         where:  ( ^.x.^)> (fn) => (bounce(home.items = filter(home.items, fn), home)),
         first:  ( ^.x.^)> ()   => (peek home.items),
         last:   ( ^.x.^)> ()   => (peek reverse(home.items)),
-        tolist: ( ^.x.^)> ()   => (home.items)
+        shelf:  ( ^.x.^)> ()   => (home.items)
     ]
 meow meow
 
