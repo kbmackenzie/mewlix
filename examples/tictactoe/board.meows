@@ -1,0 +1,73 @@
+~( ^.X.^)>
+Meowscript implementation of a simple 'Tic Tac Toe'
+with dynamic board size.
+
+This yarn ball creates the board.
+<(^.X.^ )~
+
+mew Tile = ~( ^.x.^) BOX!! [
+    empty: " ",
+    x:     "x",
+    o:     "o"
+]
+
+mew Turn = ~( ^.x.^) BOX!! [
+    x: 0,
+    o: 1
+]
+
+mew GameState = ~( ^.x.^) BOX!! [
+    continue: 0,
+    x_won:    1,
+    o_won:    2,
+    draw:     3
+]
+
+=^.x.^= make_board(width, height)
+    mew board = dictionary()
+    take (mew y = 0) and do (paw at y) while (y < height)
+        take (mew x = 0) and do (paw at x) while (x < width)
+            board.add([x, y], Tile.empty)
+        meow meow
+    meow meow
+    board.add("width", width)
+    board.add("height", height)
+    bring board
+meow meow
+
+=^.x.^= has_won(board)
+    mew is_draw = happy
+
+    take (mew y = 0) and do (paw at y) while (y < board.height)
+        mew row = []
+        take (mew x = 0) and do (paw at x) while (x < board.width)
+            mew tile = board.get([x, y])
+            mew? (is_draw and tile == Tile.empty)
+                is_draw = sad
+            meow meow
+            tile push row
+        meow meow
+        
+        mew? (peek row != Tile.empty and all(row, poke(equal, peek row)))
+            bring peek row == Tile.x ? x_won : o_won
+        meow meow
+    meow meow
+
+    take (mew x = 0) and do (paw at x) while (x < board.width)
+        mew column = []
+        take (mew y = 0) and do (paw at y) while (y < board.height)
+            mew tile = board.get([x, y])
+            mew? (is_draw and tile == Tile.empty)
+                is_draw = sad
+            meow meow
+            tile push column
+        meow meow
+
+        mew? (peek column != Tile.empty and all(column, poke(equal, peek column)))
+            bring peek column == Tile.x ? x_won : o_won
+        meow meow
+    meow meow
+
+    take (mew x = 0) and do (paw at x) while (x < board.width)
+
+meow meow

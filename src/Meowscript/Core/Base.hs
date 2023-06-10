@@ -35,6 +35,7 @@ baseLibrary = createObject
     , ("nuzzle"  , MeowIFunc  ["x"] toBool    )
     , ("keys"    , MeowIFunc  ["x"] getKeys   )
     , ("values"  , MeowIFunc  ["x"] getValues )
+    , ("copy"    , MeowIFunc  ["x"] meowCopy  )
     , ("exists"  , MeowIFunc  ["x"] meowExist )
     , ("typeof"  , MeowIFunc  ["x"] typeOf    )
     , ("throw"   , MeowIFunc  ["x"] throwEx   )
@@ -252,6 +253,9 @@ meowHasKey = (,) <$> lookUp "box" <*> lookUp "key" >>= \case
 
 {- Reflection -}
 ----------------------------------------------------------
+
+meowCopy :: Evaluator Prim
+meowCopy = lookUp "x" >>= primCopy
 
 meowExist :: Evaluator Prim 
 meowExist = lookUp "x" >>= \case

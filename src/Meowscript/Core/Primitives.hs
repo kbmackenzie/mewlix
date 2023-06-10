@@ -6,6 +6,7 @@ module Meowscript.Core.Primitives
 ( primCompare
 , primEq
 , primSort
+, primCopy
 ) where
 
 import Meowscript.Core.AST
@@ -14,6 +15,7 @@ import Meowscript.Core.Environment
 import qualified Data.Map.Strict as Map
 import Control.Monad.Except (throwError)
 import Control.Monad.ListM (sortByM)
+import Control.Monad ((>=>))
 
 {- Comparison (==, <, >, <=, >=) operations. -}
 ---------------------------------------------------------
@@ -64,3 +66,13 @@ a `primEq` b = (== EQ) <$> (a `primCompare` b)
 ---------------------------------------------------------
 primSort :: [Prim] -> Evaluator [Prim]
 primSort = sortByM primCompare
+
+
+{- Deep-copying. -}
+primCopy :: Prim -> Evaluator Prim
+primCopy (MeowList xs) = MeowList <$> mapM primCopy xs
+primCopy (MeowObject x) = do
+    newValues <- mapM (readMeowRef >=> primCopy >=> newMeowRef) (Map.elems x)
+    let keys = Map.keys x
+    (return . MeowObject . Map.fromList) (zip keys newValues)
+primCopy x = return x
