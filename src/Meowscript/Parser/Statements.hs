@@ -131,8 +131,7 @@ parseImport :: Parser Statement
 parseImport = lexeme $ do
     let (start, end) = meowTakes
     (void . Mega.try . lexeme . keyword) start
-    (MeowString x) <- lexeme parseStr 
-    let filepath = Text.unpack x
+    (MeowString filepath) <- lexeme parseStr 
     let key = (void . Mega.try . lexeme . keyword) end >> lexeme keyText
     maybeKey <- Mega.optional key
     return (StmImport filepath maybeKey)

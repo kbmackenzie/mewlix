@@ -17,6 +17,7 @@ import Meowscript.Core.StdFiles
 import Meowscript.Core.RunEvaluator 
 import Meowscript.Utils.IO
 import Meowscript.Utils.Data
+import Meowscript.Utils.Types
 import qualified Data.Text as Text
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
@@ -61,20 +62,18 @@ quit _ env = return (False, env)
 addModule :: Command
 addModule line env = case getArgs line of
     [] -> return (True, env)
-    (x:_) -> readModule path >>= importEnv state path >>= \case
+    (x:_) -> readModule x >>= importEnv state x >>= \case
         (Left x') -> printError (snd x') >> return (True, env)
         (Right x') -> do
             env' <- readIORef x'
             let newEnv = env <> env'
             addModule (popArg line) newEnv
-        where path = Text.unpack x
-              state = meowState [] (return Map.empty)
+        where state = meowState [] (return Map.empty)
 
-readModule :: FilePath -> IO (Either Text.Text Text.Text)
-readModule path = if Set.member path' stdFiles
-    then readStdFile path'
-    else safeReadFile path
-    where path' = Text.pack path
+readModule :: FilePathT -> IO (Either Text.Text Text.Text)
+readModule path = if Set.member path stdFiles
+    then readStdFile path
+    else safeReadFile (Text.unpack path)
 
 popArg :: LineCommand -> LineCommand
 popArg l@(LineCommand _ []) = l

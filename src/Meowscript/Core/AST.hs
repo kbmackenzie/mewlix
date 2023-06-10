@@ -30,9 +30,10 @@ module Meowscript.Core.AST
 , returnAsPrim
 ) where
 
-import qualified Data.Text as Text
+import Meowscript.Utils.Types
 import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
+import qualified Data.Text as Text
 import Control.Monad.Reader (ReaderT)
 import Control.Monad.Except (ExceptT)
 import Data.IORef (IORef)
@@ -176,7 +177,7 @@ data Statement =
     | StmIfElse [MeowIf] Block
     | StmFuncDef Expr Params [Statement]
     | StmReturn Expr
-    | StmImport FilePath (Maybe Key)
+    | StmImport FilePathT (Maybe Key)
     | StmContinue
     | StmBreak
     deriving (Show)

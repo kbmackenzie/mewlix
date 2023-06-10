@@ -27,6 +27,7 @@ import Meowscript.Parser.RunParser
 import Meowscript.Core.Exceptions
 import Meowscript.Core.Pretty
 import Meowscript.Core.StdFiles
+import Meowscript.Utils.Types
 import qualified Data.Text as Text
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
@@ -58,7 +59,7 @@ runFile params path = safeReadFile path >>= runFileCore params path
 -- Evaluate the contents from a .meows file.
 runFileCore :: MeowParams [Statement] b -> FilePath -> MeowFile -> IO (Either CatException b)
 runFileCore params path input = case input of
-    (Left exception) -> (return . Left) $ badFile (Text.pack path) "In import" exception
+    (Left exception) -> (return . Left) $ badFile "In import" (Text.pack path) exception
     (Right contents) -> meowParse path contents >>= \case
         (Left exception) -> (return . Left) $ meowSyntaxExc exception
         (Right program) -> runCore state lib (asMain . fn) program
@@ -99,7 +100,7 @@ runExpr = runLine (lexemeLn parseExpr') MeowParams
 asMain :: Evaluator a -> Evaluator a
 asMain = stackTrace (return "In <main>.")
 
-asImport :: FilePath -> Evaluator a -> Evaluator a
+asImport :: FilePathT -> Evaluator a -> Evaluator a
 asImport path = stackTrace (return $ Text.concat [ "In import: ", showT path ])
 
 {- Run program with imports. -}
@@ -112,7 +113,7 @@ runProgram xs = do
 runProgram' :: [Statement] -> Evaluator Text.Text
 runProgram' xs = runProgram xs >>= prettyMeow
 
-runImport :: FilePath -> [Statement] -> Evaluator Environment
+runImport :: FilePathT -> [Statement] -> Evaluator Environment
 runImport path xs = asImport path $ runProgram xs >> asks snd -- Return the environment.
 
 {-
@@ -128,20 +129,19 @@ runDebug xs = do
 {- Modules -}
 --------------------------------------------------------
 
-readModule :: FilePath -> Evaluator MeowFile
-readModule path = asks (meowStd . fst) >>= \x -> if Set.member path' x
-        then (liftIO . readStdFile) path'
-        else (liftIO . safeReadFile) path
-    where path' = Text.pack path
+readModule :: FilePathT -> Evaluator MeowFile
+readModule path = asks (meowStd . fst) >>= \x -> if Set.member path x
+        then (liftIO . readStdFile) path
+        else (liftIO . safeReadFile . Text.unpack) path
 
-getImport :: FilePath -> Evaluator (Either CatException Environment)
+getImport :: FilePathT -> Evaluator (Either CatException Environment)
 getImport path = do 
     x <- readModule path
     state <- asks fst
     liftIO (importEnv state path x)
 
-importEnv :: MeowState -> FilePath -> MeowFile -> IO (Either CatException Environment)
-importEnv state path x = runFileCore params path x >>= \case
+importEnv :: MeowState -> FilePathT -> MeowFile -> IO (Either CatException Environment)
+importEnv state path x = runFileCore params (Text.unpack path) x >>= \case
         (Left exception) -> (return . Left) exception
         (Right output) -> (return . Right) output
     where params = MeowParams
@@ -149,7 +149,7 @@ importEnv state path x = runFileCore params path x >>= \case
                 , getMeowFn = runImport path }
     
 addImport :: Statement -> Evaluator ()
-addImport (StmImport file qualified) = getImport file >>= \case
+addImport (StmImport filepath qualified) = getImport filepath >>= \case
     (Left ex) -> throwError ex
     (Right import') -> case qualified of
         Nothing -> do

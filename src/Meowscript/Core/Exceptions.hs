@@ -31,6 +31,7 @@ module Meowscript.Core.Exceptions
 
 import Meowscript.Core.AST
 import Meowscript.Core.Pretty
+import Meowscript.Utils.Types
 import qualified Data.Text as Text
 import qualified Data.List as List
 import Control.Monad.Except (throwError, catchError)
@@ -113,21 +114,21 @@ notInLoop :: Text.Text -> CatException
 notInLoop = showException MeowNotKeyword . \x -> Text.concat
     [ "The '", x, "' keyword can only be used inside loops!" ]
 
-nestedImport :: FilePath -> CatException
+nestedImport :: FilePathT -> CatException
 nestedImport = showException MeowBadImport . \x -> Text.concat
-    [ "Can't import module '", Text.pack x,"' : "
+    [ "Can't import module '", x,"' : "
     , "Import / 'takes as' statements cannot be nested!" ]
 
-badImport :: FilePath -> Text.Text -> CatException
+badImport :: FilePathT -> Text.Text -> CatException
 badImport file exception = showException MeowBadImport
-    (Text.concat ["Error when importing file '", Text.pack file, "':\n", exception])
+    (Text.concat ["Error when importing file '", file, "':\n", exception])
 
 notImport :: Text.Text -> CatException
 notImport = showException MeowUnexpected . Text.append "Token is not an import: "
 
-badFile :: Text.Text -> Text.Text -> Text.Text -> CatException
-badFile path message exception = showException MeowBadFile $ Text.concat
-    [ message, ": ", exception, " | File: \"", path, "\"" ]
+badFile :: Text.Text -> FilePathT -> Text.Text -> CatException
+badFile message path exception = showException MeowBadFile $ Text.concat
+    [ message, ": | ", exception, " | File: \"", path, "\"" ]
 
 meowUnexpected :: Text.Text -> Text.Text -> CatException
 meowUnexpected x y = showException MeowUnexpected (Text.concat [x, " | ", y])

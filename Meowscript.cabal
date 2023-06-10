@@ -53,6 +53,7 @@ library
       Meowscript.Utils.Data
       Meowscript.Utils.IO
       Meowscript.Utils.Show
+      Meowscript.Utils.Types
   other-modules:
       Paths_Meowscript
   hs-source-dirs:
