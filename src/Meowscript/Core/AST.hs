@@ -6,15 +6,16 @@ module Meowscript.Core.AST
 , Unop(..)
 , Binop(..)
 , MeowIf(..)
-, Statement(..)
 , KeyType(..)
+, Statement(..)
 , ReturnValue(..)
+, MeowException(..)
+, MeowState(..)
 , PrimRef
 , ObjectMap
 , Key
 , Overwrite
 , Params
-, MeowState(..)
 , Environment
 , Closure
 , Evaluator
@@ -199,3 +200,49 @@ shouldBreak _ = False
 returnAsPrim :: ReturnValue -> Prim
 returnAsPrim (RetValue x) = x
 returnAsPrim _ = MeowLonely
+
+
+{- Exceptions -}
+--------------------------------------------
+data MeowException =
+      MeowBadVar
+    | MeowInvalidOp
+    | MeowStackOverflow
+    | MeowBadBox
+    | MeowDivByZero
+    | MeowNotKey
+    | MeowBadArgs
+    | MeowBadToken
+    | MeowBadFunc
+    | MeowBadImport
+    | MeowBadIFunc
+    | MeowBadValue
+    | MeowCatOnComputer
+    | MeowNotKeyword
+    | MeowBadFile
+    | MeowBadFuncDef
+    | MeowUnexpected
+    deriving (Eq)
+
+instance Show MeowException where
+    show MeowBadVar = exc "InvalidVariable"
+    show MeowInvalidOp = exc "InvalidOperation"
+    show MeowStackOverflow = exc "StackOverflow"
+    show MeowBadBox = exc "InvalidBox"
+    show MeowDivByZero = exc "DivisionByZero"
+    show MeowNotKey = exc "InvalidKey"
+    show MeowBadArgs = exc "Argument"
+    show MeowBadToken = exc "InvalidToken"
+    show MeowBadFunc = exc "InvalidFunction"
+    show MeowBadImport = exc "InvalidImport"
+    show MeowBadIFunc = exc "InvalidInnerFunction"
+    show MeowBadValue = exc "InvalidValue"
+    show MeowCatOnComputer = exc "CatOnComputer"
+    show MeowNotKeyword = exc "KeywordException"
+    show MeowBadFile = exc "File"
+    show MeowBadFuncDef = exc "FunctionDefinition"
+    show MeowUnexpected = exc "Unexpected" 
+
+exc :: String -> String
+exc = (++ "Exception")
+

@@ -1,8 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-} 
 
 module Meowscript.Core.Exceptions
-( MeowException(..)
-, showException
+( showException
 , showException'
 , stackTrace
 , opException
@@ -33,48 +32,6 @@ import qualified Data.Text as Text
 import qualified Data.List as List
 import Control.Monad.Except (throwError, catchError)
 import Data.Functor ((<&>))
-
-data MeowException =
-      MeowBadVar
-    | MeowInvalidOp
-    | MeowStackOverflow
-    | MeowBadBox
-    | MeowDivByZero
-    | MeowNotKey
-    | MeowBadArgs
-    | MeowBadToken
-    | MeowBadFunc
-    | MeowBadImport
-    | MeowBadIFunc
-    | MeowBadValue
-    | MeowCatOnComputer
-    | MeowNotKeyword
-    | MeowBadFile
-    | MeowBadFuncDef
-    | MeowUnexpected
-    deriving (Eq)
-
-instance Show MeowException where
-    show MeowBadVar = exc "InvalidVariable"
-    show MeowInvalidOp = exc "InvalidOperation"
-    show MeowStackOverflow = exc "StackOverflow"
-    show MeowBadBox = exc "InvalidBox"
-    show MeowDivByZero = exc "DivisionByZero"
-    show MeowNotKey = exc "InvalidKey"
-    show MeowBadArgs = exc "Argument"
-    show MeowBadToken = exc "InvalidToken"
-    show MeowBadFunc = exc "InvalidFunction"
-    show MeowBadImport = exc "InvalidImport"
-    show MeowBadIFunc = exc "InvalidInnerFunction"
-    show MeowBadValue = exc "InvalidValue"
-    show MeowCatOnComputer = exc "CatOnComputer"
-    show MeowNotKeyword = exc "KeywordException"
-    show MeowBadFile = exc "File"
-    show MeowBadFuncDef = exc "FunctionDefinition"
-    show MeowUnexpected = exc "Unexpected" 
-
-exc :: String -> String
-exc = (++ "Exception")
 
 showException :: MeowException -> Text.Text -> Text.Text
 showException meowe message = Text.concat
