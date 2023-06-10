@@ -1,0 +1,22 @@
+-- Exception constants.
+
+mew __exc = ( ^.x.^)> (a) => (a.."Exception")
+
+mew MeowException = ~( ^.x.^) BOX!! [
+    InvalidVariable:        __exc("InvalidVariable"),
+    Syntax:                 __exc("Syntax"),
+    InvalidOperation:       __exc("InvalidOperation"),
+    InvalidBox:             __exc("InvalidBox"),
+    DivisionByZero:         __exc("DivisionByZero"),
+    Argument:               __exc("Argument"),
+    InvalidToken:           __exc("InvalidToken"),
+    InvalidFunction:        __exc("InvalidFunction"),
+    InvalidImport:          __exc("InvalidImport"),
+    InvalidInnerFunction:   __exc("InvalidInnerFunction"),
+    InvalidValue:           __exc("InvalidValue"),
+    CatOnComputer:          __exc("CatOnComputer"),
+    KeywordException:       __exc("KeywordException"),
+    File:                   __exc("File"),
+    FunctionDefinition:     __exc("FunctionDefinition"),
+    Unexpected:             __exc("Unexpected")
+]

@@ -2,13 +2,13 @@
 
 takes "std.meows"
 
-Tile = ~( ^.x.^) BOX!! [
+mew Tile = ~( ^.x.^) BOX!! [
     empty: " ",
     x: "x",
     o: "o"
 ]
 
-Turn = ~( ^.x.^) BOX!! [
+mew Turn = ~( ^.x.^) BOX!! [
     x: 0,
     o: 1
 ]

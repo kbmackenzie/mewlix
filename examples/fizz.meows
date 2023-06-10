@@ -1,6 +1,6 @@
 -- Fizzbuzzbazz
 
-words = ~( ^.x.^) BOX!! [
+mew words = ~( ^.x.^) BOX!! [
     fizz: "fizz",
     buzz: "buzz",
     bazz: "bazz"

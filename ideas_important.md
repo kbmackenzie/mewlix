@@ -42,3 +42,7 @@ ideas:
 
 [changelog - MAJOR]
 1. dot operators **replace trails entirely now.** yay!!!!!! also, dot + box[] + call() can be chained now like this: "box["item"].method1().method2()" however much you want, yay!!
+
+
+[changelog - MAJOR part 2]
+1. added watch/catch block!! <3 a little note: the catch blocks are nested in a way where if a catch block throws an exception, one block below may catch it!
