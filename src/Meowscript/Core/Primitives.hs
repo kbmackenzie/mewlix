@@ -69,6 +69,7 @@ primSort = sortByM primCompare
 
 
 {- Deep-copying. -}
+---------------------------------------------------------
 primCopy :: Prim -> Evaluator Prim
 primCopy (MeowList xs) = MeowList <$> mapM primCopy xs
 primCopy (MeowObject x) = do
