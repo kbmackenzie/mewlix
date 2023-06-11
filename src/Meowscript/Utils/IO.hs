@@ -12,8 +12,10 @@ module Meowscript.Utils.IO
 , printErr
 , printErrLn
 , printExc
+, localPath
 ) where
 
+import Meowscript.Utils.Types
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import System.IO (hFlush, stdout, stderr)
@@ -21,6 +23,7 @@ import Control.Exception (try, IOException)
 import System.Console.ANSI.Types
 import qualified System.Console.ANSI as Console
 import System.Directory (getCurrentDirectory)
+import System.FilePath (dropFileName)
 
 printStr :: Text.Text -> IO ()
 {-# INLINABLE printStr #-}
@@ -104,3 +107,8 @@ safeCurrentDir :: IO (Either Text.Text Text.Text)
 safeCurrentDir = (try getCurrentDirectory :: IO (Either IOException String)) >>= \case
     (Left exception) -> (return . Left . Text.pack . show) exception
     (Right directory) -> (return . Right . Text.pack) directory
+
+localPath :: FilePathT -> Text.Text -> FilePathT
+{-# INLINABLE localPath #-}
+localPath path = Text.append dir
+    where dir = (Text.pack . dropFileName . Text.unpack) path

@@ -17,7 +17,7 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import qualified Data.Text.Read as Read
 import Control.Monad.Except (throwError)
-import Control.Monad.State (liftIO)
+import Control.Monad.Reader (asks, liftIO)
 import Data.Functor ((<&>))
 import Control.Monad ((>=>))
 import System.Random (randomIO)
@@ -292,23 +292,27 @@ throwEx = lookUp "x" >>= \case
 
 meowRead :: Evaluator Prim
 meowRead = lookUp "path" >>= \case
-    (MeowString path) -> (liftIO . safeReadFile . Text.unpack) path >>= \case
-        (Left exception) -> throwError (badFile path "In 'read_file'" exception)
-        (Right contents) -> (return . MeowString) contents
+    (MeowString path) -> do 
+        local <- asks (localPath . meowPath . fst)
+        (liftIO . safeReadFile . Text.unpack . local) path >>= \case
+            (Left exception) -> throwError (badFile path "In 'read_file'" exception)
+            (Right contents) -> (return . MeowString) contents
     x -> throwError =<< badArgs "read_file" [x]
 
 meowWrite :: Evaluator Prim
 meowWrite = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
-    (MeowString path, MeowString contents) ->
-        liftIO (safeWriteFile (Text.unpack path) contents) >>= \case
+    (MeowString path, MeowString contents) -> do
+        local <- asks (localPath . meowPath . fst)
+        liftIO (safeWriteFile (Text.unpack $ local path) contents) >>= \case
             (Left exception) -> throwError (badFile path  "In 'write_file'" exception)
             (Right _) -> (return . MeowString) contents
     (x, y) -> throwError =<< badArgs "write_file" [x, y]
 
 meowAppend :: Evaluator Prim
 meowAppend = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
-    (MeowString path, MeowString contents) ->
-        liftIO (safeAppendFile (Text.unpack path) contents) >>= \case
+    (MeowString path, MeowString contents) -> do
+        local <- asks (localPath . meowPath . fst)
+        liftIO (safeAppendFile (Text.unpack $ local path) contents) >>= \case
             (Left exception) -> throwError (badFile path  "In 'append_file'" exception)
             (Right _) -> (return . MeowString) contents
     (x, y) -> throwError =<< badArgs "append_file" [x, y]

@@ -36,7 +36,6 @@ import Control.Monad.Reader (asks, runReaderT, liftIO)
 import Control.Monad.Except (runExceptT, throwError)
 import Data.IORef (newIORef)
 import Meowscript.Utils.IO
-import System.FilePath (dropFileName)
 
 type EvalCallback a b = a -> Evaluator b
 type MeowFile = Either Text.Text Text.Text
@@ -139,10 +138,6 @@ readModule path = asks (meowStd . fst) >>= \x -> if Set.member path x
     else do
         local <- asks (localPath . meowPath . fst)
         (liftIO . safeReadFile . Text.unpack) (local path)
-
-localPath :: FilePathT -> Text.Text -> FilePathT
-localPath path = Text.append dir
-    where dir = (Text.pack . dropFileName . Text.unpack) path
 
 getImport :: FilePathT -> Evaluator (Either CatException Environment)
 getImport path = do 

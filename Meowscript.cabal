@@ -20,6 +20,7 @@ extra-source-files:
     CHANGELOG.md
 data-files:
     std/exc.meows
+    std/io.meows
     std/std.meows
 
 source-repository head
