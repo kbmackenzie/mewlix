@@ -68,7 +68,7 @@ addModule line env = case getArgs line of
             env' <- readIORef x'
             let newEnv = env <> env'
             addModule (popArg line) newEnv
-        where state = meowState [] (return Map.empty)
+        where state = meowState Text.empty [] (return Map.empty)
 
 readModule :: FilePathT -> IO (Either Text.Text Text.Text)
 readModule path = if Set.member path stdFiles

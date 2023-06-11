@@ -5,7 +5,7 @@ with dynamic board size.
 This yarn ball is the 'main'.
 <(^.x.^ )~
 
-takes "examples/tictactoe/board.meows"
+takes "board.meows"
 
 =^.x.^= tictactoe(size)
     assert(size > 1, "Board size cannot be less than 1!")
@@ -35,7 +35,7 @@ takes "examples/tictactoe/board.meows"
     mew? (state == GameState.draw)
         meow("Draw.")
     hiss!
-        mew winner = GameState.x_won ? "x" : "o"
+        mew winner = state == GameState.x_won ? "x" : "o"
         meow("The winner is "..winner.."!")
     meow meow
 meow meow

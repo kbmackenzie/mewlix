@@ -17,7 +17,7 @@ import Control.StopWatch (stopWatch)
 
 runBasic :: FilePath -> IO ()
 runBasic path = do
-    (output, time) <- stopWatch $ runMeow path
+    (output, time) <- stopWatch $ runMeow (Text.pack path)
     case output of
         (Right x) -> print time >> print x
         (Left x) -> TextIO.putStrLn (snd x)

@@ -36,6 +36,7 @@ import Control.Monad.Reader (asks, runReaderT, liftIO)
 import Control.Monad.Except (runExceptT, throwError)
 import Data.IORef (newIORef)
 import Meowscript.Utils.IO
+import System.FilePath (dropFileName)
 
 type EvalCallback a b = a -> Evaluator b
 type MeowFile = Either Text.Text Text.Text
@@ -44,21 +45,23 @@ data MeowParams a b = MeowParams
     { getMeowState :: MeowState
     , getMeowFn    :: EvalCallback a b }
 
-meowState :: [Text.Text] -> IO ObjectMap -> MeowState
-meowState args lib = MeowState
+meowState :: FilePathT -> [Text.Text] -> IO ObjectMap -> MeowState
+meowState path args lib = MeowState
     { meowArgs = args
-    , meowLib = lib
-    , meowStd = stdFiles }
+    , meowLib  = lib
+    , meowStd  = stdFiles
+    , meowPath = path }
 
 runEvaluator :: MeowState -> IO ObjectMap -> Evaluator a -> IO (Either CatException a)
 runEvaluator meow env eval = env >>= newIORef >>= (runExceptT . runReaderT eval . (meow,))
 
-runFile :: MeowParams [Statement] b -> FilePath -> IO (Either CatException b)
-runFile params path = safeReadFile path >>= runFileCore params path
+runFile :: MeowParams [Statement] b -> IO (Either CatException b)
+runFile params = safeReadFile path >>= runFileCore params
+    where path = (Text.unpack . meowPath . getMeowState) params
 
 -- Evaluate the contents from a .meows file.
-runFileCore :: MeowParams [Statement] b -> FilePath -> MeowFile -> IO (Either CatException b)
-runFileCore params path input = case input of
+runFileCore :: MeowParams [Statement] b -> MeowFile -> IO (Either CatException b)
+runFileCore params input = case input of
     (Left exception) -> (return . Left) $ badFile "In import" (Text.pack path) exception
     (Right contents) -> meowParse path contents >>= \case
         (Left exception) -> (return . Left) $ meowSyntaxExc exception
@@ -66,6 +69,7 @@ runFileCore params path input = case input of
     where state = getMeowState params
           lib = meowLib state
           fn = getMeowFn params
+          path = (Text.unpack . meowPath . getMeowState) params
 
 -- Evaluate a single line. It's gonna be used in the REPL!
 runLine :: Parser a -> MeowParams a b -> Text.Text -> IO (Either CatException b)
@@ -84,14 +88,14 @@ runCore state lib fn input = do
 --------------------------------------------------------------
 
 -- Variants that default to no additional libraries:
-runMeow :: FilePath -> IO (Either CatException Text.Text)
-runMeow = runFile MeowParams
-    { getMeowState = meowState [] (return Map.empty)
+runMeow :: FilePathT -> IO (Either CatException Text.Text)
+runMeow path = runFile MeowParams
+    { getMeowState = meowState path [] (return Map.empty)
     , getMeowFn = runProgram' }
 
 runExpr :: Text.Text -> IO (Either CatException Prim)
 runExpr = runLine (lexemeLn parseExpr') MeowParams
-    { getMeowState = meowState [] (return Map.empty)
+    { getMeowState = meowState Text.empty [] (return Map.empty)
     , getMeowFn = evaluate }
 
 --------------------------------------------------------------
@@ -131,8 +135,14 @@ runDebug xs = do
 
 readModule :: FilePathT -> Evaluator MeowFile
 readModule path = asks (meowStd . fst) >>= \x -> if Set.member path x
-        then (liftIO . readStdFile) path
-        else (liftIO . safeReadFile . Text.unpack) path
+    then (liftIO . readStdFile) path
+    else do
+        local <- asks (localPath . meowPath . fst)
+        (liftIO . safeReadFile . Text.unpack) (local path)
+
+localPath :: FilePathT -> Text.Text -> FilePathT
+localPath path = Text.append dir
+    where dir = (Text.pack . dropFileName . Text.unpack) path
 
 getImport :: FilePathT -> Evaluator (Either CatException Environment)
 getImport path = do 
@@ -141,11 +151,11 @@ getImport path = do
     liftIO (importEnv state path x)
 
 importEnv :: MeowState -> FilePathT -> MeowFile -> IO (Either CatException Environment)
-importEnv state path x = runFileCore params (Text.unpack path) x >>= \case
+importEnv state path x = runFileCore params x >>= \case
         (Left exception) -> (return . Left) exception
         (Right output) -> (return . Right) output
     where params = MeowParams
-                { getMeowState = state
+                { getMeowState = meowNewPath state path
                 , getMeowFn = runImport path }
     
 addImport :: Statement -> Evaluator ()

@@ -15,6 +15,6 @@ import System.Console.ANSI.Types
 import qualified System.Console.ANSI as Console
 
 meow :: FilePath -> IO ()
-meow path = runMeow path >>= \case
+meow path = runMeow (Text.pack path) >>= \case
     (Left exception) -> printExc (snd exception)
     (Right output) -> printStrLn output

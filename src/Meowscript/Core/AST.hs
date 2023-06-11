@@ -26,6 +26,7 @@ module Meowscript.Core.AST
 , Block
 , Qualified
 , IsLoop
+, meowNewPath
 , meowBool
 , shouldBreak
 , returnAsPrim
@@ -46,12 +47,16 @@ data MeowState = MeowState
     { meowArgs :: [Text.Text]
     , meowLib  :: IO ObjectMap
     , meowStd  :: Set.Set Text.Text
+    , meowPath :: FilePathT
     }
 
 {- To add:
  - Socket address.
  - Compile flags (?).
  - 'Define'-style flags. (?) -}
+
+meowNewPath :: MeowState -> FilePathT -> MeowState
+meowNewPath (MeowState args lib std _) = MeowState args lib std
 
 type Key = Text.Text
 type Params = [Key]
