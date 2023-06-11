@@ -1,5 +1,5 @@
 ~( ^.x.^)> 
-Meowscript implementation of a simple 'Tic Tac Toe' board
+Meowscript implementation of a simple 'Tic Tac Toe' game
 with dynamic board size.
 
 This yarn ball is the 'main'.

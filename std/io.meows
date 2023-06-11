@@ -1,3 +1,30 @@
 ~( ^.x.^)>
-A small library of IO operations.
+A small library of simple little IO operations.
+
+A lot of these functions are inspired by the C
+language's <stdio.h> library functions.
 <(^.x.^ )~
+
+=^.x.^= fmeowf(str, shelf)
+    mew strs = split(str, "%s")
+    mew output = peek strs
+    knock over strs
+    meowmeow (strs)
+        mew arg = shelf ? peek shelf : ""
+        output = output..arg..(peek strs)
+        knock over strs
+        knock over shelf
+    meow meow
+    bring output
+meow meow
+
+=^.x.^= meowf(str, shelf)
+    meow(fmeowf(str, shelf))
+meow meow
+
+=^.x.^= listenf(count)
+    mew input = listen()
+    mew len = input?!
+    len = len < count ? len : count
+    bring substring(input, 0, len)
+meow meow
