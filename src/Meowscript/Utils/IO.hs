@@ -9,12 +9,14 @@ module Meowscript.Utils.IO
 , safeWriteFile
 , safeAppendFile
 , safeCurrentDir
+, printErr
+, printErrLn
 , printExc
 ) where
 
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
-import System.IO (hFlush, stdout)
+import System.IO (hFlush, stdout, stderr)
 import Control.Exception (try, IOException)
 import System.Console.ANSI.Types
 import qualified System.Console.ANSI as Console
@@ -28,14 +30,20 @@ printStrLn :: Text.Text -> IO ()
 {-# INLINABLE printStrLn #-}
 printStrLn line = TextIO.putStrLn line >> hFlush stdout
 
---printStderr :: Text.Text -> IO ()
---printStderr = TextI
+printErr :: Text.Text -> IO ()
+{-# INLINABLE printErr #-}
+printErr line = TextIO.hPutStr stderr line >> hFlush stderr
+
+printErrLn :: Text.Text -> IO ()
+{-# INLINABLE printErrLn #-}
+printErrLn line = TextIO.hPutStrLn stderr line >> hFlush stderr
 
 ----------------------------------------------------------
 
 -- Console Colors --
 
 colorPrint :: Color -> Text.Text -> IO ()
+{-# INLINABLE colorPrint #-}
 colorPrint color txt = do
     Console.setSGR [SetColor Foreground Vivid color, SetConsoleIntensity BoldIntensity]
     printStr txt
@@ -62,7 +70,7 @@ printExc txt
         let (exception, message) = textSplit ']' txt 
         colorPrint errorColor exception
         printStrLn message
-    | otherwise = printStrLn txt
+    | otherwise = printErrLn txt
 
 ----------------------------------------------------------
 

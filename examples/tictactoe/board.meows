@@ -1,9 +1,11 @@
-~( ^.X.^)>
-Meowscript implementation of a simple 'Tic Tac Toe'
+~( ^.x.^)>
+Meowscript implementation of a simple 'Tic Tac Toe' game
 with dynamic board size.
 
 This yarn ball creates the board.
-<(^.X.^ )~
+<(^.x.^ )~
+
+takes "std.meows"
 
 mew Tile = ~( ^.x.^) BOX!! [
     empty: " ",
@@ -23,18 +25,100 @@ mew GameState = ~( ^.x.^) BOX!! [
     draw:     3
 ]
 
-=^.x.^= make_board(width, height)
+=^.x.^= make_board(size)
     mew board = dictionary()
-    take (mew y = 0) and do (paw at y) while (y < height)
-        take (mew x = 0) and do (paw at x) while (x < width)
-            board.add([x, y], Tile.empty)
+    take (mew i = 0) and do (paw at i) while (i < size)
+        take (mew j = 0) and do (paw at j) while (j < size)
+            board.add([i, j], Tile.empty)
         meow meow
     meow meow
-    board.add("width", width)
-    board.add("height", height)
+    board.add("size", size)
     bring board
 meow meow
 
+=^.x.^= is_win(shelf)
+    bring shelf                                   \
+        and peek shelf != Tile.empty              \
+        and all(shelf, poke(equal, peek shelf))
+meow meow
+
+=^.x.^= winner(tile)
+    bring tile == Tile.x        \
+        ? GameState.x_won       \
+        : GameState.o_won
+meow meow
+
+=^.x.^= change_turn(turn)
+    bring turn == Turn.x        \
+        ? Turn.o                \
+        : Turn.x
+meow meow
+
+=^.x.^= turn_tile(turn)
+    bring turn == Turn.x        \
+        ? Tile.x                \
+        : Tile.o
+meow meow
+
+=^.x.^= game_state(board)
+    mew is_draw = happy
+    mew size = board.get("size")
+
+    mew diagonal_left = []
+    mew diagonal_right = []
+
+    take (mew i = 0) and do (paw at i) while (i < size)
+        mew row = []
+        mew column = []
+        take (mew j = 0) and do (paw at j) while (j < size)
+            board.get([j, i]) push row
+            board.get([i, j]) push column
+
+            mew? (is_draw and (peek row == Tile.empty or peek column == Tile.empty))
+                is_draw = sad
+            meow meow
+
+            mew? (i == j)
+                board.get([i, j]) push diagonal_left 
+            meow meow
+
+            mew? (i + j == size - 1)
+                board.get([i, j]) push diagonal_right
+            meow meow
+        meow meow
+
+        mew? (is_win(row))
+            bring winner(peek row)
+        mew? (is_win(column))
+            bring winner(peek column)
+        meow meow
+    meow meow
+
+    mew? (is_win(diagonal_left))
+        bring winner(peek diagonal_left)
+    mew? (is_win(diagonal_right))
+        bring winner(peek diagonal_right)
+    meow meow
+
+    bring is_draw ? GameState.draw : GameState.continue
+meow meow
+
+
+=^.x.^= print_board(board)
+    mew size = board.get("size")
+    take (mew i = 0) and do (paw at i) while (i < size)
+        purr("[ ")
+        take (mew j = 0) and do (paw at j) while (j < size)
+            mew text = board.get([i, j])
+            text = j < size - 1 ? text.." | " : text
+            purr(text)
+        meow meow
+        meow(" ]")
+    meow meow
+meow meow
+
+
+~( ^.x.^)>
 =^.x.^= has_won(board)
     mew is_draw = happy
 
@@ -49,25 +133,44 @@ meow meow
         meow meow
         
         mew? (peek row != Tile.empty and all(row, poke(equal, peek row)))
-            bring peek row == Tile.x ? x_won : o_won
+            bring peek row == Tile.x ? GameState.x_won : GameState.o_won
         meow meow
     meow meow
 
     take (mew x = 0) and do (paw at x) while (x < board.width)
         mew column = []
+        mew diagonal_left= []
+        mew diagonal_right = []
+
         take (mew y = 0) and do (paw at y) while (y < board.height)
             mew tile = board.get([x, y])
             mew? (is_draw and tile == Tile.empty)
                 is_draw = sad
             meow meow
             tile push column
+
+            mew? (x == y) 
+                tile push diagonal_left
+            mew? (x == (width - 1) - y)
+                tile push diagonal_right
+            meow meow
         meow meow
 
         mew? (peek column != Tile.empty and all(column, poke(equal, peek column)))
-            bring peek column == Tile.x ? x_won : o_won
+            bring peek column == Tile.x     \
+                ? GameState.x_won           \
+                : GameState.o_won
+        mew? (peek diagonal_left != Tile.empty and all(diagonal_left, poke(equal, peek diagonal_left)))
+            bring peek diagonal_left == Tile.x  \
+                ? GameState.x_won               \
+                : GameState.o_won
+        mew? (peek diagonal_right != Tile.empty and all(diagonal_right, poke(equal, peek diagonal_right)))
+            bring peek diagonal_right == Tile.x \
+                ? GameState.x_won               \
+                : GameState.o_won
         meow meow
     meow meow
-
-    take (mew x = 0) and do (paw at x) while (x < board.width)
-
+    
+    bring is_draw ? GameState.draw : GameState.continue
 meow meow
+<(^.x.^ )~

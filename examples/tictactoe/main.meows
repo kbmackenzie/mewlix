@@ -1,0 +1,61 @@
+~( ^.x.^)> 
+Meowscript implementation of a simple 'Tic Tac Toe' board
+with dynamic board size.
+
+This yarn ball is the 'main'.
+<(^.x.^ )~
+
+takes "examples/tictactoe/board.meows"
+
+=^.x.^= tictactoe(size)
+    assert(size > 1, "Board size cannot be less than 1!")
+    mew board = make_board(size)
+
+    mew state = GameState.continue
+    mew turn = Turn.x
+
+    meowmeow (state == GameState.continue)
+        print_board(board)
+        meow("Turn: "..turn_tile(turn))
+        mew row = get_input(size, "row")
+        mew col = get_input(size, "column")
+
+        mew? (board.get([row, col]) != Tile.empty)
+            meow("Position is already filled!")
+            catnap
+        meow meow
+        
+        board.add([row, col], turn_tile(turn))
+        turn = change_turn(turn)
+        state = game_state(board)
+    meow meow
+
+    print_board(board)
+
+    mew? (state == GameState.draw)
+        meow("Draw.")
+    hiss!
+        mew winner = GameState.x_won ? "x" : "o"
+        meow("The winner is "..winner.."!")
+    meow meow
+meow meow
+
+=^.x.^= get_input(size, name)
+    mew bad_input = "Invalid input! Please pick a number between 1 and "..size.."!"
+    mew message = "Enter "..name..": "
+
+    meowmeow (happy)
+        watch
+            purr(message)
+            mew input = int(listen()) - 1
+            mew? (input >= 0 and input <= size - 1)
+                bring input
+            hiss!
+                meow(bad_input)
+            meow meow
+        catch
+            meow("debug")
+            meow(bad_input)
+        meow meow
+    meow meow
+meow meow
