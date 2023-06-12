@@ -156,12 +156,14 @@ importEnv state path x = runFileCore params x >>= \case
 addImport :: Statement -> Evaluator ()
 addImport (StmImport filepath qualified) = getImport filepath >>= \case
     (Left ex) -> throwError ex
-    (Right import') -> case qualified of
+    (Right imp) -> case qualified of
         Nothing -> do
             x <- asks snd >>= readMeowRef
-            y <- readMeowRef import'
-            asks snd >>= flip writeMeowRef (x <> y)
-        (Just x) -> do
-            imp <- readMeowRef import' >>= liftIO . newIORef . MeowObject
-            insertRef x imp
+            y <- readMeowRef imp
+            lib <- asks (meowLib . fst) >>= liftIO
+            asks snd >>= flip writeMeowRef (x <> y <> lib)
+        (Just name) -> do
+            x <- readMeowRef imp 
+            lib <- asks (meowLib . fst) >>= liftIO
+            insertRef name =<< (newMeowRef . MeowObject) (x <> lib)
 addImport x = throwError $ notImport (showT x)

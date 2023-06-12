@@ -23,7 +23,7 @@ import Control.Exception (try, IOException)
 import System.Console.ANSI.Types
 import qualified System.Console.ANSI as Console
 import System.Directory (getCurrentDirectory)
-import System.FilePath (dropFileName)
+import System.FilePath (dropFileName, (</>))
 
 printStr :: Text.Text -> IO ()
 {-# INLINABLE printStr #-}
@@ -108,7 +108,7 @@ safeCurrentDir = (try getCurrentDirectory :: IO (Either IOException String)) >>=
     (Left exception) -> (return . Left . Text.pack . show) exception
     (Right directory) -> (return . Right . Text.pack) directory
 
-localPath :: FilePathT -> Text.Text -> FilePathT
+localPath :: FilePathT -> FilePathT -> FilePathT
 {-# INLINABLE localPath #-}
-localPath path = Text.append dir
-    where dir = (Text.pack . dropFileName . Text.unpack) path
+localPath path = Text.pack . (dir </>) . Text.unpack
+    where dir = (dropFileName . Text.unpack) path
