@@ -1,4 +1,10 @@
--- 'Hello' program.
+~( ^.x.^)>
+A simple little 'Hello [user]' program. It asks
+for the user's name and prints it.
+
+A little paw step above plain a 'Hello World'.
+But classics are good!
+<(^.x.^ )~
 
 =^.x.^= hello()
     purr("Enter your name: ")
