@@ -18,6 +18,7 @@ import Meowscript.Core.RunEvaluator
 import Meowscript.Utils.IO
 import Meowscript.Utils.Data
 import Meowscript.Utils.Types
+import Meowscript.Core.MeowState
 import qualified Data.Text as Text
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set

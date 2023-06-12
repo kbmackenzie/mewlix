@@ -9,7 +9,6 @@ module Meowscript.Core.RunEvaluator
 , runCore
 , runExpr
 , runImport
-, meowState
 , MeowParams(..)
 , MeowFile
 , EvalCallback
@@ -27,6 +26,7 @@ import Meowscript.Parser.RunParser
 import Meowscript.Core.Exceptions
 import Meowscript.Core.Pretty
 import Meowscript.Core.StdFiles
+import Meowscript.Core.MeowState
 import Meowscript.Utils.Types
 import qualified Data.Text as Text
 import qualified Data.Map.Strict as Map
@@ -43,13 +43,6 @@ type MeowFile = Either Text.Text Text.Text
 data MeowParams a b = MeowParams
     { getMeowState :: MeowState
     , getMeowFn    :: EvalCallback a b }
-
-meowState :: FilePathT -> [Text.Text] -> IO ObjectMap -> MeowState
-meowState path args lib = MeowState
-    { meowArgs = args
-    , meowLib  = lib
-    , meowStd  = stdFiles
-    , meowPath = path }
 
 runEvaluator :: MeowState -> IO ObjectMap -> Evaluator a -> IO (Either CatException a)
 runEvaluator meow env eval = env >>= newIORef >>= (runExceptT . runReaderT eval . (meow,))

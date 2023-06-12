@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Meowscript.API.Args
+module Meowscript.Meowr.Core
 ( MeowrArg(..)
 ) where
 

@@ -37,6 +37,7 @@ library
       Meowscript.Core.Environment
       Meowscript.Core.Exceptions
       Meowscript.Core.Keys
+      Meowscript.Core.MeowState
       Meowscript.Core.Operations
       Meowscript.Core.Pretty
       Meowscript.Core.Primitives
@@ -72,6 +73,7 @@ library
     , megaparsec >=9.3.0
     , monadlist
     , mtl
+    , network
     , parser-combinators
     , random
     , stopwatch
@@ -96,6 +98,7 @@ executable Meowscript
     , megaparsec >=9.3.0
     , monadlist
     , mtl
+    , network
     , parser-combinators
     , random
     , stopwatch
@@ -121,6 +124,7 @@ test-suite Meowscript-test
     , megaparsec >=9.3.0
     , monadlist
     , mtl
+    , network
     , parser-combinators
     , random
     , stopwatch

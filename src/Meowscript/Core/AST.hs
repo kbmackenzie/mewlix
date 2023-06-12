@@ -26,7 +26,6 @@ module Meowscript.Core.AST
 , Block
 , Qualified
 , IsLoop
-, meowNewPath
 , meowBool
 , shouldBreak
 , returnAsPrim
@@ -40,23 +39,22 @@ import Control.Monad.Reader (ReaderT)
 import Control.Monad.Except (ExceptT)
 import Data.IORef (IORef)
 import Data.List (intercalate)
+import Network.Socket (Socket)
 
 {- Evaluator -}
 --------------------------------------------
 data MeowState = MeowState
-    { meowArgs :: [Text.Text]
-    , meowLib  :: IO ObjectMap
-    , meowStd  :: Set.Set Text.Text
-    , meowPath :: FilePathT
+    { meowArgs   :: [Text.Text]
+    , meowLib    :: IO ObjectMap
+    , meowStd    :: Set.Set Text.Text
+    , meowPath   :: FilePathT
+    , meowSocket :: Maybe Socket
     }
 
 {- To add:
  - Socket address.
  - Compile flags (?).
  - 'Define'-style flags. (?) -}
-
-meowNewPath :: MeowState -> FilePathT -> MeowState
-meowNewPath (MeowState args lib std _) = MeowState args lib std
 
 type Key = Text.Text
 type Params = [Key]

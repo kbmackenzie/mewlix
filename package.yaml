@@ -33,6 +33,7 @@ dependencies:
 - random
 - directory
 - monadlist
+- network
 
 ghc-options:
 - -O3

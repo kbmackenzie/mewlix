@@ -14,6 +14,7 @@ import Meowscript.REPL.ParseCommands
 import Meowscript.Core.Keys
 import Meowscript.Core.Pretty
 import Meowscript.Core.Blocks
+import Meowscript.Core.MeowState
 import Meowscript.Core.RunEvaluator
 import Meowscript.Core.Exceptions
 import Meowscript.Utils.IO

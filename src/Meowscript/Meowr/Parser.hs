@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Meowscript.API.Parser
+module Meowscript.Meowr.Parser
 ( 
 ) where
 
