@@ -54,7 +54,6 @@ meow meow
                 meow(bad_input)
             meow meow
         catch
-            meow("debug")
             meow(bad_input)
         meow meow
     meow meow

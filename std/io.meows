@@ -22,6 +22,10 @@ meow meow
     meow(fmeowf(str, shelf))
 meow meow
 
+=^.x.^= purrf(str, shelf)
+    purr(fmeowf(str, shelf))
+meow meow
+
 =^.x.^= listenf(count)
     mew input = listen()
     mew len = input?!
