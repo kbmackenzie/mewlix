@@ -30,7 +30,6 @@ source-repository head
 library
   exposed-modules:
       Meowscript
-      Meowscript.API.Args
       Meowscript.API.Console
       Meowscript.Core.AST
       Meowscript.Core.Base
@@ -43,6 +42,8 @@ library
       Meowscript.Core.Primitives
       Meowscript.Core.RunEvaluator
       Meowscript.Core.StdFiles
+      Meowscript.Meowr.Core
+      Meowscript.Meowr.Parser
       Meowscript.Parser.Core
       Meowscript.Parser.Expr
       Meowscript.Parser.Keywords
