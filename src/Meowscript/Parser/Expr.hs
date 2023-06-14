@@ -38,11 +38,11 @@ operators =
       , [ Postfix chainedOps                                                     ]
       , [ Prefix  (ExpUnop  MeowPaw                   <$ tryKeyword meowPaw    )
         , Prefix  (ExpUnop  MeowClaw                  <$ tryKeyword meowClaw   ) ]
+      , [ Postfix (ExpUnop  MeowLen                   <$ trySymbol "?!"        ) ]
       , [ Prefix  (ExpUnop  MeowPeek                  <$ tryKeyword meowPeek   )
         , InfixL  (ExpBinop MeowPush                  <$ tryKeyword meowPush   )
-        , Prefix  (ExpUnop  MeowKnockOver             <$ tryKeyword meowKnock  )
-        , Postfix (ExpUnop  MeowLen                   <$ trySymbol "?!"        )
-        , InfixL  (ExpBinop MeowConcat                <$ trySymbol ".."        ) ]
+        , Prefix  (ExpUnop  MeowKnockOver             <$ tryKeyword meowKnock  ) ]
+      , [ InfixL  (ExpBinop MeowConcat                <$ trySymbol ".."        ) ]
       , [ InfixL  (ExpBinop MeowPow                   <$ trySymbol "^"         ) ]
       , [ Prefix  (ExpUnop  MeowNegate                <$ symbol "-"            )
         , Prefix  (ExpUnop  MeowNot                   <$ tryKeyword meowNot    ) ]
