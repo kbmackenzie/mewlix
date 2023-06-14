@@ -46,7 +46,7 @@ showException' :: MeowException -> Text.Text -> [Prim] -> Evaluator CatException
 showException' meowEx text xs = do
     prims <- mapM prettyMeow xs
     let terms = Text.intercalate ", " prims
-    let message = [text, " | Terms: [", terms, "]"]
+    let message = [text, " | Terms: ", terms]
     (return . showException meowEx . Text.concat) message
 
 stackTrace :: Evaluator Text.Text -> Evaluator a -> Evaluator a

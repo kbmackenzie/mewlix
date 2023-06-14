@@ -46,7 +46,7 @@ import Network.Socket (Socket)
 data MeowState = MeowState
     { meowArgs   :: [Text.Text]
     , meowLib    :: IO ObjectMap
-    , meowStd    :: Set.Set Text.Text
+    , meowStd    :: Set.Set FilePathT
     , meowPath   :: FilePathT
     , meowSocket :: Maybe Socket
     }

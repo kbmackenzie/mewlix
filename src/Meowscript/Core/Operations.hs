@@ -192,7 +192,7 @@ meowLen :: Prim -> Evaluator Prim
 meowLen (MeowString a) = (return . MeowInt . Text.length) a
 meowLen (MeowList a) = (return . MeowInt . length) a
 meowLen (MeowObject a) = (return . MeowInt . Map.size) a
-meowLen x = throwError =<< opException "?" [x]
+meowLen x = throwError =<< opException "length (?!)" [x]
 
 -- Concat
 meowConcat :: Prim -> Prim -> Evaluator Prim

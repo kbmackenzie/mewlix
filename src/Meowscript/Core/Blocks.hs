@@ -40,7 +40,7 @@ evaluate (ExpLambda args expr) = asks (MeowFunc args [StmReturn expr] . snd)
 evaluate (ExpDotOp expr dot) = evaluate expr >>= \case
     (MeowKey key) -> MeowKey . KeyRef <$> ((,) <$> keyAsRef key <*> evaluate dot)
     obj@(MeowObject _) -> MeowKey . KeyRef <$> ((,) <$> newMeowRef obj <*> evaluate dot)
-    x -> throwError =<< opException "Dot (.)" [x]
+    x -> throwError =<< opException "dot (.)" [x]
 
 -- Function call ()
 evaluate (ExpCall exprKey args) = do
@@ -53,7 +53,7 @@ evaluate (ExpCall exprKey args) = do
 -- Yarn operator (~~)
 evaluate (ExpYarn expr) = (evaluate >=> ensureValue) expr >>= \case
     (MeowString str) -> (return . MeowKey . KeyNew) str
-    x -> throwError =<< opException "Yarn (~~)" [x]
+    x -> throwError =<< opException "yarn (~~)" [x]
 
 -- Boolean operators (&&, ||)
 evaluate (ExpMeowAnd exprA exprB) = boolEval exprA >>= \case
@@ -72,7 +72,7 @@ evaluate (ExpTernary cond exprA exprB) = boolEval cond >>= \case
 evaluate (ExpBoxOp boxExpr expr) = evaluate boxExpr >>= \case
     (MeowKey key) -> MeowKey . KeyRef <$> ((,) <$> keyAsRef key <*> evaluate expr)
     obj@(MeowObject _) -> MeowKey . KeyRef <$> ((,) <$> newMeowRef obj <*> evaluate expr)
-    x -> throwError =<< opException "Box Peek ([])" [x]
+    x -> throwError =<< opException "box peek ([])" [x]
 
 ------------------------------------------------------------------------
 
