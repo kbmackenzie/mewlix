@@ -10,6 +10,7 @@ module Meowscript.Core.Keys
 , assignNew
 , extractKey
 , ensureKey
+, ensureLocal
 ) where
 
 import Meowscript.Core.AST
@@ -66,3 +67,7 @@ ensureKey :: Prim -> Evaluator Text.Text
 {-# INLINABLE ensureKey #-}
 ensureKey (MeowKey key) = extractKey key
 ensureKey x = throwError =<< notKey [x]
+
+ensureLocal :: KeyType -> KeyType
+ensureLocal (KeyModify x) = KeyNew x
+ensureLocal x = x

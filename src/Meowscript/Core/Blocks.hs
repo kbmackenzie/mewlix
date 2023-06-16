@@ -166,7 +166,7 @@ runExprStatement = evaluate
 {-- Functions --}
 runFuncDef :: KeyType -> Params -> Block -> Evaluator ReturnValue
 runFuncDef key params body = do 
-    asks (MeowFunc params body . snd) >>= assignment key
+    asks (MeowFunc params body . snd) >>= assignment (ensureLocal key)
     return RetVoid
 
 {- Run Functions -}
