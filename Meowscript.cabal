@@ -57,6 +57,7 @@ library
       Meowscript.Utils.Data
       Meowscript.Utils.IO
       Meowscript.Utils.Show
+      Meowscript.Utils.Time
       Meowscript.Utils.Types
   other-modules:
       Paths_Meowscript

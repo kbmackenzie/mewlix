@@ -21,6 +21,7 @@ import Control.Monad.Reader (asks, liftIO)
 import Data.Functor ((<&>))
 import Control.Monad ((>=>))
 import System.Random (randomIO)
+import Meowscript.Utils.Time (clockSec)
 
 baseLibrary :: IO ObjectMap
 baseLibrary = createObject
@@ -53,6 +54,8 @@ baseLibrary = createObject
     , ("round"   , MeowIFunc  ["x"] meowRound )
     , ("ceiling" , MeowIFunc  ["x"] meowCeil  )
     , ("floor"   , MeowIFunc  ["x"] meowFloor )
+    , ("random"  , MeowIFunc  [   ] meowRand  )
+    , ("time"    , MeowIFunc  [   ] meowTime  )
         -- File IO --
     , ("read_file"   , MeowIFunc ["path"]             meowRead   )
     , ("write_file"  , MeowIFunc ["path", "contents"] meowWrite  )
@@ -63,7 +66,6 @@ baseLibrary = createObject
         -- Text --
     , ("upper"       , MeowIFunc  ["x"]                   meowUpper   )
     , ("lower"       , MeowIFunc  ["x"]                   meowLower   )
-    , ("random"      , MeowIFunc  [   ]                   meowRand    )
     , ("trim"        , MeowIFunc  ["x"]                   meowTrim    )
     , ("split"       , MeowIFunc  ["str", "token"]        meowSplit   )
     , ("substring"   , MeowIFunc  ["str", "start", "len"] meowSubstr  )
@@ -185,6 +187,9 @@ meowFloor = meowFloatFn floor "floor"
 
 meowRand :: Evaluator Prim
 meowRand = MeowDouble <$> liftIO (randomIO :: IO Double)
+
+meowTime :: Evaluator Prim
+meowTime = MeowDouble <$> liftIO clockSec
 
 
 {- Text -}
