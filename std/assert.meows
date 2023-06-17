@@ -13,8 +13,8 @@ handled if necessary.
 to be attached to the exception.
 ---------------------------- <(^.x.^ )~
 
-mew assert = ( ^.x.^)> (a, b) =>                    \
-    (a or throw("Assertion failed: "..b))
+mew assert = ( ^.x.^)> (expr, message) =>               \
+    (expr or throw("Assertion failed: "..message))
 
-mew assert_type = ( ^.x.^)> (a, type) =>            \
-    (typeof(a) == type or throw("Type assertion failed: "..a))
+mew assert_type = ( ^.x.^)> (expr, type) =>             \
+    (typeof(expr) == type or throw("Type assertion failed: typeof("..expr..") != "..type))
