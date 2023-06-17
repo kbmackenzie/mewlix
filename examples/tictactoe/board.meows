@@ -6,6 +6,7 @@ This yarn ball creates the board.
 <(^.x.^ )~
 
 takes "std.meows"
+takes "hashmap.meows"
 
 mew Tile = ~( ^.x.^) BOX!! [
     empty: " ",
@@ -26,7 +27,7 @@ mew GameState = ~( ^.x.^) BOX!! [
 ]
 
 =^.x.^= make_board(size)
-    mew board = dictionary()
+    mew board = hashmap()
     take (mew i = 0) and do (paw at i) while (i < size)
         take (mew j = 0) and do (paw at j) while (j < size)
             board.add([i, j], Tile.empty)

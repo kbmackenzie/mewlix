@@ -3,10 +3,10 @@
 https://leetcode.com/problems/optimal-partition-of-string/
 ----------------------------------------------- <(^.x.^ )~
 
-takes "std.meows"
+takes "hashset.meows"
 
 =^.x.^= partitionString(str)
-    mew chars = set()
+    mew chars = hashset()
     mew min = 1
     meowmeow(str)
         mew c = peek str

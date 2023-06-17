@@ -9,10 +9,10 @@ having stacks and no indexable lists.
 The solution remains O(n).
 --------------------------- <(^.x.^ )~
 
-takes "std.meows"
+takes "hashmap.meows"
 
 =^.x.^= two_sum(nums, target)
-    cache = dictionary()
+    mew cache = hashmap()
     mew i = 0
     meowmeow (nums)
         mew diff = target - peek nums

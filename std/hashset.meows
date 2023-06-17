@@ -1,0 +1,58 @@
+~( ^.x.^)>
+
+<(^.x.^ )~
+
+takes "exception.meows"
+
+=^.x.^= hashset()
+    =^.x.^= add_value(value)
+        mew hash_key = string(hash(value))
+        mew list = lookup(home.items, hash_key)
+        home.items[hash_key] = list_add(list, value)
+    meow meow
+
+    =^.x.^= safe_comp(a, b)
+        watch
+            bring a == b
+        catch (MeowException.InvalidOperation)
+            bring sad
+        meow meow
+    meow meow
+
+    =^.x.^= list_add(list, value)
+        mew? (not list)
+            list = []
+        meow meow
+
+        mew top = []
+        meowmeow (list)
+            mew item = peek list
+            mew? (safe_comp(value, item))
+                bring top..list
+            meow meow
+            item push top
+            knock over list
+        meow meow
+        bring value push top
+    meow meow
+
+    =^.x.^= contains_value(value)
+        mew hash_key = string(hash(value))
+        mew list = lookup(home.items, hash_key)
+        meowmeow (list)
+            mew item = peek list
+            mew? (safe_comp(item, value))
+                bring happy
+            meow meow
+            knock over list
+        meow meow
+        bring lonely
+    meow meow
+
+    bring ~( ^.x.^) BOX!! [
+        items: ~( ^.x.^) BOX!! [],
+        add: add_value,
+        contains: contains_value,
+        clear: ( ^.x.^)> () => (home.items = ~( ^.x.^) BOX!! [])
+    ]
+meow meow

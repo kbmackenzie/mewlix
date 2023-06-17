@@ -151,7 +151,7 @@ parseTry = lexeme . Lexer.indentBlock whitespaceLn $ do
 parseCatch :: Parser MeowCatch
 parseCatch = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . Mega.try . keyword) meowCatch
-    expr <- Mega.optional $ (lexeme . parens) (whitespace >> exprTerm)
+    expr <- Mega.optional $ (lexeme . parens) parseExpr'
     return $ Lexer.IndentMany Nothing (return . MeowCatch expr) statements
 
 parseTryCatch :: Parser Statement

@@ -19,8 +19,11 @@ extra-source-files:
     README.md
     CHANGELOG.md
 data-files:
-    std/exc.meows
+    std/exception.meows
+    std/hashmap.meows
+    std/hashset.meows
     std/io.meows
+    std/m.meows
     std/std.meows
     std/time.meows
 

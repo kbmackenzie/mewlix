@@ -1,0 +1,86 @@
+~( ^.x.^)>
+A hashmap data structure with O(1) addition and lookup.
+
+Keys can be of any type, and comparisons between them
+are safe.
+
+It's implemented despite Meowscript's limitation of boxes
+having only string keys. The hash key is stringified, but
+that operation is fast, as the key is always an integer.
+<(^.x.^ )~
+
+takes "exception.meows"
+
+=^.x.^= hashmap()
+    =^.x.^= add_pair(key, value)
+        mew hash_key = string(hash(key))
+        mew list = lookup(home.pairs, hash_key)
+        home.pairs[hash_key] = list_add(list, key, value)
+    meow meow
+
+    =^.x.^= safe_comp(a, b)
+        watch
+            bring a == b
+        catch (MeowException.InvalidOperation)
+            bring sad
+        meow meow
+    meow meow
+
+    =^.x.^= list_add(list, key, value)
+        mew? (not list)
+            list = []
+        meow meow
+
+        mew top = []
+        meowmeow (list)
+            mew pair = peek list
+            knock over list
+            mew? (safe_comp(pair.key, key))
+                pair.value = value
+                pair push top
+                bring top..list
+            meow meow
+            pair push top
+        meow meow
+
+        mew new_pair = ~( ^.x.^) BOX!! [ 
+            key: key,
+            value: value
+        ]
+        bring new_pair push top
+    meow meow
+
+    =^.x.^= get_pair(key)
+        mew hash_key = string(hash(key))
+        mew list = lookup(home.pairs, hash_key)
+        meowmeow (list)
+            mew pair = peek list
+            mew? (safe_comp(pair.key, key))
+                bring pair.value
+            meow meow
+            knock over list
+        meow meow
+        bring lonely
+    meow meow
+
+    =^.x.^= contains_pair(key)
+        mew hash_key = string(hash(key))
+        mew list = lookup(home.pairs, hash_key)
+        meowmeow (list)
+            mew pair = peek list
+            mew? (safe_comp(pair.key, key))
+                bring happy
+            meow meow
+            knock over list
+        meow meow
+        bring sad
+    meow meow
+
+    bring ~( ^.x.^) BOX!! [
+        pairs: ~( ^.x.^) BOX!! [],
+        add: add_pair,
+        get: get_pair,
+        contains: contains_pair,
+        clear: ( ^.x.^)> () => (home.pairs = ~( ^.x.^) BOX!! [])
+    ]
+meow meow
