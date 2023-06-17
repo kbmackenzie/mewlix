@@ -232,6 +232,7 @@ data MeowException =
     | MeowNotKeyword
     | MeowBadFile
     | MeowBadFuncDef
+    | MeowBadHash
     | MeowUnexpected
     deriving (Eq)
 
@@ -252,6 +253,7 @@ instance Show MeowException where
     show MeowNotKeyword = exc "KeywordException"
     show MeowBadFile = exc "File"
     show MeowBadFuncDef = exc "FunctionDefinition"
+    show MeowBadHash = exc "Hashing"
     show MeowUnexpected = exc "Unexpected" 
 
 exc :: String -> String

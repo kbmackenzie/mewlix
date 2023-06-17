@@ -7,6 +7,7 @@ module Meowscript.Core.Primitives
 , primEq
 , primSort
 , primCopy
+, primHash
 ) where
 
 import Meowscript.Core.AST
@@ -16,6 +17,8 @@ import qualified Data.Map.Strict as Map
 import Control.Monad.Except (throwError)
 import Control.Monad.ListM (sortByM)
 import Control.Monad ((>=>))
+import Data.Hashable (hash)
+import Data.Bits (xor)
 
 {- Comparison (==, <, >, <=, >=) operations. -}
 ---------------------------------------------------------
@@ -77,3 +80,23 @@ primCopy (MeowObject x) = do
     let keys = Map.keys x
     (return . MeowObject . Map.fromList) (zip keys newValues)
 primCopy x = return x
+
+
+{- Hashing -}
+---------------------------------------------------------
+primHash :: Prim -> Evaluator Int
+primHash (MeowInt x) = return (hash x)
+primHash (MeowDouble x) = return (hash x)
+primHash (MeowString x) = return (hash x)
+primHash (MeowBool x) = return (hash x)
+primHash (MeowList xs) = case xs of
+    [] -> return 0
+    _  -> foldl1 xor <$> mapM primHash xs
+primHash (MeowObject obj) = case Map.toList obj of
+    [] -> return 0
+    xs -> do
+        let unpack (key, ref) = (key,) <$> readMeowRef ref
+        let hashPair (x, y) = (hash x `xor`) <$> primHash y
+        foldl1 xor <$> mapM (unpack >=> hashPair) xs
+primHash MeowLonely = return 0
+primHash x = throwError =<< badHash x

@@ -67,9 +67,11 @@ library
       ansi-terminal
     , base >=4.7 && <5
     , bytestring
+    , clock
     , containers
     , directory
     , filepath
+    , hashable
     , megaparsec >=9.3.0
     , monadlist
     , mtl
@@ -92,9 +94,11 @@ executable Meowscript
     , ansi-terminal
     , base >=4.7 && <5
     , bytestring
+    , clock
     , containers
     , directory
     , filepath
+    , hashable
     , megaparsec >=9.3.0
     , monadlist
     , mtl
@@ -118,9 +122,11 @@ test-suite Meowscript-test
     , ansi-terminal
     , base >=4.7 && <5
     , bytestring
+    , clock
     , containers
     , directory
     , filepath
+    , hashable
     , megaparsec >=9.3.0
     , monadlist
     , mtl

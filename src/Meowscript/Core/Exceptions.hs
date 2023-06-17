@@ -27,6 +27,7 @@ module Meowscript.Core.Exceptions
 , badImport
 , notImport
 , badFile
+, badHash
 , meowUnexpected
 ) where
 
@@ -133,6 +134,9 @@ notImport = showException MeowUnexpected . Text.append "Token is not an import: 
 badFile :: Text.Text -> FilePathT -> Text.Text -> CatException
 badFile message path exception = showException MeowBadFile $ Text.concat
     [ message, ": | ", exception, " | File: \"", path, "\"" ]
+
+badHash :: Prim -> Evaluator CatException
+badHash = showException' MeowBadHash "Value cannot be hashed." . List.singleton
 
 meowUnexpected :: Text.Text -> Text.Text -> CatException
 meowUnexpected x y = showException MeowUnexpected (Text.concat [x, " | ", y])

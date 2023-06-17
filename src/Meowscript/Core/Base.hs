@@ -36,6 +36,7 @@ baseLibrary = createObject
     , ("keys"    , MeowIFunc  ["x"] getKeys   )
     , ("values"  , MeowIFunc  ["x"] getValues )
     , ("copy"    , MeowIFunc  ["x"] meowCopy  )
+    , ("hash"    , MeowIFunc  ["x"] meowHash  )
     , ("exists"  , MeowIFunc  ["x"] meowExist )
     , ("typeof"  , MeowIFunc  ["x"] typeOf    )
     , ("throw"   , MeowIFunc  ["x"] throwEx   )
@@ -256,6 +257,9 @@ meowHasKey = (,) <$> lookUp "box" <*> lookUp "key" >>= \case
 
 meowCopy :: Evaluator Prim
 meowCopy = lookUp "x" >>= primCopy
+
+meowHash :: Evaluator Prim
+meowHash = lookUp "x" >>= primHash <&> MeowInt
 
 meowExist :: Evaluator Prim 
 meowExist = lookUp "x" >>= \case
