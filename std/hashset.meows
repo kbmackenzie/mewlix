@@ -72,10 +72,34 @@ takes "exception.meows"
         bring lonely
     meow meow
 
+    =^.x.^= remove_value(value)
+        mew hash_key = string(hash(value))
+        mew list = lookup(home.items, hash_key)
+        home.items[hash_key] = list_remove(list, value)
+    meow meow
+
+    =^.x.^= list_remove(list, value)
+        mew? (not list)
+            bring []
+        meow meow
+
+        mew top = []
+        meowmeow (list)
+            mew item = peek list
+            knock over list
+            mew? (safe_comp(value, item))
+                bring top..list
+            meow meow
+            item push top
+        meow meow
+        bring top
+    meow meow
+
     bring ~( ^.x.^) BOX!! [
         items: ~( ^.x.^) BOX!! [],
         add: add_value,
         contains: contains_value,
+        remove: remove_value,
         clear: ( ^.x.^)> () => (home.items = ~( ^.x.^) BOX!! [])
     ]
 meow meow

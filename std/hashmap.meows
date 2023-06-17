@@ -92,11 +92,36 @@ takes "exception.meows"
         bring sad
     meow meow
 
+    =^.x.^= remove_pair(key)
+        mew hash_key = string(hash(key))
+        mew list = lookup(home.pairs, hash_key)
+        home.pairs[hash_key] = list_remove(list, key)
+    meow meow
+
+    =^.x.^= list_remove(list, key)
+        mew? (not list)
+            bring []
+        meow meow
+
+        mew top = []
+        meowmeow (list)
+            mew pair = peek list
+            knock over list
+            mew? (safe_comp(pair.key, key))
+                bring top..list
+            meow meow
+            pair push top
+        meow meow
+
+        bring top
+    meow meow
+
     bring ~( ^.x.^) BOX!! [
         pairs: ~( ^.x.^) BOX!! [],
         add: add_pair,
         get: get_pair,
         contains: contains_pair,
+        remove: remove_pair,
         clear: ( ^.x.^)> () => (home.pairs = ~( ^.x.^) BOX!! [])
     ]
 meow meow
