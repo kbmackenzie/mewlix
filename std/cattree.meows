@@ -1,1 +1,17 @@
--- todo: iterator
+~( ^.x.^)>
+
+<(^.x.^ )~
+
+takes "std.meows" as std
+
+=^.x.^= cattree()
+
+    ~( ^.x.^)>
+    Local context: Define helper functions that do not
+    pollute the outer environment.
+    <(^.x.^ )~
+
+    bring ~( ^.x.^) BOX!! [
+        list: [],
+    ]
+meow meow

@@ -94,7 +94,7 @@ tryKeyword :: Text.Text -> Parser ()
 tryKeyword = Mega.try . keyword
 
 validKeyChar :: Char -> Bool
-validKeyChar c = isAlphaNum c || c `elem` ['\'', '^', '_']
+validKeyChar c = isAlphaNum c || c `elem` ['\'', '_']
 
 parseKey :: Parser Prim
 parseKey = MeowKey <$> (parseKeyNew <|> parseKey')
