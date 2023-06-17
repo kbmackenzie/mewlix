@@ -1,17 +1,33 @@
 ~( ^.x.^)>
-A hashmap data structure with O(1) addition and lookup.
+A simple hashmap implementation for all types
+in Meowscript that can be hashed.
 
-Keys can be of any type, and comparisons between them
-are safe.
+Keys can be any type except functions!
 
-It's implemented despite Meowscript's limitation of boxes
-having only string keys. The hash key is stringified, but
-that operation is fast, as the key is always an integer.
+It has O(1) addition and lookup time complexity,
+and uses Meowscript's boxes underneath the
+hood. As Meowscript's boxes can only have string
+keys, the hash key has to be stringified.
+
+This is fine, however, since the stringifying is
+done with a built-in function and is reasonably
+fast.
+
+A hashmap can have heterogenous keys; comparisons
+are neatly wrapped in a watch/catch to handle
+type errors in comparisons. The watch/catch does
+not muffle any other unrelated exceptions.
 <(^.x.^ )~
 
 takes "exception.meows"
 
 =^.x.^= hashmap()
+
+    ~( ^.x.^)>
+    Local context: Define helper functions that do not
+    pollute the outer environment.
+    <(^.x.^ )~
+
     =^.x.^= add_pair(key, value)
         mew hash_key = string(hash(key))
         mew list = lookup(home.pairs, hash_key)

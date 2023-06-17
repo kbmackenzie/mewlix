@@ -9,6 +9,11 @@ language's <stdio.h> library functions.
     mew strs = split(str, "%s")
     mew output = peek strs
     knock over strs
+
+    mew? (typeof(shelf) != "list")
+        shelf = [shelf]
+    meow meow
+
     meowmeow (strs)
         mew arg = shelf ? peek shelf : ""
         output = output..arg..(peek strs)

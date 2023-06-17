@@ -1,10 +1,33 @@
 ~( ^.x.^)>
+A simple hashset implementation for all types
+in Meowscript that can be hashed.
 
+Values can be any type except functions.
+
+It has O(1) addition and lookup time complexity,
+and uses Meowscript's boxes underneath the
+hood. As Meowscript's boxes can only have string
+keys, the hash key has to be stringified.
+
+This is fine, however, since the stringifying is
+done with a built-in function and is reasonably
+fast.
+
+A hashset can have heterogenous values; comparisons
+are neatly wrapped in a watch/catch to handle
+type errors in comparisons. The watch/catch does
+not muffle any other unrelated exceptions.
 <(^.x.^ )~
 
 takes "exception.meows"
 
 =^.x.^= hashset()
+
+    ~( ^.x.^)>
+    Local context: Define helper functions that do not
+    pollute the outer environment.
+    <(^.x.^ )~
+
     =^.x.^= add_value(value)
         mew hash_key = string(hash(value))
         mew list = lookup(home.items, hash_key)
