@@ -19,9 +19,9 @@ mew max = ( ^.x.^)> (a, b) => (a > b ? a : b)
 mew intdiv = ( ^.x.^)> (a, b) => (floor(a / b))
 
 
-~( ^.x.^)> -----------
-   Other Operations
------------ <(^.x.^ )~
+~( ^.x.^)> ---------------
+     Other Operations
+--------------- <(^.x.^ )~
 
 mew join   = ( ^.x.^)> (a, b) => (a..b)
 mew length = ( ^.x.^)> (a) => (a?!)
