@@ -1,0 +1,33 @@
+~( ^.x.^)> -----------
+Time-related functions.
+----------- <(^.x.^ )~
+
+~( ^.x.^)>
+Timer function. Takes a callback function
+and returns the elapsed time.
+<(^.x.^ )~
+
+=^.x.^= timer(fn)
+    mew start = time()
+    fn()
+    bring time() - start
+meow meow
+
+
+~( ^.x.^)>
+Time conversion functions.
+<(^.x.^ )~
+
+=^.x.^= time_info(x)
+    mew min = floor(x / 60)
+    mew sec = floor(x % 60)
+    mew msec = (x % 1) * 1000
+    bring ~( ^.x.^) BOX!! [
+        min: min,
+        sec: sec,
+        msec: msec
+    ]
+meow meow
+
+
+

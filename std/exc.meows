@@ -20,5 +20,6 @@ mew MeowException = ~( ^.x.^) BOX!! [
     KeywordException:       __exc("KeywordException"),
     File:                   __exc("File"),
     FunctionDefinition:     __exc("FunctionDefinition"),
+    Hashing:                __exc("Hashing"),
     Unexpected:             __exc("Unexpected")
 ]

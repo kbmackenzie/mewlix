@@ -17,6 +17,7 @@ import qualified Data.Map.Strict as Map
 import Control.Monad.Except (throwError)
 import Control.Monad (join)
 import Data.Functor ((<&>))
+import Data.Fixed (mod')
 
 {- Binary Operations -}
 binop :: Binop -> Prim -> Prim -> Evaluator Prim
@@ -158,6 +159,9 @@ meowMod :: Prim -> Prim -> Evaluator Prim
 meowMod a b@(MeowInt 0) = throwError =<< divByZero [a, b]
 meowMod a b@(MeowDouble 0) = throwError =<< divByZero [a, b]
 meowMod (MeowInt a) (MeowInt b) = (return . MeowInt) (a `mod` b)
+meowMod (MeowInt a) (MeowDouble b) = (return . MeowDouble) (fromIntegral a `mod'` b)
+meowMod (MeowDouble a) (MeowInt b) = (return . MeowDouble) (a `mod'` fromIntegral b)
+meowMod (MeowDouble a) (MeowDouble b) = (return . MeowDouble) (a `mod'` b)
 meowMod x y = throwError =<< opException "%" [x, y]
 
 -- Power

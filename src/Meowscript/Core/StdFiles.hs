@@ -14,9 +14,10 @@ import Meowscript.Utils.Data
 
 stdFiles :: Set.Set FilePathT
 stdFiles = Set.fromList
-    [ "std.meows"
-    , "exc.meows"
-    , "io.meows" ]
+    [ "exc.meows"
+    , "io.meows"
+    , "std.meows"
+    , "time.meows" ]
 
 asStd :: FilePathT -> FilePathT
 asStd = Text.append "std/"

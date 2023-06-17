@@ -22,6 +22,7 @@ data-files:
     std/exc.meows
     std/io.meows
     std/std.meows
+    std/time.meows
 
 source-repository head
   type: git
