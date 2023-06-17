@@ -4,34 +4,34 @@
   Arithmetic operations
 -------------- <(^.x.^ )~
 
-add = ( ^.x.^)> (a, b) => (a + b)
-sub = ( ^.x.^)> (a, b) => (a - b)
-mul = ( ^.x.^)> (a, b) => (a * b)
-div = ( ^.x.^)> (a, b) => (a / b)
-mod = ( ^.x.^)> (a, b) => (a % b)
+mew add = ( ^.x.^)> (a, b) => (a + b)
+mew sub = ( ^.x.^)> (a, b) => (a - b)
+mew mul = ( ^.x.^)> (a, b) => (a * b)
+mew div = ( ^.x.^)> (a, b) => (a / b)
+mew mod = ( ^.x.^)> (a, b) => (a % b)
 
-pow = ( ^.x.^)> (a, b) => (a ^ b)
-sqr = ( ^.x.^)> (a) => (a ^ 2)
+mew pow = ( ^.x.^)> (a, b) => (a ^ b)
+mew sqr = ( ^.x.^)> (a) => (a ^ 2)
 
-min = ( ^.x.^)> (a, b) => (a < b ? a : b)
-max = ( ^.x.^)> (a, b) => (a > b ? a : b)
+mew min = ( ^.x.^)> (a, b) => (a < b ? a : b)
+mew max = ( ^.x.^)> (a, b) => (a > b ? a : b)
 
-intdiv = ( ^.x.^)> (a, b) => (floor(a / b))
+mew intdiv = ( ^.x.^)> (a, b) => (floor(a / b))
 
 
 ~( ^.x.^)> -----------
    Other Operations
 ----------- <(^.x.^ )~
 
-join   = ( ^.x.^)> (a, b) => (a..b)
-length = ( ^.x.^)> (a) => (a?!)
+mew join   = ( ^.x.^)> (a, b) => (a..b)
+mew length = ( ^.x.^)> (a) => (a?!)
 
-equal          = ( ^.x.^)> (a, b) => (a == b)
-lesser         = ( ^.x.^)> (a, b) => (a < b)
-greater        = ( ^.x.^)> (a, b) => (a > b)
-lesser_equal   = ( ^.x.^)> (a, b) => (a <= b)
-greater_equal  = ( ^.x.^)> (a, b) => (a >= b)
-not_equal      = ( ^.x.^)> (a, b) => (a != b)
+mew equal          = ( ^.x.^)> (a, b) => (a == b)
+mew lesser         = ( ^.x.^)> (a, b) => (a < b)
+mew greater        = ( ^.x.^)> (a, b) => (a > b)
+mew lesser_equal   = ( ^.x.^)> (a, b) => (a <= b)
+mew greater_equal  = ( ^.x.^)> (a, b) => (a >= b)
+mew not_equal      = ( ^.x.^)> (a, b) => (a != b)
 
 
 ~( ^.x.^)>
@@ -42,20 +42,8 @@ The 'mirror' function doubles as a shallow-copying
 function, too!
 <(^.x.^ )~
 
-mirror = ( ^.x.^)> (a) => (a)
-bounce = ( ^.x.^)> (a, b) => (b)
-
-
-~( ^.x.^)> ----------
-      Debugging 
----------- <(^.x.^ )~
-
-assert = ( ^.x.^)> (a, b) =>                    \
-    (a or throw("Assertion failed: "..b))
-
-assert_type = ( ^.x.^)> (a, type) =>            \
-    (typeof(a) == type or throw("Type assertion failed: "..a))
-
+mew mirror = ( ^.x.^)> (a) => (a)
+mew bounce = ( ^.x.^)> (a, b) => (b)
 
 
 

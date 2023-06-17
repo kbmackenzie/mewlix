@@ -17,6 +17,8 @@ stdFiles = Set.fromList
     [ "std.meows"
     , "io.meows"
     , "time.meows"
+    , "assert.meows"
+    , "cattree.meows"
     , "hashmap.meows"
     , "hashset.meows"
     , "exception.meows" ]

@@ -6,6 +6,7 @@ This yarn ball is the 'main'.
 <(^.x.^ )~
 
 takes "board.meows"
+takes "assert.meows"
 
 =^.x.^= tictactoe(size)
     assert(size > 1, "Board size cannot be less than 1!")
