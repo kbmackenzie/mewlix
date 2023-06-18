@@ -36,7 +36,7 @@ dependencies:
 - network
 - clock
 - hashable
-- regex-tdfa
+- transformers
 
 ghc-options:
 - -O3

@@ -165,25 +165,4 @@ packages:
       size: 3914
   original:
     hackage: network-3.1.2.9
-- completed:
-    hackage: regex-tdfa-1.3.2@sha256:3d8571a5ce87ee89ae0de602f1461df9a8236257f80548e9bee71585a26e3927,6845
-    pantry-tree:
-      sha256: 2725c8313eaf9dc1403f27b691b02143aa6ec546adaea7ab5c985b0f9a777014
-      size: 2674
-  original:
-    hackage: regex-tdfa-1.3.2
-- completed:
-    hackage: parsec-3.1.16.1@sha256:5769242043b01bf759b07b7efedcb19607837ee79015fcddde34645664136aed,4691
-    pantry-tree:
-      sha256: aee875443fc603500dcfcb5bea5c116ebcb990037abcf17e8d7020e493a51476
-      size: 2698
-  original:
-    hackage: parsec-3.1.16.1
-- completed:
-    hackage: regex-base-0.94.0.2@sha256:4ff4425c710cddf440dfbac6cd52310bb6b23e17902390ff71c9fc7eaafc4fcc,2643
-    pantry-tree:
-      sha256: 6415af6c7af19d83283a19407cbf9ece0dc9cf9be9a0d9560d0456247cfa0d00
-      size: 531
-  original:
-    hackage: regex-base-0.94.0.2
 snapshots: []

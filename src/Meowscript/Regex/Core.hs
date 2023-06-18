@@ -4,15 +4,15 @@ module Meowscript.Regex.Core
 ( MeowRegex(..)
 , GroupName
 , Predicate(..)
+, Matcher
 , RegexState
-, Match
-, Interpreter
-, runInterpreter
+, runMatcher
 ) where
 
 import qualified Data.Text as Text
 import Control.Monad.State (StateT, runStateT)
-import Control.Monad.Except (Except, runExcept)
+import Control.Monad.Trans.Maybe (MaybeT, runMaybeT)
+import Control.Monad.Identity (Identity, runIdentity)
 
 type GroupName = Maybe Text.Text
 newtype Predicate = Predicate (Char -> Bool)
@@ -40,8 +40,7 @@ instance Show Predicate where
     show (Predicate _) = "<predicate>"
 
 type RegexState = Text.Text
-type Match = Maybe Text.Text
-type Interpreter a = StateT RegexState (Except Text.Text) a
+type Matcher a = StateT RegexState (MaybeT Identity) a
 
-runInterpreter :: RegexState -> Interpreter a -> Either Text.Text a
-runInterpreter state interp = runExcept (fst <$> runStateT interp state)
+runMatcher :: RegexState -> Matcher a -> Maybe a
+runMatcher state interp = runIdentity $ runMaybeT (fst <$> runStateT interp state)
