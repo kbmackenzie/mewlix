@@ -22,9 +22,9 @@ type GroupName = Maybe Text.Text
 data MeowRegex =
       Verbatim Text.Text
     | AnyChar
-    | Digit
-    | WordChar
-    | Whitespace
+    | Digit Bool
+    | WordChar Bool
+    | Whitespace Bool
     | LineStart
     | LineEnd
     | AnyListed [Char]
@@ -123,9 +123,12 @@ parseVerbatim = Verbatim . Text.pack <$> Mega.some char
 
 parseSpecial :: Parser MeowRegex
 parseSpecial = Mega.choice
-    [ Digit         <$ MChar.string "\\d"
-    , WordChar      <$ MChar.string "\\w"
-    , Whitespace    <$ MChar.string "\\s" ]
+    [ Digit True            <$ MChar.string "\\d"
+    , Digit False           <$ MChar.string "\\D"
+    , WordChar True         <$ MChar.string "\\w"
+    , WordChar False        <$ MChar.string "\\W"
+    , Whitespace True       <$ MChar.string "\\s"
+    , Whitespace False      <$ MChar.string "\\S" ]
 
 {- Parsing character ranges (e.g. [a-Z]) -}
 
@@ -136,12 +139,20 @@ charRange = do
     b <- escapeChar
     return [a..b]
 
+-- Not an efficient way of doing this, but alas.
+-- Maybe I'll change this up later!
+specialRange :: Parser [Char]
+specialRange = Mega.choice
+    [ ['0'..'9']                                    <$ MChar.string "\\d"
+    , [ '\r', '\n', '\t', '\f', '\x0B' ]            <$ MChar.string "\\s"
+    , concat [['a'..'z'], ['A'..'Z'], ['0'..'9']]   <$ MChar.string "\\w" ]
+
 brackets :: Parser a -> Parser a
 brackets = Mega.between (MChar.char '[') (MChar.char ']')
 
 parseCharRange :: Parser MeowRegex
 parseCharRange = brackets $ do
-    let chars = Mega.try charRange <|> Mega.some char
+    let chars = Mega.try charRange <|> specialRange <|> Mega.some char
     x <- Mega.optional $ MChar.char '^'
     (if isNothing x then AnyListed else AnyNotListed) . concat <$> Mega.many chars
     where char = Mega.try $ escapeChar <* Mega.notFollowedBy (MChar.char '-')
