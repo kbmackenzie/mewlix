@@ -3,6 +3,8 @@
 
 module Meowscript.Regex.Core
 ( MeowRegex(..)
+, parseExpr
+, parseRegex
 ) where
 
 import Meowscript.Parser.Core (Parser)
@@ -11,6 +13,7 @@ import Text.Megaparsec ((<|>))
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
+import Text.Megaparsec.Error (errorBundlePretty)
 import Control.Monad (void)
 import Data.Functor ((<&>))
 import Data.Maybe (isNothing)
@@ -30,6 +33,7 @@ data MeowRegex =
     | OneOrMore MeowRegex
     | Alternation [MeowRegex] [MeowRegex]
     | CaptureGroup GroupName [MeowRegex]
+    deriving (Show)
 
 parsePlus :: Parser (MeowRegex -> MeowRegex)
 parsePlus = OneOrMore <$ MChar.char '+'
@@ -162,3 +166,8 @@ parseTokens = do
 
 parseExpr :: Parser [MeowRegex]
 parseExpr = parseTokens <* Mega.eof
+
+parseRegex :: Text.Text -> Either Text.Text [MeowRegex]
+parseRegex contents = case Mega.parse parseExpr "<regex>" contents of
+    (Left x)  -> (Left . Text.pack . errorBundlePretty) x
+    (Right x) -> Right x
