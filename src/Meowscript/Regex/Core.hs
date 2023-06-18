@@ -29,7 +29,7 @@ data MeowRegex =
     | ZeroOrMore MeowRegex
     | OneOrMore MeowRegex
     | Alternation MeowRegex MeowRegex
-    | CaptureGroup GroupName MeowRegex
+    | CaptureGroup GroupName [MeowRegex]
 
 parsePlus :: Parser (MeowRegex -> MeowRegex)
 parsePlus = OneOrMore <$ MChar.char '+'
@@ -95,6 +95,9 @@ parseLineStart = LineStart <$ MChar.char '^'
 parseLineEnd :: Parser MeowRegex
 parseLineEnd = LineEnd <$ MChar.char '$'
 
+parseDot :: Parser MeowRegex
+parseDot = AnyChar <$ MChar.char '.'
+
 parseVerbatim :: Parser MeowRegex
 parseVerbatim = Verbatim . Text.pack <$> Mega.some escapeChar
 
@@ -118,6 +121,16 @@ parseCharRange = brackets $ do
     (if isNothing x then AnyListed else AnyNotListed) . concat <$> Mega.many chars
 
 
+{- Alternations + Capture groups -}
+
+parens :: Parser a -> Parser a
+parens = Mega.between (MChar.char '(') (MChar.char ')')
+
+parseGroup :: Parser MeowRegex
+-- todo: parse group name
+-- todo: i think these names should go somewhere??
+parseGroup = CaptureGroup Nothing <$> parens parseExpr 
+
 {- Combining everything: -}
 
 parseTerm :: Parser MeowRegex
@@ -125,11 +138,19 @@ parseTerm = Mega.choice
     [ parseLineStart
     , parseLineEnd
     , parseCharRange
+    , parseDot
+    , parseGroup
     , parseVerbatim ]
 
 parseToken :: Parser MeowRegex
 parseToken = do
-    term <- parseTerm
-    Mega.optional parsePostfixes >>= \case
+    term  <- parseTerm
+    tokenA <- Mega.optional parsePostfixes >>= \case
         Nothing   -> return term
         (Just fn) -> return $ fn term
+    Mega.optional (MChar.char '|' >> parseToken) >>= \case
+        Nothing -> return tokenA
+        (Just tokenB) -> return (Alternation tokenA tokenB)
+
+parseExpr :: Parser [MeowRegex]
+parseExpr = Mega.many parseToken <* Mega.eof
