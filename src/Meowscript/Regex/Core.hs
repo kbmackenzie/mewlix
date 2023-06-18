@@ -151,7 +151,7 @@ parseToken = do
         (Just fn) -> return $ fn term
 
 parseAlt :: Parser ([MeowRegex] -> MeowRegex)
-parseAlt = flip Alternation <$> (MChar.char '|' >> parseExpr)
+parseAlt = flip Alternation <$> (MChar.char '|' >> parseTokens)
 
 parseTokens :: Parser [MeowRegex]
 parseTokens = do
