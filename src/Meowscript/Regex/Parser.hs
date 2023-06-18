@@ -57,17 +57,17 @@ postfixes =
 parsePostfix :: Parser (MeowRegex -> MeowRegex)
 parsePostfix = Mega.choice postfixes
 
-reservedChars :: [Char]
-reservedChars = [ '*', '.', '?', '+', '^', '$', '{', '(', ')', '[', ']', '|', '\\' ]
+reserved :: [Char]
+reserved = [ '*', '.', '?', '+', '^', '$', '{', '(', ')', '[', ']', '|', '\\' ]
 
-operatorChars :: [Char]
-operatorChars = [ '*', '?', '+', '{' ]
+operators :: [Char]
+operators = [ '*', '?', '+', '{' ]
 
 isOperator :: Parser Bool
-isOperator = True <$ Mega.satisfy (`elem` operatorChars)
+isOperator = True <$ Mega.satisfy (`elem` operators)
 
-escapeChar :: Parser Char
-escapeChar = Mega.choice
+escapeChar :: [Char] -> Parser Char
+escapeChar xs = Mega.choice
     [ '*'   <$ MChar.string "\\*"
     , '.'   <$ MChar.string "\\."
     , '?'   <$ MChar.string "\\?"
@@ -82,7 +82,7 @@ escapeChar = Mega.choice
     , '-'   <$ MChar.string "\\-"
     , '\\'  <$ MChar.string "\\\\"
     , '{'   <$ (MChar.char '{' >> Mega.notFollowedBy MChar.digitChar)
-    , Mega.satisfy (`notElem` reservedChars) ]
+    , Mega.satisfy (`notElem` xs) ]
 
 
 {- Parse terms -}
@@ -97,11 +97,11 @@ parseDot :: Parser MeowRegex
 parseDot = AnyChar <$ MChar.char '.'
 
 parseChar :: Parser MeowRegex
-parseChar = Verbatim . Text.singleton <$> escapeChar
+parseChar = Verbatim . Text.singleton <$> escapeChar reserved
 
 parseVerbatim :: Parser MeowRegex
 parseVerbatim = Verbatim . Text.pack <$> Mega.some char
-    where char = Mega.try $ escapeChar <* Mega.notFollowedBy isOperator
+    where char = Mega.try $ escapeChar reserved <* Mega.notFollowedBy isOperator
 
 parseSpecial :: Parser MeowRegex
 parseSpecial = Mega.choice
@@ -116,9 +116,9 @@ parseSpecial = Mega.choice
 
 charRange :: Parser Predicate
 charRange = do
-    a <- escapeChar
+    a <- escapeChar [ '\\', ']' ]
     (void . MChar.char) '-'
-    b <- escapeChar
+    b <- escapeChar [ '\\', ']' ]
     return $ Predicate (\x -> x `elem` [a..b])
 
 isWordChar :: Char -> Bool
@@ -138,11 +138,11 @@ brackets = Mega.between (MChar.char '[') (MChar.char ']')
 
 parseCharRange :: Parser MeowRegex
 parseCharRange = brackets $ do
-    let predicates = Mega.try charRange <|> specialRange <|> predicate
+    let predicates = Mega.try charRange <|> specialRange <|> charPred
     x <- Mega.optional $ MChar.char '^'
     (if isNothing x then AnyListed else AnyNotListed) <$> Mega.many predicates
-    where char = Mega.try $ escapeChar <* Mega.notFollowedBy (MChar.char '-')
-          predicate = Predicate . (==) <$> char
+    where char = Mega.try $ escapeChar [ '\\', ']' ] <* Mega.notFollowedBy (MChar.char '-')
+          charPred = Predicate . (==) <$> char
 
 
 {- Capture groups -}
