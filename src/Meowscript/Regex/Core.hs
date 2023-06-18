@@ -28,7 +28,7 @@ data MeowRegex =
     | ZeroOrOne MeowRegex
     | ZeroOrMore MeowRegex
     | OneOrMore MeowRegex
-    | Alternation MeowRegex MeowRegex
+    | Alternation [MeowRegex] [MeowRegex]
     | CaptureGroup GroupName [MeowRegex]
 
 parsePlus :: Parser (MeowRegex -> MeowRegex)
@@ -67,7 +67,7 @@ parsePostfixes :: Parser (MeowRegex -> MeowRegex)
 parsePostfixes = foldl1 (flip (.)) <$> Mega.some postfixes
 
 reservedChars :: [Char]
-reservedChars = [ '*', '.', '?', '+', '^', '$', '{', '(', ')', '[', ']' ]
+reservedChars = [ '*', '.', '?', '+', '^', '$', '{', '(', ')', '[', ']', '|' ]
 
 escapeChar :: Parser Char
 escapeChar = Mega.choice
@@ -81,6 +81,7 @@ escapeChar = Mega.choice
     , ')'   <$ MChar.string "\\)"
     , '['   <$ MChar.string "\\["
     , ']'   <$ MChar.string "\\]"
+    , '|'   <$ MChar.string "\\|"
     , '-'   <$ MChar.string "\\-"
     , '\\'  <$ MChar.string "\\\\"
     , '{'   <$ (MChar.char '{' >> Mega.notFollowedBy MChar.digitChar)
@@ -121,15 +122,15 @@ parseCharRange = brackets $ do
     (if isNothing x then AnyListed else AnyNotListed) . concat <$> Mega.many chars
 
 
-{- Alternations + Capture groups -}
+{- Capture groups -}
 
 parens :: Parser a -> Parser a
 parens = Mega.between (MChar.char '(') (MChar.char ')')
 
 parseGroup :: Parser MeowRegex
 -- todo: parse group name
--- todo: i think these names should go somewhere??
 parseGroup = CaptureGroup Nothing <$> parens parseExpr 
+
 
 {- Combining everything: -}
 
@@ -145,12 +146,19 @@ parseTerm = Mega.choice
 parseToken :: Parser MeowRegex
 parseToken = do
     term  <- parseTerm
-    tokenA <- Mega.optional parsePostfixes >>= \case
+    Mega.optional parsePostfixes >>= \case
         Nothing   -> return term
         (Just fn) -> return $ fn term
-    Mega.optional (MChar.char '|' >> parseToken) >>= \case
-        Nothing -> return tokenA
-        (Just tokenB) -> return (Alternation tokenA tokenB)
+
+parseAlt :: Parser ([MeowRegex] -> MeowRegex)
+parseAlt = flip Alternation <$> (MChar.char '|' >> parseExpr)
+
+parseTokens :: Parser [MeowRegex]
+parseTokens = do
+    xs <- Mega.many parseToken
+    Mega.optional parseAlt >>= \case
+        Nothing   -> return xs
+        (Just fn) -> return [fn xs]
 
 parseExpr :: Parser [MeowRegex]
-parseExpr = Mega.many parseToken <* Mega.eof
+parseExpr = parseTokens <* Mega.eof
