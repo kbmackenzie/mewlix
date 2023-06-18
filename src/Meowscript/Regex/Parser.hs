@@ -2,7 +2,8 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Meowscript.Regex.Parser
-( parseExpr
+( Parser
+, parseExpr
 , parseRegex
 ) where
 
