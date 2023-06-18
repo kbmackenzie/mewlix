@@ -40,7 +40,7 @@ meow meow
 =^.x.^= is_win(shelf)
     bring shelf                                   \
         and peek shelf != Tile.empty              \
-        and all(shelf, poke(equal, peek shelf))
+        and all(shelf, ap(equal, peek shelf))
 meow meow
 
 =^.x.^= winner(tile)

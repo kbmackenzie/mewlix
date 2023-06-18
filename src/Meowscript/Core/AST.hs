@@ -102,7 +102,7 @@ instance Show Prim where
     show (MeowBool x) = show x
     show (MeowDouble x) = show x
     show MeowLonely = "<lonely>"
-    show (MeowList xs) = concat [ "[", (intercalate ", " . map show) xs, "]" ]
+    show (MeowList xs) = show $ map show xs
     show (MeowFunc {}) = "<func>"
     show (MeowObject _) = "<object>"
     show (MeowIFunc _ _) = "<inner-func>"

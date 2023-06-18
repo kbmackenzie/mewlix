@@ -338,7 +338,7 @@ Partial function application. Returns a function.
 Takes an (a -> b -> c) function and makes it a (b -> c).
 <(^.x.^ )~
 
-=^.x.^= poke (fn, a)
+=^.x.^= ap (fn, a)
     bring ( ^.x.^)> (b) => (fn(a, b))
 meow meow
 
@@ -347,7 +347,7 @@ Partial function application. Returns a function.
 Takes an (a -> b -> c -> d) function and makes it (b -> c -> d).
 <(^.x.^ )~
 
-=^.x.^= poke2 (fn, a)
+=^.x.^= ap2 (fn, a)
     bring ( ^.x.^)> (b, c) => (fn(a, b, c))
 meow meow
 
@@ -356,6 +356,6 @@ Partial function application. Returns a function.
 Takes an (a -> b -> c -> d -> e) function and amkes it (b -> c -> d -> e).
 <(^.x.^ )~
 
-=^.x.^= poke3 (fn, a)
+=^.x.^= ap3 (fn, a)
     bring ( ^.x.^)> (b, c, d) => (fn(a, b, c, d))
 meow meow

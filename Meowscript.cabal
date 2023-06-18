@@ -55,6 +55,7 @@ library
       Meowscript.Parser.Keywords
       Meowscript.Parser.RunParser
       Meowscript.Parser.Statements
+      Meowscript.Regex.Core
       Meowscript.REPL.Core
       Meowscript.REPL.Loop
       Meowscript.REPL.ParseCommands
@@ -84,6 +85,7 @@ library
     , network
     , parser-combinators
     , random
+    , regex-tdfa
     , stopwatch
     , text
   default-language: Haskell2010
@@ -111,6 +113,7 @@ executable Meowscript
     , network
     , parser-combinators
     , random
+    , regex-tdfa
     , stopwatch
     , text
   default-language: Haskell2010
@@ -139,6 +142,7 @@ test-suite Meowscript-test
     , network
     , parser-combinators
     , random
+    , regex-tdfa
     , stopwatch
     , text
   default-language: Haskell2010

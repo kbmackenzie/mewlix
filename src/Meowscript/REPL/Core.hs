@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TupleSections #-}
 
 module Meowscript.REPL.Core
 ( LineCommand(..)
@@ -16,7 +17,7 @@ import Meowscript.Core.AST
 import Meowscript.Core.StdFiles
 import Meowscript.Core.RunEvaluator 
 import Meowscript.Utils.IO
-import Meowscript.Utils.Data
+import Meowscript.Utils.Show
 import Meowscript.Utils.Types
 import Meowscript.Core.MeowState
 import qualified Data.Text as Text
@@ -24,7 +25,8 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import Control.Monad.Reader (ReaderT, runReaderT)
 import Data.IORef (readIORef)
-import Data.Functor((<&>))
+import Data.Functor ((<&>))
+import Control.Monad ((>=>))
 
 {-
  - -- REPL LOOP --
@@ -51,11 +53,19 @@ type CommandMap = Map.Map Text.Text Command
 runREPL :: REPL a -> IO a
 runREPL repl = runReaderT repl commands
 
+{- To Do: Add commands
+ - ':inspect' -> Lists all keys (variables + functions) in the environment and their contents.
+ - ':ask'     -> Lets you look up a regexp for a function or variable in scope and get all keys
+ - that match that regexp, along with their contents.
+ - ':clear'   -> Clears the environment.
+ -}
+
 commands :: CommandMap
 commands = Map.fromList
-    [ ("quit" , quit      )
-    , ("help" , showHelp  )
-    , ("load" , addModule )]
+    [ ("quit"    , quit       )
+    , ("help"    , showHelp   )
+    , ("load"    , addModule  )
+    , ("inspect" , inspectEnv )]
 
 quit :: Command
 quit _ env = return (False, env)
@@ -67,8 +77,8 @@ addModule line env = case getArgs line of
         (Left x') -> printExc (snd x') >> return (True, env)
         (Right x') -> do
             env' <- readIORef x'
-            let newEnv = env <> env'
-            addModule (popArg line) newEnv
+            let envNew = env <> env'
+            addModule (popArg line) envNew
         where state = meowState Text.empty [] (return Map.empty)
 
 readModule :: FilePathT -> IO (Either Text.Text Text.Text)
@@ -92,3 +102,11 @@ helpMessage =
 
 showHelp :: Command
 showHelp _ env = printStrLn (Text.intercalate "\n" helpMessage) >> return (True, env)
+
+inspectEnv :: Command
+inspectEnv _ env = do
+    let prettyKey = flip Text.append ": "
+    let prettyRef ref = showT <$> readIORef ref
+    let pretty (key, ref) = (prettyKey key `Text.append`) <$> prettyRef ref
+    printStrLn . Text.unlines =<< mapM pretty (Map.toList env)
+    return (True, env)
