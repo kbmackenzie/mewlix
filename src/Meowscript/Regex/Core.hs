@@ -129,7 +129,7 @@ parens = Mega.between (MChar.char '(') (MChar.char ')')
 
 parseGroup :: Parser MeowRegex
 -- todo: parse group name
-parseGroup = CaptureGroup Nothing <$> parens parseExpr 
+parseGroup = CaptureGroup Nothing <$> parens parseTokens
 
 
 {- Combining everything: -}
