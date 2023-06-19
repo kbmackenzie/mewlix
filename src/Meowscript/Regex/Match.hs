@@ -16,7 +16,7 @@ import qualified Data.List as List
 runMatch :: Text.Text -> Text.Text -> Either Text.Text [Text.Text]
 runMatch pattern input = case parseRegex pattern of 
     (Left x)  -> Left ("Parse error: " `Text.append` x)
-    (Right x) -> case runMatcher input (matchTokens x) of
+    (Right x) -> case runMatcher input (matchAll x) of
         Nothing -> Left "Not a match!"
         (Just xs) -> Right xs
 
@@ -31,19 +31,20 @@ matchText x = gets (Text.stripPrefix x) >>= \case
     (Just xs) -> put xs >> return x
 
 matchStar :: MeowRegex -> [MeowRegex] -> Matcher [Text.Text]
-matchStar x xs = many (matchToken x xs <* matchTokens xs)
+matchStar x xs = many (safeMatch (matchToken x xs) xs)
 
 matchPlus :: MeowRegex -> [MeowRegex] -> Matcher [Text.Text]
-matchPlus x xs = some (matchToken x xs <* matchTokens xs)
+matchPlus x xs = some (safeMatch (matchToken x xs) xs)
 
 matchQues :: MeowRegex -> [MeowRegex] -> Matcher (Maybe Text.Text)
-matchQues x xs = optional (matchToken x xs <* matchTokens xs)
+matchQues x xs = optional (safeMatch (matchToken x xs) xs)
 
 safeMatch :: Matcher a -> [MeowRegex] -> Matcher a
 safeMatch matcher xs = do
     state <- get
     x <- matcher
-    x <$ matchTokens xs <|> (put state >> empty)
+    state' <- get
+    x <$ (matchTokens xs >> put state') <|> (put state >> empty)
 
 matchToken :: MeowRegex -> [MeowRegex] -> Matcher Text.Text
 matchToken (Verbatim x) _ = matchText x
@@ -56,7 +57,8 @@ matchToken (ZeroOrOne x) xs = matchQues x xs >>= \case
 matchToken _ _ = undefined
 
 matchTokens :: [MeowRegex] -> Matcher [Text.Text]
-matchTokens [] = gets Text.null >>= \x -> if x
-    then return []
-    else empty
+matchTokens [] = return []
 matchTokens (x:xs) = (:) <$> matchToken x xs <*> matchTokens xs
+
+matchAll :: [MeowRegex] -> Matcher [Text.Text]
+matchAll xs = matchTokens xs <* (gets Text.null >>= \x -> if x then return [] else empty)
