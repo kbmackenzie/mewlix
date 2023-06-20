@@ -15,7 +15,7 @@ import Control.Monad.Trans.Maybe (MaybeT, runMaybeT)
 import Control.Monad.Identity (Identity, runIdentity)
 
 type GroupName = Maybe Text.Text
-newtype Predicate = Predicate (Char -> Bool)
+newtype Predicate = Predicate { getPredicate :: Char -> Bool }
 
 data MeowRegex =
       Verbatim Text.Text
@@ -40,7 +40,7 @@ instance Show Predicate where
     show (Predicate _) = "<predicate>"
 
 type RegexState = Text.Text
-type Matcher a = StateT RegexState (MaybeT Identity) a
+type Matcher a = MaybeT (StateT RegexState Identity) a
 
-runMatcher :: RegexState -> Matcher a -> Maybe a
-runMatcher state interp = runIdentity $ runMaybeT (fst <$> runStateT interp state)
+runMatcher :: RegexState -> Matcher a -> (Maybe a, Text.Text)
+runMatcher state interp = runIdentity (runStateT (runMaybeT interp) state)

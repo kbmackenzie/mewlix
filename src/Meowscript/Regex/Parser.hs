@@ -5,6 +5,7 @@ module Meowscript.Regex.Parser
 ( Parser
 , parseExpr
 , parseRegex
+, isWordChar
 ) where
 
 import Meowscript.Parser.Core (Parser)
