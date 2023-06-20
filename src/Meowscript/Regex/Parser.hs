@@ -138,11 +138,11 @@ specialRange = Mega.choice
 brackets :: Parser a -> Parser a
 brackets = Mega.between (MChar.char '[') (MChar.char ']')
 
-parseCharRange :: Parser MeowRegex
-parseCharRange = brackets $ do
+parseCharClass :: Parser MeowRegex
+parseCharClass = brackets $ do
     let predicates = Mega.try charRange <|> specialRange <|> charPred
     x <- Mega.optional $ MChar.char '^'
-    (if isNothing x then AnyListed else AnyNotListed) <$> Mega.many predicates
+    CharacterClass (isNothing x) <$> Mega.many predicates
     where char = Mega.try $ escapeChar [ '\\', ']' ] <* Mega.notFollowedBy (MChar.char '-')
           charPred = Predicate . (==) <$> char
 
@@ -163,7 +163,7 @@ parseTerm :: Parser MeowRegex
 parseTerm = Mega.choice
     [ parseLineStart
     , parseLineEnd
-    , parseCharRange
+    , parseCharClass
     , parseDot
     , parseGroup
     , parseSpecial

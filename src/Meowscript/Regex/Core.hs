@@ -25,8 +25,7 @@ data MeowRegex =
     | Whitespace Bool
     | LineStart
     | LineEnd
-    | AnyListed [Predicate]
-    | AnyNotListed [Predicate]
+    | CharacterClass Bool [Predicate]
     | Count Int MeowRegex
     | CountRange (Maybe Int) (Maybe Int) MeowRegex
     | ZeroOrOne MeowRegex
