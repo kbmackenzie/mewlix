@@ -21,7 +21,7 @@ epsilon = empty
 anyChar :: StateMachine Char
 anyChar = gets Text.uncons >>= \case
     Nothing     -> epsilon
-    Just (x, _) -> (modify Text.tail >> return x)
+    Just (x, xs) -> put xs >> return x
 
 sandbox :: StateMachine a -> StateMachine a
 sandbox action = do
@@ -36,7 +36,7 @@ attempt action = do
 matchText :: Text.Text -> StateMachine Text.Text
 matchText v = gets (Text.stripPrefix v) >>= \case
     Nothing  -> epsilon
-    (Just _) -> return v
+    (Just xs) -> put xs >> return v
 
 matchAhead :: [RegexAST] -> StateMachine Text.Text -> StateMachine Text.Text
 matchAhead xs action = do
