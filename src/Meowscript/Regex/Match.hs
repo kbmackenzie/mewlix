@@ -9,11 +9,8 @@ import Meowscript.Regex.Core
 import Meowscript.Regex.Parser
 import qualified Data.Text as Text
 import Control.Monad.State (gets, put, get, modify)
-import Control.Applicative (empty, many, some, (<|>), optional, asum)
-import qualified Data.List as List
-import Data.Char (isDigit, isSpace)
+import Control.Applicative (empty, many, (<|>), optional)
 import Data.Maybe (fromMaybe)
-import Control.Monad (void)
 
 epsilon :: StateMachine a
 epsilon = empty
@@ -22,16 +19,6 @@ anyChar :: StateMachine Char
 anyChar = gets Text.uncons >>= \case
     Nothing     -> epsilon
     Just (x, xs) -> put xs >> return x
-
-sandbox :: StateMachine a -> StateMachine a
-sandbox action = do
-    state <- get
-    action <* put state
-
-attempt :: StateMachine a -> StateMachine a
-attempt action = do
-    state <- get
-    action <|> (put state >> empty)
 
 matchChar :: (Char -> Bool) -> StateMachine Char
 matchChar predicate = gets Text.uncons >>= \case
@@ -44,6 +31,16 @@ matchText :: Text.Text -> StateMachine Text.Text
 matchText v = gets (Text.stripPrefix v) >>= \case
     Nothing  -> epsilon
     (Just xs) -> put xs >> return v
+
+sandbox :: StateMachine a -> StateMachine a
+sandbox action = do
+    state <- get
+    action <* put state
+
+attempt :: StateMachine a -> StateMachine a
+attempt action = do
+    state <- get
+    action <|> (put state >> empty)
 
 matchAhead :: [RegexAST] -> StateMachine Text.Text -> StateMachine Text.Text
 matchAhead xs action = do
@@ -65,7 +62,7 @@ matchPlus x xs = do
     Text.append t <$> matchRepeat xs (execute x xs)
 
 matchQues :: RegexAST -> [RegexAST] -> StateMachine (Maybe Text.Text)
-matchQues x xs = (optional . matchAhead xs) (execute x xs)
+matchQues x xs = (optional . attempt) $ matchAhead xs (execute x xs)
 
 
 {- Transitions -}
@@ -89,4 +86,4 @@ runRegex pattern input = case parseRegex pattern of
     (Left x)  -> Left ("Parse error: " `Text.append` x)
     (Right xs) -> case runStateMachine input (consumeInput xs) of
         (Nothing, rest) -> Left $ "Not a match!: " `Text.append` rest
-        (Just txt, _)    -> Right txt
+        (Just txt, _)   -> Right txt
