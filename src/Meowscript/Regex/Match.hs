@@ -33,6 +33,13 @@ attempt action = do
     state <- get
     action <|> (put state >> empty)
 
+matchChar :: (Char -> Bool) -> StateMachine Char
+matchChar predicate = gets Text.uncons >>= \case
+    Nothing -> epsilon
+    (Just (x, xs)) -> if predicate x
+        then put xs >> return x
+        else epsilon
+
 matchText :: Text.Text -> StateMachine Text.Text
 matchText v = gets (Text.stripPrefix v) >>= \case
     Nothing  -> epsilon
@@ -65,11 +72,12 @@ matchQues x xs = (optional . matchAhead xs) (execute x xs)
 
 execute :: RegexAST -> [RegexAST] -> StateMachine Text.Text
 execute state xs = case state of
-    Verbatim x      -> matchText x
-    AnyChar         -> Text.singleton <$> anyChar
-    ZeroOrOne x     -> fromMaybe Text.empty <$> matchQues x xs
-    ZeroOrMore x    -> matchStar x xs
-    OneOrMore x     -> matchPlus x xs
+    Verbatim x          -> matchText x
+    AnyChar             -> Text.singleton <$> anyChar
+    ZeroOrOne x         -> fromMaybe Text.empty <$> matchQues x xs
+    ZeroOrMore x        -> matchStar x xs
+    OneOrMore x         -> matchPlus x xs
+    CharacterClass f    -> Text.singleton <$> matchChar (getPredicate f)
     _ -> undefined
 
 consumeInput :: [RegexAST] -> StateMachine [Text.Text]
