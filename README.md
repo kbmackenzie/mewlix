@@ -86,7 +86,7 @@ meow meow
 
 While loops:
 ```lua
-meowmeowmeow (...)
+meowmeow(...)
     -- _(:3」∠)_
 meow meow
 ```
@@ -235,7 +235,7 @@ Creating constructor-like functions to create and return more complex boxes is a
 
 ```lua
 =^.x.^= new_cat (name, coat, class)
-    mew cat = ~(  ^.x.^) BOX!! [
+    mew cat = ~( ^.x.^) BOX!! [
         name: name,
         coat: coat,
         class: class,
@@ -259,8 +259,21 @@ Lambdas are also very lightweight in Meowscript: They're stored the exact same w
 
 Additionally, stacks are value types in Meowscript, so performing operations on them is always safe: There's no need to worry about references and potentially modifying another stack by accident.
 
-The standard library *(currently in progress)* defines a variety of higher order functions, including (but not limited to): `map`, `fold`, `filter`, `take_while`, `drop_while`, among others.
+The standard library defines a variety of higher order functions, including (but not limited to): `map`, `fold`, `filter`, `take_while`, `drop_while`, among others.
 
+Additionally, the standard library defines a few functions for partial function application:
+
+```
+takes "std.meows"
+
+mew is_three = ap(equal, 3)
+is_three(2) -- -> sad
+is_three(3) -- -> happy
+
+mew add_two = ap(add, 2)
+add_two(1) -- -> 3
+add_two(2) -- -> 4
+```
 
 ## Importing Meows
 Meowscript has an import system. You can import `.meows` files either anonymously or with a name:
@@ -271,7 +284,11 @@ takes "example.meows"
 
 -- Importing with a name. The contents of this file are stored in an object with the chosen name.
 takes "example.meows" as example
+
 ```
+
+## Private Keys
+Meowscript has limited support for private variables/functions in a yarn ball: When importing a yarn ball, any key starting with an "underscore" is interpreted as private and isn't imported.
 
 ## Notes
 [ To Do ]
