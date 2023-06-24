@@ -263,7 +263,7 @@ The standard library defines a variety of higher order functions, including (but
 
 Additionally, the standard library defines a few functions for partial function application:
 
-```
+```lua
 takes "std.meows"
 
 mew is_three = ap(equal, 3)
