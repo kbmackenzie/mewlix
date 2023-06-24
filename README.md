@@ -11,7 +11,7 @@ I think the best way to showcase an esolang is with an example, so here's a Meow
 2. Calls that function passing the number '10' as argument.
 
 ```lua
-=^.x.^= greet(n)
+=^.x.^= greet (n)
     meow("Meow meow meow?")
     mew name = listen()
     take (mew i = 0) and do (paw at i) while (i < n)
@@ -137,16 +137,21 @@ As for boxes, I believe they're best explained by example:
 ```lua
 -- A house is really just a very big box, after all.
 house_cats = ~( ^.x.^) BOX!! [
-    jake: "tabby",
-    princess: "tabby"
+    jake: "orange tabby",
+    princess: "brown tabby"
 ]
 
-meow(cats)
-meow(cats.jake)
-meow(cats.princess)
+meow(cats) -- pretty-prints the box.
+meow(cats.jake) -- prints "orange tabby"
+meow(cats.princess) -- prints "brown tabby"
+
+-- Box lookups can also be done with this syntax:
+cats["jake"] -- -> "orange tabby"
 ```
 
-Boxes can contain methods, too, and a cat can use them for OOP. I'll go into detail on this further below.
+~~And yes, those are Warrior Cats references.~~
+
+Boxes can contain methods, too, and you can use them for OOP. I'll go into detail on this further below.
 
 ### Value Types
 All types in Meowscript are value types—*except* boxes. They're the only exception.
@@ -154,7 +159,7 @@ All types in Meowscript are value types—*except* boxes. They're the only excep
 ### Lexical scoping
 Meowscript supports lexical scoping. A variable is always local to the block it was first defined in. If a variable already exists in the global scope, however, it can (and will) be mutated inside functions.
 
-To ensure a variable will always be local and will always overshadow any variable with the same name in the outer scope, a cat can use the 'mew' keyword. It's very similar to the 'local' keyword in Lua!
+To ensure a variable will always be local and will always overshadow any variable with the same name in the outer scope, use the 'mew' keyword. It's very similar to the 'local' keyword in Lua!
 
 ```lua
 cat = "Jake" -- This variable is global.
@@ -172,7 +177,7 @@ meow meow
 Functions, nicknamed 'adventures', are first-class citizens *and* value types. You can return a value from a function with the 'bring' keyword:
 
 ```lua
-=^.x.^= sum(a, b)
+=^.x.^= sum (a, b)
     bring a + b
 meow meow
 ```
@@ -184,11 +189,11 @@ Meowscript also has lambdas! They can be defined in a single line like normal ex
 ```lua
 sum = ( ^.x.^)> (a, b) => (a + b)
 ```
-Meowscript lambdas support closures, and will happily capture any local variables a cat uses inside them, so a cat should feel free to use as many as they want.
+Meowscript lambdas support closures, and will happily capture any local variables you use inside them, so you should feel free to use as many as they want.
 
 
 ### Dynamic Identifiers
-Any string can be used as a variable name if a cat prepends the "~~" operator to it, even if the string is filled with Unicode characters. An example: 
+Any string can be used as a variable name if you prepend the "\~\~" operator to it, even if the string is filled with Unicode characters. An example: 
 ```lua
 ~~"(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧" = "SPARKLES!!"
 meow(~~"(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧") -- prints "SPARKLES!!"
@@ -229,7 +234,7 @@ house.add_cat("Cody")
 meow( house.get_cats() ) -- prints '[ "Cody", "Jake", "Princess" ]'
 ```
 
-**Note:** Boxes are reference types. They're Meowscript's only reference type. Thus, when copying them, a cat should be wary of shallow-copying.
+**Note:** Boxes are reference types. They're Meowscript's only reference type. Thus, when copying them, a cat should be wary of shallow-copying. See the [copying](#copying-objects) section for more information about copying.
 
 Creating constructor-like functions to create and return more complex boxes is a good pattern.
 
@@ -289,6 +294,23 @@ takes "example.meows" as example
 
 ## Private Keys
 Meowscript has limited support for private variables/functions in a yarn ball: When importing a yarn ball, any key starting with an underscore is interpreted as private and isn't imported.
+
+
+## Hashmaps and Hashsets
+The base library contains a hashing function for Meowscript objects, and the standard library contains yarn balls for hashmaps and hashsets.
+
+```lua
+takes "hashmap.meows"
+
+mew cats = hashmap()
+cats.add("Jake", "orange tabby")
+cats.get("Jake") -- -> "orange tabby"
+```
+
+## Copying Objects
+Meowscript's base library contains a "copy()" function that can be used to deep-copy any Meowscript value, including boxes. It's always safe to use and heavily encouraged.
+
+The copy() function will always recursively deep-copy every item in a box, so nested boxes are perfectly fine (and encouraged).
 
 ## Notes
 [ To Do ]
