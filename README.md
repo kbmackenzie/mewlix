@@ -261,7 +261,7 @@ Additionally, stacks are value types in Meowscript, so performing operations on 
 
 The standard library defines a variety of higher order functions, including (but not limited to): `map`, `fold`, `filter`, `take_while`, `drop_while`, among others.
 
-Additionally, the standard library defines a few functions for partial function application:
+Additionally, the standard library defines a helper function for partial function application, `ap`, along with a few variations of it. They can be used to partially apply functions, like in this example:
 
 ```lua
 takes "std.meows"
