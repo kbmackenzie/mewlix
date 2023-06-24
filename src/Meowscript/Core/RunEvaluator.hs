@@ -14,6 +14,7 @@ module Meowscript.Core.RunEvaluator
 , EvalCallback
 , getImport
 , importEnv
+, publicKeys
 ) where
 
 import Meowscript.Core.AST
@@ -133,30 +134,37 @@ readModule path = asks (meowStd . fst) >>= \x -> if Set.member path x
         (liftIO . safeReadFile . Text.unpack) (local path)
 
 getImport :: FilePathT -> Evaluator (Either CatException Environment)
+{-# INLINABLE getImport #-}
 getImport path = do 
     x <- readModule path
     state <- asks fst
     liftIO (importEnv state path x)
 
 importEnv :: MeowState -> FilePathT -> MeowFile -> IO (Either CatException Environment)
+{-# INLINABLE importEnv #-}
 importEnv state path x = runFileCore params x >>= \case
         (Left exception) -> (return . Left) exception
         (Right output) -> (return . Right) output
     where params = MeowParams
                 { getMeowState = meowNewPath state path
                 , getMeowFn = runImport path }
+
+publicKeys :: ObjectMap -> ObjectMap
+{-# INLINABLE publicKeys #-}
+publicKeys = Map.filterWithKey (\k _ -> (not . Text.isPrefixOf "_") k)
     
 addImport :: Statement -> Evaluator ()
+{-# INLINABLE addImport #-}
 addImport (StmImport filepath qualified) = getImport filepath >>= \case
     (Left ex) -> throwError ex
     (Right imp) -> case qualified of
         Nothing -> do
             x <- asks snd >>= readMeowRef
-            y <- readMeowRef imp
+            y <- publicKeys <$> readMeowRef imp
             lib <- asks (meowLib . fst) >>= liftIO
             asks snd >>= flip writeMeowRef (x <> y <> lib)
         (Just name) -> do
-            x <- readMeowRef imp 
+            x <- publicKeys <$> readMeowRef imp 
             lib <- asks (meowLib . fst) >>= liftIO
             insertRef name =<< (newMeowRef . MeowObject) (x <> lib)
 addImport x = throwError $ notImport (showT x)

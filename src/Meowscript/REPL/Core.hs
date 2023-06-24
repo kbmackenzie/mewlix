@@ -76,8 +76,8 @@ addModule line env = case getArgs line of
     (x:_) -> readModule x >>= importEnv state x >>= \case
         (Left x') -> printExc (snd x') >> return (True, env)
         (Right x') -> do
-            env' <- readIORef x'
-            let envNew = env <> env'
+            imp <- publicKeys <$> readIORef x'
+            let envNew = env <> imp
             addModule (popArg line) envNew
         where state = meowState Text.empty [] (return Map.empty)
 

@@ -55,9 +55,6 @@ library
       Meowscript.Parser.Keywords
       Meowscript.Parser.RunParser
       Meowscript.Parser.Statements
-      Meowscript.Regex.Core
-      Meowscript.Regex.Match
-      Meowscript.Regex.Parser
       Meowscript.REPL.Core
       Meowscript.REPL.Loop
       Meowscript.REPL.ParseCommands
