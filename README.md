@@ -288,7 +288,7 @@ takes "example.meows" as example
 ```
 
 ## Private Keys
-Meowscript has limited support for private variables/functions in a yarn ball: When importing a yarn ball, any key starting with an "underscore" is interpreted as private and isn't imported.
+Meowscript has limited support for private variables/functions in a yarn ball: When importing a yarn ball, any key starting with an underscore is interpreted as private and isn't imported.
 
 ## Notes
 [ To Do ]
