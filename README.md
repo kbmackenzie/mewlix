@@ -86,7 +86,7 @@ meow meow
 
 While loops:
 ```lua
-meowmeow(...)
+meowmeow (...)
     -- _(:3」∠)_
 meow meow
 ```
