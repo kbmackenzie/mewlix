@@ -35,6 +35,8 @@ import Control.Monad.Except (throwError)
 import qualified Data.Map.Strict as Map
 import Data.Functor ((<&>))
 
+{- Helpers -}
+-------------------------------------------------------------
 newEnv :: IO Environment
 {-# INLINABLE newEnv #-}
 newEnv = newIORef Map.empty
@@ -52,7 +54,9 @@ writeMeowRef :: IORef a -> a -> Evaluator ()
 {-# INLINABLE writeMeowRef #-}
 writeMeowRef = (liftIO .) . writeIORef
 
+
 {- Variables -}
+-------------------------------------------------------------
 lookUpVar :: Key -> Evaluator (Maybe PrimRef)
 {-# INLINABLE lookUpVar #-}
 lookUpVar key = (asks snd >>= readMeowRef) <&> Map.lookup key
@@ -113,7 +117,9 @@ runClosure :: ObjectMap -> Evaluator a -> Evaluator a
 {-# INLINABLE runClosure #-}
 runClosure closure action = asks ((,) . fst) <*> newMeowRef closure >>= \x -> local (const x) action
 
+
 {- Object Handling -}
+-------------------------------------------------------------
 peekObject :: Key -> ObjectMap -> Evaluator PrimRef
 {-# INLINABLE peekObject #-}
 peekObject key obj = case Map.lookup key obj of
@@ -135,6 +141,7 @@ modifyObject ref f = readMeowRef ref >>= \case
     x -> throwError =<< notBox x
 
 insertObject :: PrimRef -> Key -> Prim -> Evaluator ()
+{-# INLINABLE insertObject #-}
 insertObject ref key value = readMeowRef ref >>= \case
     (MeowObject obj) -> if Map.member key obj
         then writeMeowRef (obj Map.! key) value

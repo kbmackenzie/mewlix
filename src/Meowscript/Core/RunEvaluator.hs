@@ -45,6 +45,8 @@ data MeowParams a b = MeowParams
     { getMeowState :: MeowState
     , getMeowFn    :: EvalCallback a b }
 
+{- Run evaluator: -}
+-------------------------------------------------------------------------
 runEvaluator :: MeowState -> IO ObjectMap -> Evaluator a -> IO (Either CatException a)
 runEvaluator meow env eval = env >>= newIORef >>= (runExceptT . runReaderT eval . (meow,))
 
@@ -78,8 +80,9 @@ runCore state lib fn input = do
     env <- (<>) <$> lib <*> baseLibrary
     (runEvaluator state (return env) . fn) input
 
---------------------------------------------------------------
 
+{- Helper functions for running script files: -}
+-------------------------------------------------------------------------
 -- Variants that default to no additional libraries:
 runMeow :: FilePathT -> IO (Either CatException Text.Text)
 runMeow path = runFile MeowParams
@@ -91,16 +94,18 @@ runExpr = runLine (lexemeLn parseExpr') MeowParams
     { getMeowState = meowState Text.empty [] (return Map.empty)
     , getMeowFn = evaluate }
 
---------------------------------------------------------------
 
-{- Stack trace. -}
+{- Stack tracing: -}
+-------------------------------------------------------------------------
 asMain :: Evaluator a -> Evaluator a
 asMain = stackTrace (return "In <main>.")
 
 asImport :: FilePathT -> Evaluator a -> Evaluator a
 asImport path = stackTrace (return $ Text.concat [ "In import: ", showT path ])
 
-{- Run program with imports. -}
+
+{- Run program (and imports): -}
+-------------------------------------------------------------------------
 runProgram :: [Statement] -> Evaluator Prim
 runProgram xs = do
     let (imps, rest) = List.partition isImport xs
@@ -113,19 +118,9 @@ runProgram' xs = runProgram xs >>= prettyMeow
 runImport :: FilePathT -> [Statement] -> Evaluator Environment
 runImport path xs = asImport path $ runProgram xs >> asks snd -- Return the environment.
 
-{-
-runDebug :: [Statement] -> Evaluator Text.Text
-runDebug xs = do
-    ret <- runProgram xs >>= prettyMeow
-    x <- (asks snd >>= readMeowRef) >>= showMeow . MeowObject
-    (liftIO . TextIO.putStrLn) x
-    return ret
--}
-
 
 {- Modules -}
 --------------------------------------------------------
-
 readModule :: FilePathT -> Evaluator MeowFile
 readModule path = asks (meowStd . fst) >>= \x -> if Set.member path x
     then (liftIO . readStdFile) path

@@ -20,6 +20,7 @@ import Data.Functor ((<&>))
 import Data.Fixed (mod')
 
 {- Binary Operations -}
+-------------------------------------------------------------------------
 binop :: Binop -> Prim -> Prim -> Evaluator Prim
 {-# INLINABLE binop #-}
 binop MeowPush = meowPush
@@ -35,6 +36,7 @@ binop op = binopVar $ case op of
     MeowPow -> meowPow
 
 {- Unary Operations -}
+-------------------------------------------------------------------------
 unop :: Unop -> Prim -> Evaluator Prim
 {-# INLINABLE unop #-}
 unop MeowPaw = meowPaw
@@ -47,7 +49,9 @@ unop op = unopVar $ case op of
     MeowNot -> meowNot
     MeowPeek -> meowPeek
 
+
 {- Variables -}
+-------------------------------------------------------------------------
 binopVar :: (Prim -> Prim -> Evaluator Prim) -> Prim -> Prim -> Evaluator Prim
 {-# INLINABLE binopVar #-}
 binopVar f x y = join (f <$> ensureValue x <*> ensureValue y)
@@ -59,7 +63,9 @@ unopVar f x = ensureValue x >>= f
 -- All of these operations assume a key is already in its most reduced form.
 -- A key should never point to another key!
 
+
 {- Assignment Operations -}
+-------------------------------------------------------------------------
 meowAssign :: Prim -> Prim -> Evaluator Prim
 meowAssign (MeowKey a) value = do
     value' <- ensureValue value
@@ -88,9 +94,8 @@ meowClaw (MeowDouble a) = (return . MeowDouble . pred) a
 meowClaw a = throwError =<< opException "claw" [a]
 
 
-
-{- List Assignment -}
-
+{- List Operations -}
+-------------------------------------------------------------------------
 -- Push
 meowPush :: Prim -> Prim -> Evaluator Prim
 meowPush a (MeowKey b) = do
@@ -116,8 +121,15 @@ meowKnock (MeowList a) = (return . MeowList) $ case a of
     [] -> []
     (_:xs) -> xs
 meowKnock a = throwError =<< opException "knock over" [a]
+
+meowKnock' :: Prim -> Evaluator Prim
+meowKnock' (MeowList a) = (return . MeowList) (if null a then a else tail a)
+meowKnock' (MeowString a) = (return . MeowString) (if Text.null a then a else Text.tail a)
+meowKnock' a = throwError =<< opException "knock over" [a]
  
 
+{- Arithmetic Operations -}
+-------------------------------------------------------------------------
 -- Addition
 meowAdd :: Prim -> Prim -> Evaluator Prim
 meowAdd (MeowInt a) (MeowInt b) = (return . MeowInt) (a + b)
@@ -177,20 +189,14 @@ meowCompare ord a b = MeowBool . (`elem` ord) <$> (a `primCompare` b)
 
 
 {-- Logical Operations --}
-
+-------------------------------------------------------------------------
 -- Not
 meowNot :: Prim -> Evaluator Prim
 meowNot = return . MeowBool . not . meowBool
 
+
 {- String/List Manipulation -}
-
-{-
--- Yarn
-meowYarn :: Prim -> Evaluator Prim
-meowYarn (MeowString a) = (return . MeowKey . KeyModify) a
-meowYarn x = throwError (opException "~~" [x])
--}
-
+-------------------------------------------------------------------------
 -- Length 
 meowLen :: Prim -> Evaluator Prim
 meowLen (MeowString a) = (return . MeowInt . Text.length) a
@@ -211,12 +217,3 @@ meowPeek (MeowList a) = return (if null a then MeowLonely else head a)
 meowPeek (MeowString a) = (return . MeowString) res
           where res = if Text.null a then a else (Text.pack . (: []) . Text.head) a
 meowPeek a = throwError =<< opException "peek" [a]
-
-
-
-{- List Assignment -}
-   
-meowKnock' :: Prim -> Evaluator Prim
-meowKnock' (MeowList a) = (return . MeowList) (if null a then a else tail a)
-meowKnock' (MeowString a) = (return . MeowString) (if Text.null a then a else Text.tail a)
-meowKnock' a = throwError =<< opException "knock over" [a]

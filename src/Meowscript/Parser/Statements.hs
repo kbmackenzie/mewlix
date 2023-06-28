@@ -21,6 +21,9 @@ import Data.Functor((<&>))
 root :: Parser [Statement]
 root = Mega.between whitespaceLn Mega.eof (Mega.many (lexemeLn statements))
 
+
+{- Parse statements: -}
+----------------------------------------------------------------
 statements :: Parser Statement
 statements = Mega.choice
     [  parseWhile                <?> Text.unpack meowWhile
@@ -47,7 +50,7 @@ parseExpression = whitespace >> StmExpr <$> parseExpr'
 
 
 {- While -}
-
+----------------------------------------------------------------
 parseWhile:: Parser Statement
 parseWhile = lexeme . Lexer.indentBlock whitespaceLn $ do
     (Mega.try . void . keyword) meowWhile
@@ -55,8 +58,9 @@ parseWhile = lexeme . Lexer.indentBlock whitespaceLn $ do
     condition <- parensExpression
     return (Lexer.IndentMany Nothing ((<$ parseEnd) . StmWhile condition) statements)
 
-{- If Else -}
 
+{- If Else -}
+----------------------------------------------------------------
 parseIf :: Parser (Expr, [Statement])
 parseIf = lexeme . Lexer.indentBlock whitespaceLn $ do
     (Mega.try . void . keyword) meowIf
@@ -78,8 +82,9 @@ parseIfElse = lexeme $ do
     let onlyIf = return (StmIf ifs)
     (Mega.try elseS <|> onlyIf) <* parseEnd
 
-{- Functions -}
 
+{- Functions -}
+----------------------------------------------------------------
 funParams :: Parser [Text.Text]
 funParams = (lexeme . parens) $ whitespace >> sepByComma (flexeme keyText)
 
@@ -95,22 +100,26 @@ funName = makeExprParser (ExpPrim <$> lexeme parsePrim)
     [ [ Prefix  (ExpYarn  <$ trySymbol "~~") ]
     , [ Postfix parseDotOp                   ] ]
 
-{- Return -}
 
+{- Return -}
+----------------------------------------------------------------
 parseReturn :: Parser Statement
 parseReturn = lexeme $ do
     whitespace
     (void . keyword) meowReturn
     StmReturn <$> parseExpr'
 
+
 {- Continue -}
+----------------------------------------------------------------
 parseContinue :: Parser Statement
 parseContinue = lexeme $ do
     whitespace
     StmContinue <$ (void . keyword) meowContinue
 
-{- Break -}
 
+{- Break -}
+----------------------------------------------------------------
 parseBreak :: Parser Statement
 parseBreak = lexeme $ do
     whitespace
@@ -118,7 +127,7 @@ parseBreak = lexeme $ do
 
 
 {- For Loop -}
-
+----------------------------------------------------------------
 parseFor :: Parser Statement
 parseFor = lexeme . Lexer.indentBlock whitespaceLn $ do
     let (start, middle, end) = meowFor
@@ -130,7 +139,7 @@ parseFor = lexeme . Lexer.indentBlock whitespaceLn $ do
 
 
 {- Import -}
-
+----------------------------------------------------------------
 parseImport :: Parser Statement
 parseImport = lexeme $ do
     let (start, end) = meowTakes
@@ -142,7 +151,7 @@ parseImport = lexeme $ do
 
 
 {- Watch/Catch -}
-
+----------------------------------------------------------------
 parseTry :: Parser [Statement]
 parseTry = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . Mega.try . keyword) meowTry

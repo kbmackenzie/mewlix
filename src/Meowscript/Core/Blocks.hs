@@ -25,6 +25,7 @@ import Data.Functor ((<&>))
 type Args = [Prim]
 
 {- Evaluating Expressions -}
+-------------------------------------------------------------------------
 evaluate :: Expr -> Evaluator Prim
 evaluate (ExpPrim prim) = return prim
 evaluate (ExpBinop op a b) = join (binop op <$> evaluate a <*> evaluate b)
@@ -74,10 +75,9 @@ evaluate (ExpBoxOp boxExpr expr) = evaluate boxExpr >>= \case
     obj@(MeowObject _) -> MeowKey . KeyRef <$> ((,) <$> newMeowRef obj <*> evaluate expr)
     x -> throwError =<< opException "box peek ([])" [x]
 
-------------------------------------------------------------------------
 
 {-- Helpers --}
-
+-------------------------------------------------------------------------
 -- Helper functions to distinguish between statements.
 isFuncDef :: Statement -> Bool
 {-# INLINABLE isFuncDef #-}
@@ -93,19 +93,17 @@ boolEval :: Expr -> Evaluator Bool
 {-# INLINABLE boolEval #-}
 boolEval x = (evaluate >=> ensureValue) x <&> meowBool
 
-------------------------------------------------------------------------
 
 {-- Stack Tracing --}
-
+-------------------------------------------------------------------------
 funcTrace :: Key -> Args -> Evaluator a -> Evaluator a
 funcTrace key args = stackTrace $ do
     args' <- mapM prettyMeow args <&> Text.intercalate ", "
     return $ Text.concat [ "In function '", key, "'. Arguments: ", args' ]
 
-------------------------------------------------------------------------
 
 {-- Blocks --}
-
+-------------------------------------------------------------------------
 runBlock :: Block -> IsLoop -> Evaluator ReturnValue
 {-# INLINABLE runBlock #-}
 runBlock = runStatements
@@ -125,7 +123,8 @@ runBlock xs isLoop = do
     runStatements rest isLoop
 -}
 
--- Running Statements
+{- Running Statements -}
+-------------------------------------------------------------------------
 runStatements :: Block -> IsLoop -> Evaluator ReturnValue
 runStatements [] _ = return RetVoid
 runStatements ((StmReturn value):_) _ = RetValue <$> (evaluate value >>= ensureValue)
@@ -161,9 +160,8 @@ runExprStatement :: Expr -> Evaluator Prim
 {-# INLINABLE runExprStatement #-}
 runExprStatement = evaluate 
 
-------------------------------------------------------------------------
-
 {-- Functions --}
+------------------------------------------------------------------------
 runFuncDef :: KeyType -> Params -> Block -> Evaluator ReturnValue
 runFuncDef key params body = do 
     asks (MeowFunc params body . snd) >>= assignment (ensureLocal key)
@@ -221,9 +219,9 @@ paramGuard key args params = do
     when (length params < length args) (throwError =<< manyArgs key args)
     when (length params > length args) (throwError =<< fewArgs  key args)
 
-------------------------------------------------------------------------
 
 {- If Else -}
+------------------------------------------------------------------------
 runIf :: [MeowIf] -> IsLoop -> Evaluator ReturnValue
 runIf [] _ = return RetVoid
 runIf ((MeowIf cond body):xs) isLoop = do
@@ -240,7 +238,9 @@ runIfElse ((MeowIf cond body):xs) elseBlock isLoop = do
         then runBlock body isLoop
         else runIfElse xs elseBlock isLoop
 
+
 {- While Loop -}
+------------------------------------------------------------------------
 -- Notes: Any return value that isn't RetVoid implies the end of the loop.
 runWhile :: Condition -> Block -> Evaluator ReturnValue
 runWhile x body = do
@@ -260,7 +260,9 @@ innerWhile x body = runLocal $ do
             RetBreak -> RetVoid
             ret' -> ret'
 
+
 {- For Loop -}
+------------------------------------------------------------------------
 -- Notes: Any return value that isn't RetVoid implies the end of the loop.
 runFor :: (Expr, Expr, Expr) -> Block -> Evaluator ReturnValue
 runFor xs@(init', _, cond) body = do
@@ -282,7 +284,9 @@ innerFor xs@(_, incr, cond) body = runLocal $ do
             RetBreak -> RetVoid
             ret' -> ret'
 
+
 {- Try/Catch -}
+------------------------------------------------------------------------
 catchMeow :: IsLoop -> MeowCatch -> CatException -> Evaluator ReturnValue
 catchMeow isLoop (MeowCatch expr body) (x, y) = case expr of
     (Just expr') -> (evaluate >=> ensureValue) expr' >>= \case
