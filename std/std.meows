@@ -74,6 +74,25 @@ meow meow
 
 
 
+~( ^.x.^)> --------------
+    Box constructors
+-------------- <(^.x.^ )~
+
+=^.x.^= tuple(a, b)
+    bring ~( ^.x.^) BOX!! [
+        first:  a,
+        second: b
+    ]
+meow meow
+
+=^.x.^= triple(a, b, c)
+    bring ~( ^.x.^) BOX!! [
+        first:  a,
+        second: b,
+        third:  c
+    ]
+meow meow
+
 
 ~( ^.x.^)> --------------
   Stack/shelf functions
@@ -140,6 +159,22 @@ Checks if an item exists in the shelf.
         knock over shelf
     meow meow
     bring sad
+meow meow
+
+
+~( ^.x.^)>
+Zip implementation.
+Zips two lists together into a list of tuples.
+<(^.x.^ )~
+
+=^.x.^= zip (a, b)
+    mew output = []
+    meowmeow (a and b)
+        tuple(peek a, peek b) push output
+        knock over a
+        knock over b
+    meow meow
+    bring reverse(output)
 meow meow
 
 

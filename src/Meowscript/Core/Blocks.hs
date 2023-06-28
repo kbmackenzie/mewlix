@@ -100,7 +100,7 @@ boolEval x = (evaluate >=> ensureValue) x <&> meowBool
 funcTrace :: Key -> Args -> Evaluator a -> Evaluator a
 funcTrace key args = stackTrace $ do
     args' <- mapM prettyMeow args <&> Text.intercalate ", "
-    return $ Text.concat [ "In function '", key, "'. Arguments: [", args', "]" ]
+    return $ Text.concat [ "In function '", key, "'. Arguments: ", args' ]
 
 ------------------------------------------------------------------------
 
