@@ -21,6 +21,7 @@ stdFiles = Set.fromList
     , "cattree.meows"
     , "hashmap.meows"
     , "hashset.meows"
+    , "numbers.meows"
     , "exception.meows" ]
 
 asStd :: FilePathT -> FilePathT

@@ -16,6 +16,7 @@ module Meowscript.REPL.Core
 import Meowscript.Core.AST
 import Meowscript.Core.StdFiles
 import Meowscript.Core.RunEvaluator 
+import Meowscript.Core.Base (baseLibrary)
 import Meowscript.Utils.IO
 import Meowscript.Utils.Show
 import Meowscript.Utils.Types
@@ -65,7 +66,9 @@ commands = Map.fromList
     [ ("quit"    , quit       )
     , ("help"    , showHelp   )
     , ("load"    , addModule  )
-    , ("inspect" , inspectEnv )]
+    , ("inspect" , inspectEnv )
+    , ("ask"     , askFuncEnv )
+    , ("clear"   , clearEnv   )]
 
 quit :: Command
 quit _ env = return (False, env)
@@ -95,9 +98,12 @@ helpMessage =
     [ "\n-- ~( ^.x.^)> --\n"
     , "Welcome to the Meowscript REPL!\n"
     , "You can use the following commands to navigate the REPL:"
-    , ":help -> Show 'help' message. (You're here!)"
-    , ":load -> Load a yarn ball into the REPL."
-    , ":quit -> Quit the REPL."
+    , ":help    -> Show 'help' message. (You're here!)"
+    , ":load    -> Load a yarn ball into the REPL."
+    , ":ask     -> Look up a key in the current environment."
+    , ":inspect -> View all keys in the current environment."
+    , ":clear   -> Clear the current environment."
+    , ":quit    -> Quit the REPL."
     , "\n-- <(^.x.^ )~ --\n" ]
 
 showHelp :: Command
@@ -110,3 +116,17 @@ inspectEnv _ env = do
     let pretty (key, ref) = (prettyKey key `Text.append`) <$> prettyRef ref
     printStrLn . Text.unlines =<< mapM pretty (Map.toList env)
     return (True, env)
+
+askFuncEnv :: Command
+askFuncEnv line env = case getArgs line of
+    [] -> inspectEnv line env
+    (x:_) -> do
+        let prettyKey = flip Text.append ": "
+        let prettyRef ref = showT <$> readIORef ref
+        let pretty (key, ref) = (prettyKey key `Text.append`) <$> prettyRef ref
+        let keysAskedFor = Map.filterWithKey (\k _ -> Text.isPrefixOf x k) env
+        printStrLn . Text.unlines =<< mapM pretty (Map.toList keysAskedFor)
+        return (True, env)
+
+clearEnv :: Command
+clearEnv _ env = (True,) <$> baseLibrary

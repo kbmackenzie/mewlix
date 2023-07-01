@@ -1,0 +1,50 @@
+~( ^.x.^)> ----------------------------
+A yarn ball of numeric operations and
+iterators. (It's mostly iterators.)
+
+This yarn ball has very short function
+names, and should most likely be taken
+as a named import.
+----------------------------- <(^.x.^ )~
+
+takes "cattree.meows"
+
+
+~( ^.x.^)>
+An infinite iterator that yields all natural numbers.
+<(^.x.^ )~
+
+=^.x.^= natural ()
+    bring cattree(1, 1, ( ^.x.^)> () => (paw at home.state))
+meow meow
+
+
+~( ^.x.^)>
+An infinite iterator that yields all whole numbers.
+<(^.x.^ )~
+
+=^.x.^= whole ()
+    bring cattree(0, 0, ( ^.x.^)> () => (paw at home.state))
+meow meow
+
+
+~( ^.x.^)>
+An infinite iterator that yields all even whole numbers.
+<(^.x.^ )~
+
+=^.x.^= even ()
+    bring cattree(0, 0, ( ^.x.^)> () => (home.state = home.state + 2))
+meow meow
+
+
+~( ^.x.^)>
+Yield integer numbers starting at a and continuing until b.
+The 'a' and 'b' are inclusive.
+<(^.x.^ )~
+
+=^.x.^= range(a, b)
+    =^.x.^= next()
+        bring home.state >= b ? lonely : paw at home.state
+    meow meow
+    bring cattree(a, a, next)
+meow meow
