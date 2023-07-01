@@ -1,17 +1,159 @@
-~( ^.x.^)>
+~( ^.x.^)> -----------------------------------------------
+An implementation of lazy sequence function application.
 
-<(^.x.^ )~
+It's inspired by C#'s LINQ!
+
+It lazily applies the queued functions to the item at the
+top of the stack when the .next() method is called.
+
+Every call of '.where()', '.choose()' and other methods add
+a new function to the bottom of the queue.
+
+The .next() method pops an item from the top of the stack,
+applies the catfunctions to it and checks the result. If
+any catfunction returns false, it moves on to the next item
+in the list. If not, it returns the item at the top of the
+copycat shelf.
+
+The .to_shelf() method will always traverse the shelf only
+once, no matter how many functions are in the queue.
+
+The .pick(x) method will only visit x items, no matter the
+size of the shelf. The functions in the queue will, thus,
+only be applied to exactly x items.
+
+The .rewind() method rewinds the iterator to its starting
+position, rebuilding the copycat shelf.
+The .rewind() method does **not** clean the function queue.
+
+The .reset() method calls .rewind() behind the scenes *and*
+cleans the function queue.
+----------------------------------------------- <(^.x.^ )~
 
 takes "std.meows" as std
 
-=^.x.^= cattree()
+=^.x.^= cattree(items)
 
     ~( ^.x.^)>
-    Local context: Define helper functions that do not
+    Local context: Define helper functions that choose not
     pollute the outer environment.
+    
+    Cat-trees make a lot of use of closures.
+    It's composed of three key concepts:
+
+    1. 'Copycat'
+        Typed as [a] where 'a' is the type of a shelf item.
+        A copy of the original shelf in order to avoid
+        mutating it, as some state must be mutated in .next().
+        It only exists in the closure.
+
+    2. 'Catfunction'
+        Typed as ((a -> b) -> Bool), where 'a' is the type of a list item.
+        It's named both after cats and after the Linux cat command.
+
+    3. Queue
+        A queue of catfunctions.
+
+    The .next() method applies every catfunction in the queue to the item
+    at the top of the copycat shelf.
+
+    If any catfunction returns false, it stops and moves on to the next item.
+    If not, it returns the item at the top of the copycat shelf.
+
     <(^.x.^ )~
 
+    mew copycat = items
+    mew queue = []
+
+    =^.x.^= where(fn)
+        bring copycat and fn(peek copycat)
+    meow meow
+
+    =^.x.^= choose(fn)
+        mew? (not copycat)
+            bring sad
+        meow meow
+        mew x = peek copycat
+        knock over copycat
+        fn(x) push copycat
+        bring happy
+    meow meow
+
+    =^.x.^= enqueue(itemsfn, fn)
+        mew f = ( ^.x.^)> () => (itemsfn(fn))
+        queue = queue..[f] -- O(n) appending, sadly necessary.
+    meow meow
+
+    =^.x.^= next()
+        mew? (not copycat)
+            bring lonely
+        meow meow
+
+        mew queue_ = queue -- Shallow copy.
+        mew state = happy
+        meowmeow(queue_)
+            state = state and (peek queue_)()
+            knock over queue_
+        meow meow
+
+        mew? (not state)
+            knock over copycat
+            bring next()
+        meow meow
+        
+        mew current = peek copycat
+        knock over copycat
+        bring current
+    meow meow
+
+    =^.x.^= to_shelf()
+        mew output = []
+        mew c = home.next()
+        meowmeow (c)
+            c push output
+            c = home.next()
+        meow meow
+        bring reverse(output)
+    meow meow
+
+    -- Get only n items from the stack
+    -- as a list.
+
+    =^.x.^= pick(n)
+        mew output = []
+        mew i = 0
+        mew c = home.next()
+        meowmeow (c and i < n)
+            c push output
+            c = home.next()
+            paw at i
+        meow meow
+        bring reverse(output)
+    meow meow
+
+    -- Rewind iterator.
+    -- Rebuilds the copycat shelf.
+
+    =^.x.^= rewind()
+        copycat = home.items
+    meow meow
+
+    -- Resets iterator.
+    -- Cleans the function queue.
+
+    =^.x.^= reset()
+        home.rewind()
+        queue = []
+    meow meow
+
     bring ~( ^.x.^) BOX!! [
-        list: [],
+        items: items,
+        where: std.ap(enqueue, where),
+        choose: std.ap(enqueue, choose),
+        next: next,
+        to_shelf: to_shelf,
+        pick: pick,
+        rewind: rewind,
+        reset: reset
     ]
 meow meow

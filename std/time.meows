@@ -10,7 +10,7 @@ and returns the elapsed time.
 =^.x.^= timer(fn)
     mew start = time()
     fn()
-    bring time() - start
+    bring time_info(time() - start)
 meow meow
 
 

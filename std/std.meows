@@ -369,6 +369,18 @@ meow meow
 
 
 ~( ^.x.^)>
+Function composition, similar to the (.) function in Haskell.
+Thus the name!
+Takes a (b -> c) and an (a -> b) function as arguments in order.
+Returns a function composed of those two functions: (a -> c).
+<(^.x.^ )~
+
+=^.x.^= dot(fa, fb)
+    bring ( ^.x.^)> (x) => (fb(fa(x)))
+meow meow
+
+
+~( ^.x.^)>
 Partial function application. Returns a function.
 Takes an (a -> b -> c) function and makes it a (b -> c).
 <(^.x.^ )~
