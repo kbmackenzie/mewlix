@@ -20,7 +20,7 @@ import System.FilePath (takeFileName)
 parseFile :: (Show a) => Parser a -> FilePath -> Text.Text -> IO (Either Text.Text a)
 parseFile parser path contents = case Mega.parse parser fileName contents of
         (Left x) -> (return . Left . Text.pack . errorBundlePretty) x
-        (Right program) -> print program >> (return . Right) program
+        (Right program) -> (return . Right) program
     where fileName = takeFileName path
 
 meowParse :: FilePath -> Text.Text -> IO (Either Text.Text [Statement])

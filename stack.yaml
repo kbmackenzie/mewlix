@@ -1,5 +1,5 @@
 #system-ghc: true
-resolver: ghc-9.2.7
+resolver: ghc-9.2.8
 
 extra-deps:
 - case-insensitive-1.2.1.0

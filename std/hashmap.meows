@@ -28,8 +28,14 @@ takes "exception.meows"
     pollute the outer environment.
     <(^.x.^ )~
 
+    TABLE_SIZE = 769
+
+    =^.x.^= get_hash(key)
+        bring string(hash(key) % TABLE_SIZE)
+    meow meow
+
     =^.x.^= add_pair(key, value)
-        mew hash_key = string(hash(key))
+        mew hash_key = get_hash(key)
         mew list = lookup(home.pairs, hash_key)
         home.pairs[hash_key] = list_add(list, key, value)
     meow meow
@@ -67,7 +73,7 @@ takes "exception.meows"
     meow meow
 
     =^.x.^= get_pair(key)
-        mew hash_key = string(hash(key))
+        mew hash_key = get_hash(key)
         mew list = lookup(home.pairs, hash_key)
         meowmeow (list)
             mew pair = peek list
@@ -80,7 +86,7 @@ takes "exception.meows"
     meow meow
 
     =^.x.^= contains_pair(key)
-        mew hash_key = string(hash(key))
+        mew hash_key = get_hash(key)
         mew list = lookup(home.pairs, hash_key)
         meowmeow (list)
             mew pair = peek list
@@ -93,7 +99,7 @@ takes "exception.meows"
     meow meow
 
     =^.x.^= remove_pair(key)
-        mew hash_key = string(hash(key))
+        mew hash_key = get_hash(key)
         mew list = lookup(home.pairs, hash_key)
         home.pairs[hash_key] = list_remove(list, key)
     meow meow
