@@ -77,6 +77,8 @@ which it **always deep-copies.**
 
 ----------------------------------------------- <(^.x.^ )~
 
+
+
 =^.x.^= cat_tree (init, state, iterator)
 
     =^.x.^= rewind ()
@@ -147,8 +149,6 @@ meow meow
         current = fn(current)
         bring happy
     meow meow
-
-
 
     ~( ^.x.^)> ------------
            ENQUEUING 
