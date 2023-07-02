@@ -1,7 +1,7 @@
 ~( ^.x.^)> -----------------------------------------------
-An implementation of lazy sequence function application.
+An implementation of iterators and lazy list computations.
 
-It's inspired by C#'s LINQ!
+It's inspired by C#'s IEnumerable and LINQ!
 
 -- Cat Trees (Iterator) --
 They provide an interface for interating over a collection
@@ -114,6 +114,7 @@ which it **always deep-copies.**
             home.next()
             paw at i
         meow meow
+        bring home -- Allow chaining.
     meow meow
 
     bring ~( ^.x.^) BOX!! [
@@ -298,11 +299,13 @@ meow meow
 
     ~( ^.x.^)>
     Gets the first item from the scratchpost.
-    It does not backstep.
+    it backsteps.
     <(^.x.^ )~
 
     =^.x.^= first()
-        bring home.pick(1)
+        mew one = home.pick(1)
+        backstep()
+        bring one ? peek one : lonely
     meow meow
 
     ~( ^.x.^)>
@@ -330,6 +333,7 @@ meow meow
         step: do_step,
         pick: pick,
         skip: skip,
+        first: first,
         to_shelf: to_shelf,
         where: where_enq,
         choose: choose_enq,
