@@ -7,7 +7,7 @@ names, and should most likely be taken
 as a named import.
 ----------------------------- <(^.x.^ )~
 
-takes "cattree.meows"
+takes "cat_tree.meows"
 
 
 ~( ^.x.^)>
@@ -15,7 +15,7 @@ An infinite iterator that yields all natural numbers.
 <(^.x.^ )~
 
 =^.x.^= natural ()
-    bring cattree(1, 1, ( ^.x.^)> () => (paw at home.state))
+    bring cat_tree(1, 1, ( ^.x.^)> () => (paw at home.state))
 meow meow
 
 
@@ -24,7 +24,7 @@ An infinite iterator that yields all whole numbers.
 <(^.x.^ )~
 
 =^.x.^= whole ()
-    bring cattree(0, 0, ( ^.x.^)> () => (paw at home.state))
+    bring cat_tree(0, 0, ( ^.x.^)> () => (paw at home.state))
 meow meow
 
 
@@ -33,7 +33,7 @@ An infinite iterator that yields all even whole numbers.
 <(^.x.^ )~
 
 =^.x.^= even ()
-    bring cattree(0, 0, ( ^.x.^)> () => (home.state = home.state + 2))
+    bring cat_tree(0, 0, ( ^.x.^)> () => (home.state = home.state + 2))
 meow meow
 
 
@@ -46,5 +46,5 @@ The 'a' and 'b' are inclusive.
     =^.x.^= next()
         bring home.state >= b ? lonely : paw at home.state
     meow meow
-    bring cattree(a, a, next)
+    bring cat_tree(a, a, next)
 meow meow

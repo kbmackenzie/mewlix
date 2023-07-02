@@ -20,7 +20,7 @@ extra-source-files:
     CHANGELOG.md
 data-files:
     std/assert.meows
-    std/cattree.meows
+    std/cat_tree.meows
     std/exception.meows
     std/hashmap.meows
     std/hashset.meows

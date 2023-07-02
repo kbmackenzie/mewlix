@@ -3,7 +3,7 @@ An implementation of lazy sequence function application.
 
 It's inspired by C#'s LINQ!
 
--- Cattrees (Iterator) --
+-- Cat Trees (Iterator) --
 They provide an interface for interating over a collection
 or otherwise iteratable object.
 
@@ -12,7 +12,7 @@ They contain three core items:
 2. 'next()'     -> A method that moves to the next item.
 3. 'rewind()'   -> Rewinds the iterator to its initial state.
 
-The cattree() function takes three arguments:
+The cat_tree() function takes three arguments:
 1. An initial state value.
 2. A 'state' value. It can be anything.
 3. An iterator function. It should return a value that'll
@@ -24,9 +24,10 @@ All of those arguments are deep-copied.
 The iterator function can manipulate the home.state field
 if it wishes.
 
-The cattree() function produces a rewind() function behind
+The cat_tree() function produces a rewind() function behind
 the scenes that sets home.current and home.state to the
 1st and 2nd arguments passed to the function.
+
 
 
 -- [to name] --
@@ -40,6 +41,11 @@ In each call of .next(), the [to_name] asks for another item
 from the iterator and lazily applies the queued functions
 to the item. When the iterator is out of items, iteration
 ends, and .next() returns lonely.
+
+**Note:** While iterators start at the first item and each
+call of .next() moves them further along, a [to_name]
+always starts *before* the first item. Thus, the first call
+of .next() will give you the *first* element.
 
 If all catfunctions return happy, the [to_name] returns the
 item and stops. If not, the [to_name] asks for another item
@@ -68,7 +74,7 @@ which it **always deep-copies.**
 
 takes "std.meows" as std
 
-=^.x.^= cattree (init, state, iterator)
+=^.x.^= cat_tree (init, state, iterator)
 
     =^.x.^= rewind ()
         home.state = copy(state)
@@ -129,12 +135,14 @@ meow meow
         bring happy
     meow meow
 
-    =^.x.^= enqueue(queued_func, fn)
+    =^.x.^= enqueue (queued_func, fn)
         mew f = ( ^.x.^)> () => (queued_func(fn))
-        queue = queue..[f] -- O(n) appending, sadly necessary.
+        queue = queue..[f]
+        -- O(n) appending, sadly necessary.
+        -- It only becomes inefficient if MANY functions are queued. (Unlikely.)
     meow meow
 
-    =^.x.^= next()
+    =^.x.^= next ()
         mew? (not itr.current)
             bring lonely
         meow meow
@@ -163,7 +171,7 @@ meow meow
     iterator.
     <(^.x.^ )~
 
-    =^.x.^= to_shelf()
+    =^.x.^= to_shelf ()
         mew output = []
         mew c = home.next()
         meowmeow (c)
@@ -180,7 +188,7 @@ meow meow
     iterator.
     <(^.x.^ )~
 
-    =^.x.^= pick(n)
+    =^.x.^= pick (n)
         mew output = []
         mew i = 0
         mew c = home.next()
@@ -241,5 +249,5 @@ Convert shelf to iterator.
         bring peek home.state
     meow meow
 
-    bring cattree(peek shelf, shelf, next)
+    bring cat_tree(peek shelf, shelf, next)
 meow meow
