@@ -30,25 +30,25 @@ the scenes that sets home.current and home.state to the
 
 
 
--- [to name] --
-[to name] provide an interface for lazily performing queued
-operations over an iterator's values.
+-- Scratchpost (Lazy Wrapper) --
+Scratchpost provide an interface for lazily performing queued
+operations over an iterator's values. 
 
 Every call of '.where()', '.choose()' and other methods add
 a new function to the bottom of the queue.
 
-In each call of .next(), the [to_name] asks for another item
+In each call of .step(), the scratchpost asks for another item
 from the iterator and lazily applies the queued functions
 to the item. When the iterator is out of items, iteration
-ends, and .next() returns lonely.
+ends, and .step() returns lonely.
 
 **Note:** While iterators start at the first item and each
-call of .next() moves them further along, a [to_name]
+call of .next() moves them further along, a scratchpost
 always starts *before* the first item. Thus, the first call
-of .next() will give you the *first* element.
+of .step() will give you the *first* element.
 
-If all catfunctions return happy, the [to_name] returns the
-item and stops. If not, the [to_name] asks for another item
+If all catfunctions return happy, the scratchpost returns the
+item and stops. If not, the scratchpost asks for another item
 and repeats the process.
 
 The .to_shelf() method will always traverse the iterator's 
@@ -65,14 +65,14 @@ The .rewind() method rewinds the iterator. It does **not**
 clean the function queue.
 
 The .reset() method rewinds the iterator *and* cleans the
-[to_name]'s function queue.
+scratchpost's function queue.
 
 
-The [to_name] function takes one argument, an iterator box,
+The scratchpost function takes one argument, an iterator box,
 which it **always deep-copies.**
 ----------------------------------------------- <(^.x.^ )~
 
-takes "std.meows" as std
+--takes "std.meows" as std
 
 =^.x.^= cat_tree (init, state, iterator)
 
@@ -106,6 +106,14 @@ takes "std.meows" as std
         bring reverse(output)
     meow meow
 
+    =^.x.^= skip (n)
+        mew i = 0
+        meowmeow (home.current and i < n)
+            home.next()
+            paw at i
+        meow meow
+    meow meow
+
     bring ~( ^.x.^) BOX!! [
         current:    copy(init),
         state:      copy(state),
@@ -113,12 +121,13 @@ takes "std.meows" as std
         next:       next,
         rewind:     rewind,
         to_shelf:   to_shelf,
-        pick:       pick
+        pick:       pick,
+        skip:       skip
     ]
 meow meow
 
 
-=^.x.^= to_name (i)
+=^.x.^= scratchpost (i)
 
     mew queue = []
     mew itr = copy(i)
@@ -135,14 +144,44 @@ meow meow
         bring happy
     meow meow
 
+
+
+    ~( ^.x.^)> ------------
+           ENQUEUING 
+    ------------ <(^.x.^ )~
+
+    ~( ^.x.^)>
+    O(n) appending, sadly necessary.
+    It only becomes inefficient if MANY functions are queued. (Unlikely.)
+    Return the box itself to allow for chained methods.
+    <(^.x.^ )~
+
     =^.x.^= enqueue (queued_func, fn)
         mew f = ( ^.x.^)> () => (queued_func(fn))
-        queue = queue..[f]
-        -- O(n) appending, sadly necessary.
-        -- It only becomes inefficient if MANY functions are queued. (Unlikely.)
+        queue = queue..[f] 
     meow meow
 
-    =^.x.^= next ()
+    ~( ^.x.^)>
+    Higher-order function wrapper around the
+    'enqueue' function.
+    <(^.x.^ )~
+
+    =^.x.^= where_enq (fn)
+        enqueue(where, fn)
+        bring home
+    meow meow
+
+    =^.x.^= choose_enq (fn)
+        enqueue(choose, fn)
+        bring home
+    meow meow
+
+
+    ~( ^.x.^)> ------------
+            STEPPING
+    ------------ <(^.x.^ )~
+
+    =^.x.^= step ()
         mew? (not itr.current)
             bring lonely
         meow meow
@@ -156,7 +195,7 @@ meow meow
 
         mew? (not state)
             itr.next()
-            bring next()
+            bring step()
         meow meow
         
         mew current = itr.current
@@ -173,10 +212,10 @@ meow meow
 
     =^.x.^= to_shelf ()
         mew output = []
-        mew c = home.next()
+        mew c = home.step()
         meowmeow (c)
             c push output
-            c = home.next()
+            c = home.step()
         meow meow
         bring reverse(output)
     meow meow
@@ -191,13 +230,33 @@ meow meow
     =^.x.^= pick (n)
         mew output = []
         mew i = 0
-        mew c = home.next()
+        mew c = home.step()
         meowmeow (c and i < n)
             c push output
-            c = home.next()
+            c = home.step()
             paw at i
         meow meow
         bring reverse(output)
+    meow meow
+
+
+    ~( ^.x.^)>
+    Skips n items, moving the iterator
+    state forward.
+
+    It returns home to allow for using
+    it in chained method calls.
+
+    It's *not* a queued operation, however.
+    <(^.x.^ )~
+
+    =^.x.^= skip (n)
+        mew i = 0
+        meowmeow (c and i < n)
+            c = home.step()
+            paw at i
+        meow meow
+        bring home
     meow meow
 
 
@@ -222,11 +281,12 @@ meow meow
 
 
     bring ~( ^.x.^) BOX!! [
-        next: next,
+        step: step,
         pick: pick,
+        skip: skip,
         to_shelf: to_shelf,
-        where: std.ap(enqueue, where),
-        choose: std.ap(enqueue, choose),
+        where: where_enq,
+        choose: choose_enq,
         rewind: rewind,
         reset: reset
     ]
@@ -239,15 +299,21 @@ meow meow
 ------------------ <(^.x.^ )~
 
 ~( ^.x.^)>
-Convert shelf to iterator.
+Convert shelf to a scratchpost, allowing for
+lazy computations on list values. THe shelf
+itself generates an iterator behind the scenes.
 <(^.x.^ )~
 
-=^.x.^= shelftree (shelf)
+=^.x.^= highshelf (shelf)
 
     =^.x.^= next ()
         knock over home.state
         bring peek home.state
     meow meow
 
-    bring cat_tree(peek shelf, shelf, next)
+    mew iter = cat_tree(peek shelf, shelf, next)
+    bring scratchpost(iter)
 meow meow
+
+
+
