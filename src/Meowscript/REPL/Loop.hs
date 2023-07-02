@@ -7,13 +7,12 @@ module Meowscript.REPL.Loop
 import Meowscript.Core.AST
 import Meowscript.REPL.Core
 import Meowscript.Core.Base
+import Meowscript.REPL.ReadLine
 import Meowscript.Utils.IO
 import Meowscript.REPL.RunLine
 import qualified Data.Text as Text
-import qualified Data.Text.IO as TextIO
-import qualified Data.Map.Strict as Map
 import Control.Monad (when)
-import Control.Monad.Reader (ask, liftIO)
+import Control.Monad.Reader (liftIO)
 import System.IO (hFlush, stdout)
 
 replPrint :: Text.Text -> REPL ()
@@ -24,8 +23,8 @@ repl = runREPL startRepl
 
 mainLoop :: ObjectMap -> REPL ()
 mainLoop env = do
-    liftIO $ printStr "( ^.x.^)> :: " 
-    (ret, env') <- takeLine env =<< liftIO TextIO.getLine
+    --liftIO $ printStr "( ^.x.^)> :: "
+    (ret, env') <- takeLine env . Text.pack =<< liftIO (runGetInput env)
     when ret (mainLoop env')
 
 startRepl :: REPL ()

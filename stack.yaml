@@ -25,3 +25,5 @@ extra-deps:
 - unix-2.8.1.1
 - monadlist-0.0.2
 - network-3.1.2.9
+- haskeline-0.8.2.1
+- process-1.6.17.0

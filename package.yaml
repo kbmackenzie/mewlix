@@ -37,6 +37,7 @@ dependencies:
 - clock
 - hashable
 - transformers
+- haskeline
 
 ghc-options:
 - -O3

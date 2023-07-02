@@ -59,6 +59,7 @@ library
       Meowscript.REPL.Core
       Meowscript.REPL.Loop
       Meowscript.REPL.ParseCommands
+      Meowscript.REPL.ReadLine
       Meowscript.REPL.RunLine
       Meowscript.Utils.Data
       Meowscript.Utils.IO
@@ -79,6 +80,7 @@ library
     , directory
     , filepath
     , hashable
+    , haskeline
     , megaparsec >=9.3.0
     , monadlist
     , mtl
@@ -107,6 +109,7 @@ executable Meowscript
     , directory
     , filepath
     , hashable
+    , haskeline
     , megaparsec >=9.3.0
     , monadlist
     , mtl
@@ -136,6 +139,7 @@ test-suite Meowscript-test
     , directory
     , filepath
     , hashable
+    , haskeline
     , megaparsec >=9.3.0
     , monadlist
     , mtl
