@@ -315,45 +315,6 @@ meow meow
 meow meow
 
 
-
-~( ^.x.^)> -----------
-       Highshelf       
------------ <(^.x.^ )~
-
-~( ^.x.^)> 
-For query-like operations on lists.
-A few examples of its usage:
-
-number_list                                     \
-    .where(( ^.x.^)> (x) => (x > 10))           \
-    .first()
-
-string_list                                     \
-    .where(( ^.x.^)> (x) => (not is_empty(x)))  \
-    .choose(10)
-
-The highshelf tries to make query-like operations
-work within Meowscript's set of limitations!
-
-It isn't lazy. however.
-It also modifies the box itself.
-<(^.x.^ )~
-
-=^.x.^= highshelf(items)
-    bring ~( ^.x.^) BOX!! [
-        items: items,
-        length: ( ^.x.^)> ()   => (home.items?!),
-        add:    ( ^.x.^)> (a)  => (bounce(a push home.items, home)),
-        choose: ( ^.x.^)> (n)  => (take_n(home.items, n)),
-        where:  ( ^.x.^)> (fn) => (bounce(home.items = filter(home.items, fn), home)),
-        first:  ( ^.x.^)> ()   => (peek home.items),
-        last:   ( ^.x.^)> ()   => (peek reverse(home.items)),
-        shelf:  ( ^.x.^)> ()   => (home.items)
-    ]
-meow meow
-
-
-
 ~( ^.x.^)> ---------------------
   Partial function application
 --------------------- <(^.x.^ )~

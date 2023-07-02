@@ -29,7 +29,6 @@ the scenes that sets home.current and home.state to the
 1st and 2nd arguments passed to the function.
 
 
-
 -- Scratchpost (Wrapper) --
 Scratchpost provide an interface for lazily performing queued
 operations over an iterator's values. 
@@ -76,8 +75,6 @@ The scratchpost() function takes one argument: An iterator box,
 which it **always deep-copies.**
 
 ----------------------------------------------- <(^.x.^ )~
-
-
 
 =^.x.^= cat_tree (init, state, iterator)
 
@@ -185,23 +182,29 @@ meow meow
             STEPPING
     ------------ <(^.x.^ )~
 
-    -- Steps forward.
-    -- Returns nothing.
+    ~( ^.x.^)>
+    Steps forward.
+    Returns nothing.
+    <(^.x.^ )~
 
     =^.x.^= do_step ()
         itr.next()
         current = itr.current
     meow meow
 
-    -- Reset current to
-    -- an unaltered value.
+    ~( ^.x.^)>
+    Reset current to
+    an unaltered value.
+    <(^.x.^ )~
 
     =^.x.^= backstep ()
         current = itr.current
     meow meow
 
-    -- Does not step forward.
-    -- Just gets current.
+    ~( ^.x.^)>
+    Does not step forward.
+    Just gets current.
+    <(^.x.^ )~
 
     =^.x.^= scratch ()
         mew? (not current)
@@ -245,7 +248,6 @@ meow meow
         bring reverse(output)
     meow meow
 
-
     ~( ^.x.^)>
     Builds a shelf applying every queued
     function to n items yielded by the
@@ -269,7 +271,6 @@ meow meow
         meow meow
         bring reverse(output)
     meow meow
-
 
     ~( ^.x.^)>
     Skips n items, moving the iterator
@@ -295,7 +296,6 @@ meow meow
         bring home
     meow meow
 
-
     ~( ^.x.^)>
     Gets the first item from the scratchpost.
     It does not backstep.
@@ -304,7 +304,6 @@ meow meow
     =^.x.^= first()
         bring home.pick(1)
     meow meow
-
 
     ~( ^.x.^)>
     Rewind iterator and reset
@@ -316,7 +315,6 @@ meow meow
         backstep()
     meow meow
 
-
     ~( ^.x.^)>
     Rewind iterator *and* clean
     function queue.
@@ -326,7 +324,6 @@ meow meow
         home.rewind()
         queue = []
     meow meow
-
 
     bring ~( ^.x.^) BOX!! [
         scratch: scratch,
@@ -346,11 +343,30 @@ meow meow
   A few default iterators:
 ------------------ <(^.x.^ )~
 
+
+~( ^.x.^)> ------------------
+          Highshelf
+------------------ <(^.x.^ )~
+
 ~( ^.x.^)>
+
 Convert shelf to a scratchpost, allowing for
 lazy computations on list values. THe shelf
 itself generates an iterator behind the scenes.
+
+It's meant to be used for query-like operations
+on shelves. A few examples of its usage:
+
+number_list                                     \
+    .where(( ^.x.^)> (x) => (x > 10))           \
+    .first()
+
+string_list                                     \
+    .where(( ^.x.^)> (x) => (not is_empty(x)))  \
+    .pick(10)
+
 <(^.x.^ )~
+
 
 =^.x.^= highshelf (shelf)
 
