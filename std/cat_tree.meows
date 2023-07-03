@@ -59,7 +59,7 @@ The .to_shelf() method will always traverse the iterator's
 values only once, no matter how many functions are in the
 queue.
 **Note:** The .to_shelf() function **will hang** when given
-an infinite iteratable.
+an infinite iterator.
 
 The .pick(x) method will only ask for x items, no matter how
 many items the iterator is able to produce. The functions in

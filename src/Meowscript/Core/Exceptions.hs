@@ -55,6 +55,8 @@ stackTrace txt action = action `catchError` \(x, y) -> do
     message <- txt <&> ("\n    " `Text.append`)
     throwError (x, y `Text.append` message)
 
+{- Exception Helpers -}
+--------------------------------------------------------
 opException :: Text.Text -> [Prim] -> Evaluator CatException
 opException = showException' MeowInvalidOp . \x -> Text.concat
     [ "Invalid operands for '", x, "'." ]
