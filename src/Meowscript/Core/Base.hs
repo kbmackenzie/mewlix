@@ -312,7 +312,8 @@ meowWrite :: Evaluator Prim
 meowWrite = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
     (MeowString path, MeowString contents) -> do
         local <- asks (localPath . meowPath . fst)
-        liftIO (safeWriteFile (Text.unpack $ local path) contents) >>= \case
+        let path' = (Text.unpack . local) path
+        liftIO (safeWriteFile path' contents) >>= \case
             (Left exception) -> throwError (badFile path  "In 'write_file'" exception)
             (Right _) -> (return . MeowString) contents
     (x, y) -> throwError =<< badArgs "write_file" [x, y]
@@ -321,7 +322,8 @@ meowAppend :: Evaluator Prim
 meowAppend = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
     (MeowString path, MeowString contents) -> do
         local <- asks (localPath . meowPath . fst)
-        liftIO (safeAppendFile (Text.unpack $ local path) contents) >>= \case
+        let path' = (Text.unpack . local) path
+        liftIO (safeAppendFile path' contents) >>= \case
             (Left exception) -> throwError (badFile path  "In 'append_file'" exception)
             (Right _) -> (return . MeowString) contents
     (x, y) -> throwError =<< badArgs "append_file" [x, y]
