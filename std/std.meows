@@ -16,7 +16,15 @@ mew sqr = ( ^.x.^)> (a) => (a ^ 2)
 mew min = ( ^.x.^)> (a, b) => (a < b ? a : b)
 mew max = ( ^.x.^)> (a, b) => (a > b ? a : b)
 
-mew intdiv = ( ^.x.^)> (a, b) => (floor(a / b))
+mew idiv = ( ^.x.^)> (a, b) => (floor(a / b))
+
+~( ^.x.^)> --------------
+    Logic operations
+-------------- <(^.x.^ )~
+
+mew not_ = ( ^.x.^)> (a)    => (not a)
+mew or_  = ( ^.x.^)> (a, b) => (a or b)
+mew and_ = ( ^.x.^)> (a, b) => (a and b)
 
 
 ~( ^.x.^)> ---------------
