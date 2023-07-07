@@ -90,9 +90,11 @@ runMeow path = meowState' path [] emptyLib >>= \state -> runFile MeowParams
     , getMeowFn = runProgram' }
 
 runExpr :: Text.Text -> IO (Either CatException Prim)
-runExpr line = meowState' Text.empty [] emptyLib >>= \state -> runLine (lexemeLn parseExpr') MeowParams
-    { getMeowState = state
-    , getMeowFn = evaluate } line
+runExpr line = meowState' Text.empty [] emptyLib >>= \state -> 
+    let params = MeowParams
+            { getMeowState = state
+            , getMeowFn = evaluate }
+    in runLine (lexemeLn parseExpr') params line
 
 
 {- Stack tracing: -}
