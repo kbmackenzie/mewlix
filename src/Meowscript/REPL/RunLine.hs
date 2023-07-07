@@ -47,8 +47,9 @@ textAndEnv :: EvalCallback Expr (Text.Text, Environment)
 textAndEnv x = (,) <$> (evaluate x >>= ensureValue >>= prettyMeow) <*> asks snd
 
 evaluateExpr :: ObjectMap -> Expr -> IO (Either CatException (Text.Text, Environment))
-evaluateExpr env = runCore state (return env) (replTrace . textAndEnv) 
-    where state = meowState Text.empty [] (return env)
+evaluateExpr env expr = makeState >>= \state -> --todo: make this prettier
+        runCore state (return env) (replTrace . textAndEnv) expr
+    where makeState = meowState' Text.empty [] (return env)
 
 replTrace :: Evaluator a -> Evaluator a
 replTrace = stackTrace (return "In <repl>.")

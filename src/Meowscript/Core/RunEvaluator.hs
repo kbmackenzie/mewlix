@@ -85,14 +85,14 @@ runCore state lib fn input = do
 -------------------------------------------------------------------------
 -- Variants that default to no additional libraries:
 runMeow :: FilePathT -> IO (Either CatException Text.Text)
-runMeow path = runFile MeowParams
-    { getMeowState = meowState path [] (return Map.empty)
+runMeow path = meowState' path [] emptyLib >>= \state -> runFile MeowParams
+    { getMeowState = state
     , getMeowFn = runProgram' }
 
 runExpr :: Text.Text -> IO (Either CatException Prim)
-runExpr = runLine (lexemeLn parseExpr') MeowParams
-    { getMeowState = meowState Text.empty [] (return Map.empty)
-    , getMeowFn = evaluate }
+runExpr line = meowState' Text.empty [] emptyLib >>= \state -> runLine (lexemeLn parseExpr') MeowParams
+    { getMeowState = state
+    , getMeowFn = evaluate } line
 
 
 {- Stack tracing: -}
@@ -122,7 +122,7 @@ runImport path xs = asImport path $ runProgram xs >> asks snd -- Return the envi
 {- Modules -}
 --------------------------------------------------------
 readModule :: FilePathT -> Evaluator MeowFile
-readModule path = asks (meowStd . fst) >>= \x -> if Set.member path x
+readModule path = asks (meowStd . fst) >>= \std -> if Set.member path std
     then (liftIO . readStdFile) path
     else do
         local <- asks (localPath . meowPath . fst)
@@ -130,14 +130,19 @@ readModule path = asks (meowStd . fst) >>= \x -> if Set.member path x
 
 getImport :: FilePathT -> Evaluator (Either CatException Environment)
 {-# INLINABLE getImport #-}
-getImport path = do 
-    x <- readModule path
-    state <- asks fst
-    liftIO (importEnv state path x)
+getImport path = cacheLookup path >>= \case
+    (Just x) -> return (Right x)
+    Nothing  -> do
+        contents <- readModule path
+        state <- asks fst
+        liftIO (importEnv state path contents)
+
+importLog :: FilePathT -> IO () -- todo: take this out as it's just for info
+importLog = putStrLn . ("Importing... " ++) . Text.unpack
 
 importEnv :: MeowState -> FilePathT -> MeowFile -> IO (Either CatException Environment)
 {-# INLINABLE importEnv #-}
-importEnv state path x = runFileCore params x >>= \case
+importEnv state path x = importLog path >> runFileCore params x >>= \case
         (Left exception) -> (return . Left) exception
         (Right output) -> (return . Right) output
     where params = MeowParams
@@ -152,7 +157,8 @@ addImport :: Statement -> Evaluator ()
 {-# INLINABLE addImport #-}
 addImport (StmImport filepath qualified) = getImport filepath >>= \case
     (Left ex) -> throwError ex
-    (Right imp) -> case qualified of
+    (Right imp) -> cacheAdd filepath imp
+        >> case qualified of
         Nothing -> do
             x <- asks snd >>= readMeowRef
             y <- publicKeys <$> readMeowRef imp

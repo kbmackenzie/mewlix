@@ -13,6 +13,7 @@ module Meowscript.Core.AST
 , ReturnValue(..)
 , MeowException(..)
 , MeowState(..)
+, MeowCache
 , PrimRef
 , ObjectMap
 , Key
@@ -39,7 +40,6 @@ import qualified Data.Text as Text
 import Control.Monad.Reader (ReaderT)
 import Control.Monad.Except (ExceptT)
 import Data.IORef (IORef)
-import Data.List (intercalate)
 import Network.Socket (Socket)
 
 {- Evaluator -}
@@ -47,10 +47,13 @@ import Network.Socket (Socket)
 data MeowState = MeowState
     { meowArgs   :: [Text.Text]
     , meowLib    :: IO ObjectMap
-    , meowStd    :: Set.Set FilePathT
+    , meowStd    :: Set.Set FilePathT               -- Standard files.
+    , meowCache  :: Maybe MeowCache
     , meowPath   :: FilePathT
     , meowSocket :: Maybe Socket
     }
+
+type MeowCache = IORef (Map.Map FilePathT Environment)
 
 {- To add:
  - Socket address.
@@ -258,4 +261,3 @@ instance Show MeowException where
 
 exc :: String -> String
 exc = (++ "Exception")
-

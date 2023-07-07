@@ -25,6 +25,7 @@ module Meowscript.Core.Environment
 , primAsBox
 , peekObject 
 , peekAsObject
+, emptyLib
 ) where
 
 import Meowscript.Core.AST
@@ -54,6 +55,9 @@ writeMeowRef :: IORef a -> a -> Evaluator ()
 {-# INLINABLE writeMeowRef #-}
 writeMeowRef = (liftIO .) . writeIORef
 
+emptyLib :: IO ObjectMap
+{-# INLINABLE emptyLib #-}
+emptyLib = return Map.empty
 
 {- Variables -}
 -------------------------------------------------------------
