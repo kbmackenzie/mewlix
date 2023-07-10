@@ -109,3 +109,23 @@ takes "exception.meows"
         clear: ( ^.x.^)> () => (home.items = ~( ^.x.^) BOX!! [])
     ]
 meow meow
+
+
+
+~( ^.x.^)> ---------------
+      Hashset Helpers
+--------------- <(^.x.^ )~
+
+~( ^.x.^)>
+Make a hashset and fill it with items
+from a list.
+<(^.x.^ )~
+
+=^.x.^= to_hashset (xs)
+    mew output = hashset()
+    meowmeow (xs)
+        output.add(peek xs)
+        knock over xs
+    meow meow
+    bring output
+meow meow

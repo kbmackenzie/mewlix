@@ -131,3 +131,31 @@ takes "exception.meows"
         clear: ( ^.x.^)> () => (home.pairs = ~( ^.x.^) BOX!! [])
     ]
 meow meow
+
+
+
+~( ^.x.^)> ---------------
+      Hashmap Helpers
+--------------- <(^.x.^ )~
+
+~( ^.x.^)>
+Makes a hashmap and fills it with pairs from a
+list of tuples.
+
+This function expects a list of tuples created
+by the tuple() fuction from the std.meows yarn
+ball.
+
+The first item in each tuple will be a key, and
+the second item will be the value for the pair.
+<(^.x.^ )~
+
+=^.x.^= to_hashmap (xs)
+    mew output = hashmap()
+    meowmeow (xs)
+        mew pair = peek xs
+        knock over xs
+        output.add(pair.first, pair.second)
+    meow meow
+    bring output
+meow meow
