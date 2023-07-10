@@ -112,13 +112,17 @@ meow meow
 
 
 
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+
 ~( ^.x.^)> ---------------
       Hashset Helpers
 --------------- <(^.x.^ )~
 
 ~( ^.x.^)>
-Make a hashset and fill it with items
-from a list.
+Make a hashset and fill it with items from
+a shelf (which is taken as argument).
 <(^.x.^ )~
 
 =^.x.^= to_hashset (xs)
@@ -126,6 +130,26 @@ from a list.
     meowmeow (xs)
         output.add(peek xs)
         knock over xs
+    meow meow
+    bring output
+meow meow
+
+
+~( ^.x.^)>
+Get all items in the set as a shelf.
+The output is unordered.
+<(^.x.^ )~
+
+=^.x.^= from_hashset (hset)
+    mew items = values(hset.items)
+    mew output = []
+    meowmeow (items)
+        mew xs = peek items
+        meowmeow (xs)
+            (peek xs) push output
+            knock over xs
+        meow meow
+        knock over items
     meow meow
     bring output
 meow meow

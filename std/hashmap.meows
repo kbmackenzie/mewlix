@@ -20,6 +20,7 @@ not muffle any other unrelated exceptions.
 <(^.x.^ )~
 
 takes "exception.meows"
+takes "std.meows" as std
 
 =^.x.^= hashmap()
 
@@ -133,6 +134,9 @@ takes "exception.meows"
 meow meow
 
 
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
 
 ~( ^.x.^)> ---------------
       Hashmap Helpers
@@ -140,9 +144,9 @@ meow meow
 
 ~( ^.x.^)>
 Makes a hashmap and fills it with pairs from a
-list of tuples.
+shelf of tuples.
 
-This function expects a list of tuples created
+This function expects a shelf of tuples created
 by the tuple() fuction from the std.meows yarn
 ball.
 
@@ -156,6 +160,32 @@ the second item will be the value for the pair.
         mew pair = peek xs
         knock over xs
         output.add(pair.first, pair.second)
+    meow meow
+    bring output
+meow meow
+
+
+~( ^.x.^)>
+Get all pairs in a hashmap as a shelf of tuples.
+
+A tuple in Meowscript is just a box created by the
+tuple() function from the std.meows yarn ball.
+
+The output is unordered.
+<(^.x.^ )~
+
+=^.x.^= from_hashmap (hmap)
+    mew pairs = values(hmap.pairs)
+    mew output = []
+    meowmeow (pairs) 
+        mew xs = peek pairs
+        meowmeow (xs)
+            mew x = peek xs
+            knock over xs
+            mew pair = std.tuple(x.key, x.value)
+            pair push output
+        meow meow
+        knock over pairs
     meow meow
     bring output
 meow meow
