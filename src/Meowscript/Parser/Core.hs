@@ -87,11 +87,17 @@ quotes = Mega.between (MChar.char '"') (MChar.char '"')
 brackets :: Parser a -> Parser a
 brackets = Mega.between (MChar.char '[') (MChar.char ']')
 
+comma :: Parser Char
+comma = MChar.char ','
+
+commaLn :: Parser Char
+commaLn = lexemeLn comma
+
 sepByComma :: Parser a -> Parser [a]
-sepByComma x = Mega.sepBy x (MChar.char ',')
+sepByComma = flip Mega.sepBy comma
 
 sepByComma' :: Parser a -> Parser [a]
-sepByComma' x = Mega.sepEndBy x (MChar.char ',')
+sepByComma' = flip Mega.sepEndBy commaLn
 
 keyword :: Text.Text -> Parser ()
 keyword k = lexeme . (<?> "keyword") $ do

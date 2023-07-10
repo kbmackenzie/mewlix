@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-} 
-{-# LANGUAGE LambdaCase #-}
 
 module Meowscript.Parser.Expr
 ( parseExpr
@@ -66,14 +65,13 @@ operators =
 
 parseList :: Parser Expr
 parseList = (lexeme . brackets) $
-    ExpList <$> sepByComma' (lexemeLnBi parseExpr)
+    ExpList <$> sepByComma' (lexemeLnBi parseExpr) <* whitespaceLn
 
 parseBox :: Parser Expr
 parseBox = (Mega.try . lexemeLn . MChar.string) meowBox >> parseBox'
 
 parseBox' :: Parser Expr
 parseBox' = (lexeme . brackets) $
-    whitespaceLn >>
     ExpObject <$> sepByComma' (lexemeLnBi parseKeyValue) <* whitespaceLn
 
 parseKeyValue :: Parser (Key, Expr)
@@ -93,8 +91,7 @@ parseLambda = do
 
 parseCall :: Parser (Expr -> Expr)
 parseCall = (lexeme . parens . Mega.try) $
-    whitespace >>
-    flip ExpCall <$> sepByComma (lexemeLnBi parseExpr)
+    flip ExpCall <$> sepByComma (lexemeLnBi parseExpr) <* whitespaceLn
 
 parseDotOp :: Parser (Expr -> Expr)
 parseDotOp = do
