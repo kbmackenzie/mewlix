@@ -94,7 +94,7 @@ parseLambda = do
 parseCall :: Parser (Expr -> Expr)
 parseCall = (lexeme . parens . Mega.try) $
     whitespace >>
-    flip ExpCall <$> sepByComma (lexemeBi' parseExpr)
+    flip ExpCall <$> sepByComma (lexemeLnBi parseExpr)
 
 parseDotOp :: Parser (Expr -> Expr)
 parseDotOp = do
