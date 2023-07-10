@@ -4,10 +4,11 @@
  ( Parser
  , lexeme
  , whitespace
- , flexeme
+ , lexemeBi
+ , lexemeBi'
  , lexemeLn
+ , lexemeLnBi
  , whitespaceLn
- , lnLexeme
  , symbol
  , trySymbol
  , parens
@@ -55,14 +56,17 @@ whitespace = Lexer.space spaceChars lineComment blockComment
 lexeme :: Parser a -> Parser a
 lexeme = Lexer.lexeme whitespace
 
-flexeme :: Parser a -> Parser a
-flexeme a = whitespace >> lexeme a
+lexemeBi :: Parser a -> Parser a
+lexemeBi a = whitespace >> lexeme a
+
+lexemeBi' :: Parser a -> Parser a
+lexemeBi' a = whitespaceLn >> lexeme a
 
 lexemeLn :: Parser a -> Parser a
 lexemeLn = Lexer.lexeme whitespaceLn
 
-lnLexeme :: Parser a -> Parser a
-lnLexeme a = whitespaceLn >> lexeme a
+lexemeLnBi :: Parser a -> Parser a
+lexemeLnBi a = whitespaceLn >> lexemeLn a
 
 whitespaceLn :: Parser ()
 whitespaceLn = Lexer.space MChar.space1 lineComment blockComment

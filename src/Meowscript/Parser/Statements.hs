@@ -86,7 +86,7 @@ parseIfElse = lexeme $ do
 {- Functions -}
 ----------------------------------------------------------------
 funParams :: Parser [Text.Text]
-funParams = (lexeme . parens) $ whitespace >> sepByComma (flexeme keyText)
+funParams = (lexeme . parens) $ whitespace >> sepByComma (lexemeBi keyText)
 
 parseFunc :: Parser Statement
 parseFunc = lexeme . Lexer.indentBlock whitespaceLn $ do
