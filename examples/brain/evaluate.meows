@@ -1,9 +1,12 @@
 ~( ^.x.^)> ----------------------------------------
 Evaluator for the AST.
 
-The evaluator context is a hashmap meant to emulate
-the huge u8 array Brainf*ck implementations tend to
-use.
+The evaluator context is a box holding the current
+index, user input and a hashmap.
+
+A hashmap is used to emulate the the huge uint8_t
+array Brainf*ck implementations tend to use, as
+Meowscript has no indexable arrays, only shelves.
 
 Each item in the hashmap is an integer and should
 always be in the range [0, UPPER_BOUND).
