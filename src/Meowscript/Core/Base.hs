@@ -34,7 +34,8 @@ baseLibrary = createObject
     , ("float"   , MeowIFunc  ["x"] toDouble  )
     , ("string"  , MeowIFunc  ["x"] toString  )
     , ("nuzzle"  , MeowIFunc  ["x"] toBool    )
-    , ("poke"    , MeowIFunc  ["x"] toChar    )
+    , ("bap"     , MeowIFunc  ["x"] toChar    )
+    , ("bop"     , MeowIFunc  ["x"] fromChar  )
     , ("keys"    , MeowIFunc  ["x"] getKeys   )
     , ("values"  , MeowIFunc  ["x"] getValues )
     , ("copy"    , MeowIFunc  ["x"] meowCopy  )
@@ -137,7 +138,14 @@ toChar = lookUp "x" >>= \case
     (MeowString x) -> return $ if Text.null x
         then MeowLonely
         else (MeowString . Text.singleton . Text.head) x
-    x -> throwError =<< badArgs "poke" [x]
+    x -> throwError =<< badArgs "to_char" [x]
+
+fromChar :: Evaluator Prim
+fromChar = lookUp "x" >>= \case
+    (MeowString x) -> if Text.null x
+        then (return . MeowInt) 0
+        else (return . MeowInt . fromEnum . Text.head) x
+    x -> throwError =<< badArgs "from_char" [x]
 
 
 
