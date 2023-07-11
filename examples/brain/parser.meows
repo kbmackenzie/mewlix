@@ -1,0 +1,79 @@
+~( ^.x.^)> ----------------------------------------
+Parses Brainf*ck input into an AST.
+
+It can parse nested loops and all basic Brainf*ck
+tokens. Any other character is always ignored.
+---------------------------------------- <(^.x.^ )~
+
+takes "std.meows"
+takes "hashmap.meows"
+
+mew TokenType = enum ([
+    "MoveLeft"  ,   -- Increments pointer.
+    "MoveRight" ,   -- Decrements pointer.
+    "Increment" ,   -- Increments value pointed to.
+    "Decrement" ,   -- Decrements value pointed to.
+    "Loop"      ,   -- Loop block.
+    "Puts"      ,   -- Put value pointed to output.
+    "Gets"          -- Read the next value from input.
+])
+
+mew AST = ~( ^.x.^) BOX!! [ -- AST constructors:
+    -- Simple instruction:
+    Instruction: ( ^.x.^)> (type, count) => ~( ^.x.^) BOX!! [        
+        type: type,
+        count: count
+    ],
+    -- Loop block:
+    Loop:  ( ^.x.^)> (block) => ~( ^.x.^) BOX!! [
+        type: TokenType.Loop,
+        block: block
+    ]
+]
+
+mew TokenMap = to_hashmap ([
+    tuple(">",  TokenType.MoveLeft  ),
+    tuple("<",  TokenType.MoveRight ),
+    tuple("+",  TokenType.Increment ),
+    tuple("-",  TokenType.Decrement ),
+    tuple(".",  TokenType.Puts      ),
+    tuple(",",  TokenType.Gets      )
+])
+
+=^.x.^= _parser_output(tokens, str)
+    bring ~( ^.x.^) BOX!! [
+        tokens: tokens,
+        rest_of_input: str
+    ]
+meow meow
+
+=^.x.^= parse (str)
+    mew output = []
+    mew last_char = lonely
+
+    meowmeow (str)
+        mew this_char = peek str
+        knock over str
+
+        mew? (this_char == "[")
+            mew block = parse(str)
+            str = block.rest_of_input
+            AST.Loop(block.tokens) push output
+
+        mew? (this_char == "]")
+            bring _parser_output(reverse(output), str)
+
+        mew? (this_char == last_char)
+            paw at (peek output).count
+
+        hiss!        
+            mew token_type = TokenMap.get(this_char)
+            mew? (token_type)
+                AST.Instruction(token_type, 1) push output
+            meow meow
+        meow meow
+        
+        last_char = this_char
+    meow meow
+    bring _parser_output(reverse(output), str)
+meow meow

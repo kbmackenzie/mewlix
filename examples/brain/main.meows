@@ -1,0 +1,17 @@
+~( ^.x.^)> ----------------------------------------
+Brainf*ck interpreter.
+It supports all basic Brainf*ck tokens.
+---------------------------------------- <(^.x.^ )~
+
+takes "parser.meows"
+takes "evaluate.meows"
+
+=^.x.^= brain (brainf, arg)
+    mew parsed = parse(brainf)
+    mew output = run_evaluator(arg, parsed.tokens)
+    meowmeow (output)
+        purr(peek output)
+        knock over output
+    meow meow
+    purr("\n")
+meow meow
