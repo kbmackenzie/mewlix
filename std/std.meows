@@ -54,6 +54,18 @@ mew mirror = ( ^.x.^)> (a) => (a)
 mew bounce = ( ^.x.^)> (a, b) => (b)
 
 
+~( ^.x.^)>
+Inspired by Haksell's Alternative typeclass and the <|>
+function.
+(In special the Maybe instance of that typeclass.)
+
+If the first argument is lonely, this function returns
+the second argument.
+<(^.x.^ )~
+
+mew either = ( ^.x.^)> (a, b) => (a == lonely ? b : a)
+
+
 
 ~( ^.x.^)> -----------
     Random numbers
