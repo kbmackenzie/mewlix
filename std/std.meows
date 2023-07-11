@@ -102,6 +102,44 @@ meow meow
 meow meow
 
 
+
+~( ^.x.^)> --------------
+      Enumerations
+-------------- <(^.x.^ )~
+
+~( ^.x.^)> 
+Makes an enum-like box with keys
+from a list passed as argument.
+
+The output box contains each item in
+the list as a key and a distinct
+integer number as each key's value.
+
+Enumeration starts at 0.
+
+The enum keys can be used as regular
+keys past creation:
+
+----
+mew MyEnum = enum(["A", "B"])
+mew a = MyEnum.A    -- a is 0
+mew b = MyEnum.B    -- b is 1
+----
+<(^.x.^ )~
+
+=^.x.^= enum (xs)
+    mew output = ~( ^.x.^) BOX!! []
+    mew i = 0
+    meowmeow (xs)
+        output[string(peek xs)] = i
+        paw at i
+        knock over xs
+    meow meow
+    bring output
+meow meow
+
+
+
 ~( ^.x.^)> --------------
   Stack/shelf functions
 -------------- <(^.x.^ )~

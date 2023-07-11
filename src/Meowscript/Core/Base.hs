@@ -34,6 +34,7 @@ baseLibrary = createObject
     , ("float"   , MeowIFunc  ["x"] toDouble  )
     , ("string"  , MeowIFunc  ["x"] toString  )
     , ("nuzzle"  , MeowIFunc  ["x"] toBool    )
+    , ("poke"    , MeowIFunc  ["x"] toChar    )
     , ("keys"    , MeowIFunc  ["x"] getKeys   )
     , ("values"  , MeowIFunc  ["x"] getValues )
     , ("copy"    , MeowIFunc  ["x"] meowCopy  )
@@ -129,6 +130,15 @@ readDouble txt = case Read.signed Read.double txt of
 
 toBool :: Evaluator Prim
 toBool = lookUp "x" <&> (MeowBool . meowBool)
+
+toChar :: Evaluator Prim
+toChar = lookUp "x" >>= \case
+    (MeowInt x) -> (return . MeowString . Text.singleton . toEnum) x
+    (MeowString x) -> return $ if Text.null x
+        then MeowLonely
+        else (MeowString . Text.singleton . Text.head) x
+    x -> throwError =<< badArgs "poke" [x]
+
 
 
 {- Math -}
