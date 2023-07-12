@@ -82,6 +82,7 @@ library
     , hashable
     , haskeline
     , megaparsec >=9.3.0
+    , microlens-platform
     , monadlist
     , mtl
     , network
@@ -111,6 +112,7 @@ executable Meowscript
     , hashable
     , haskeline
     , megaparsec >=9.3.0
+    , microlens-platform
     , monadlist
     , mtl
     , network
@@ -141,6 +143,7 @@ test-suite Meowscript-test
     , hashable
     , haskeline
     , megaparsec >=9.3.0
+    , microlens-platform
     , monadlist
     , mtl
     , network

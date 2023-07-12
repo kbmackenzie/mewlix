@@ -38,6 +38,7 @@ dependencies:
 - hashable
 - transformers
 - haskeline
+- microlens-platform
 
 ghc-options:
 - -O3

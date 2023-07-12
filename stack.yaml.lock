@@ -179,4 +179,74 @@ packages:
       size: 1545
   original:
     hackage: process-1.6.17.0
+- completed:
+    hackage: microlens-platform-0.4.3.3@sha256:8ef4c8d5b9e0948489aa0b0b6a90c3d0c52e768e4e1f0e3f87697f6abd5d88fd,2930
+    pantry-tree:
+      sha256: 88798635590d2dc4920d956f3b8c43f942851bd88569f27150a9765b3fc40a58
+      size: 358
+  original:
+    hackage: microlens-platform-0.4.3.3
+- completed:
+    hackage: microlens-0.4.13.1@sha256:0cd8a0da5fe1b5a5c327bb5296d30940dc9f92c169372939bfcecd3faee953d7,4642
+    pantry-tree:
+      sha256: 8cf825336264bb5b0434b2b57fc808b84e503c4ec4106d5e05d975f22b9ca5cd
+      size: 461
+  original:
+    hackage: microlens-0.4.13.1
+- completed:
+    hackage: microlens-ghc-0.4.14.1@sha256:d0880578fc41358eaa38e8222ebd578ccf3c079dc6d4e55bae0b105ac89b53d4,2662
+    pantry-tree:
+      sha256: 6a83fdeeaf536b4b005570055496cf88fa652272dbfe39598dad88412685accc
+      size: 343
+  original:
+    hackage: microlens-ghc-0.4.14.1
+- completed:
+    hackage: microlens-mtl-0.2.0.3@sha256:0ace1ba95677117219681fb9a8b08b3bf049ab5973eed14453b260aaf1feb582,1965
+    pantry-tree:
+      sha256: 6a67528c409030bda8dd7b775288fc4c86bbd235bc82b77216c0ff7fb715b58a
+      size: 344
+  original:
+    hackage: microlens-mtl-0.2.0.3
+- completed:
+    hackage: microlens-th-0.4.3.13@sha256:45ccccc91a290f792e952afd58062abddb519b81dd28e19c822d0e0042746044,2486
+    pantry-tree:
+      sha256: 38e5a9679a071c4fc8f409c8953c3b5f1264b135609b00bb8fc5c73041838a8c
+      size: 558
+  original:
+    hackage: microlens-th-0.4.3.13
+- completed:
+    hackage: unordered-containers-0.2.19.1@sha256:9ad8972c2e913c37b1d4f0e1261517fd7a1b8c8a58077e057be69837e3dbaa00,3822
+    pantry-tree:
+      sha256: ab7c0dbe2eea20198c7f471825a4aa87e47ae8976be75d6de4ff7cf2f1258f46
+      size: 1517
+  original:
+    hackage: unordered-containers-0.2.19.1
+- completed:
+    hackage: vector-0.13.0.0@sha256:fa5cac81a17a5af388716792e8b99c24b3b66770086756d0d8b23f8272a0244c,9112
+    pantry-tree:
+      sha256: d2461d28022c8c0a91da08b579b1bff478f617102d2f5ef596cc5b28d14b8b6a
+      size: 4092
+  original:
+    hackage: vector-0.13.0.0
+- completed:
+    hackage: transformers-compat-0.7.2@sha256:044fb9955f63ee138fcebedfdcbe54afe741f2d5892a2d0bdf3a8052bd342643,5601
+    pantry-tree:
+      sha256: f49610c6a2faf82111e5d4222576f4afbcfa904bf56665232c5aa077dfc7578f
+      size: 1724
+  original:
+    hackage: transformers-compat-0.7.2
+- completed:
+    hackage: th-abstraction-0.5.0.0@sha256:4351cadf6bf0ca80c90225bae0b12f4cfdd550f30c333b050186af5a8bc19457,2236
+    pantry-tree:
+      sha256: f1e547789ee75cf1d880c2dd6498254e9a37de052842b573b43c4b4a1ebcfd6d
+      size: 670
+  original:
+    hackage: th-abstraction-0.5.0.0
+- completed:
+    hackage: vector-stream-0.1.0.0@sha256:f5d6d5291cd1b5f2f063403593f1f5c8127d692c888eedeb3e1eb40497a88dca,1404
+    pantry-tree:
+      sha256: 7abf33cdd9ebda41c864f83e860612eee6bd2dfae0484eb8922900ad5a79160d
+      size: 325
+  original:
+    hackage: vector-stream-0.1.0.0
 snapshots: []
