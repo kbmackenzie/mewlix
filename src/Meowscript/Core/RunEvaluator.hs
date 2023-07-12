@@ -52,7 +52,7 @@ runEvaluator meow env eval = env >>= newIORef >>= (runExceptT . runReaderT eval 
 
 runFile :: MeowParams [Statement] b -> IO (Either CatException b)
 runFile params = safeReadFile path >>= runFileCore params
-    where path = (Text.unpack . meowPath . getMeowState) params
+    where path = (Text.unpack . _meowPath . getMeowState) params
 
 -- Evaluate the contents from a .meows file.
 runFileCore :: MeowParams [Statement] b -> MeowFile -> IO (Either CatException b)
@@ -62,9 +62,9 @@ runFileCore params input = case input of
         (Left exception) -> (return . Left) $ meowSyntaxExc exception
         (Right program) -> runCore state lib (asMain . fn) program
     where state = getMeowState params
-          lib = meowLib state
+          lib = _meowLib state
           fn = getMeowFn params
-          path = (Text.unpack . meowPath . getMeowState) params
+          path = (Text.unpack . _meowPath . getMeowState) params
 
 -- Evaluate a single line. It's gonna be used in the REPL!
 runLine :: Parser a -> MeowParams a b -> Text.Text -> IO (Either CatException b)
@@ -72,7 +72,7 @@ runLine parser params str = case parseSpecial parser str of
     (Left exception) -> (return . Left) $ meowSyntaxExc exception
     (Right output) -> runCore state lib fn output
     where state = getMeowState params
-          lib = meowLib state
+          lib = _meowLib state
           fn = getMeowFn params
 
 runCore :: MeowState -> IO ObjectMap -> EvalCallback a b -> a -> IO (Either CatException b)
@@ -124,10 +124,10 @@ runImport path xs = asImport path $ runProgram xs >> asks snd -- Return the envi
 {- Modules -}
 --------------------------------------------------------
 readModule :: FilePathT -> Evaluator MeowFile
-readModule path = asks (meowStd . fst) >>= \std -> if Set.member path std
+readModule path = asks (_meowStd . fst) >>= \std -> if Set.member path std
     then (liftIO . readStdFile) path
     else do
-        local <- asks (localPath . meowPath . fst)
+        local <- asks (localPath . _meowPath . fst)
         (liftIO . safeReadFile . Text.unpack) (local path)
 
 getImport :: FilePathT -> Evaluator (Either CatException Environment)
@@ -148,7 +148,7 @@ importEnv state path x = importLog path >> runFileCore params x >>= \case
         (Left exception) -> (return . Left) exception
         (Right output) -> (return . Right) output
     where params = MeowParams
-                { getMeowState = meowNewPath state path
+                { getMeowState = meowSetPath path state
                 , getMeowFn = runImport path }
 
 publicKeys :: ObjectMap -> ObjectMap
@@ -164,10 +164,10 @@ addImport (StmImport filepath qualified) = getImport filepath >>= \case
         Nothing -> do
             x <- asks snd >>= readMeowRef
             y <- publicKeys <$> readMeowRef imp
-            lib <- asks (meowLib . fst) >>= liftIO
+            lib <- asks (_meowLib . fst) >>= liftIO
             asks snd >>= flip writeMeowRef (x <> y <> lib)
         (Just name) -> do
             x <- publicKeys <$> readMeowRef imp 
-            lib <- asks (meowLib . fst) >>= liftIO
+            lib <- asks (_meowLib . fst) >>= liftIO
             insertRef name =<< (newMeowRef . MeowObject) (x <> lib)
 addImport x = throwError $ notImport (showT x)

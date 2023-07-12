@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Meowscript.Core.AST
 ( Prim(..)
@@ -12,8 +13,6 @@ module Meowscript.Core.AST
 , Statement(..)
 , ReturnValue(..)
 , MeowException(..)
-, MeowState(..)
-, MeowCache
 , PrimRef
 , ObjectMap
 , Key
@@ -31,6 +30,14 @@ module Meowscript.Core.AST
 , meowBool
 , shouldBreak
 , returnAsPrim
+, MeowState(..)
+, MeowCache
+, meowArgs
+, meowLib
+, meowStd
+, meowCache
+, meowPath
+, meowSocket
 ) where
 
 import Meowscript.Utils.Types
@@ -41,25 +48,10 @@ import Control.Monad.Reader (ReaderT)
 import Control.Monad.Except (ExceptT)
 import Data.IORef (IORef)
 import Network.Socket (Socket)
+import Lens.Micro.Platform
 
 {- Evaluator -}
 --------------------------------------------
-data MeowState = MeowState
-    { meowArgs   :: [Text.Text]
-    , meowLib    :: IO ObjectMap
-    , meowStd    :: Set.Set FilePathT               -- Standard files.
-    , meowCache  :: Maybe MeowCache
-    , meowPath   :: FilePathT
-    , meowSocket :: Maybe Socket
-    }
-
-type MeowCache = IORef (Map.Map FilePathT Environment)
-
-{- To add:
- - Socket address.
- - Compile flags (?).
- - 'Define'-style flags. (?) -}
-
 type Key = Text.Text
 type Params = [Key]
 type Overwrite = Bool
@@ -261,3 +253,24 @@ instance Show MeowException where
 
 exc :: String -> String
 exc = (++ "Exception")
+
+
+{- MeowState -}
+--------------------------------------------------------
+type MeowCache = IORef (Map.Map FilePathT Environment)
+
+data MeowState = MeowState
+    { _meowArgs   :: [Text.Text]
+    , _meowLib    :: IO ObjectMap
+    , _meowStd    :: Set.Set FilePathT -- Standard files.
+    , _meowCache  :: Maybe MeowCache
+    , _meowPath   :: FilePathT
+    , _meowSocket :: Maybe Socket
+    }
+
+$(makeLenses ''MeowState)
+
+{- To add:
+ - Socket address.
+ - Compile flags (?).
+ - 'Define'-style flags. (?) -}

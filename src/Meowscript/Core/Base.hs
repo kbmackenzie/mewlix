@@ -320,7 +320,7 @@ throwEx = lookUp "x" >>= \case
 meowRead :: Evaluator Prim
 meowRead = lookUp "path" >>= \case
     (MeowString path) -> do 
-        local <- asks (localPath . meowPath . fst)
+        local <- asks (localPath . _meowPath . fst)
         (liftIO . safeReadFile . Text.unpack . local) path >>= \case
             (Left exception) -> throwError (badFile path "In 'read_file'" exception)
             (Right contents) -> (return . MeowString) contents
@@ -329,7 +329,7 @@ meowRead = lookUp "path" >>= \case
 meowWrite :: Evaluator Prim
 meowWrite = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
     (MeowString path, MeowString contents) -> do
-        local <- asks (localPath . meowPath . fst)
+        local <- asks (localPath . _meowPath . fst)
         let path' = (Text.unpack . local) path
         liftIO (safeWriteFile path' contents) >>= \case
             (Left exception) -> throwError (badFile path  "In 'write_file'" exception)
@@ -339,7 +339,7 @@ meowWrite = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
 meowAppend :: Evaluator Prim
 meowAppend = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
     (MeowString path, MeowString contents) -> do
-        local <- asks (localPath . meowPath . fst)
+        local <- asks (localPath . _meowPath . fst)
         let path' = (Text.unpack . local) path
         liftIO (safeAppendFile path' contents) >>= \case
             (Left exception) -> throwError (badFile path  "In 'append_file'" exception)

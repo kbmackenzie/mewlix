@@ -3,7 +3,7 @@
 module Meowscript.Core.MeowState
 ( meowState
 , meowState'
-, meowNewPath
+, meowSetPath
 , cacheAdd
 , cacheLookup
 , meowCacheNew
@@ -16,29 +16,30 @@ import qualified Data.Text as Text
 import qualified Data.Map.Strict as Map
 import Data.IORef (newIORef, readIORef, modifyIORef)
 import Control.Monad.Reader (asks, liftIO)
+import Lens.Micro.Platform
 
 meowState :: FilePathT -> [Text.Text] -> IO ObjectMap -> Maybe MeowCache -> IO MeowState
 meowState path args lib cache = return MeowState
-    { meowArgs   = args
-    , meowLib    = lib
-    , meowStd    = stdFiles
-    , meowCache  = cache
-    , meowPath   = path
-    , meowSocket = Nothing }
+    { _meowArgs   = args
+    , _meowLib    = lib
+    , _meowStd    = stdFiles
+    , _meowCache  = cache
+    , _meowPath   = path
+    , _meowSocket = Nothing }
 
 meowState' :: FilePathT -> [Text.Text] -> IO ObjectMap -> IO MeowState
 meowState' path args lib = meowCacheNew >>= meowState path args lib . Just
 
-meowNewPath :: MeowState -> FilePathT -> MeowState
-meowNewPath (MeowState args lib std cache _ socket) = flip (MeowState args lib std cache) socket
+meowSetPath :: FilePathT -> MeowState -> MeowState
+meowSetPath = set meowPath
 
 cacheAdd :: FilePathT -> Environment -> Evaluator ()
-cacheAdd path env = asks (meowCache . fst) >>= \case
+cacheAdd path env = asks (_meowCache . fst) >>= \case
     Nothing -> return ()
     (Just cache) -> liftIO $ modifyIORef cache (Map.insert path env)
 
 cacheLookup :: FilePathT -> Evaluator (Maybe Environment)
-cacheLookup path = asks (meowCache . fst) >>= \case
+cacheLookup path = asks (_meowCache . fst) >>= \case
     Nothing -> return Nothing
     (Just cache) -> Map.lookup path <$> (liftIO . readIORef) cache
 
