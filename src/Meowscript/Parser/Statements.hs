@@ -90,7 +90,7 @@ funParams = (lexeme . parens) $ whitespace >> sepByComma (lexemeBi keyText)
 
 parseFunc :: Parser Statement
 parseFunc = lexeme . Lexer.indentBlock whitespaceLn $ do
-    (void . keyword) meowCatface
+    (void . specialSymbol) meowCatface
     name <- lexeme funName
     args <- funParams
     return (Lexer.IndentMany Nothing ((<$ parseEnd) . StmFuncDef name args) statements)

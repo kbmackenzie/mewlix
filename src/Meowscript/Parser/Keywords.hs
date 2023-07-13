@@ -3,6 +3,7 @@
 module Meowscript.Parser.Keywords
 ( meowCatface
 , meowLocal
+, meowComment
 , meowEnd
 , meowReturn
 , meowContinue
@@ -34,6 +35,9 @@ meowCatface = "=^.x.^="
 
 meowLocal :: Text
 meowLocal = "mew"
+
+meowComment :: (Text, Text)
+meowComment = ("~( ^.x.^)>", "<(^.x.^ )~")
 
 meowEnd :: Text
 meowEnd = "meow meow"

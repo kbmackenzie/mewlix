@@ -68,7 +68,7 @@ parseList = (lexeme . brackets) $
     ExpList <$> sepByComma' (lexemeLnBi parseExpr) <* whitespaceLn
 
 parseBox :: Parser Expr
-parseBox = (Mega.try . lexemeLn . MChar.string) meowBox >> parseBox'
+parseBox = (Mega.try . lexemeLn . MChar.string') meowBox >> parseBox'
 
 parseBox' :: Parser Expr
 parseBox' = (lexeme . brackets) $
@@ -83,7 +83,7 @@ parseKeyValue = do
 
 parseLambda :: Parser (Expr -> Expr)
 parseLambda = do
-    (void . Mega.try . lexeme . MChar.string) meowLambda
+    (void . Mega.try . lexeme . MChar.string') meowLambda
     let takeArgs = (sepByComma . lexemeBi) keyText
     args <- (lexeme . parens) (whitespace >> takeArgs)
     (void . lexeme . MChar.string) "=>"

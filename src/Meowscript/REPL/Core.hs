@@ -130,4 +130,4 @@ askFuncEnv line env = case getArgs line of
         return (True, env)
 
 clearEnv :: Command
-clearEnv _ env = (True,) <$> baseLibrary
+clearEnv _ _ = (True,) <$> baseLibrary

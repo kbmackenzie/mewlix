@@ -18,6 +18,7 @@
  , sepByComma'
  , keyword
  , tryKeyword
+ , specialSymbol
  , parseStr
  , validKeyChar
  , parseKey
@@ -39,14 +40,24 @@ import qualified Text.Megaparsec.Char.Lexer as Lexer
 import Data.Void (Void)
 import Control.Monad (void)
 import Data.Char (isAlphaNum)
+import Data.Bifunctor (bimap)
 
 type Parser = Mega.Parsec Void Text.Text
 
 lineComment :: Parser ()
 lineComment = Lexer.skipLineComment "--"
 
+{- I'm commenting this out because I have to write my own block comment parser in order to
+ - make it not case-sensitive.
+ - (The default implementation uses 'string' and not the case-insensitive 'string'' variant.
+ -
 blockComment :: Parser ()
 blockComment = Lexer.skipBlockComment "~( ^.x.^)>" "<(^.x.^ )~" 
+-}
+
+blockComment :: Parser ()
+blockComment = start >> void (Mega.manyTill Mega.anySingle end)
+    where (start, end) = bimap MChar.string' MChar.string' meowComment
 
 spaceChars :: Parser ()
 spaceChars = (void . Mega.some . Mega.choice) (MChar.string <$> [ " ", "\t", "\\\n" ])
@@ -106,6 +117,9 @@ keyword k = lexeme . (<?> "keyword") $ do
 
 tryKeyword :: Text.Text -> Parser ()
 tryKeyword = Mega.try . keyword
+
+specialSymbol :: Text.Text -> Parser ()
+specialSymbol = lexeme . void . MChar.string'
 
 validKeyChar :: Char -> Bool
 validKeyChar c = isAlphaNum c || c `elem` ['\'', '_']

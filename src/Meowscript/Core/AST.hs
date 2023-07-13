@@ -262,14 +262,14 @@ exc = (++ "Exception")
 type MeowCache = IORef (Map.Map FilePathT Environment)
 
 data MeowState = MeowState
-    { _meowArgs     :: [Text.Text]
+    { _meowArgs     :: [Text.Text]                  -- Command-line arguments.
     , _meowLib      :: IO ObjectMap
-    , _meowStd      :: Set.Set FilePathT -- Standard files.
-    , _meowCache    :: Maybe MeowCache
-    , _meowPath     :: FilePathT
+    , _meowStd      :: Set.Set FilePathT            -- Standard files.
+    , _meowCache    :: Maybe MeowCache              -- File import cache.
+    , _meowPath     :: FilePathT                    -- The path to the current file.
     , _meowSocket   :: Maybe Socket
-    , _meowInclude  :: [FilePathT]
-    , _meowDefines  :: Map.Map Text.Text Text.Text
+    , _meowInclude  :: [FilePathT]                  -- 'Include' paths.
+    , _meowDefines  :: Map.Map Text.Text Text.Text  -- Meta constant definitions.
     }
 
 $(makeLenses ''MeowState)
