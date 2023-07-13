@@ -16,16 +16,18 @@ import qualified Data.Text as Text
 import qualified Data.Map.Strict as Map
 import Data.IORef (newIORef, readIORef, modifyIORef)
 import Control.Monad.Reader (asks, liftIO)
-import Lens.Micro.Platform
+import Lens.Micro.Platform (set)
 
 meowState :: FilePathT -> [Text.Text] -> IO ObjectMap -> Maybe MeowCache -> IO MeowState
 meowState path args lib cache = return MeowState
-    { _meowArgs   = args
-    , _meowLib    = lib
-    , _meowStd    = stdFiles
-    , _meowCache  = cache
-    , _meowPath   = path
-    , _meowSocket = Nothing }
+    { _meowArgs     = args
+    , _meowLib      = lib
+    , _meowStd      = stdFiles
+    , _meowCache    = cache
+    , _meowPath     = path
+    , _meowSocket   = Nothing
+    , _meowInclude  = []
+    , _meowDefines  = Map.empty }
 
 meowState' :: FilePathT -> [Text.Text] -> IO ObjectMap -> IO MeowState
 meowState' path args lib = meowCacheNew >>= meowState path args lib . Just

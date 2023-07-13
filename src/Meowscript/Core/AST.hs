@@ -38,6 +38,8 @@ module Meowscript.Core.AST
 , meowCache
 , meowPath
 , meowSocket
+, meowInclude
+, meowDefines
 ) where
 
 import Meowscript.Utils.Types
@@ -48,7 +50,7 @@ import Control.Monad.Reader (ReaderT)
 import Control.Monad.Except (ExceptT)
 import Data.IORef (IORef)
 import Network.Socket (Socket)
-import Lens.Micro.Platform
+import Lens.Micro.Platform (makeLenses)
 
 {- Evaluator -}
 --------------------------------------------
@@ -260,12 +262,14 @@ exc = (++ "Exception")
 type MeowCache = IORef (Map.Map FilePathT Environment)
 
 data MeowState = MeowState
-    { _meowArgs   :: [Text.Text]
-    , _meowLib    :: IO ObjectMap
-    , _meowStd    :: Set.Set FilePathT -- Standard files.
-    , _meowCache  :: Maybe MeowCache
-    , _meowPath   :: FilePathT
-    , _meowSocket :: Maybe Socket
+    { _meowArgs     :: [Text.Text]
+    , _meowLib      :: IO ObjectMap
+    , _meowStd      :: Set.Set FilePathT -- Standard files.
+    , _meowCache    :: Maybe MeowCache
+    , _meowPath     :: FilePathT
+    , _meowSocket   :: Maybe Socket
+    , _meowInclude  :: [FilePathT]
+    , _meowDefines  :: Map.Map Text.Text Text.Text
     }
 
 $(makeLenses ''MeowState)

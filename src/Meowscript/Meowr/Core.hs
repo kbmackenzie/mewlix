@@ -1,33 +1,20 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
-
 module Meowscript.Meowr.Core
-( MeowrState(..)
+( MeowrArg(..)
 , MeowrAction
-, MeowrArg(..)
 , ActionMap
-, meowrArgs
-, meowrSocket
-, meowrDefines
-, pushArgs
+, addArg
 , addDefine
+, isFlag
+, isOption
 ) where
 
 import Meowscript.Core.AST
 import Meowscript.Utils.IO
 import qualified Data.Text as Text
 import qualified Data.Map.Strict as Map
-import Network.Socket (Socket)
-import Lens.Micro.Platform
+import Lens.Micro.Platform (over)
 
-data MeowrState = MeowrState --todo
-    { _meowrArgs   :: [Text.Text]
-    , _meowrSocket :: Maybe Socket
-    , _meowrDefines :: Map.Map Text.Text Text.Text }
-
-$(makeLenses ''MeowrState)
-
-type MeowrAction = MeowrArg -> MeowrState -> MeowrState
+type MeowrAction = MeowrArg -> MeowState -> MeowState
 type ActionMap = Map.Map Text.Text MeowrAction
 
 data MeowrArg =
@@ -44,8 +31,8 @@ isOption :: MeowrArg -> Bool
 isOption (MeowrOption _ _) = True
 isOption _ = False
 
-pushArgs :: Text.Text -> MeowrState -> MeowrState
-pushArgs = over meowrArgs . (:)
+addArg :: Text.Text -> MeowState -> MeowState
+addArg = over meowArgs . (:)
 
-addDefine :: Text.Text -> Text.Text -> MeowrState -> MeowrState
-addDefine = (over meowrDefines .) . Map.insert
+addDefine :: Text.Text -> Text.Text -> MeowState -> MeowState
+addDefine = (over meowDefines .) . Map.insert
