@@ -13,6 +13,7 @@ module Meowscript.Utils.IO
 , printErrLn
 , printExc
 , localPath
+, joinPath
 ) where
 
 import Meowscript.Utils.Types
@@ -112,3 +113,6 @@ localPath :: FilePathT -> FilePathT -> FilePathT
 {-# INLINABLE localPath #-}
 localPath path = Text.pack . (dir </>) . Text.unpack
     where dir = (dropFileName . Text.unpack) path
+
+joinPath :: FilePathT -> FilePathT -> FilePathT
+joinPath dir = Text.pack . (Text.unpack dir </>) . Text.unpack

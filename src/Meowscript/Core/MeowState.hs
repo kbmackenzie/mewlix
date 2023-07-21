@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Meowscript.Core.MeowState
@@ -7,6 +8,8 @@ module Meowscript.Core.MeowState
 , cacheAdd
 , cacheLookup
 , meowCacheNew
+, meowHasFlag
+, implicitMain
 ) where
 
 import Meowscript.Core.AST
@@ -18,6 +21,11 @@ import qualified Data.Set as Set
 import Data.IORef (newIORef, readIORef, modifyIORef)
 import Control.Monad.Reader (asks, liftIO)
 import Lens.Micro.Platform (set)
+
+{- Notes:
+ - Flags are always lower-case. They're case-insenstiive. 
+ - Options keys are always lower-case; their values aren't.
+ -}
 
 meowState :: FilePathT -> [Text.Text] -> IO ObjectMap -> Maybe MeowCache -> IO MeowState
 meowState path args lib cache = return MeowState
@@ -34,6 +42,8 @@ meowState path args lib cache = return MeowState
 meowState' :: FilePathT -> [Text.Text] -> IO ObjectMap -> IO MeowState
 meowState' path args lib = meowCacheNew >>= meowState path args lib . Just
 
+{- Getters and Setters -}
+---------------------------------------------------------------------
 meowSetPath :: FilePathT -> MeowState -> MeowState
 meowSetPath = set meowPath
 
@@ -49,3 +59,12 @@ cacheLookup path = asks (_meowCache . fst) >>= \case
 
 meowCacheNew :: IO MeowCache
 meowCacheNew = newIORef Map.empty
+
+meowHasFlag :: [Text.Text] -> MeowState -> Bool
+meowHasFlag keys state = let flags = _meowFlags state
+    in any (`Set.member` flags) keys
+
+{- Flag Types -}
+---------------------------------------------------------------------
+implicitMain :: [Text.Text]
+implicitMain = ["i", "implicit", "implicitmain"]

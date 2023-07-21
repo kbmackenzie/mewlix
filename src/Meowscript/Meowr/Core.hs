@@ -42,7 +42,7 @@ addArg :: Text.Text -> MeowState -> MeowState
 addArg = over meowArgs . (:)
 
 addFlag :: Text.Text -> MeowState -> MeowState
-addFlag = over meowFlags . Set.insert
+addFlag = over meowFlags . Set.insert . Text.toLower
 
 addDefine :: Text.Text -> Text.Text -> MeowState -> MeowState
 addDefine = (over meowDefines .) . Map.insert

@@ -44,8 +44,8 @@ quotes = Mega.between (MChar.char '"') (MChar.char '"')
 lexChar :: Char -> Parser Char
 lexChar = lexeme . MChar.char
 
-lexChar' :: Char -> Parser (Maybe Char)
-lexChar' = Mega.optional . lexChar
+--lexChar' :: Char -> Parser (Maybe Char)
+--lexChar' = Mega.optional . lexChar
 
 parseString :: Parser Text.Text
 parseString = Mega.choice
@@ -66,4 +66,4 @@ parseFlag :: Parser MeowrArg
 parseFlag = MeowrFlag <$> (lexChar '-' >> parseWord)
 
 parseOption :: Parser MeowrArg
-parseOption = MeowrOption <$> (lexChar '-' >> parseWord) <*> (lexChar' '=' >> parseString)
+parseOption = MeowrOption <$> (lexChar '-' >> parseWord) <*> (lexChar '=' >> parseString)
