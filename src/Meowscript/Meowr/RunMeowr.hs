@@ -28,7 +28,7 @@ applyArgs xs state = foldl (flip meowrAction) state xs
 
 meowrAction :: MeowrArg -> MeowState -> MeowState
 meowrAction (MeowrFlag flag) = addFlag flag
-meowrAction (MeowrOption key value) = addDefine key value
+meowrAction (MeowrOption key value) = addOption key value
 meowrAction (MeowrString arg) = addArg arg
 
 transState :: [MeowrArg] -> MeowState -> MeowState
@@ -62,6 +62,7 @@ meowrMake name args = do
     state <- meowState' name [] (return Map.empty)
     let meowedState = transState args state
     --(print . _meowArgs) meowedState
+    (print . _meowInclude) meowedState
     runMeow meowedState >>= \case
         (Left exc) -> (printExc . snd) exc
         (Right  _) -> return ()

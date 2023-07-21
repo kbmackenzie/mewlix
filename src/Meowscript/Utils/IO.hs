@@ -9,6 +9,7 @@ module Meowscript.Utils.IO
 , safeWriteFile
 , safeAppendFile
 , safeCurrentDir
+, safeDoesFileExist
 , printErr
 , printErrLn
 , printExc
@@ -23,7 +24,7 @@ import System.IO (hFlush, stdout, stderr)
 import Control.Exception (try, IOException)
 import System.Console.ANSI.Types
 import qualified System.Console.ANSI as Console
-import System.Directory (getCurrentDirectory)
+import System.Directory (getCurrentDirectory, doesFileExist)
 import System.FilePath (dropFileName, (</>))
 
 printStr :: Text.Text -> IO ()
@@ -108,6 +109,11 @@ safeCurrentDir :: IO (Either Text.Text Text.Text)
 safeCurrentDir = (try getCurrentDirectory :: IO (Either IOException String)) >>= \case
     (Left exception) -> (return . Left . Text.pack . show) exception
     (Right directory) -> (return . Right . Text.pack) directory
+
+safeDoesFileExist :: FilePath -> IO Bool
+safeDoesFileExist path = (try $ doesFileExist path :: IO (Either IOException Bool)) >>= \case
+    (Left _) -> return False
+    (Right x) -> return x
 
 localPath :: FilePathT -> FilePathT -> FilePathT
 {-# INLINABLE localPath #-}

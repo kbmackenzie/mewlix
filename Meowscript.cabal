@@ -64,6 +64,7 @@ library
       Meowscript.REPL.RunLine
       Meowscript.Utils.Data
       Meowscript.Utils.IO
+      Meowscript.Utils.Map
       Meowscript.Utils.Show
       Meowscript.Utils.Time
       Meowscript.Utils.Types
