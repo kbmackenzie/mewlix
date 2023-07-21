@@ -57,7 +57,7 @@ runAction name args = case Map.lookup name meowrActions of
     Nothing -> meowrMake name args
     (Just f) -> f name args
 
-meowrMake :: Text.Text -> [MeowrArg] -> IO ()
+meowrMake :: Name -> [MeowrArg] -> IO ()
 meowrMake name args = do
     state <- meowState' name [] (return Map.empty)
     let meowedState = transState args state

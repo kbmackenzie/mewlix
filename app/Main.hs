@@ -1,9 +1,6 @@
 module Main (main) where
 
-import Meowscript.Meowr.RunMeowr
-
--- To do:
--- Make a proper CLI and REPL.
+import Meowscript
 
 main :: IO ()
 main = runMeowr
