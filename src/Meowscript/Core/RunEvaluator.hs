@@ -37,8 +37,9 @@ import Control.Monad.Reader (asks, runReaderT, liftIO)
 import Control.Monad.Except (runExceptT, throwError)
 import Data.IORef (newIORef)
 import Meowscript.Utils.IO
-import Control.Monad (liftM2)
-import System.FilePath (hasTrailingPathSeparator)
+import Control.Applicative ((<|>))
+import Control.Monad (liftM2, (>=>))
+import System.FilePath (hasTrailingPathSeparator, (</>))
 
 type EvalCallback a b = a -> Evaluator b
 type MeowFile = Either Text.Text Text.Text
@@ -53,9 +54,9 @@ runEvaluator :: MeowState -> IO ObjectMap -> Evaluator a -> IO (Either CatExcept
 runEvaluator meow env eval = env >>= newIORef >>= (runExceptT . runReaderT eval . (meow,))
 
 runFile :: MeowParams [Statement] b -> IO (Either CatException b)
-runFile params = safeReadFile path >>= runFileCore params
+runFile params = meowSearch state path >>= runFileCore params
     where state = getMeowState params
-          path = (Text.unpack . meowResolve state . _meowPath) state
+          path = (meowResolve state . Text.unpack . _meowPath) state
 
 -- Evaluate the contents from a .meows file.
 runFileCore :: MeowParams [Statement] b -> MeowFile -> IO (Either CatException b)
@@ -82,11 +83,31 @@ runCore state lib fn input = do
 
 {- Resolve path -}
 -------------------------------------------------------------------------
-meowResolve :: MeowState -> FilePathT -> FilePathT
+meowResolve :: MeowState -> FilePath -> FilePath
 meowResolve state path
-    | isDir path && meowHasFlag implicitMain state = joinPath path "main.meows"
+    | isDir path && meowHasFlag implicitMain state = path </> "main.meows"
     | otherwise = path
-    where isDir = liftM2 (||) (hasTrailingPathSeparator . Text.unpack) (== ".")
+    where isDir = liftM2 (||) hasTrailingPathSeparator (== ".")
+
+toMaybe :: Either a b -> Maybe b
+toMaybe (Left _) = Nothing
+toMaybe (Right x) = Just x
+
+meowRead :: MeowState -> FilePath -> IO MeowFile
+meowRead state = safeReadFile . meowResolve state
+
+meowSearch :: MeowState -> FilePath -> IO MeowFile
+meowSearch state path = runSearch state (path:paths) >>= \case
+    (Left f) -> (return . Left . f) path
+    (Right contents) -> (return . Right) contents
+    where paths = map ((</> path) . Text.unpack) (_meowInclude state)
+
+runSearch :: MeowState -> [FilePath] -> IO (Either (FilePath -> Text.Text) Text.Text)
+runSearch state xs = do
+    output <- foldl (<|>) Nothing . map toMaybe <$> mapM (meowRead state) xs
+    case output of
+        Nothing -> (return . Left) (Text.append "File not found: " . Text.pack)
+        (Just contents) -> (return . Right) contents
 
 {- Helper functions for running script files: -}
 -------------------------------------------------------------------------
@@ -146,7 +167,7 @@ readModule path = asks (_meowStd . fst) >>= \std -> if Set.member path std
     else do
         local <- asks $ (`localPath` path) . _meowPath . fst
         state <- asks fst
-        let prepPath = Text.unpack . meowResolve state
+        let prepPath = meowResolve state . Text.unpack
         (liftIO . safeReadFile . prepPath) local
 
 getImport :: FilePathT -> Evaluator (Either CatException Environment)

@@ -28,6 +28,7 @@ module Meowscript.Core.Exceptions
 , notImport
 , badFile
 , badHash
+, noFile
 , meowUnexpected
 ) where
 
@@ -139,6 +140,9 @@ badFile message path exception = showException MeowBadFile $ Text.concat
 
 badHash :: Prim -> Evaluator CatException
 badHash = showException' MeowBadHash "Value cannot be hashed." . List.singleton
+
+noFile :: FilePath -> CatException
+noFile = showException MeowBadFile . Text.append "File not found in search paths: " . Text.pack
 
 meowUnexpected :: Text.Text -> Text.Text -> CatException
 meowUnexpected x y = showException MeowUnexpected (Text.concat [x, " | ", y])
