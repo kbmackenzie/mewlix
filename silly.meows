@@ -1,0 +1,2 @@
+mew args = snoop()
+meow(args)
