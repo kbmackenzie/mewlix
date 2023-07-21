@@ -68,8 +68,8 @@ runFileCore params input = case input of
 runParsed :: MeowParams [Statement] b -> Either Text.Text [Statement] -> IO (Either CatException b)
 {-# INLINABLE runParsed #-}
 runParsed params parsed = case parsed of
-        (Left exception) -> (return . Left) $ meowSyntaxExc exception
-        (Right program) -> runCore state lib (asMain . fn) program
+    (Left exception) -> (return . Left) $ meowSyntaxExc exception
+    (Right program) -> runCore state lib (asMain . fn) program
     where state = getMeowState params
           lib = _meowLib state
           fn = getMeowFn params
