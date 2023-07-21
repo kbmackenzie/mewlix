@@ -12,6 +12,8 @@ module Meowscript.Core.RunEvaluator
 , MeowParams(..)
 , MeowFile
 , EvalCallback
+, meowRead
+, meowSearch
 , getImport
 , importEnv
 , publicKeys
@@ -37,8 +39,7 @@ import Control.Monad.Reader (asks, runReaderT, liftIO)
 import Control.Monad.Except (runExceptT, throwError)
 import Data.IORef (newIORef)
 import Meowscript.Utils.IO
-import Control.Applicative ((<|>))
-import Control.Monad (liftM2, (>=>))
+import Control.Applicative (liftA2, (<|>))
 import System.FilePath (hasTrailingPathSeparator, (</>))
 
 type EvalCallback a b = a -> Evaluator b
@@ -87,7 +88,7 @@ meowResolve :: MeowState -> FilePath -> FilePath
 meowResolve state path
     | isDir path && meowHasFlag implicitMain state = path </> "main.meows"
     | otherwise = path
-    where isDir = liftM2 (||) hasTrailingPathSeparator (== ".")
+    where isDir = liftA2 (||) hasTrailingPathSeparator (== ".")
 
 toMaybe :: Either a b -> Maybe b
 toMaybe (Left _) = Nothing
@@ -100,7 +101,7 @@ meowSearch :: MeowState -> FilePath -> IO MeowFile
 meowSearch state path = runSearch state (path:paths) >>= \case
     (Left f) -> (return . Left . f) path
     (Right contents) -> (return . Right) contents
-    where paths = map ((</> path) . Text.unpack) (_meowInclude state)
+    where paths = map (</> path) (_meowInclude state)
 
 runSearch :: MeowState -> [FilePath] -> IO (Either (FilePath -> Text.Text) Text.Text)
 runSearch state xs = do
