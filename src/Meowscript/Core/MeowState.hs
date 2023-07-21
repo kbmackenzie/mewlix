@@ -13,6 +13,11 @@ module Meowscript.Core.MeowState
 , implicitMain
 , meowSearch
 , meowResolve
+, MeowFileOutput
+, MeowFileCallback
+, meowrRead
+, meowrWrite
+, meowrAppend
 ) where
 
 import Meowscript.Core.AST
@@ -70,26 +75,27 @@ meowHasFlag :: [Text.Text] -> MeowState -> Bool
 meowHasFlag keys state = let flags = _meowFlags state
     in any (`Set.member` flags) keys
 
+
 {- Flag Types -}
 ---------------------------------------------------------------------
 implicitMain :: [Text.Text]
 implicitMain = ["i", "implicit", "implicitmain"]
 
+
 {- Resolve path -}
 -------------------------------------------------------------------------
-type MeowFile' = (FilePath, Either Text.Text Text.Text)
-type FileCB = MeowState -> FilePath -> IO MeowFile'
+type MeowFileOutput = (FilePath, Either Text.Text Text.Text)
+type MeowFileCallback = MeowState -> FilePath -> IO MeowFileOutput
 
 meowResolve :: MeowState -> FilePath -> FilePath
+{-# INLINABLE meowResolve #-}
 meowResolve state path
     | isDir path && meowHasFlag implicitMain state = path </> "main.meows"
     | otherwise = path
     where isDir = liftA2 (||) hasTrailingPathSeparator (== ".")
 
-meowFileIO :: (FilePath -> IO a) -> MeowState -> FilePath -> IO a
-meowFileIO f state = f . meowResolve state
-
 meowSearch :: MeowState -> FilePath -> IO (Either Text.Text (MeowState, Text.Text))
+{-# INLINABLE meowSearch #-}
 meowSearch state path
     | (not . isValid) path = (return . Left) "Invalid filepath."
     | isAbsolute path = fmap (state,) <$> readContents state path
@@ -102,25 +108,32 @@ meowSearch state path
     where paths = (:) path $ map (</> path) (_meowInclude state)
           readContents = meowFileIO safeReadFile
 
-meowrFile :: (FilePath -> IO MeowFile') -> [FilePath] -> IO (Maybe MeowFile')
-meowrFile f [] = return Nothing
+meowFileIO :: (FilePath -> IO a) -> MeowState -> FilePath -> IO a
+{-# INLINABLE meowFileIO #-}
+meowFileIO f state = f . meowResolve state
+
+meowrFile :: (FilePath -> IO MeowFileOutput) -> [FilePath] -> IO (Maybe MeowFileOutput)
+meowrFile _ [] = return Nothing
 meowrFile f (x:xs) = safeDoesFileExist x >>= \exists -> if exists
     then Just <$> f x
     else meowrFile f xs
 
-meowrRead :: FileCB
+meowrRead :: MeowFileCallback
+{-# INLINABLE meowrRead #-}
 meowrRead state path = readContents state path >>= \case
     (Left exc) -> return (path, Left exc)
     (Right contents) -> return (path, Right contents)
     where readContents = meowFileIO safeReadFile
 
-meowrWrite :: Text.Text -> FileCB
+meowrWrite :: Text.Text -> MeowFileCallback
+{-# INLINABLE meowrWrite #-}
 meowrWrite contents state path = writeContents state path >>= \case
     (Left exc) -> return (path, Left exc)
     (Right _)  -> return (path, Right Text.empty)
     where writeContents = meowFileIO (`safeWriteFile` contents)
 
-meowrAppend :: Text.Text -> FileCB
+meowrAppend :: Text.Text -> MeowFileCallback
+{-# INLINABLE meowrAppend #-}
 meowrAppend contents state path = appendContents state path >>= \case
     (Left exc) -> return (path, Left exc)
     (Right _)  -> return (path, Right Text.empty)
