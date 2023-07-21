@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TupleSections #-}
 
 module Meowscript.Core.MeowState
 ( meowState
@@ -11,7 +12,6 @@ module Meowscript.Core.MeowState
 , meowHasFlag
 , implicitMain
 , meowSearch
-, meowRead
 , meowResolve
 ) where
 
@@ -26,7 +26,7 @@ import Control.Monad.Reader (asks, liftIO)
 import Lens.Micro.Platform (set)
 import Meowscript.Utils.IO
 import Control.Applicative (liftA2, (<|>))
-import System.FilePath (hasTrailingPathSeparator, (</>))
+import System.FilePath (hasTrailingPathSeparator, (</>), isValid, isAbsolute)
 
 {- Notes:
  - Flags are always lower-case. They're case-insenstiive. 
@@ -77,28 +77,51 @@ implicitMain = ["i", "implicit", "implicitmain"]
 
 {- Resolve path -}
 -------------------------------------------------------------------------
+type MeowFile' = (FilePath, Either Text.Text Text.Text)
+type FileCB = MeowState -> FilePath -> IO MeowFile'
+
 meowResolve :: MeowState -> FilePath -> FilePath
 meowResolve state path
     | isDir path && meowHasFlag implicitMain state = path </> "main.meows"
     | otherwise = path
     where isDir = liftA2 (||) hasTrailingPathSeparator (== ".")
 
-toMaybe :: Either a b -> Maybe b
-toMaybe (Left _) = Nothing
-toMaybe (Right x) = Just x
+meowFileIO :: (FilePath -> IO a) -> MeowState -> FilePath -> IO a
+meowFileIO f state = f . meowResolve state
 
-meowRead :: MeowState -> FilePath -> IO (Either Text.Text Text.Text)
-meowRead state = safeReadFile . meowResolve state
+meowSearch :: MeowState -> FilePath -> IO (Either Text.Text (MeowState, Text.Text))
+meowSearch state path
+    | (not . isValid) path = (return . Left) "Invalid filepath."
+    | isAbsolute path = fmap (state,) <$> readContents state path
+    | otherwise = meowrFile (meowrRead state) paths >>= \case
+        Nothing  -> (return . Left) "File does not exist in path!"
+        (Just (path', x)) -> case x of
+            (Left err) -> return (Left err)
+            (Right contents) -> let state' = state { _meowPath = Text.pack path' }
+                in return (Right (state', contents))
+    where paths = (:) path $ map (</> path) (_meowInclude state)
+          readContents = meowFileIO safeReadFile
 
-meowSearch :: MeowState -> FilePath -> IO (Either Text.Text Text.Text)
-meowSearch state path = runSearch state (path:paths) >>= \case
-    (Left f) -> (return . Left . f) path
-    (Right contents) -> (return . Right) contents
-    where paths = map (</> path) (_meowInclude state)
+meowrFile :: (FilePath -> IO MeowFile') -> [FilePath] -> IO (Maybe MeowFile')
+meowrFile f [] = return Nothing
+meowrFile f (x:xs) = safeDoesFileExist x >>= \exists -> if exists
+    then Just <$> f x
+    else meowrFile f xs
 
-runSearch :: MeowState -> [FilePath] -> IO (Either (FilePath -> Text.Text) Text.Text)
-runSearch state xs = do
-    output <- foldl (<|>) Nothing . map toMaybe <$> mapM (meowRead state) xs
-    case output of
-        Nothing -> (return . Left) (Text.append "File not found: " . Text.pack)
-        (Just contents) -> (return . Right) contents
+meowrRead :: FileCB
+meowrRead state path = readContents state path >>= \case
+    (Left exc) -> return (path, Left exc)
+    (Right contents) -> return (path, Right contents)
+    where readContents = meowFileIO safeReadFile
+
+meowrWrite :: Text.Text -> FileCB
+meowrWrite contents state path = writeContents state path >>= \case
+    (Left exc) -> return (path, Left exc)
+    (Right _)  -> return (path, Right Text.empty)
+    where writeContents = meowFileIO (`safeWriteFile` contents)
+
+meowrAppend :: Text.Text -> FileCB
+meowrAppend contents state path = appendContents state path >>= \case
+    (Left exc) -> return (path, Left exc)
+    (Right _)  -> return (path, Right Text.empty)
+    where appendContents = meowFileIO (`safeAppendFile` contents)

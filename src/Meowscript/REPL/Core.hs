@@ -77,7 +77,8 @@ addModule line env = case getArgs line of
     [] -> return (True, env)
     (path:_) -> readModule path >>= \contents -> do
         state' <- makeState
-        importEnv state' path contents >>= \case
+        let contents' = fmap (state',) contents
+        importEnv state' path contents' >>= \case
             (Left x) -> printExc (snd x) >> return (True, env)
             (Right x) -> do
                 imp <- publicKeys <$> readIORef x

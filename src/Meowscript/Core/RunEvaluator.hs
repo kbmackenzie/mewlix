@@ -12,8 +12,6 @@ module Meowscript.Core.RunEvaluator
 , MeowParams(..)
 , MeowFile
 , EvalCallback
-, meowRead
-, meowSearch
 , getImport
 , importEnv
 , publicKeys
@@ -41,7 +39,7 @@ import Data.IORef (newIORef)
 import Meowscript.Utils.IO
 
 type EvalCallback a b = a -> Evaluator b
-type MeowFile = Either Text.Text Text.Text
+type MeowFile = Either Text.Text (MeowState, Text.Text)
 
 data MeowParams a b = MeowParams
     { getMeowState :: MeowState
@@ -62,8 +60,11 @@ runFileCore :: MeowParams [Statement] b -> MeowFile -> IO (Either CatException b
 {-# INLINABLE runFileCore #-}
 runFileCore params input = case input of
     (Left exception) -> (return . Left) $ badFile "In import" (Text.pack path) exception
-    (Right contents) -> meowParse path contents >>= runParsed params
-    where path = (Text.unpack . _meowPath . getMeowState) params
+    (Right (newState, contents)) -> meowParse path contents >>= do
+        let newParams = params { getMeowState = newState }
+        runParsed newParams
+    where state = getMeowState params
+          path = (meowResolve state . Text.unpack . _meowPath) state
 
 runParsed :: MeowParams [Statement] b -> Either Text.Text [Statement] -> IO (Either CatException b)
 {-# INLINABLE runParsed #-}
@@ -134,11 +135,14 @@ runImport path xs = asImport path $ runProgram xs >> asks snd -- Return the envi
 --------------------------------------------------------
 readModule :: FilePathT -> Evaluator MeowFile
 readModule path = asks (_meowStd . fst) >>= \std -> if Set.member path std
-    then (liftIO . readStdFile) path
+    then do
+        output <- (liftIO . readStdFile) path
+        state <- asks fst
+        return $ fmap (state,) output
     else do
         local <- asks $ (`localPath` path) . _meowPath . fst
         state <- asks fst
-        (liftIO . meowSearch state . Text.unpack) local
+        (liftIO . meowSearch state . meowResolve state . Text.unpack) local
 
 getImport :: FilePathT -> Evaluator (Either CatException Environment)
 {-# INLINABLE getImport #-}
