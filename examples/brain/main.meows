@@ -5,6 +5,7 @@ It supports all basic Brainf*ck tokens.
 
 takes "parser.meows"
 takes "evaluate.meows"
+takes "std.meows" as std
 
 =^.x.^= brain (brainf, arg)
     mew parsed = parse(brainf)
@@ -15,3 +16,17 @@ takes "evaluate.meows"
     meow meow
     purr("\n")
 meow meow
+
+
+-- Run evaluation on file.
+mew args = snoop() 
+
+mew? (not args)
+    angry("[Brainf*ckError] Expected file as argument, got none!")
+    bring lonely
+meow meow
+
+mew contents = read_file(peek args)
+knock over args
+mew argstr = std.fold(args, std.join, "")
+brain(contents, argstr) 

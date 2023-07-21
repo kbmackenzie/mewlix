@@ -47,7 +47,7 @@ meowrActions = Map.fromList
 
 runMeowr :: IO ()
 runMeowr = getMeowr >>= \case
-    (Left err) -> (printStrLn . makeError) err
+    (Left err) -> (printErrLn . makeError) err
     (Right (MeowrAction name args)) -> case name of
         Nothing -> repl -- todo: apply args here too
         (Just n) -> runAction n args

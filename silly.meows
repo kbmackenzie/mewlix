@@ -1,2 +1,9 @@
 mew args = snoop()
 meow(args)
+
+meow(search("map"))
+meow(search("foo"))
+
+foo = 2
+
+meow(search("foo"))

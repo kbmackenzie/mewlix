@@ -30,8 +30,9 @@ baseLibrary = createObject
     , ("listen"  , MeowIFunc  [   ] listen    )
     , ("snoop"   , MeowIFunc  [   ] snoop     )
     , ("search"  , MeowIFunc  ["x"] search    )
-    , ("sort"    , MeowIFunc  ["x"] sortFn    )
+    , ("angry"   , MeowIFunc  ["x"] angry     )
     , ("reverse" , MeowIFunc  ["x"] reverseFn )
+    , ("sort"    , MeowIFunc  ["x"] sortFn    )
     , ("int"     , MeowIFunc  ["x"] toInt     )
     , ("float"   , MeowIFunc  ["x"] toDouble  )
     , ("string"  , MeowIFunc  ["x"] toString  )
@@ -95,18 +96,21 @@ search = lookUp "x" >>= \case
         in MeowBool <$> ((||) <$> keyExists x <*> (asks . hasDef) x)
     x -> throwError =<< badArgs "search" [x]
 
+angry :: Evaluator Prim
+angry = lookUp "x" >>= showMeow >>= (liftIO . printErrLn) >> return MeowLonely
+
 {- Lists/Strings -}
 ----------------------------------------------------------
-sortFn :: Evaluator Prim
-sortFn = lookUp "x" >>= \case
-    (MeowList x) -> MeowList <$> primSort x
-    x -> throwError =<< badArgs "sort" [x]
-
 reverseFn :: Evaluator Prim
 reverseFn = lookUp "x" >>= \case
     (MeowList x) -> (return . MeowList . reverse) x
     (MeowString x) -> (return . MeowString . Text.reverse) x
     x -> throwError =<< badArgs "reverse" [x]
+
+sortFn :: Evaluator Prim
+sortFn = lookUp "x" >>= \case
+    (MeowList x) -> MeowList <$> primSort x
+    x -> throwError =<< badArgs "sort" [x]
 
 {- Conversion -}
 ----------------------------------------------------------
