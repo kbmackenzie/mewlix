@@ -39,8 +39,6 @@ import Control.Monad.Reader (asks, runReaderT, liftIO)
 import Control.Monad.Except (runExceptT, throwError)
 import Data.IORef (newIORef)
 import Meowscript.Utils.IO
-import Control.Applicative (liftA2, (<|>))
-import System.FilePath (hasTrailingPathSeparator, (</>))
 
 type EvalCallback a b = a -> Evaluator b
 type MeowFile = Either Text.Text Text.Text
@@ -81,34 +79,6 @@ runCore :: MeowState -> IO ObjectMap -> EvalCallback a b -> a -> IO (Either CatE
 runCore state lib fn input = do
     env <- (<>) <$> lib <*> baseLibrary
     (runEvaluator state (return env) . fn) input
-
-{- Resolve path -}
--------------------------------------------------------------------------
-meowResolve :: MeowState -> FilePath -> FilePath
-meowResolve state path
-    | isDir path && meowHasFlag implicitMain state = path </> "main.meows"
-    | otherwise = path
-    where isDir = liftA2 (||) hasTrailingPathSeparator (== ".")
-
-toMaybe :: Either a b -> Maybe b
-toMaybe (Left _) = Nothing
-toMaybe (Right x) = Just x
-
-meowRead :: MeowState -> FilePath -> IO MeowFile
-meowRead state = safeReadFile . meowResolve state
-
-meowSearch :: MeowState -> FilePath -> IO MeowFile
-meowSearch state path = runSearch state (path:paths) >>= \case
-    (Left f) -> (return . Left . f) path
-    (Right contents) -> (return . Right) contents
-    where paths = map (</> path) (_meowInclude state)
-
-runSearch :: MeowState -> [FilePath] -> IO (Either (FilePath -> Text.Text) Text.Text)
-runSearch state xs = do
-    output <- foldl (<|>) Nothing . map toMaybe <$> mapM (meowRead state) xs
-    case output of
-        Nothing -> (return . Left) (Text.append "File not found: " . Text.pack)
-        (Just contents) -> (return . Right) contents
 
 {- Helper functions for running script files: -}
 -------------------------------------------------------------------------
