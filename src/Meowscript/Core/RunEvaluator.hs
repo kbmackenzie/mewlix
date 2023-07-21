@@ -168,8 +168,7 @@ readModule path = asks (_meowStd . fst) >>= \std -> if Set.member path std
     else do
         local <- asks $ (`localPath` path) . _meowPath . fst
         state <- asks fst
-        let prepPath = meowResolve state . Text.unpack
-        (liftIO . safeReadFile . prepPath) local
+        (liftIO . meowSearch state . Text.unpack) local
 
 getImport :: FilePathT -> Evaluator (Either CatException Environment)
 {-# INLINABLE getImport #-}
