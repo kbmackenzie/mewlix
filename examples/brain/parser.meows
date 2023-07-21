@@ -63,6 +63,9 @@ meow meow
         mew? (this_char == "]")
             bring _parser_output(reverse(output), str)
 
+        mew? (not TokenMap.contains(this_char))
+            catnap
+
         mew? (this_char == last_char)
             paw at (peek output).count
 

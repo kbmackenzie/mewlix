@@ -51,6 +51,7 @@ library
       Meowscript.Core.StdFiles
       Meowscript.Meowr.Core
       Meowscript.Meowr.Parser
+      Meowscript.Meowr.RunMeowr
       Meowscript.Parser.Core
       Meowscript.Parser.Expr
       Meowscript.Parser.Keywords

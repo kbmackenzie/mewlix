@@ -14,6 +14,7 @@ import Meowscript.Utils.Types
 import Meowscript.Core.StdFiles
 import qualified Data.Text as Text
 import qualified Data.Map.Strict as Map
+import qualified Data.Set as Set
 import Data.IORef (newIORef, readIORef, modifyIORef)
 import Control.Monad.Reader (asks, liftIO)
 import Lens.Micro.Platform (set)
@@ -27,6 +28,7 @@ meowState path args lib cache = return MeowState
     , _meowPath     = path
     , _meowSocket   = Nothing
     , _meowInclude  = []
+    , _meowFlags    = Set.empty
     , _meowDefines  = Map.empty }
 
 meowState' :: FilePathT -> [Text.Text] -> IO ObjectMap -> IO MeowState

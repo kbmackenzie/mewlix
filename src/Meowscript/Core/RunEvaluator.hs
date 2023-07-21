@@ -84,8 +84,8 @@ runCore state lib fn input = do
 {- Helper functions for running script files: -}
 -------------------------------------------------------------------------
 -- Variants that default to no additional libraries:
-runMeow :: FilePathT -> IO (Either CatException Text.Text)
-runMeow path = meowState' path [] emptyLib >>= \state -> runFile MeowParams
+runMeow :: MeowState -> IO (Either CatException Text.Text)
+runMeow state = runFile MeowParams
     { getMeowState = state
     , getMeowFn = runProgram' }
 

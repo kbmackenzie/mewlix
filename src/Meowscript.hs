@@ -4,9 +4,7 @@
  - and core functions. -}
 
 module Meowscript
-( meow
-, runBasic
-) where
+( ) where
 
 import Meowscript.Core.AST
 import Meowscript.API.Console
@@ -15,9 +13,11 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import Control.StopWatch (stopWatch)
 
+{-
 runBasic :: FilePath -> IO ()
 runBasic path = do
     (output, time) <- stopWatch $ runMeow (Text.pack path)
     case output of
         (Right x) -> print time >> print x
         (Left x) -> TextIO.putStrLn (snd x)
+-}

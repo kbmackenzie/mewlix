@@ -39,6 +39,7 @@ module Meowscript.Core.AST
 , meowPath
 , meowSocket
 , meowInclude
+, meowFlags
 , meowDefines
 ) where
 
@@ -269,6 +270,7 @@ data MeowState = MeowState
     , _meowPath     :: FilePathT                    -- The path to the current file.
     , _meowSocket   :: Maybe Socket
     , _meowInclude  :: [FilePathT]                  -- 'Include' paths.
+    , _meowFlags    :: Set.Set Text.Text
     , _meowDefines  :: Map.Map Text.Text Text.Text  -- Meta constant definitions.
     }
 

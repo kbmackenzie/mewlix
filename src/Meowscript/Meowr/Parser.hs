@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Meowscript.Meowr.Parser
-( parseArgs
+( parseMeowed
 ) where
 
 import Meowscript.Meowr.Core
@@ -15,11 +15,16 @@ import Text.Megaparsec.Error (errorBundlePretty)
 import Control.Applicative (liftA2)
 import Data.Char (isAlphaNum)
 
-parseArgs :: Text.Text -> Either Text.Text [MeowrArg]
-parseArgs str = case Mega.parse parser "<args>" str of
+parseMeowed :: Text.Text -> Either Text.Text MeowrAction
+parseMeowed str = case Mega.parse parseAction "<args>" str of
     (Left x) -> (Left . Text.pack . errorBundlePretty) x
     (Right x) -> Right x
-    where parser = Mega.many parseArg
+
+parseAction :: Parser MeowrAction
+parseAction = do
+    name    <- Mega.optional parseString
+    args    <- Mega.many parseArg
+    return (MeowrAction name args)
 
 parseArg :: Parser MeowrArg
 parseArg = Mega.choice
@@ -48,7 +53,7 @@ parseString = Mega.choice
     , parseWord ]
 
 validChars :: [Char]
-validChars = [ '_', '.' ]
+validChars = [ '_', '.', '\\', '/' ]
 
 parseWord :: Parser Text.Text
 parseWord = lexeme $ Mega.takeWhile1P (Just "word") predicate
