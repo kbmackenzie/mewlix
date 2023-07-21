@@ -18,6 +18,10 @@ mew max = ( ^.x.^)> (a, b) => (a > b ? a : b)
 
 mew idiv = ( ^.x.^)> (a, b) => (floor(a / b))
 
+mew paw_  = ( ^.x.^)> (a) => (paw at a)
+mew claw_ = ( ^.x.^)> (a) => (claw at a)
+
+
 ~( ^.x.^)> --------------
     Logic operations
 -------------- <(^.x.^ )~
