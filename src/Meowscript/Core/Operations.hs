@@ -43,7 +43,6 @@ unop MeowPaw = meowPaw
 unop MeowClaw = meowClaw
 unop MeowKnockOver = meowKnock
 unop op = unopVar $ case op of
---    MeowYarn -> meowYarn
     MeowLen -> meowLen
     MeowNegate -> meowNegate
     MeowNot -> meowNot
@@ -215,5 +214,5 @@ meowConcat a b = MeowString <$> (Text.append <$> showMeow a <*> showMeow b)
 meowPeek :: Prim -> Evaluator Prim
 meowPeek (MeowList a) = return (if null a then MeowLonely else head a)
 meowPeek (MeowString a) = (return . MeowString) res
-          where res = if Text.null a then a else (Text.pack . (: []) . Text.head) a
+    where res = if Text.null a then a else (Text.pack . (: []) . Text.head) a
 meowPeek a = throwError =<< opException "peek" [a]

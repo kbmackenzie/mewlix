@@ -28,7 +28,7 @@ showMeow (MeowKey x) = return $ Text.concat ["<key: \"", showT x, "\">" ]
 showMeow (MeowInt x) = return $ showT x
 showMeow (MeowDouble x) = return $ showT x
 showMeow (MeowBool x) = return $ if x then "happy" else "sad"
-showMeow MeowLonely = return "lonely"
+showMeow MeowLonely = return "<lonely>"
 showMeow (MeowList x) = do 
     prims <- mapM prettyMeow x
     let prims' = Text.intercalate ", " prims
