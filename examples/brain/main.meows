@@ -10,11 +10,8 @@ takes "std.meows" as std
 =^.x.^= brain (brainf, arg)
     mew parsed = parse(brainf)
     mew output = run_evaluator(arg, parsed.tokens)
-    meowmeow (output)
-        purr(peek output)
-        knock over output
-    meow meow
-    purr("\n")
+    mew output_str = std.fold(output, std.join, "")
+    meow(output_str)
 meow meow
 
 

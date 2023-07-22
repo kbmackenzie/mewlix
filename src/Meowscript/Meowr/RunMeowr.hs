@@ -62,7 +62,7 @@ meowrMake name args = do
     state <- meowState' name [] (return Map.empty)
     let meowedState = transState args state
     --(print . _meowArgs) meowedState
-    (print . _meowInclude) meowedState
+    --(print . _meowInclude) meowedState
     runMeow meowedState >>= \case
         (Left exc) -> (printExc . snd) exc
         (Right  _) -> return ()

@@ -1,12 +1,13 @@
-~( ^.x.^)> 
+~( ^.x.^)> ---------------------------------------------
 Meowscript implementation of a simple 'Tic Tac Toe' game
 with dynamic board size.
 
 This yarn ball is the 'main'.
-<(^.x.^ )~
+--------------------------------------------- <(^.x.^ )~
 
 takes "board.meows"
 takes "assert.meows"
+takes "exception.meows"
 
 =^.x.^= tictactoe(size)
     assert(size > 1, "Board size cannot be less than 1!")
@@ -54,8 +55,28 @@ meow meow
             hiss!
                 meow(bad_input)
             meow meow
-        catch
+        catch (MeowException.InvalidValue)
             meow(bad_input)
         meow meow
     meow meow
 meow meow
+
+
+-- Run main:
+mew args = snoop()
+mew board_size = 3
+
+mew? (not args)
+    meow("Expected board size, got no arguments!")
+    meow("Defaulting board size to: "..board_size)
+hiss!
+    watch
+        board_size = int(peek args)
+    catch (MeowException.InvalidValue) 
+        meow("Invalid board size: "..(peek args))
+        board_size = 3
+        meow("Defaulting board size to: "..board_size)
+    meow meow
+meow meow
+
+tictactoe(board_size)
