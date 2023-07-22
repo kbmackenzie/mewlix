@@ -84,10 +84,10 @@ runCore state lib fn input = do
 {- Helper functions for running script files: -}
 -------------------------------------------------------------------------
 -- Variants that default to no additional libraries:
-runMeow :: MeowState -> IO (Either CatException Text.Text)
+runMeow :: MeowState -> IO (Either CatException Prim)
 runMeow state = runFile MeowParams
     { getMeowState = state
-    , getMeowFn = runProgram' }
+    , getMeowFn = runProgram }
 
 runExpr :: Text.Text -> IO (Either CatException Prim)
 runExpr line = meowState' Text.empty [] emptyLib >>= \state -> 
@@ -123,9 +123,6 @@ runProgram xs = do
     let (imps, rest) = List.partition isImport xs
     mapM_ addImport imps
     returnAsPrim <$> runBlock rest False
-
-runProgram' :: [Statement] -> Evaluator Text.Text
-runProgram' xs = runProgram xs >>= prettyMeow
 
 runImport :: FilePathT -> [Statement] -> Evaluator Environment
 runImport path xs = asImport path $ runProgram xs >> asks snd -- Return the environment.

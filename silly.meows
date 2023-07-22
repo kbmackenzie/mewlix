@@ -7,3 +7,14 @@ meow(search("foo"))
 foo = 2
 
 meow(search("foo"))
+
+bring ~( ^.x.^) BOX!! [
+    a: [2, 3, "hello", "world"],
+    b: ~( ^.x.^) BOX!! [
+        hello: "world\n...",
+        find: [ "my", "voice" ],
+        although: ~( ^.x.^) BOX!! [ 
+            it: [ "sounds", "like", "bits", "and", "bytes" ]
+        ]
+    ]
+]
