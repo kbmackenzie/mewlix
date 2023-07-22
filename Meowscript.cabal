@@ -37,6 +37,7 @@ library
   exposed-modules:
       Meowscript
       Meowscript.API.Console
+      Meowscript.API.JSON
       Meowscript.Core.AST
       Meowscript.Core.Base
       Meowscript.Core.Blocks
