@@ -18,7 +18,7 @@ import Meowscript.Utils.IO
 import Meowscript.REPL.Loop (repl)
 import Lens.Micro.Platform (over)
 import Meowscript.API.JSON (toJSON)
-import Control.Monad ((>=>))
+import Control.Monad ((>=>), void)
 
 argStr :: IO Text.Text
 argStr = Text.intercalate " " . map Text.pack <$> getArgs
@@ -58,10 +58,10 @@ runMeowr = getMeowr >>= \case
 
 getMeowrStr :: MeowrArg -> Text.Text
 getMeowrStr (MeowrString x) = x
-getMeowrStr _ = undefined
+getMeowrStr _ = undefined -- This should never happen.
 
 runAction :: Name -> [MeowrArg] -> IO ()
-runAction name args = print (Map.keys meowrActions) >> case Map.lookup name meowrActions of
+runAction name args = case Map.lookup name meowrActions of
     Nothing -> meowrMake none name args
     (Just f) -> f newName newArgs
     where (newName, newArgs) = case List.partition isMeowrStr args of
@@ -69,7 +69,7 @@ runAction name args = print (Map.keys meowrActions) >> case Map.lookup name meow
               (x:xs, rest) -> (getMeowrStr x, xs ++ rest)
 
 none :: Prim -> IO ()
-none = (const . return) ()
+none = void . return
 
 json :: Prim -> IO ()
 json = toJSON >=> printStrLn
@@ -78,8 +78,6 @@ meowrMake :: (Prim -> IO ()) -> Name -> [MeowrArg] -> IO ()
 meowrMake f name args = do
     state <- meowState' name [] (return Map.empty)
     let meowedState = transState args state
-    --(print . _meowArgs) meowedState
-    --(print . _meowInclude) meowedState
     runMeow meowedState >>= \case
         (Left exc) -> (printExc . snd) exc
         (Right  prim) -> f prim

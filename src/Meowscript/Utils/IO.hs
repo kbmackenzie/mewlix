@@ -14,10 +14,8 @@ module Meowscript.Utils.IO
 , printErrLn
 , printExc
 , localPath
-, joinPath
 ) where
 
-import Meowscript.Utils.Types
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import System.IO (hFlush, stdout, stderr)
@@ -54,7 +52,6 @@ colorPrint color txt = do
     printStr txt
     Console.setSGR [Reset]
     return ()
-
 
 ----------------------------------------------------------
 
@@ -99,7 +96,6 @@ safeAppendFile path contents = (try $ TextIO.appendFile path contents :: IO (Eit
     (Left exception) -> (return . Left . Text.pack . show) exception
     (Right _) -> (return . Right) ()
 
-
 ----------------------------------------------------------
 
 -- Directory Handling --
@@ -111,14 +107,11 @@ safeCurrentDir = (try getCurrentDirectory :: IO (Either IOException String)) >>=
     (Right directory) -> (return . Right . Text.pack) directory
 
 safeDoesFileExist :: FilePath -> IO Bool
+{-# INLINABLE safeDoesFileExist #-}
 safeDoesFileExist path = (try $ doesFileExist path :: IO (Either IOException Bool)) >>= \case
     (Left _) -> return False
     (Right x) -> return x
 
-localPath :: FilePathT -> FilePathT -> FilePathT
+localPath :: FilePath -> FilePath -> FilePath
 {-# INLINABLE localPath #-}
-localPath path = Text.pack . (dir </>) . Text.unpack
-    where dir = (dropFileName . Text.unpack) path
-
-joinPath :: FilePathT -> FilePathT -> FilePathT
-joinPath dir = Text.pack . (Text.unpack dir </>) . Text.unpack
+localPath path = (dropFileName path </>)

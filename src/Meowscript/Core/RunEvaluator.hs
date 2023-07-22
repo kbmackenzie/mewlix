@@ -137,9 +137,9 @@ readModule path = asks (_meowStd . fst) >>= \std -> if Set.member path std
         state <- asks fst
         return $ fmap (state,) output
     else do
-        local <- asks $ (`localPath` path) . _meowPath . fst
+        local <- asks $ (`localPath` Text.unpack path) . Text.unpack . _meowPath . fst
         state <- asks fst
-        (liftIO . meowSearch state . meowResolve state . Text.unpack) local
+        (liftIO . meowSearch state . meowResolve state) local
 
 getImport :: FilePathT -> Evaluator (Either CatException Environment)
 {-# INLINABLE getImport #-}
@@ -150,12 +150,12 @@ getImport path = cacheLookup path >>= \case
         state <- asks fst
         liftIO (importEnv state path contents)
 
-importLog :: FilePathT -> IO () -- todo: take this out as it's just for info
-importLog = putStrLn . ("Importing... " ++) . Text.unpack
+--importLog :: FilePathT -> IO () -- todo: take this out as it's just for info
+--importLog = putStrLn . ("Importing... " ++) . Text.unpack
 
 importEnv :: MeowState -> FilePathT -> MeowFile -> IO (Either CatException Environment)
 {-# INLINABLE importEnv #-}
-importEnv state path x = importLog path >> runFileCore params x >>= \case
+importEnv state path x = runFileCore params x >>= \case
         (Left exception) -> (return . Left) exception
         (Right output) -> (return . Right) output
     where params = MeowParams

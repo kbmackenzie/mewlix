@@ -30,12 +30,16 @@ import Data.IORef (newIORef, readIORef, modifyIORef)
 import Control.Monad.Reader (asks, liftIO)
 import Lens.Micro.Platform (set)
 import Meowscript.Utils.IO
-import Control.Applicative (liftA2, (<|>))
+import Control.Applicative (liftA2)
 import System.FilePath (hasTrailingPathSeparator, (</>), isValid, isAbsolute)
 
 {- Notes:
  - Flags are always lower-case. They're case-insenstiive. 
- - Options keys are always lower-case; their values aren't.
+ - Built-in options keys are always lower-case; their values aren't.
+ -
+ - Special definitions are case-sensitive.
+ - "What is that?" -> These:
+ - meowr -specialDef=customValue
  -}
 
 meowState :: FilePathT -> [Text.Text] -> IO ObjectMap -> Maybe MeowCache -> IO MeowState
