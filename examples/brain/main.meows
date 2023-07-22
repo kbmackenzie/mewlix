@@ -10,7 +10,7 @@ takes "std.meows" as std
 =^.x.^= brain (brainf, arg)
     mew parsed = parse(brainf)
     mew output = run_evaluator(arg, parsed.tokens)
-    mew output_str = std.fold(output, std.join, "")
+    mew output_str = std.concat_as_string(output)
     meow(output_str)
 meow meow
 
@@ -25,5 +25,5 @@ meow meow
 
 mew contents = read_file(peek args)
 knock over args
-mew argstr = std.fold(args, std.join, "")
+mew argstr = std.concat_as_string(args)
 brain(contents, argstr) 

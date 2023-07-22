@@ -241,6 +241,16 @@ meow meow
 
 
 ~( ^.x.^)>
+'Concat All' function.
+Concats a list of lists into a list.
+<(^.x.^ )~
+
+=^.x.^= concat_all (shelf)
+    bring fold(shelf, join, [])
+meow meow
+
+
+~( ^.x.^)>
 'Any' function.
 Checks if any item in the shelf satisfies a condition.
 <(^.x.^ )~
@@ -374,6 +384,10 @@ meow meow
 =^.x.^= ends_with(str, suffix)
     mew len = suffix?!
     bring substring(str, str?! - len, len) == suffix
+meow meow
+
+=^.x.^= concat_as_string(shelf)
+    bring fold(shelf, join, "")
 meow meow
 
 
