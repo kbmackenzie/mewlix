@@ -10,6 +10,8 @@ module Meowscript.Utils.IO
 , safeAppendFile
 , safeCurrentDir
 , safeDoesFileExist
+, safeDoesDirExist
+, safeInspectDirectory
 , printErr
 , printErrLn
 , printExc
@@ -22,7 +24,7 @@ import System.IO (hFlush, stdout, stderr)
 import Control.Exception (try, IOException)
 import System.Console.ANSI.Types
 import qualified System.Console.ANSI as Console
-import System.Directory (getCurrentDirectory, doesFileExist)
+import System.Directory (getCurrentDirectory, doesFileExist, listDirectory, doesDirectoryExist)
 import System.FilePath (dropFileName, (</>))
 
 printStr :: Text.Text -> IO ()
@@ -102,7 +104,7 @@ safeAppendFile path contents = (try $ TextIO.appendFile path contents :: IO (Eit
 
 safeCurrentDir :: IO (Either Text.Text Text.Text)
 {-# INLINABLE safeCurrentDir #-}
-safeCurrentDir = (try getCurrentDirectory :: IO (Either IOException String)) >>= \case
+safeCurrentDir = (try getCurrentDirectory :: IO (Either IOException FilePath)) >>= \case
     (Left exception) -> (return . Left . Text.pack . show) exception
     (Right directory) -> (return . Right . Text.pack) directory
 
@@ -111,6 +113,17 @@ safeDoesFileExist :: FilePath -> IO Bool
 safeDoesFileExist path = (try $ doesFileExist path :: IO (Either IOException Bool)) >>= \case
     (Left _) -> return False
     (Right x) -> return x
+
+safeDoesDirExist :: FilePath -> IO Bool
+safeDoesDirExist path = (try $ doesDirectoryExist path :: IO (Either IOException Bool)) >>= \case
+    (Left _) -> return False
+    (Right x) -> return x
+
+safeInspectDirectory :: FilePath -> IO (Either Text.Text [FilePath])
+{-# INLINABLE safeInspectDirectory #-}
+safeInspectDirectory path = (try $ listDirectory path :: IO (Either IOException [FilePath])) >>= \case
+    (Left exception) -> (return . Left . Text.pack . show) exception
+    (Right contents) -> (return . Right) contents
 
 localPath :: FilePath -> FilePath -> FilePath
 {-# INLINABLE localPath #-}
