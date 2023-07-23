@@ -13,7 +13,6 @@ module Meowscript.Utils.IO
 , safeRenameFile
 , safeRemoveFile
 , safeDoesFileExist
-, safeDoesFileExist'
 , safeCurrentDir
 , safeMoveDir
 , safeRenameDir
@@ -42,7 +41,6 @@ import System.Directory (getCurrentDirectory
     , removeDirectory
     , renameDirectory)
 import System.FilePath (dropFileName, (</>))
-import Data.Either (fromRight)
 
 printStr :: Text.Text -> IO ()
 {-# INLINABLE printStr #-}
@@ -164,12 +162,6 @@ safeDoesFileExist :: FilePath -> IO (Either Text.Text Bool)
 safeDoesFileExist path = (try (doesFileExist path) :: IO (Either IOException Bool)) >>= \case
     (Left exception) -> (return . Left . Text.pack . show) exception
     (Right exists) -> (return . Right) exists
-
--- A variation that muffles exceptions, returning False in case they happen.
--- Not exactly great, but works for Meowr's purposes.
-safeDoesFileExist' :: FilePath -> IO Bool
-{-# INLINABLE safeDoesFileExist' #-}
-safeDoesFileExist' = fmap (fromRight False) . safeDoesFileExist
 
 safeMakeDirectory :: FilePath -> IO (Either Text.Text ())
 {-# INLINABLE safeMakeDirectory #-}

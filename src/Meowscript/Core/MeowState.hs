@@ -11,13 +11,10 @@ module Meowscript.Core.MeowState
 , meowCacheNew
 , meowHasFlag
 , implicitMain
+, MeowFileOutput
 , meowSearch
 , meowResolve
-, MeowFileOutput
-, MeowFileCallback
 , meowrRead
-, meowrWrite
-, meowrAppend
 ) where
 
 import Meowscript.Core.AST
@@ -31,7 +28,7 @@ import Control.Monad.Reader (asks, liftIO)
 import Lens.Micro.Platform (set)
 import Meowscript.Utils.IO
 import Control.Applicative (liftA2)
-import System.FilePath (hasTrailingPathSeparator, (</>), isValid, isAbsolute)
+import System.FilePath (hasTrailingPathSeparator, (</>), isAbsolute)
 
 {- Notes:
  - Flags are always lower-case. They're case-insenstiive. 
@@ -89,7 +86,6 @@ implicitMain = ["i", "implicit", "implicitmain"]
 {- Resolve path -}
 -------------------------------------------------------------------------
 type MeowFileOutput = (FilePath, Either Text.Text Text.Text)
-type MeowFileCallback = MeowState -> FilePath -> IO MeowFileOutput
 
 meowResolve :: MeowState -> FilePath -> FilePath
 {-# INLINABLE meowResolve #-}
@@ -101,13 +97,12 @@ meowResolve state path
 meowSearch :: MeowState -> FilePath -> IO (Either Text.Text (MeowState, Text.Text))
 {-# INLINABLE meowSearch #-}
 meowSearch state path
-    | (not . isValid) path = (return . Left) "Invalid filepath."
     | isAbsolute path = fmap (state,) <$> readContents state path
-    | otherwise = meowrFile (meowrRead state) paths >>= \case
-        Nothing  -> (return . Left) "File does not exist in path!"
-        (Just (path', x)) -> case x of
-            (Left err) -> return (Left err)
-            (Right contents) -> let state' = state { _meowPath = Text.pack path' }
+    | otherwise = meowrFile state paths >>= \case
+        (Left exception) -> (return . Left) exception
+        (Right (foundPath, tryRead)) -> case tryRead of
+            (Left exception) -> (return . Left) exception
+            (Right contents) -> let state' = state { _meowPath = Text.pack foundPath }
                 in return (Right (state', contents))
     where paths = (:) path $ map (</> path) (_meowInclude state)
           readContents = meowFileIO safeReadFile
@@ -116,29 +111,16 @@ meowFileIO :: (FilePath -> IO a) -> MeowState -> FilePath -> IO a
 {-# INLINABLE meowFileIO #-}
 meowFileIO f state = f . meowResolve state
 
-meowrFile :: (FilePath -> IO MeowFileOutput) -> [FilePath] -> IO (Maybe MeowFileOutput)
-meowrFile _ [] = return Nothing
-meowrFile f (x:xs) = safeDoesFileExist' x >>= \exists -> if exists
-    then Just <$> f x
-    else meowrFile f xs
+meowrFile :: MeowState -> [FilePath] -> IO (Either Text.Text MeowFileOutput)
+meowrFile _ [] = (return . Left) "File does not exist in path!"
+meowrFile state (x:xs) = safeDoesFileExist x >>= \case
+    (Left exception) -> (return . Left) exception
+    (Right True) -> Right <$> meowrRead state x
+    (Right False) -> meowrFile state xs
 
-meowrRead :: MeowFileCallback
+meowrRead :: MeowState -> FilePath -> IO (FilePath, Either Text.Text Text.Text)
 {-# INLINABLE meowrRead #-}
 meowrRead state path = readContents state path >>= \case
     (Left exc) -> return (path, Left exc)
     (Right contents) -> return (path, Right contents)
     where readContents = meowFileIO safeReadFile
-
-meowrWrite :: Text.Text -> MeowFileCallback
-{-# INLINABLE meowrWrite #-}
-meowrWrite contents state path = writeContents state path >>= \case
-    (Left exc) -> return (path, Left exc)
-    (Right _)  -> return (path, Right Text.empty)
-    where writeContents = meowFileIO (safeWriteFile contents)
-
-meowrAppend :: Text.Text -> MeowFileCallback
-{-# INLINABLE meowrAppend #-}
-meowrAppend contents state path = appendContents state path >>= \case
-    (Left exc) -> return (path, Left exc)
-    (Right _)  -> return (path, Right Text.empty)
-    where appendContents = meowFileIO (safeAppendFile contents)
