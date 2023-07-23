@@ -38,6 +38,7 @@ library
       Meowscript
       Meowscript.API.Console
       Meowscript.API.JSON
+      Meowscript.API.Socket
       Meowscript.Core.AST
       Meowscript.Core.Base
       Meowscript.Core.Blocks
