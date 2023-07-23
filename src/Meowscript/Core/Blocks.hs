@@ -209,15 +209,17 @@ runMethod key _ _ _ = throwError (badFunc key)
 addFunArgs :: [(Key, Prim)] -> Evaluator ()
 {-# INLINABLE addFunArgs #-}
 addFunArgs [] = return ()
-addFunArgs ((key, prim):xs) = do
-    assignNew key prim
-    addFunArgs xs
+addFunArgs pairs = do
+    let makeRef (key, prim) = (key,) <$> newMeowRef prim
+    mapM makeRef pairs >>= insertMany
 
 paramGuard :: Key -> Args -> Params -> Evaluator ()
 {-# INLINABLE paramGuard #-}
 paramGuard key args params = do
-    when (length params < length args) (throwError =<< manyArgs key args)
-    when (length params > length args) (throwError =<< fewArgs  key args)
+    let lenParams = length params
+    let lenArgs = length args
+    when (lenParams < lenArgs) (throwError =<< manyArgs key args)
+    when (lenParams > lenArgs) (throwError =<< fewArgs  key args)
 
 
 {- If Else -}

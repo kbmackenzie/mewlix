@@ -59,7 +59,7 @@ runFile params = meowSearch state path >>= runFileCore params
 runFileCore :: MeowParams [Statement] b -> MeowFile -> IO (Either CatException b)
 {-# INLINABLE runFileCore #-}
 runFileCore params input = case input of
-    (Left exception) -> (return . Left) $ badFile "In import" (Text.pack path) exception
+    (Left exception) -> (return . Left) $ badFile "In import" [Text.pack path] exception
     (Right (newState, contents)) -> meowParse path contents >>= do
         let newParams = params { getMeowState = newState }
         runParsed newParams

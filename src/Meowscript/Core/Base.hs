@@ -61,20 +61,30 @@ baseLibrary = createObject
     , ("floor"   , MeowIFunc  ["x"] meowFloor )
     , ("random"  , MeowIFunc  [   ] meowRand  )
     , ("time"    , MeowIFunc  [   ] meowTime  )
-        -- File IO --
-    , ("read_file"   , MeowIFunc ["path"]             meowRead   )
-    , ("write_file"  , MeowIFunc ["path", "contents"] meowWrite  )
-    , ("append_file" , MeowIFunc ["path", "contents"] meowAppend )
         -- Boxes --
-    , ("lookup"      , MeowIFunc  ["box", "key"]      meowLookup )
-    , ("haskey"      , MeowIFunc  ["box", "key"]      meowHasKey )
+    , ("lookup"             , MeowIFunc  ["box", "key"]          meowLookup     )
+    , ("haskey"             , MeowIFunc  ["box", "key"]          meowHasKey     )
+        -- File IO --
+    , ("read_file"          , MeowIFunc  ["path"]                meowRead       )
+    , ("write_file"         , MeowIFunc  ["path", "contents"]    meowWrite      )
+    , ("append_file"        , MeowIFunc  ["path", "contents"]    meowAppend     )
+    , ("move_file"          , MeowIFunc  ["a", "b"]              meowMvFile     )
+    , ("remove_file"        , MeowIFunc  ["path"]                meowRmFile     )
+    , ("rename_file"        , MeowIFunc  ["path", "name"]        meowRenFile    )
+    , ("file_exists"        , MeowIFunc  ["path"]                meowHasFile    )
+    , ("make_directory"     , MeowIFunc  ["path"]                meowMkDir      )
+    , ("move_directory"     , MeowIFunc  ["a", "b"]              meowMvDir      )
+    , ("remove_directory"   , MeowIFunc  ["path"]                meowRmDir      )
+    , ("rename_directory"   , MeowIFunc  ["path", "name"]        meowRenDir     )
+    , ("directory_exists"   , MeowIFunc  ["path"]                meowHasDir     )
+    , ("peek_directory"     , MeowIFunc  ["path"]                meowInspect    )
         -- Text --
-    , ("upper"       , MeowIFunc  ["x"]                   meowUpper   )
-    , ("lower"       , MeowIFunc  ["x"]                   meowLower   )
-    , ("trim"        , MeowIFunc  ["x"]                   meowTrim    )
-    , ("split"       , MeowIFunc  ["str", "token"]        meowSplit   )
-    , ("substring"   , MeowIFunc  ["str", "start", "len"] meowSubstr  )
-    , ("replace"     , MeowIFunc  ["str", "token", "rep"] meowReplace )]
+    , ("upper"              , MeowIFunc  ["x"]                   meowUpper      )
+    , ("lower"              , MeowIFunc  ["x"]                   meowLower      )
+    , ("trim"               , MeowIFunc  ["x"]                   meowTrim       )
+    , ("split"              , MeowIFunc  ["str", "token"]        meowSplit      )
+    , ("substring"          , MeowIFunc  ["str", "start", "len"] meowSubstr     )
+    , ("replace"            , MeowIFunc  ["str", "token", "rep"] meowReplace    )]
 
 {- IO -} 
 ----------------------------------------------------------
@@ -331,32 +341,144 @@ throwEx = lookUp "x" >>= \case
 
 {- File IO -}
 ----------------------------------------------------------
-
 meowRead :: Evaluator Prim
 meowRead = lookUp "path" >>= \case
     (MeowString path) -> do 
         local <- asks (localPath . Text.unpack . _meowPath . fst)
         (liftIO . safeReadFile . local . Text.unpack) path >>= \case
-            (Left exception) -> throwError (badFile path "In 'read_file'" exception)
+            (Left exception) -> throwError (badFile "In 'read_file'" [path] exception)
             (Right contents) -> (return . MeowString) contents
     x -> throwError =<< badArgs "read_file" [x]
 
-meowWrite :: Evaluator Prim
-meowWrite = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
+------ ### -------
+
+type WriteCallback = Text.Text -> FilePath -> IO (Either Text.Text ())
+
+inFnName :: Text.Text -> Text.Text
+inFnName name = Text.concat [ "In '", name, "'" ]
+
+writeBase :: Text.Text -> WriteCallback -> Evaluator Prim
+writeBase name f = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
     (MeowString path, MeowString contents) -> do
         local <- asks (localPath . Text.unpack . _meowPath . fst)
         let path' = (local . Text.unpack) path
-        liftIO (safeWriteFile path' contents) >>= \case
-            (Left exception) -> throwError (badFile path  "In 'write_file'" exception)
+        liftIO (f contents path') >>= \case
+            (Left exception) -> throwError $ badFile (inFnName name) [path] exception
             (Right _) -> (return . MeowString) contents
-    (x, y) -> throwError =<< badArgs "write_file" [x, y]
+    (x, y) -> throwError =<< badArgs name [x, y]
+
+meowWrite :: Evaluator Prim
+meowWrite = writeBase "write_file" safeWriteFile
 
 meowAppend :: Evaluator Prim
-meowAppend = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
-    (MeowString path, MeowString contents) -> do
+meowAppend = writeBase "append_file" safeAppendFile
+
+------ ### -------
+
+type ExistCallback = FilePath -> IO (Either Text.Text Bool)
+
+existsBase :: Text.Text -> ExistCallback -> Evaluator Prim
+existsBase name f = lookUp "path" >>= \case
+    (MeowString path) -> do
+        local <- asks (localPath . Text.unpack . _meowPath . fst)
+        (liftIO . f . local . Text.unpack) path >>= \case
+            (Left exception) -> throwError $ badFile (inFnName name) [path] exception
+            (Right exists) -> (return . MeowBool) exists
+    x -> throwError =<< badArgs name [x]
+
+meowHasFile :: Evaluator Prim
+meowHasFile = existsBase "file_exists" safeDoesFileExist
+
+meowHasDir :: Evaluator Prim
+meowHasDir = existsBase "directory_exists" safeDirectoryExists
+
+------ ### -------
+
+meowMkDir :: Evaluator Prim
+meowMkDir = lookUp "path" >>= \case
+    (MeowString path) -> do
+        local <- asks (localPath . Text.unpack . _meowPath . fst)
+        (liftIO . safeMakeDirectory . local . Text.unpack) path >>= \case
+            (Left exception) -> throwError $ badFile "In 'make_directory'" [path] exception
+            (Right _) -> return MeowLonely
+    x -> throwError =<< badArgs "make_directory" [x]
+
+------ ### -------
+
+type MoveCallback = FilePath -> FilePath -> IO (Either Text.Text ())
+
+moveBase :: Text.Text -> MoveCallback -> Evaluator Prim
+moveBase name f = (,) <$> lookUp "a" <*> lookUp "b" >>= \case
+    (MeowString a, MeowString b) -> do
+        local <- asks (localPath . Text.unpack . _meowPath . fst)
+        let pathA = (local . Text.unpack) a
+        let pathB = (local . Text.unpack) b
+        liftIO (f pathA pathB) >>= \case
+            (Left exception) -> throwError $ badFile (inFnName name) [a, b] exception
+            (Right _) -> return MeowLonely
+    (x, y) -> throwError =<< badArgs name [x, y]
+
+meowMvFile :: Evaluator Prim
+meowMvFile = moveBase "move_file" safeMoveFile
+
+meowMvDir :: Evaluator Prim
+meowMvDir = moveBase "move_directory" safeMoveDir
+
+------ ### -------
+
+type RemoveCallback = FilePath -> IO (Either Text.Text ())
+
+removeBase :: Text.Text -> RemoveCallback -> Evaluator Prim
+removeBase name f = lookUp "path" >>= \case
+    (MeowString path) -> do
+        local <- asks (localPath . Text.unpack . _meowPath . fst)
+        (liftIO . f . local . Text.unpack) path >>= \case
+            (Left exception) -> throwError $ badFile (inFnName name) [path] exception
+            (Right _) -> return MeowLonely
+    x -> throwError =<< badArgs name [x]
+
+meowRmFile :: Evaluator Prim
+meowRmFile = removeBase "remove_file" safeRemoveFile
+
+meowRmDir :: Evaluator Prim
+meowRmDir = removeBase "remove_directory" safeRemoveDir
+
+------ ### -------
+
+type RenameCallback = FilePath -> String -> IO (Either Text.Text ())
+
+renameBase :: Text.Text -> RenameCallback -> Evaluator Prim
+renameBase name f = (,) <$> lookUp "path" <*> lookUp "name" >>= \case
+    (MeowString path, MeowString newName) -> do
         local <- asks (localPath . Text.unpack . _meowPath . fst)
         let path' = (local . Text.unpack) path
-        liftIO (safeAppendFile path' contents) >>= \case
-            (Left exception) -> throwError (badFile path  "In 'append_file'" exception)
-            (Right _) -> (return . MeowString) contents
-    (x, y) -> throwError =<< badArgs "append_file" [x, y]
+        let newName' = (local . Text.unpack) newName
+        liftIO (f path' newName') >>= \case
+            (Left exception) ->  throwError $ badFile (inFnName name) [path, newName] exception
+            (Right _) -> return MeowLonely
+    (x, y) -> throwError =<< badArgs name [x, y]
+
+meowRenFile :: Evaluator Prim
+meowRenFile = renameBase "rename_file" safeRenameFile
+
+meowRenDir :: Evaluator Prim
+meowRenDir = renameBase "rename_directory" safeRenameDir
+
+------ ### -------
+
+meowInspect :: Evaluator Prim
+meowInspect = lookUp "path" >>= \case
+    (MeowString path) -> do
+        local <- asks (localPath . Text.unpack . _meowPath . fst)
+        let path' = (local . Text.unpack) path
+        let makeObject exists files = (fmap MeowObject . liftIO . createObject)
+                [ ( "exists", MeowBool exists                               )
+                , ( "files" , MeowList (map (MeowString . Text.pack) files) ) ]
+        let exception = badFile "In 'peek_directory'" [path]
+        (liftIO . safeDirectoryExists) path' >>= \case
+            (Left exc) -> throwError $ exception exc
+            (Right True) -> (liftIO . safeInspectDirectory) path' >>= \case
+                (Left exc) -> throwError $ exception exc
+                (Right files) -> makeObject True files
+            (Right False) -> makeObject False []
+    x -> throwError =<< badArgs "peek_directory" [x]

@@ -118,7 +118,7 @@ meowFileIO f state = f . meowResolve state
 
 meowrFile :: (FilePath -> IO MeowFileOutput) -> [FilePath] -> IO (Maybe MeowFileOutput)
 meowrFile _ [] = return Nothing
-meowrFile f (x:xs) = safeDoesFileExist x >>= \exists -> if exists
+meowrFile f (x:xs) = safeDoesFileExist' x >>= \exists -> if exists
     then Just <$> f x
     else meowrFile f xs
 
@@ -134,11 +134,11 @@ meowrWrite :: Text.Text -> MeowFileCallback
 meowrWrite contents state path = writeContents state path >>= \case
     (Left exc) -> return (path, Left exc)
     (Right _)  -> return (path, Right Text.empty)
-    where writeContents = meowFileIO (`safeWriteFile` contents)
+    where writeContents = meowFileIO (safeWriteFile contents)
 
 meowrAppend :: Text.Text -> MeowFileCallback
 {-# INLINABLE meowrAppend #-}
 meowrAppend contents state path = appendContents state path >>= \case
     (Left exc) -> return (path, Left exc)
     (Right _)  -> return (path, Right Text.empty)
-    where appendContents = meowFileIO (`safeAppendFile` contents)
+    where appendContents = meowFileIO (safeAppendFile contents)

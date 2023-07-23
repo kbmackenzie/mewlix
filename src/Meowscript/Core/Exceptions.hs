@@ -134,9 +134,9 @@ badImport file exception = showException MeowBadImport
 notImport :: Text.Text -> CatException
 notImport = showException MeowUnexpected . Text.append "Token is not an import: "
 
-badFile :: Text.Text -> FilePathT -> Text.Text -> CatException
-badFile message path exception = showException MeowBadFile $ Text.concat
-    [ message, ": | ", exception, " | File: \"", path, "\"" ]
+badFile :: Text.Text -> [FilePathT] -> Text.Text -> CatException
+badFile message paths exception = showException MeowBadFile $ Text.concat
+    [ message, ": | ", exception, " | File: \"", Text.intercalate ", " paths, "\"" ]
 
 badHash :: Prim -> Evaluator CatException
 badHash = showException' MeowBadHash "Value cannot be hashed." . List.singleton

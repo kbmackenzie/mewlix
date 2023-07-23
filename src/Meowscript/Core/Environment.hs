@@ -12,6 +12,7 @@ module Meowscript.Core.Environment
 , modifyVar
 , insertVar
 , insertRef
+, insertMany
 , overwriteVar
 , localEnv
 , runLocal
@@ -108,6 +109,13 @@ insertRef key ref = do
 overwriteVar :: Key -> Prim -> Evaluator ()
 {-# INLINE overwriteVar #-}
 overwriteVar = createVar
+
+insertMany :: [(Key, PrimRef)] -> Evaluator ()
+insertMany pairs = do
+    env <- asks snd >>= readMeowRef
+    let insertPair m (key, ref) = Map.insert key ref m
+    let env' = foldl insertPair env pairs
+    asks snd >>= flip writeMeowRef env'
 
 localEnv :: Evaluator Environment
 {-# INLINABLE localEnv #-}
