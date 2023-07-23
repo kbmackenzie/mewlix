@@ -47,7 +47,7 @@ meowrActions :: Map.Map Name Action
 meowrActions = Map.fromList
     [ ("repl", (const . const) repl )
     , ("run" , meowrMake none       )
-    , ("json", meowrMake json       )]
+    , ("json", meowrMake json       ) ]
 
 runMeowr :: IO ()
 runMeowr = getMeowr >>= \case

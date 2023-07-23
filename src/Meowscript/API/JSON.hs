@@ -3,6 +3,7 @@
 
 module Meowscript.API.JSON
 ( toJSON
+, prettyJSON
 ) where
 
 import Meowscript.Core.AST
@@ -49,3 +50,29 @@ toJSON (MeowObject x) = do
     let xs = Map.toList x
     braces . Text.intercalate ", " <$> mapM (unpack >=> printPair) xs
 toJSON _ = return "null"
+
+prettyJSON :: Prim -> IO Text.Text
+prettyJSON = prettyJSON' 0
+
+makeIndent :: Int -> Text.Text
+makeIndent i = Text.replicate (i * 2) " "
+
+prettyJSON' :: Int -> Prim -> IO Text.Text
+prettyJSON' i (MeowList xs) = do
+    let i' = succ i
+    let items = mapM (prettyJSON' i') xs
+    let indentation = Text.append $ makeIndent i'
+    let closeBracket = Text.concat ["\n", makeIndent i, "]"]
+    let brackets' = (`Text.append` closeBracket) . Text.append "[\n"
+    brackets' . Text.intercalate ",\n" . map indentation <$> items
+prettyJSON' i (MeowObject x) = do
+    let unpack (key, ref) = (key,) <$> readIORef ref
+    let i' = succ i
+    let makeKey = (`Text.append` ": ") . quotes . Text.concatMap escapeChar
+    let printPair (key, value) = Text.append (makeKey key) <$> prettyJSON' i' value
+    let indentation = Text.append $ makeIndent i'
+    let closeBrace = Text.concat ["\n", makeIndent i, "}"]
+    let braces' = (`Text.append` closeBrace) . Text.append "{\n"
+    let pairs = mapM (unpack >=> printPair) (Map.toList x)
+    braces' . Text.intercalate ",\n" . map indentation <$> pairs
+prettyJSON' _ prim = toJSON prim

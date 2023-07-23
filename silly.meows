@@ -1,12 +1,13 @@
 mew args = snoop()
-meow(args)
+meow("ᓚᘏᗢ")
+meow("arguments: "..args)
 
-meow(search("map"))
-meow(search("foo"))
+--meow(search("map"))
+--meow(search("foo"))
 
 foo = 2
 
-meow(search("foo"))
+--meow(search("foo"))
 
 bring ~( ^.x.^) BOX!! [
     a: [2, 3, "hello", "world"],
