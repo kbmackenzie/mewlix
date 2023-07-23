@@ -47,6 +47,27 @@ mew not_equal      = ( ^.x.^)> (a, b) => (a != b)
 
 
 ~( ^.x.^)>
+Safely run a comparison between two values.
+
+This function expects a comparison function and two
+arguments to apply to that function.
+
+If an InvalidOperation exception is thrown by the
+comparison function, this function returns sad.
+
+Else, it returns the boolean result of the comparison.
+<(^.x.^ )~
+
+=^.x.^= safe_compare (fn, a, b)
+    watch
+        bring fn(a, b)
+    catch ("InvalidOperationException")
+        bring sad
+    meow meow
+meow meow
+
+
+~( ^.x.^)>
 Inspired by Haskell's 'id' and 'const' functions.
 (The const function would be flipped.)
 
