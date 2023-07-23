@@ -1,4 +1,18 @@
--- std.meows
+~( ^.x.^)> --------------------------------
+The 'std.meows' yarn ball.
+The heart of the standard library.
+
+It contains:
+- Functions for shelves, strings and boxes,
+like 'map' and 'fold'.
+- Functions for basic operations.
+- Box constructors for important box types,
+such as tuples.
+
+A colorful yarn ball!
+-------------------------------- <(^.x.^ )~
+
+takes "exception.meows"
 
 ~( ^.x.^)> --------------
   Arithmetic operations
@@ -61,7 +75,7 @@ Else, it returns the boolean result of the comparison.
 =^.x.^= safe_compare (fn, a, b)
     watch
         bring fn(a, b)
-    catch ("InvalidOperationException")
+    catch (MeowException.InvalidOperation)
         bring sad
     meow meow
 meow meow
