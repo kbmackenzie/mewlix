@@ -17,7 +17,7 @@ import System.Environment (getArgs)
 import Meowscript.Utils.IO
 import Meowscript.REPL.Loop (repl)
 import Lens.Micro.Platform (over)
-import Meowscript.API.JSON (toJSON)
+import Meowscript.API.JSON (toJSON, prettyJSON)
 import Control.Monad ((>=>), void)
 
 argStr :: IO Text.Text
@@ -45,9 +45,10 @@ type Action = Name -> [MeowrArg] -> IO ()
 
 meowrActions :: Map.Map Name Action
 meowrActions = Map.fromList
-    [ ("repl", (const . const) repl )
-    , ("run" , meowrMake none       )
-    , ("json", meowrMake json       ) ]
+    [ ("repl"   ,   (const . const) repl )
+    , ("run"    ,   meowrMake none       )
+    , ("json"   ,   meowrMake json       )
+    , ("jsonp"  ,   meowrMake jsonP      ) ]
 
 runMeowr :: IO ()
 runMeowr = getMeowr >>= \case
@@ -73,6 +74,9 @@ none = void . return
 
 json :: Prim -> IO ()
 json = toJSON >=> printStrLn
+
+jsonP :: Prim -> IO ()
+jsonP = prettyJSON >=> printStrLn
 
 meowrMake :: (Prim -> IO ()) -> Name -> [MeowrArg] -> IO ()
 meowrMake f name args = do
