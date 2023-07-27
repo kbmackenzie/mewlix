@@ -12,8 +12,6 @@ options = [ "-implicitMain" ]
 main    = "main.meows"
 
 -- Source directories:
-sources = [
+include = [
     "src/"
 ]
-
-meow(snoop())
