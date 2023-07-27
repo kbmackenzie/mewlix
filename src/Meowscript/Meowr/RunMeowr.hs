@@ -10,7 +10,7 @@ import Meowscript.Meowr.Core
 import Meowscript.Meowr.Parser
 import Meowscript.Meowr.Project
 import Meowscript.Core.AST
-import Meowscript.Core.MeowState (meowState')
+import Meowscript.Core.MeowState (makeState')
 import Meowscript.Core.RunEvaluator (runMeow, importEnv)
 import Meowscript.Core.Environment
 import Meowscript.REPL.Loop (repl)
@@ -102,7 +102,7 @@ jsonP = prettyJSON >=> printStrLn
 
 meowrMake :: (Prim -> IO ()) -> Name -> [MeowrArg] -> IO ()
 meowrMake f name args = do
-    state <- meowState' name [] emptyLib
+    state <- makeState' name [] emptyLib
     let meowedState = transState args state
     runMeow meowedState >>= \case
         (Left exc) -> (printExc . snd) exc
@@ -128,7 +128,7 @@ project _ args = runExceptT (runProject args) >>= \case
 
 runProject  :: [MeowrArg] -> Project Prim
 runProject args = do
-    state <- liftIO $ meowState' configMeows' [] emptyLib
+    state <- liftIO $ makeState' configMeows' [] emptyLib
     let initState = transState args state
 
     configEnv <- readConfig initState

@@ -76,7 +76,7 @@ addModule :: Command
 addModule line env = case getArgs line of
     [] -> return (True, env)
     (path:_) -> readModule path >>= \contents -> do
-        state' <- makeState
+        state' <- newState
         let contents' = fmap (state',) contents
         importEnv state' path contents' >>= \case
             (Left x) -> printExc (snd x) >> return (True, env)
@@ -84,7 +84,7 @@ addModule line env = case getArgs line of
                 imp <- publicKeys <$> readIORef x
                 let envNew = env <> imp
                 addModule (popArg line) envNew
-    where makeState = meowState' Text.empty [] emptyLib
+    where newState = makeState' Text.empty [] emptyLib
 
 readModule :: FilePathT -> IO (Either Text.Text Text.Text)
 readModule path = if Set.member path stdFiles

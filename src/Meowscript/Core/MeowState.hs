@@ -3,8 +3,8 @@
 {-# LANGUAGE TupleSections #-}
 
 module Meowscript.Core.MeowState
-( meowState
-, meowState'
+( makeState
+, makeState'
 , meowSetPath
 , cacheAdd
 , cacheLookup
@@ -39,8 +39,8 @@ import System.FilePath (hasTrailingPathSeparator, (</>), isAbsolute)
  - meowr -specialDef=customValue
  -}
 
-meowState :: FilePathT -> [Text.Text] -> IO ObjectMap -> Maybe MeowCache -> IO MeowState
-meowState path args lib cache = return MeowState
+makeState :: FilePathT -> [Text.Text] -> IO ObjectMap -> Maybe MeowCache -> IO MeowState
+makeState path args lib cache = return MeowState
     { _meowArgs     = args
     , _meowLib      = lib
     , _meowStd      = stdFiles
@@ -51,8 +51,8 @@ meowState path args lib cache = return MeowState
     , _meowFlags    = Set.empty
     , _meowDefines  = Map.empty }
 
-meowState' :: FilePathT -> [Text.Text] -> IO ObjectMap -> IO MeowState
-meowState' path args lib = meowCacheNew >>= meowState path args lib . Just
+makeState' :: FilePathT -> [Text.Text] -> IO ObjectMap -> IO MeowState
+makeState' path args lib = meowCacheNew >>= makeState path args lib . Just
 
 {- Getters and Setters -}
 ---------------------------------------------------------------------

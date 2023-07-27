@@ -42,8 +42,8 @@ type EvalCallback a b = a -> Evaluator b
 type MeowFile = Either Text.Text (MeowState, Text.Text)
 
 data MeowParams a b = MeowParams
-    { getMeowState :: MeowState
-    , getMeowFn    :: EvalCallback a b }
+    { meowParamState :: MeowState
+    , meowParamFn    :: EvalCallback a b }
 
 {- Run evaluator: -}
 -------------------------------------------------------------------------
@@ -52,7 +52,7 @@ runEvaluator meow env eval = env >>= newIORef >>= (runExceptT . runReaderT eval 
 
 runFile :: MeowParams [Statement] b -> IO (Either CatException b)
 runFile params = meowSearch state path >>= runFileCore params
-    where state = getMeowState params
+    where state = meowParamState params
           path = (meowResolve state . Text.unpack . _meowPath) state
 
 -- Evaluate the contents from a .meows file.
@@ -61,9 +61,9 @@ runFileCore :: MeowParams [Statement] b -> MeowFile -> IO (Either CatException b
 runFileCore params input = case input of
     (Left exception) -> (return . Left) $ badFile "In import" [Text.pack path] exception
     (Right (newState, contents)) -> meowParse path contents >>= do
-        let newParams = params { getMeowState = newState }
+        let newParams = params { meowParamState = newState }
         runParsed newParams
-    where state = getMeowState params
+    where state = meowParamState params
           path = (meowResolve state . Text.unpack . _meowPath) state
 
 runParsed :: MeowParams [Statement] b -> Either Text.Text [Statement] -> IO (Either CatException b)
@@ -71,9 +71,9 @@ runParsed :: MeowParams [Statement] b -> Either Text.Text [Statement] -> IO (Eit
 runParsed params parsed = case parsed of
     (Left exception) -> (return . Left) $ meowSyntaxExc exception
     (Right program) -> runCore state lib (asMain . fn) program
-    where state = getMeowState params
+    where state = meowParamState params
           lib = _meowLib state
-          fn = getMeowFn params
+          fn = meowParamFn params
 
 runCore :: MeowState -> IO ObjectMap -> EvalCallback a b -> a -> IO (Either CatException b)
 {-# INLINABLE runCore #-}
@@ -86,14 +86,14 @@ runCore state lib fn input = do
 -- Variants that default to no additional libraries:
 runMeow :: MeowState -> IO (Either CatException Prim)
 runMeow state = runFile MeowParams
-    { getMeowState = state
-    , getMeowFn = runProgram }
+    { meowParamState = state
+    , meowParamFn = runProgram }
 
 runExpr :: Text.Text -> IO (Either CatException Prim)
-runExpr line = meowState' Text.empty [] emptyLib >>= \state -> 
+runExpr line = makeState' Text.empty [] emptyLib >>= \state -> 
     let params = MeowParams
-            { getMeowState = state
-            , getMeowFn = evaluate }
+            { meowParamState = state
+            , meowParamFn = evaluate }
     in runLine (lexemeLn parseExpr') params line
 
 {- More actions -}
@@ -103,9 +103,9 @@ runLine :: Parser a -> MeowParams a b -> Text.Text -> IO (Either CatException b)
 runLine parser params str = case parseSpecial parser str of
     (Left exception) -> (return . Left) $ meowSyntaxExc exception
     (Right output) -> runCore state lib fn output
-    where state = getMeowState params
+    where state = meowParamState params
           lib = _meowLib state
-          fn = getMeowFn params
+          fn = meowParamFn params
 
 {- Stack tracing: -}
 -------------------------------------------------------------------------
@@ -159,8 +159,8 @@ importEnv state path contents = runFileCore params contents >>= \case
         (Left exception) -> (return . Left) exception
         (Right output) -> (return . Right) output
     where params = MeowParams
-                { getMeowState = meowSetPath path state
-                , getMeowFn = runImport path }
+                { meowParamState = meowSetPath path state
+                , meowParamFn = runImport path }
 
 publicKeys :: ObjectMap -> ObjectMap
 {-# INLINABLE publicKeys #-}
