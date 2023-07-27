@@ -54,7 +54,7 @@ import Control.Monad.Except (ExceptT)
 import Data.IORef (IORef)
 import Network.Socket (Socket)
 import Lens.Micro.Platform (makeLenses)
-import Control.Monad (ap)
+import Control.Monad (ap, liftM2)
 
 {- Evaluator -}
 --------------------------------------------
@@ -285,7 +285,7 @@ $(makeLenses ''MeowState)
  - 'Define'-style flags. (?) -}
 
 joinLibs :: (Monad m) => m ObjectMap -> m ObjectMap -> m ObjectMap
-joinLibs = ap . fmap (<>)
+joinLibs = liftM2 (<>)
 
 nestLibs :: (Monad m) => Key -> m PrimRef -> m ObjectMap -> m ObjectMap
 nestLibs key = ap . fmap (Map.insert key)
