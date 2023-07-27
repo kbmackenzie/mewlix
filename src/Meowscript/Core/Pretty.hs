@@ -45,5 +45,5 @@ showMeow (MeowIFunc _ _) = return "<inner-func>"
 -- for use in lists and objects.
 prettyMeow :: Prim -> Evaluator Text.Text
 {-# INLINE prettyMeow #-}
-prettyMeow (MeowString x) = return $ Text.concat [ "\"", x, "\"" ]
+prettyMeow (MeowString x) = return $ showT x
 prettyMeow x = showMeow x
