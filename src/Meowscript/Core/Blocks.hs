@@ -35,7 +35,7 @@ evaluate (ExpObject object) = do
     let toPrim (key, expr) = (evaluate >=> ensureValue) expr <&> (key,)
     pairs <- mapM toPrim object
     MeowObject <$> (liftIO . createObject) pairs
-evaluate (ExpLambda args expr) = asks (MeowFunc args [StmReturn expr] . _meowEnv)
+evaluate (ExpLambda args expr) = asks (MeowFunc args [StmReturn expr] . meowEnv)
 
 -- Dot operator (.)
 evaluate (ExpDotOp expr dot) = evaluate expr >>= \case
@@ -164,7 +164,7 @@ runExprStatement = evaluate
 ------------------------------------------------------------------------
 runFuncDef :: KeyType -> Params -> Block -> Evaluator ReturnValue
 runFuncDef key params body = do 
-    asks (MeowFunc params body . _meowEnv) >>= assignment (ensureLocal key)
+    asks (MeowFunc params body . meowEnv) >>= assignment (ensureLocal key)
     return RetVoid
 
 {- Run Functions -}

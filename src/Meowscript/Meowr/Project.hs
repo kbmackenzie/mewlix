@@ -64,10 +64,10 @@ type StateConfig = MeowrConfig -> MeowState -> MeowState
 
 transformStates :: [StateConfig]
 transformStates =
-    [ set meowPath . view configMain
-    , set meowArgs . view configArgs
-    , set meowInclude . map Text.unpack . view sourceFiles
-    , over meowLib . nestLibs "__info__" . makeInfoObject . view projectInfo ]
+    [ set meowPathL . view configMain
+    , set meowArgsL . view configArgs
+    , set meowIncludeL . map Text.unpack . view sourceFiles
+    , over meowLibL . nestLibs "__info__" . makeInfoObject . view projectInfo ]
 
 configState :: MeowrConfig -> MeowState -> MeowState
 configState config state = foldr ($) state transforms

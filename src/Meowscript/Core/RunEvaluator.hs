@@ -50,14 +50,14 @@ data MeowParams a b = MeowParams
 runEvaluator :: MeowState -> IO ObjectMap -> Evaluator a -> IO (Either CatException a)
 runEvaluator meow env eval = env >>= newIORef >>= (runExceptT . runReaderT eval . context)
     where context n = MeowContext
-            { _meowState = meow
-            , _meowEnv   = n
-            , _meowDraw  = DrawFlag }
+            { meowState = meow
+            , meowEnv   = n
+            , meowDraw  = DrawFlag }
 
 runFile :: MeowParams [Statement] b -> IO (Either CatException b)
 runFile params = meowSearch state path >>= runFileCore params
     where state = meowParamState params
-          path = (meowResolve state . Text.unpack . _meowPath) state
+          path = (meowResolve state . Text.unpack . meowPath) state
 
 -- Evaluate the contents from a .meows file.
 runFileCore :: MeowParams [Statement] b -> MeowFile -> IO (Either CatException b)
@@ -68,7 +68,7 @@ runFileCore params input = case input of
         let newParams = params { meowParamState = newState }
         runParsed newParams
     where state = meowParamState params
-          path = (meowResolve state . Text.unpack . _meowPath) state
+          path = (meowResolve state . Text.unpack . meowPath) state
 
 runParsed :: MeowParams [Statement] b -> Either Text.Text [Statement] -> IO (Either CatException b)
 {-# INLINABLE runParsed #-}
@@ -76,7 +76,7 @@ runParsed params parsed = case parsed of
     (Left exception) -> (return . Left) $ meowSyntaxExc exception
     (Right program) -> runCore state lib (asMain . fn) program
     where state = meowParamState params
-          lib = _meowLib state
+          lib = meowLib state
           fn = meowParamFn params
 
 runCore :: MeowState -> IO ObjectMap -> EvalCallback a b -> a -> IO (Either CatException b)
@@ -108,7 +108,7 @@ runLine parser params str = case parseSpecial parser str of
     (Left exception) -> (return . Left) $ meowSyntaxExc exception
     (Right output) -> runCore state lib fn output
     where state = meowParamState params
-          lib = _meowLib state
+          lib = meowLib state
           fn = meowParamFn params
 
 {- Stack tracing: -}
@@ -129,20 +129,20 @@ runProgram xs = do
     returnAsPrim <$> runBlock rest False
 
 runImport :: FilePathT -> [Statement] -> Evaluator Environment
-runImport path xs = asImport path $ runProgram xs >> asks _meowEnv -- Return the environment.
+runImport path xs = asImport path $ runProgram xs >> asks meowEnv -- Return the environment.
 
 
 {- Modules -}
 --------------------------------------------------------
 readModule :: FilePathT -> Evaluator MeowFile
-readModule path = asks (_meowStd . _meowState) >>= \std -> if Set.member path std
+readModule path = asks (meowStd . meowState) >>= \std -> if Set.member path std
     then do
         output <- (liftIO . readStdFile) path
-        state <- asks _meowState
+        state <- asks meowState
         return $ fmap (state,) output
     else do
-        local <- asks $ (`localPath` Text.unpack path) . Text.unpack . _meowPath . _meowState
-        state <- asks _meowState
+        local <- asks $ (`localPath` Text.unpack path) . Text.unpack . meowPath . meowState
+        state <- asks meowState
         (liftIO . meowSearch state . meowResolve state) local
 
 getImport :: FilePathT -> Evaluator (Either CatException Environment)
@@ -151,7 +151,7 @@ getImport path = cacheLookup path >>= \case
     (Just x) -> return (Right x)
     Nothing  -> do
         contents <- readModule path
-        state <- asks _meowState
+        state <- asks meowState
         liftIO (importEnv state path contents)
 
 --importLog :: FilePathT -> IO () -- todo: take this out as it's just for info
@@ -177,10 +177,10 @@ addImport (StmImport filepath qualified) = getImport filepath >>= \case
     (Right imp) -> cacheAdd filepath imp
         >> case qualified of
         Nothing -> do
-            let mainLib = asks _meowEnv >>= readMeowRef
+            let mainLib = asks meowEnv >>= readMeowRef
             let impLib = publicKeys <$> readMeowRef imp
             newLib <- mainLib `joinLibs` impLib
-            asks _meowEnv >>= flip writeMeowRef newLib
+            asks meowEnv >>= flip writeMeowRef newLib
         (Just name) -> do
             let impLib = readMeowRef imp >>= newMeowRef . MeowObject . publicKeys
             insertRef name =<< impLib

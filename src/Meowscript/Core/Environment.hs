@@ -66,7 +66,7 @@ emptyLib = return Map.empty
 -------------------------------------------------------------
 lookUpVar :: Key -> Evaluator (Maybe PrimRef)
 {-# INLINABLE lookUpVar #-}
-lookUpVar key = (asks _meowEnv >>= readMeowRef) <&> Map.lookup key
+lookUpVar key = (asks meowEnv >>= readMeowRef) <&> Map.lookup key
 
 lookUpRef :: Key -> Evaluator PrimRef
 {-# INLINABLE lookUpRef #-}
@@ -76,7 +76,7 @@ lookUpRef key = lookUpVar key >>= \case
 
 keyExists :: Key -> Evaluator Bool
 {-# INLINABLE keyExists #-}
-keyExists key = (asks _meowEnv >>= readMeowRef) <&> Map.member key
+keyExists key = (asks meowEnv >>= readMeowRef) <&> Map.member key
 
 lookUp :: Key -> Evaluator Prim
 {-# INLINABLE lookUp #-}
@@ -85,10 +85,10 @@ lookUp key = lookUpRef key >>= readMeowRef
 createVar :: Key -> Prim -> Evaluator ()
 {-# INLINABLE createVar #-}
 createVar key value = do
-    env <- asks _meowEnv >>= readMeowRef
+    env <- asks meowEnv >>= readMeowRef
     value' <- newMeowRef value
     let env' = Map.insert key value' env
-    asks _meowEnv >>= flip writeMeowRef env'
+    asks meowEnv >>= flip writeMeowRef env'
 
 modifyVar :: PrimRef -> Prim -> Evaluator ()
 {-# INLINABLE modifyVar #-}
@@ -104,9 +104,9 @@ insertVar key value False = lookUpVar key >>= \case
 insertRef :: Key -> PrimRef -> Evaluator ()
 {-# INLINABLE insertRef #-}
 insertRef key ref = do
-    env <- asks _meowEnv >>= readMeowRef
+    env <- asks meowEnv >>= readMeowRef
     let env' = Map.insert key ref env
-    asks _meowEnv >>= flip writeMeowRef env'
+    asks meowEnv >>= flip writeMeowRef env'
 
 overwriteVar :: Key -> Prim -> Evaluator ()
 {-# INLINE overwriteVar #-}
@@ -114,25 +114,25 @@ overwriteVar = createVar
 
 insertMany :: [(Key, PrimRef)] -> Evaluator ()
 insertMany pairs = do
-    env <- asks _meowEnv >>= readMeowRef
+    env <- asks meowEnv >>= readMeowRef
     let insertPair m (key, ref) = Map.insert key ref m
     let env' = foldl' insertPair env pairs
-    asks _meowEnv >>= flip writeMeowRef env'
+    asks meowEnv >>= flip writeMeowRef env'
 
 localEnv :: Evaluator Environment
 {-# INLINABLE localEnv #-}
-localEnv = asks _meowEnv >>= readMeowRef >>= newMeowRef
+localEnv = asks meowEnv >>= readMeowRef >>= newMeowRef
 
 runLocal :: Evaluator a -> Evaluator a
 {-# INLINABLE runLocal #-} --todo: lens here
 runLocal action = ask
-    >>= (\ctx -> flip (set meowEnv) ctx <$> localEnv)
+    >>= (\ctx -> flip (set meowEnvL) ctx <$> localEnv)
     >>= (\ctx -> local (const ctx) action)
 
 runClosure :: ObjectMap -> Evaluator a -> Evaluator a
 {-# INLINABLE runClosure #-}
 runClosure closure action = ask
-    >>= (\ctx -> flip (set meowEnv) ctx <$> newMeowRef closure)
+    >>= (\ctx -> flip (set meowEnvL) ctx <$> newMeowRef closure)
     >>= (\ctx -> local (const ctx) action)
 
 

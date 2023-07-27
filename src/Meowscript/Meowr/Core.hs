@@ -45,10 +45,10 @@ isMeowrStr (MeowrString _) = True
 isMeowrStr _ = False
 
 addArg :: Text.Text -> MeowState -> MeowState
-addArg = over meowArgs . (:)
+addArg = over meowArgsL . (:)
 
 addFlag :: Text.Text -> MeowState -> MeowState
-addFlag = over meowFlags . Set.insert . Text.toLower
+addFlag = over meowFlagsL . Set.insert . Text.toLower
 
 addOption :: Text.Text -> Text.Text -> MeowState -> MeowState
 addOption key value = case Map.lookup key meowrOptions of
@@ -69,13 +69,13 @@ meowrInclude :: [Text.Text]
 meowrInclude = ["l", "library", "lib"]
 
 addDefine :: Text.Text -> Text.Text -> MeowState -> MeowState
-addDefine = (over meowDefines .) . Map.insert
+addDefine = (over meowDefinesL .) . Map.insert
 
 emptyDef :: Text.Text -> MeowState -> MeowState
 emptyDef def = addDefine def Text.empty
 
 addInclude :: Text.Text -> MeowState -> MeowState
-addInclude = over meowInclude . (:) . Text.unpack
+addInclude = over meowIncludeL . (:) . Text.unpack
 
 {- Utils -}
 --------------------------------------------------------------

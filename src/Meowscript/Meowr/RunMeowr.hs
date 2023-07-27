@@ -44,7 +44,7 @@ runArg (MeowrString arg)       = addArg arg
 runArg (MeowrOption key value) = addOption key value
 
 transState :: [MeowrArg] -> MeowState -> MeowState
-transState = (over meowArgs reverse .) . applyArgs
+transState = (over meowArgsL reverse .) . applyArgs
 
 syntaxError :: Text.Text -> Text.Text
 syntaxError = Text.append "Syntax error in command:\n"

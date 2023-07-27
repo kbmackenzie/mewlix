@@ -41,15 +41,15 @@ import System.FilePath (hasTrailingPathSeparator, (</>), isAbsolute)
 
 makeState :: FilePathT -> [Text.Text] -> IO ObjectMap -> Maybe MeowCache -> IO MeowState
 makeState path args lib cache = return MeowState
-    { _meowArgs     = args
-    , _meowLib      = lib
-    , _meowStd      = stdFiles
-    , _meowCache    = cache
-    , _meowPath     = path
-    , _meowSocket   = Nothing
-    , _meowInclude  = []
-    , _meowFlags    = Set.empty
-    , _meowDefines  = Map.empty }
+    { meowArgs     = args
+    , meowLib      = lib
+    , meowStd      = stdFiles
+    , meowCache    = cache
+    , meowPath     = path
+    , meowSocket   = Nothing
+    , meowInclude  = []
+    , meowFlags    = Set.empty
+    , meowDefines  = Map.empty }
 
 makeState' :: FilePathT -> [Text.Text] -> IO ObjectMap -> IO MeowState
 makeState' path args lib = meowCacheNew >>= makeState path args lib . Just
@@ -57,15 +57,15 @@ makeState' path args lib = meowCacheNew >>= makeState path args lib . Just
 {- Getters and Setters -}
 ---------------------------------------------------------------------
 meowSetPath :: FilePathT -> MeowState -> MeowState
-meowSetPath = set meowPath
+meowSetPath = set meowPathL
 
 cacheAdd :: FilePathT -> Environment -> Evaluator ()
-cacheAdd path env = asks (_meowCache . _meowState) >>= \case
+cacheAdd path env = asks (meowCache . meowState) >>= \case
     Nothing -> return ()
     (Just cache) -> liftIO $ modifyIORef cache (Map.insert path env)
 
 cacheLookup :: FilePathT -> Evaluator (Maybe Environment)
-cacheLookup path = asks (_meowCache . _meowState) >>= \case
+cacheLookup path = asks (meowCache . meowState) >>= \case
     Nothing -> return Nothing
     (Just cache) -> Map.lookup path <$> (liftIO . readIORef) cache
 
@@ -73,7 +73,7 @@ meowCacheNew :: IO MeowCache
 meowCacheNew = newIORef Map.empty
 
 meowHasFlag :: [Text.Text] -> MeowState -> Bool
-meowHasFlag keys state = let flags = _meowFlags state
+meowHasFlag keys state = let flags = meowFlags state
     in any (`Set.member` flags) keys
 
 
@@ -102,9 +102,9 @@ meowSearch state path
         (Left exception) -> (return . Left) exception
         (Right (foundPath, tryRead)) -> case tryRead of
             (Left exception) -> (return . Left) exception
-            (Right contents) -> let state' = state { _meowPath = Text.pack foundPath }
+            (Right contents) -> let state' = state { meowPath = Text.pack foundPath }
                 in return (Right (state', contents))
-    where paths = (:) path $ map (</> path) (_meowInclude state)
+    where paths = (:) path $ map (</> path) (meowInclude state)
           readContents = meowFileIO safeReadFile
 
 meowFileIO :: (FilePath -> IO a) -> MeowState -> FilePath -> IO a

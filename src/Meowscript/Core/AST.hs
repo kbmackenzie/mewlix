@@ -23,9 +23,9 @@ module Meowscript.Core.AST
 , CatException
 , Evaluator
 , MeowContext(..)
-, meowState
-, meowEnv
-, meowDraw
+, meowStateL
+, meowEnvL
+, meowDrawL
 , DrawFlag(..)
 , InnerFunc
 , Condition
@@ -37,15 +37,15 @@ module Meowscript.Core.AST
 , returnAsPrim
 , MeowState(..)
 , MeowCache
-, meowArgs
-, meowLib
-, meowStd
-, meowCache
-, meowPath
-, meowSocket
-, meowInclude
-, meowFlags
-, meowDefines
+, meowArgsL
+, meowLibL
+, meowStdL
+, meowCacheL
+, meowPathL
+, meowSocketL
+, meowIncludeL
+, meowFlagsL
+, meowDefinesL
 , joinLibs
 , nestLibs
 ) where
@@ -58,7 +58,7 @@ import Control.Monad.Reader (ReaderT)
 import Control.Monad.Except (ExceptT)
 import Data.IORef (IORef)
 import Network.Socket (Socket)
-import Lens.Micro.Platform (makeLenses)
+import Lens.Micro.Platform (makeLensesFor)
 import Control.Monad (ap, liftM2)
 
 {- Evaluator -}
@@ -78,9 +78,9 @@ type CatException = (MeowException, Text.Text)
 data DrawFlag = DrawFlag -- todo
 
 data MeowContext = MeowContext
-    { _meowState :: MeowState
-    , _meowEnv   :: Environment
-    , _meowDraw  :: DrawFlag }
+    { meowState :: MeowState
+    , meowEnv   :: Environment
+    , meowDraw  :: DrawFlag }
 
 type Evaluator a = ReaderT MeowContext (ExceptT CatException IO) a
 
@@ -278,19 +278,34 @@ exc = (++ "Exception")
 type MeowCache = IORef (Map.Map FilePathT Environment)
 
 data MeowState = MeowState
-    { _meowArgs     :: [Text.Text]                  -- Command-line arguments.
-    , _meowLib      :: IO ObjectMap
-    , _meowStd      :: Set.Set FilePathT            -- Standard files.
-    , _meowCache    :: Maybe MeowCache              -- File import cache.
-    , _meowPath     :: FilePathT                    -- The path to the current file.
-    , _meowSocket   :: Maybe Socket
-    , _meowInclude  :: [FilePath]                   -- 'Include' paths.
-    , _meowFlags    :: Set.Set Text.Text
-    , _meowDefines  :: Map.Map Text.Text Text.Text  -- Meta constant definitions.
+    { meowArgs     :: [Text.Text]                  -- Command-line arguments.
+    , meowLib      :: IO ObjectMap
+    , meowStd      :: Set.Set FilePathT            -- Standard files.
+    , meowCache    :: Maybe MeowCache              -- File import cache.
+    , meowPath     :: FilePathT                    -- The path to the current file.
+    , meowSocket   :: Maybe Socket
+    , meowInclude  :: [FilePath]                   -- 'Include' paths.
+    , meowFlags    :: Set.Set Text.Text
+    , meowDefines  :: Map.Map Text.Text Text.Text  -- Meta constant definitions.
     }
 
-$(makeLenses ''MeowState)
-$(makeLenses ''MeowContext)
+$(makeLensesFor
+    [ ("meowArgs"    , "meowArgsL"      )
+    , ("meowLib"     , "meowLibL"       )
+    , ("meowStd"     , "meowStdL"       )
+    , ("meowCache"   , "meowCacheL"     )
+    , ("meowPath"    , "meowPathL"      )
+    , ("meowSocket"  , "meowSocketL"    )
+    , ("meowInclude" , "meowIncludeL"   )
+    , ("meowFlags"   , "meowFlagsL"     )
+    , ("meowDefines" , "meowDefinesL"   ) ]
+    ''MeowState)
+
+$(makeLensesFor
+    [ ("meowState", "meowStateL" )
+    , ("meowEnv"  , "meowEnvL"   )
+    , ("meowDraw" , "meowDrawL"  ) ]
+    ''MeowContext)
 
 {- To add:
  - Socket address.
