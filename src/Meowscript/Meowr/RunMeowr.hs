@@ -16,6 +16,7 @@ import Meowscript.Meowr.Project
 import Meowscript.REPL.Loop (repl)
 import qualified Data.Text as Text
 import qualified Data.List as List
+import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
 import System.Environment (getArgs)
 import Lens.Micro.Platform (over)
@@ -26,6 +27,8 @@ import Data.IORef (readIORef)
 import Meowscript.Utils.IO
 import Meowscript.Utils.Types
 
+{- Args -}
+--------------------------------------------------
 argStr :: IO Text.Text
 argStr = Text.intercalate " " . map Text.pack <$> getArgs
 
@@ -33,12 +36,12 @@ getMeowr :: IO (Either Text.Text MeowrAction)
 getMeowr = parseMeowed <$> argStr
 
 applyArgs :: [MeowrArg] -> MeowState -> MeowState
-applyArgs xs state = foldl (flip meowrAction) state xs
+applyArgs xs state = foldr meowrAction state xs
 
 meowrAction :: MeowrArg -> MeowState -> MeowState
-meowrAction (MeowrFlag flag) = addFlag flag
+meowrAction (MeowrFlag flag)        = addFlag flag
+meowrAction (MeowrString arg)       = addArg arg
 meowrAction (MeowrOption key value) = addOption key value
-meowrAction (MeowrString arg) = addArg arg
 
 transState :: [MeowrArg] -> MeowState -> MeowState
 transState = (over meowArgs reverse .) . applyArgs
@@ -46,6 +49,8 @@ transState = (over meowArgs reverse .) . applyArgs
 makeError :: Text.Text -> Text.Text
 makeError = Text.append "Syntax error in command:\n"
 
+{- Meowr -}
+--------------------------------------------------
 type Name = Text.Text
 type Action = Name -> [MeowrArg] -> IO ()
 
@@ -56,6 +61,13 @@ meowrActions = Map.fromList
     , ("json"   ,   meowrMake json       )
     , ("jsonp"  ,   meowrMake jsonP      )
     , ("proj"   ,   project              ) ]
+
+{- A few notes:
+ - 1. The 'json' and 'jsonp' commands should try to use a socket.
+ - 2. The 'run' command works as you'd expect, following this rule:
+ - 'meowr main.meows' == 'meowr run main.meows'
+ - 3. All arguments passed to 'proj' will be passed only to 'config.meows'.
+ - Not to the project itself! -}
 
 runMeowr :: IO ()
 runMeowr = getMeowr >>= \case
@@ -68,13 +80,21 @@ getMeowrStr :: MeowrArg -> Text.Text
 getMeowrStr (MeowrString x) = x
 getMeowrStr _ = undefined -- This should never happen.
 
+
+{- Run Action -}
+--------------------------------------------------
+takeName :: Set.Set Text.Text
+takeName = Set.fromList ["run", "json", "jsonp"]
+
 runAction :: Name -> [MeowrArg] -> IO ()
 runAction name args = case Map.lookup name meowrActions of
     Nothing -> meowrMake none name args
-    (Just f) -> f newName newArgs
+    (Just f) -> if Set.member name takeName
+        then f newName newArgs
+        else f Text.empty args
     where (newName, newArgs) = case List.partition isMeowrStr args of
-              ([], rest) -> ("", rest)
-              (x:xs, rest) -> (getMeowrStr x, xs ++ rest)
+              ([], rest)    -> (Text.empty, rest)
+              (x:xs, rest)  -> (getMeowrStr x, xs ++ rest)
 
 none :: Prim -> IO ()
 none = void . return
@@ -107,22 +127,22 @@ configMeows' = Text.pack configMeows
 type Project a = ExceptT Text.Text IO a
 
 project :: Name -> [MeowrArg] -> IO ()
-project _ _ = runExceptT runProject >>= \case
+project _ args = runExceptT (runProject args) >>= \case
     (Left exception) -> printExc exception
     (Right _) -> return ()
 
-runProject  :: Project Prim
-runProject = do
+runProject  :: [MeowrArg] -> Project Prim
+runProject args = do
     state <- liftIO $ meowState' configMeows' [] emptyLib
+    let initState = transState args state
 
-    configEnv <- readConfig state
+    configEnv <- readConfig initState
     configs <- liftIO $ applyConfigs initConfig configEnv
 
-    let beforeOpts = configState configs state
     options <- parseOptions (_configFlags configs)
-    let newState = transState options beforeOpts
+    let finalState = transState options $ configState configs initState
 
-    liftIO (runMeow newState) >>= \case
+    liftIO (runMeow finalState) >>= \case
         (Left exception) -> (throwError . snd) exception
         (Right prim) -> return prim
 
