@@ -17,8 +17,9 @@ import Meowscript.Core.Environment (createObject)
 import Lens.Micro.Platform (makeLenses, view, over, set)
 import Data.Bifunctor (second)
 import Data.Maybe (mapMaybe)
-import Data.IORef (readIORef)
+import Data.IORef (newIORef, readIORef)
 import Data.Foldable (foldrM)
+import Control.Monad ((>=>))
 
 {- Config Data -}
 -------------------------------------------------
@@ -74,8 +75,8 @@ configState config state = foldr ($) state transforms
 
 {- Creating Objects -}
 -------------------------------------------------
-makeInfoObject :: [(Text.Text, Text.Text)] -> IO ObjectMap
-makeInfoObject = createObject . map (second MeowString)
+makeInfoObject :: [(Text.Text, Text.Text)] -> IO PrimRef
+makeInfoObject = (createObject >=> newIORef . MeowObject) . map (second MeowString)
 
 {- Apply -}
 -------------------------------------------------

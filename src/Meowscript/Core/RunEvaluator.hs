@@ -173,12 +173,11 @@ addImport (StmImport filepath qualified) = getImport filepath >>= \case
     (Right imp) -> cacheAdd filepath imp
         >> case qualified of
         Nothing -> do
-            x <- asks snd >>= readMeowRef
-            y <- publicKeys <$> readMeowRef imp
-            lib <- asks (_meowLib . fst) >>= liftIO
-            asks snd >>= flip writeMeowRef (x <> y <> lib)
+            let mainLib = asks snd >>= readMeowRef
+            let impLib = publicKeys <$> readMeowRef imp
+            newLib <- mainLib `joinLibs` impLib
+            asks snd >>= flip writeMeowRef newLib
         (Just name) -> do
-            x <- publicKeys <$> readMeowRef imp 
-            lib <- asks (_meowLib . fst) >>= liftIO
-            insertRef name =<< (newMeowRef . MeowObject) (x <> lib)
+            let impLib = readMeowRef imp >>= newMeowRef . MeowObject . publicKeys
+            insertRef name =<< impLib
 addImport x = throwError $ notImport (showT x)
