@@ -80,7 +80,7 @@ meowHasFlag keys state = let flags = meowFlags state
 {- Flag Types -}
 ---------------------------------------------------------------------
 implicitMain :: [Text.Text]
-implicitMain = ["i", "implicit", "implicitmain"]
+implicitMain = ["m", "implicit", "implicitmain"]
 
 
 {- Resolve path -}

@@ -66,7 +66,7 @@ meowrDefine :: [Text.Text]
 meowrDefine = ["d", "define", "def"]
 
 meowrInclude :: [Text.Text]
-meowrInclude = ["l", "library", "lib"]
+meowrInclude = ["i", "include", "inc"]
 
 addDefine :: Text.Text -> Text.Text -> MeowState -> MeowState
 addDefine = (over meowDefinesL .) . Map.insert
