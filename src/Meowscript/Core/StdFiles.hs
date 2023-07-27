@@ -7,10 +7,10 @@ module Meowscript.Core.StdFiles
 , readStdFile
 ) where
 
-import qualified Data.Text as Text
-import qualified Data.Set as Set
 import Meowscript.Utils.Types
 import Meowscript.Utils.Data
+import qualified Data.Text as Text
+import qualified Data.Set as Set
 
 stdFiles :: Set.Set FilePathT
 stdFiles = Set.fromList

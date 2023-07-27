@@ -20,14 +20,14 @@ module Meowscript.Core.MeowState
 import Meowscript.Core.AST
 import Meowscript.Utils.Types
 import Meowscript.Core.StdFiles
+import Meowscript.Utils.IO
 import qualified Data.Text as Text
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import Data.IORef (newIORef, readIORef, modifyIORef)
 import Control.Monad.Reader (asks, liftIO)
-import Lens.Micro.Platform (set)
-import Meowscript.Utils.IO
 import Control.Applicative (liftA2)
+import Lens.Micro.Platform (set)
 import System.FilePath (hasTrailingPathSeparator, (</>), isAbsolute)
 
 {- Notes:

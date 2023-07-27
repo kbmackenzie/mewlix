@@ -6,26 +6,26 @@ module Meowscript.Meowr.RunMeowr
 ( runMeowr 
 ) where
 
-import Meowscript.Core.AST
 import Meowscript.Meowr.Core
 import Meowscript.Meowr.Parser
+import Meowscript.Meowr.Project
+import Meowscript.Core.AST
 import Meowscript.Core.MeowState (meowState')
 import Meowscript.Core.RunEvaluator (runMeow, importEnv)
 import Meowscript.Core.Environment
-import Meowscript.Meowr.Project
 import Meowscript.REPL.Loop (repl)
+import Meowscript.API.JSON (toJSON, prettyJSON)
+import Meowscript.Utils.IO
+import Meowscript.Utils.Types
 import qualified Data.Text as Text
 import qualified Data.List as List
 import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
 import System.Environment (getArgs)
 import Lens.Micro.Platform (over)
-import Meowscript.API.JSON (toJSON, prettyJSON)
 import Control.Monad ((>=>), void)
 import Control.Monad.Except (ExceptT, runExceptT, liftIO, throwError)
 import Data.IORef (readIORef)
-import Meowscript.Utils.IO
-import Meowscript.Utils.Types
 
 {- Args -}
 --------------------------------------------------
@@ -36,18 +36,18 @@ getMeowr :: IO (Either Text.Text MeowrAction)
 getMeowr = parseMeowed <$> argStr
 
 applyArgs :: [MeowrArg] -> MeowState -> MeowState
-applyArgs xs state = foldr meowrAction state xs
+applyArgs xs state = foldr runArg state xs
 
-meowrAction :: MeowrArg -> MeowState -> MeowState
-meowrAction (MeowrFlag flag)        = addFlag flag
-meowrAction (MeowrString arg)       = addArg arg
-meowrAction (MeowrOption key value) = addOption key value
+runArg :: MeowrArg -> MeowState -> MeowState
+runArg (MeowrFlag flag)        = addFlag flag
+runArg (MeowrString arg)       = addArg arg
+runArg (MeowrOption key value) = addOption key value
 
 transState :: [MeowrArg] -> MeowState -> MeowState
 transState = (over meowArgs reverse .) . applyArgs
 
-makeError :: Text.Text -> Text.Text
-makeError = Text.append "Syntax error in command:\n"
+syntaxError :: Text.Text -> Text.Text
+syntaxError = Text.append "Syntax error in command:\n"
 
 {- Meowr -}
 --------------------------------------------------
@@ -71,15 +71,10 @@ meowrActions = Map.fromList
 
 runMeowr :: IO ()
 runMeowr = getMeowr >>= \case
-    (Left err) -> (printErrLn . makeError) err
+    (Left err) -> (printErrLn . syntaxError) err
     (Right (MeowrAction name args)) -> case name of
         Nothing -> repl -- todo: apply args here too
         (Just n) -> runAction n args
-
-getMeowrStr :: MeowrArg -> Text.Text
-getMeowrStr (MeowrString x) = x
-getMeowrStr _ = undefined -- This should never happen.
-
 
 {- Run Action -}
 --------------------------------------------------

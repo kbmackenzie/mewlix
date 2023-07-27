@@ -9,6 +9,7 @@ module Meowscript.Meowr.Core
 , isFlag
 , isOption
 , isMeowrStr
+, getMeowrStr
 ) where
 
 import Meowscript.Core.AST
@@ -75,3 +76,9 @@ emptyDef def = addDefine def Text.empty
 
 addInclude :: Text.Text -> MeowState -> MeowState
 addInclude = over meowInclude . (:) . Text.unpack
+
+{- Utils -}
+--------------------------------------------------------------
+getMeowrStr :: MeowrArg -> Text.Text
+getMeowrStr (MeowrString x) = x
+getMeowrStr _ = undefined -- This should never happen.
