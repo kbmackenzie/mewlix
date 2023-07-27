@@ -41,6 +41,8 @@ module Meowscript.Core.AST
 , meowInclude
 , meowFlags
 , meowDefines
+, joinLibs
+, nestLibs
 ) where
 
 import Meowscript.Utils.Types
@@ -49,9 +51,10 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Text as Text
 import Control.Monad.Reader (ReaderT)
 import Control.Monad.Except (ExceptT)
-import Data.IORef (IORef)
+import Data.IORef (IORef, newIORef)
 import Network.Socket (Socket)
 import Lens.Micro.Platform (makeLenses)
+import Control.Monad (ap)
 
 {- Evaluator -}
 --------------------------------------------
@@ -280,3 +283,9 @@ $(makeLenses ''MeowState)
  - Socket address.
  - Compile flags (?).
  - 'Define'-style flags. (?) -}
+
+joinLibs :: IO ObjectMap -> IO ObjectMap -> IO ObjectMap
+joinLibs = ap . fmap (<>)
+
+nestLibs :: Key -> IO ObjectMap -> IO ObjectMap -> IO ObjectMap
+nestLibs key = ap . fmap (Map.insert key) . (newIORef . MeowObject =<<)

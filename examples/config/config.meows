@@ -1,0 +1,17 @@
+~( ^.x.^)> Meowscript config file. <(^.x.^ )~
+
+-- Project information:
+name    = "Pong"
+author  = "KBMackenzie"
+license = "MIT"
+
+args    = [ ]
+options = [ "-implicitMain" ]
+
+-- Main file:
+main    = "main.meows"
+
+-- Source directories:
+sources = [
+    "src/"
+]

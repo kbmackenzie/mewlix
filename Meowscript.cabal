@@ -53,6 +53,7 @@ library
       Meowscript.Core.StdFiles
       Meowscript.Meowr.Core
       Meowscript.Meowr.Parser
+      Meowscript.Meowr.Project
       Meowscript.Meowr.RunMeowr
       Meowscript.Parser.Core
       Meowscript.Parser.Expr
@@ -81,6 +82,7 @@ library
     , bytestring
     , clock
     , containers
+    , deepseq
     , directory
     , filepath
     , hashable
@@ -111,6 +113,7 @@ executable Meowscript
     , bytestring
     , clock
     , containers
+    , deepseq
     , directory
     , filepath
     , hashable
@@ -142,6 +145,7 @@ test-suite Meowscript-test
     , bytestring
     , clock
     , containers
+    , deepseq
     , directory
     , filepath
     , hashable

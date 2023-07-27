@@ -36,6 +36,7 @@ import Control.Monad.Reader (asks, liftIO, local)
 import Control.Monad.Except (throwError)
 import qualified Data.Map.Strict as Map
 import Data.Functor ((<&>))
+import Data.Foldable (foldl')
 
 {- Helpers -}
 -------------------------------------------------------------
@@ -114,7 +115,7 @@ insertMany :: [(Key, PrimRef)] -> Evaluator ()
 insertMany pairs = do
     env <- asks snd >>= readMeowRef
     let insertPair m (key, ref) = Map.insert key ref m
-    let env' = foldl insertPair env pairs
+    let env' = foldl' insertPair env pairs
     asks snd >>= flip writeMeowRef env'
 
 localEnv :: Evaluator Environment

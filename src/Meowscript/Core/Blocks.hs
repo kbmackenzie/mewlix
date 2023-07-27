@@ -106,7 +106,7 @@ funcTrace key args = stackTrace $ do
 -------------------------------------------------------------------------
 runBlock :: Block -> IsLoop -> Evaluator ReturnValue
 {-# INLINABLE runBlock #-}
-runBlock = runStatements
+runBlock block = block `seq` runStatements block
 
 {-
 -- Run block in proper order: Function definitions, then other statements.
@@ -300,7 +300,7 @@ catchMeow isLoop (MeowCatch expr body) (x, y) = case expr of
 
 runCatches :: [MeowCatch] -> IsLoop -> Evaluator ReturnValue -> Evaluator ReturnValue
 runCatches [] _      = id
-runCatches xs isLoop = foldl1 (flip (.)) (flip catchError . catchMeow isLoop <$> xs)
+runCatches xs isLoop = foldr1 (flip (.)) (flip catchError . catchMeow isLoop <$> xs)
 
 runTryCatch :: Block -> [MeowCatch] -> IsLoop -> Evaluator ReturnValue
 runTryCatch tryBlock xs isLoop = runCatches xs isLoop (runBlock tryBlock isLoop)

@@ -39,6 +39,7 @@ dependencies:
 - transformers
 - haskeline
 - microlens-platform
+- deepseq
 
 ghc-options:
 - -O3

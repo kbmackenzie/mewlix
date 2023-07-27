@@ -89,11 +89,11 @@ primHash (MeowInt x) = return (hash x)
 primHash (MeowDouble x) = return (hash x)
 primHash (MeowString x) = return (hash x)
 primHash (MeowBool x) = return (hash x)
-primHash (MeowList xs) = foldl xor 0 <$> mapM primHash xs
+primHash (MeowList xs) = foldr xor 0 <$> mapM primHash xs
 primHash (MeowObject obj) = do
     let xs = Map.toList obj
     let unpack (key, ref) = (key,) <$> readMeowRef ref
     let hashPair (x, y) = (hash x `xor`) <$> primHash y
-    foldl xor 0 <$> mapM (unpack >=> hashPair) xs
+    foldr xor 0 <$> mapM (unpack >=> hashPair) xs
 primHash MeowLonely = return 0
 primHash x = throwError =<< badHash x
