@@ -83,13 +83,13 @@ getMeowrStr _ = undefined -- This should never happen.
 
 {- Run Action -}
 --------------------------------------------------
-takeName :: Set.Set Text.Text
-takeName = Set.fromList ["run", "json", "jsonp"]
+takesName :: Set.Set Text.Text
+takesName = Set.fromList ["run", "json", "jsonp"]
 
 runAction :: Name -> [MeowrArg] -> IO ()
 runAction name args = case Map.lookup name meowrActions of
     Nothing -> meowrMake none name args
-    (Just f) -> if Set.member name takeName
+    (Just f) -> if Set.member name takesName
         then f newName newArgs
         else f Text.empty args
     where (newName, newArgs) = case List.partition isMeowrStr args of
@@ -158,5 +158,6 @@ readConfig state = liftIO (safeDoesFileExist configMeows) >>= \case
 
 parseOptions :: [Text.Text] -> Project [MeowrArg]
 parseOptions opts = case parseMeowed (Text.intercalate " " opts) of
-    (Left err) -> throwError $ Text.append "Error when passing 'options':\n" err
+    (Left err) -> throwError $ Text.append optionError err
     (Right options) -> (return . meowrArgs) options
+    where optionError = Text.concat [ configMeows', ": Error when parsing options:\n" ]
