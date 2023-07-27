@@ -60,12 +60,12 @@ meowSetPath :: FilePathT -> MeowState -> MeowState
 meowSetPath = set meowPath
 
 cacheAdd :: FilePathT -> Environment -> Evaluator ()
-cacheAdd path env = asks (_meowCache . fst) >>= \case
+cacheAdd path env = asks (_meowCache . _meowState) >>= \case
     Nothing -> return ()
     (Just cache) -> liftIO $ modifyIORef cache (Map.insert path env)
 
 cacheLookup :: FilePathT -> Evaluator (Maybe Environment)
-cacheLookup path = asks (_meowCache . fst) >>= \case
+cacheLookup path = asks (_meowCache . _meowState) >>= \case
     Nothing -> return Nothing
     (Just cache) -> Map.lookup path <$> (liftIO . readIORef) cache
 

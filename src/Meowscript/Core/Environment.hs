@@ -32,11 +32,12 @@ module Meowscript.Core.Environment
 import Meowscript.Core.AST
 import Data.IORef
 import Meowscript.Core.Exceptions
-import Control.Monad.Reader (asks, liftIO, local)
+import Control.Monad.Reader (ask, asks, liftIO, local)
 import Control.Monad.Except (throwError)
 import qualified Data.Map.Strict as Map
 import Data.Functor ((<&>))
 import Data.Foldable (foldl')
+import Lens.Micro.Platform (view, set, over)
 
 {- Helpers -}
 -------------------------------------------------------------
@@ -65,7 +66,7 @@ emptyLib = return Map.empty
 -------------------------------------------------------------
 lookUpVar :: Key -> Evaluator (Maybe PrimRef)
 {-# INLINABLE lookUpVar #-}
-lookUpVar key = (asks snd >>= readMeowRef) <&> Map.lookup key
+lookUpVar key = (asks _meowEnv >>= readMeowRef) <&> Map.lookup key
 
 lookUpRef :: Key -> Evaluator PrimRef
 {-# INLINABLE lookUpRef #-}
@@ -75,7 +76,7 @@ lookUpRef key = lookUpVar key >>= \case
 
 keyExists :: Key -> Evaluator Bool
 {-# INLINABLE keyExists #-}
-keyExists key = (asks snd >>= readMeowRef) <&> Map.member key
+keyExists key = (asks _meowEnv >>= readMeowRef) <&> Map.member key
 
 lookUp :: Key -> Evaluator Prim
 {-# INLINABLE lookUp #-}
@@ -84,10 +85,10 @@ lookUp key = lookUpRef key >>= readMeowRef
 createVar :: Key -> Prim -> Evaluator ()
 {-# INLINABLE createVar #-}
 createVar key value = do
-    env <- asks snd >>= readMeowRef
+    env <- asks _meowEnv >>= readMeowRef
     value' <- newMeowRef value
     let env' = Map.insert key value' env
-    asks snd >>= flip writeMeowRef env'
+    asks _meowEnv >>= flip writeMeowRef env'
 
 modifyVar :: PrimRef -> Prim -> Evaluator ()
 {-# INLINABLE modifyVar #-}
@@ -103,9 +104,9 @@ insertVar key value False = lookUpVar key >>= \case
 insertRef :: Key -> PrimRef -> Evaluator ()
 {-# INLINABLE insertRef #-}
 insertRef key ref = do
-    env <- asks snd >>= readMeowRef
+    env <- asks _meowEnv >>= readMeowRef
     let env' = Map.insert key ref env
-    asks snd >>= flip writeMeowRef env'
+    asks _meowEnv >>= flip writeMeowRef env'
 
 overwriteVar :: Key -> Prim -> Evaluator ()
 {-# INLINE overwriteVar #-}
@@ -113,22 +114,26 @@ overwriteVar = createVar
 
 insertMany :: [(Key, PrimRef)] -> Evaluator ()
 insertMany pairs = do
-    env <- asks snd >>= readMeowRef
+    env <- asks _meowEnv >>= readMeowRef
     let insertPair m (key, ref) = Map.insert key ref m
     let env' = foldl' insertPair env pairs
-    asks snd >>= flip writeMeowRef env'
+    asks _meowEnv >>= flip writeMeowRef env'
 
 localEnv :: Evaluator Environment
 {-# INLINABLE localEnv #-}
-localEnv = asks snd >>= readMeowRef >>= newMeowRef
+localEnv = asks _meowEnv >>= readMeowRef >>= newMeowRef
 
 runLocal :: Evaluator a -> Evaluator a
-{-# INLINABLE runLocal #-}
-runLocal action = asks ((,) . fst) <*> localEnv >>= \x -> local (const x) action
+{-# INLINABLE runLocal #-} --todo: lens here
+runLocal action = ask
+    >>= (\ctx -> flip (set meowEnv) ctx <$> localEnv)
+    >>= (\ctx -> local (const ctx) action)
 
 runClosure :: ObjectMap -> Evaluator a -> Evaluator a
 {-# INLINABLE runClosure #-}
-runClosure closure action = asks ((,) . fst) <*> newMeowRef closure >>= \x -> local (const x) action
+runClosure closure action = ask
+    >>= (\ctx -> flip (set meowEnv) ctx <$> newMeowRef closure)
+    >>= (\ctx -> local (const ctx) action)
 
 
 {- Object Handling -}

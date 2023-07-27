@@ -48,7 +48,11 @@ data MeowParams a b = MeowParams
 {- Run evaluator: -}
 -------------------------------------------------------------------------
 runEvaluator :: MeowState -> IO ObjectMap -> Evaluator a -> IO (Either CatException a)
-runEvaluator meow env eval = env >>= newIORef >>= (runExceptT . runReaderT eval . (meow,))
+runEvaluator meow env eval = env >>= newIORef >>= (runExceptT . runReaderT eval . context)
+    where context n = MeowContext
+            { _meowState = meow
+            , _meowEnv   = n
+            , _meowDraw  = DrawFlag }
 
 runFile :: MeowParams [Statement] b -> IO (Either CatException b)
 runFile params = meowSearch state path >>= runFileCore params
@@ -125,20 +129,20 @@ runProgram xs = do
     returnAsPrim <$> runBlock rest False
 
 runImport :: FilePathT -> [Statement] -> Evaluator Environment
-runImport path xs = asImport path $ runProgram xs >> asks snd -- Return the environment.
+runImport path xs = asImport path $ runProgram xs >> asks _meowEnv -- Return the environment.
 
 
 {- Modules -}
 --------------------------------------------------------
 readModule :: FilePathT -> Evaluator MeowFile
-readModule path = asks (_meowStd . fst) >>= \std -> if Set.member path std
+readModule path = asks (_meowStd . _meowState) >>= \std -> if Set.member path std
     then do
         output <- (liftIO . readStdFile) path
-        state <- asks fst
+        state <- asks _meowState
         return $ fmap (state,) output
     else do
-        local <- asks $ (`localPath` Text.unpack path) . Text.unpack . _meowPath . fst
-        state <- asks fst
+        local <- asks $ (`localPath` Text.unpack path) . Text.unpack . _meowPath . _meowState
+        state <- asks _meowState
         (liftIO . meowSearch state . meowResolve state) local
 
 getImport :: FilePathT -> Evaluator (Either CatException Environment)
@@ -147,7 +151,7 @@ getImport path = cacheLookup path >>= \case
     (Just x) -> return (Right x)
     Nothing  -> do
         contents <- readModule path
-        state <- asks fst
+        state <- asks _meowState
         liftIO (importEnv state path contents)
 
 --importLog :: FilePathT -> IO () -- todo: take this out as it's just for info
@@ -173,10 +177,10 @@ addImport (StmImport filepath qualified) = getImport filepath >>= \case
     (Right imp) -> cacheAdd filepath imp
         >> case qualified of
         Nothing -> do
-            let mainLib = asks snd >>= readMeowRef
+            let mainLib = asks _meowEnv >>= readMeowRef
             let impLib = publicKeys <$> readMeowRef imp
             newLib <- mainLib `joinLibs` impLib
-            asks snd >>= flip writeMeowRef newLib
+            asks _meowEnv >>= flip writeMeowRef newLib
         (Just name) -> do
             let impLib = readMeowRef imp >>= newMeowRef . MeowObject . publicKeys
             insertRef name =<< impLib

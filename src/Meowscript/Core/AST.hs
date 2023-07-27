@@ -22,6 +22,11 @@ module Meowscript.Core.AST
 , Closure
 , CatException
 , Evaluator
+, MeowContext(..)
+, meowState
+, meowEnv
+, meowDraw
+, DrawFlag(..)
 , InnerFunc
 , Condition
 , Block
@@ -70,7 +75,14 @@ type Environment = IORef ObjectMap
 type Closure = Environment
 type CatException = (MeowException, Text.Text)
 
-type Evaluator a = ReaderT (MeowState, Environment) (ExceptT CatException IO) a
+data DrawFlag = DrawFlag -- todo
+
+data MeowContext = MeowContext
+    { _meowState :: MeowState
+    , _meowEnv   :: Environment
+    , _meowDraw  :: DrawFlag }
+
+type Evaluator a = ReaderT MeowContext (ExceptT CatException IO) a
 
 
 {- AST - Primitives -}
@@ -278,6 +290,7 @@ data MeowState = MeowState
     }
 
 $(makeLenses ''MeowState)
+$(makeLenses ''MeowContext)
 
 {- To add:
  - Socket address.

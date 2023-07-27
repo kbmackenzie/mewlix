@@ -38,7 +38,7 @@ replParse = parseSpecial replLine
 -- Get pretty-printed primitive from the evaluator itself!
 -- I can't pretty-print it afterward, after all. @. @
 textAndEnv :: EvalCallback Expr (Text.Text, Environment)
-textAndEnv x = (,) <$> (evaluate x >>= ensureValue >>= prettyMeow) <*> asks snd
+textAndEnv x = (,) <$> (evaluate x >>= ensureValue >>= prettyMeow) <*> asks _meowEnv
 
 evaluateExpr :: ObjectMap -> Expr -> IO (Either CatException (Text.Text, Environment))
 evaluateExpr env expr = newState >>= \state -> --todo: make this prettier

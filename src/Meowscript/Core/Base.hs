@@ -98,11 +98,11 @@ listen :: Evaluator Prim
 listen = liftIO TextIO.getLine <&> MeowString
 
 snoop :: Evaluator Prim
-snoop = asks (MeowList . map MeowString . _meowArgs . fst)
+snoop = asks (MeowList . map MeowString . _meowArgs . _meowState)
 
 search :: Evaluator Prim
 search = lookUp "x" >>= \case
-    (MeowString x) -> let hasDef def = Map.member def . _meowDefines . fst
+    (MeowString x) -> let hasDef def = Map.member def . _meowDefines . _meowState
         in MeowBool <$> ((||) <$> keyExists x <*> (asks . hasDef) x)
     x -> throwError =<< badArgs "search" [x]
 
@@ -344,7 +344,7 @@ throwEx = lookUp "x" >>= \case
 meowRead :: Evaluator Prim
 meowRead = lookUp "path" >>= \case
     (MeowString path) -> do 
-        local <- asks (localPath . Text.unpack . _meowPath . fst)
+        local <- asks (localPath . Text.unpack . _meowPath . _meowState)
         (liftIO . safeReadFile . local . Text.unpack) path >>= \case
             (Left exception) -> throwError (badFile "In 'read_file'" [path] exception)
             (Right contents) -> (return . MeowString) contents
@@ -360,7 +360,7 @@ inFnName name = Text.concat [ "In '", name, "'" ]
 writeBase :: Text.Text -> WriteCallback -> Evaluator Prim
 writeBase name f = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
     (MeowString path, MeowString contents) -> do
-        local <- asks (localPath . Text.unpack . _meowPath . fst)
+        local <- asks (localPath . Text.unpack . _meowPath . _meowState)
         let path' = (local . Text.unpack) path
         liftIO (f contents path') >>= \case
             (Left exception) -> throwError $ badFile (inFnName name) [path] exception
@@ -380,7 +380,7 @@ type ExistCallback = FilePath -> IO (Either Text.Text Bool)
 existsBase :: Text.Text -> ExistCallback -> Evaluator Prim
 existsBase name f = lookUp "path" >>= \case
     (MeowString path) -> do
-        local <- asks (localPath . Text.unpack . _meowPath . fst)
+        local <- asks (localPath . Text.unpack . _meowPath . _meowState)
         (liftIO . f . local . Text.unpack) path >>= \case
             (Left exception) -> throwError $ badFile (inFnName name) [path] exception
             (Right exists) -> (return . MeowBool) exists
@@ -397,7 +397,7 @@ meowHasDir = existsBase "directory_exists" safeDirectoryExists
 meowMkDir :: Evaluator Prim
 meowMkDir = lookUp "path" >>= \case
     (MeowString path) -> do
-        local <- asks (localPath . Text.unpack . _meowPath . fst)
+        local <- asks (localPath . Text.unpack . _meowPath . _meowState)
         (liftIO . safeMakeDirectory . local . Text.unpack) path >>= \case
             (Left exception) -> throwError $ badFile "In 'make_directory'" [path] exception
             (Right _) -> return MeowLonely
@@ -410,7 +410,7 @@ type MoveCallback = FilePath -> FilePath -> IO (Either Text.Text ())
 moveBase :: Text.Text -> MoveCallback -> Evaluator Prim
 moveBase name f = (,) <$> lookUp "a" <*> lookUp "b" >>= \case
     (MeowString a, MeowString b) -> do
-        local <- asks (localPath . Text.unpack . _meowPath . fst)
+        local <- asks (localPath . Text.unpack . _meowPath . _meowState)
         let pathA = (local . Text.unpack) a
         let pathB = (local . Text.unpack) b
         liftIO (f pathA pathB) >>= \case
@@ -431,7 +431,7 @@ type RemoveCallback = FilePath -> IO (Either Text.Text ())
 removeBase :: Text.Text -> RemoveCallback -> Evaluator Prim
 removeBase name f = lookUp "path" >>= \case
     (MeowString path) -> do
-        local <- asks (localPath . Text.unpack . _meowPath . fst)
+        local <- asks (localPath . Text.unpack . _meowPath . _meowState)
         (liftIO . f . local . Text.unpack) path >>= \case
             (Left exception) -> throwError $ badFile (inFnName name) [path] exception
             (Right _) -> return MeowLonely
@@ -450,7 +450,7 @@ type RenameCallback = FilePath -> String -> IO (Either Text.Text ())
 renameBase :: Text.Text -> RenameCallback -> Evaluator Prim
 renameBase name f = (,) <$> lookUp "path" <*> lookUp "name" >>= \case
     (MeowString path, MeowString newName) -> do
-        local <- asks (localPath . Text.unpack . _meowPath . fst)
+        local <- asks (localPath . Text.unpack . _meowPath . _meowState)
         let path' = (local . Text.unpack) path
         let newName' = (local . Text.unpack) newName
         liftIO (f path' newName') >>= \case
@@ -469,7 +469,7 @@ meowRenDir = renameBase "rename_directory" safeRenameDir
 meowInspect :: Evaluator Prim
 meowInspect = lookUp "path" >>= \case
     (MeowString path) -> do
-        local <- asks (localPath . Text.unpack . _meowPath . fst)
+        local <- asks (localPath . Text.unpack . _meowPath . _meowState)
         let path' = (local . Text.unpack) path
         let makeObject exists files = (fmap MeowObject . liftIO . createObject)
                 [ ( "exists", MeowBool exists                               )
