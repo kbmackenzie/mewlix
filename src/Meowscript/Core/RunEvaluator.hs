@@ -155,7 +155,7 @@ getImport path = cacheLookup path >>= \case
 
 importEnv :: MeowState -> FilePathT -> MeowFile -> IO (Either CatException Environment)
 {-# INLINABLE importEnv #-}
-importEnv state path x = runFileCore params x >>= \case
+importEnv state path contents = runFileCore params contents >>= \case
         (Left exception) -> (return . Left) exception
         (Right output) -> (return . Right) output
     where params = MeowParams

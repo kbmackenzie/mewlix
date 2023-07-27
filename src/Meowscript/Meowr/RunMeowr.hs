@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TupleSections #-}
 
 module Meowscript.Meowr.RunMeowr
 ( runMeowr 
@@ -9,16 +10,21 @@ import Meowscript.Core.AST
 import Meowscript.Meowr.Core
 import Meowscript.Meowr.Parser
 import Meowscript.Core.MeowState (meowState')
-import Meowscript.Core.RunEvaluator (runMeow)
+import Meowscript.Core.RunEvaluator (runMeow, importEnv)
+import Meowscript.Core.Environment
+import Meowscript.Meowr.Project
+import Meowscript.REPL.Loop (repl)
 import qualified Data.Text as Text
 import qualified Data.List as List
 import qualified Data.Map.Strict as Map
 import System.Environment (getArgs)
-import Meowscript.Utils.IO
-import Meowscript.REPL.Loop (repl)
-import Lens.Micro.Platform (over)
+import Lens.Micro.Platform (over, view)
 import Meowscript.API.JSON (toJSON, prettyJSON)
 import Control.Monad ((>=>), void)
+import Control.Monad.Except (ExceptT, runExceptT, liftIO, throwError)
+import Data.IORef (readIORef)
+import Meowscript.Utils.IO
+import Meowscript.Utils.Types
 
 argStr :: IO Text.Text
 argStr = Text.intercalate " " . map Text.pack <$> getArgs
@@ -48,7 +54,8 @@ meowrActions = Map.fromList
     [ ("repl"   ,   (const . const) repl )
     , ("run"    ,   meowrMake none       )
     , ("json"   ,   meowrMake json       )
-    , ("jsonp"  ,   meowrMake jsonP      ) ]
+    , ("jsonp"  ,   meowrMake jsonP      )
+    , ("proj"   ,   project              ) ]
 
 runMeowr :: IO ()
 runMeowr = getMeowr >>= \case
@@ -80,8 +87,57 @@ jsonP = prettyJSON >=> printStrLn
 
 meowrMake :: (Prim -> IO ()) -> Name -> [MeowrArg] -> IO ()
 meowrMake f name args = do
-    state <- meowState' name [] (return Map.empty)
+    state <- meowState' name [] emptyLib
     let meowedState = transState args state
     runMeow meowedState >>= \case
         (Left exc) -> (printExc . snd) exc
-        (Right  prim) -> f prim
+        (Right prim) -> f prim
+
+{- Run Project -}
+-------------------------------------------------
+noConfig :: Text.Text -> Text.Text
+noConfig = Text.append "Couldn't load 'config.meows' script: \n"
+
+configMeows :: FilePath
+configMeows = "config.meows"
+
+configMeows' :: FilePathT
+configMeows' = Text.pack configMeows
+
+type Project a = ExceptT Text.Text IO a
+
+project :: Name -> [MeowrArg] -> IO ()
+project _ args = runExceptT (runProject args) >>= \case
+    (Left exception) -> printExc exception
+    (Right _) -> return ()
+
+runProject  :: [MeowrArg] -> Project Prim
+runProject args = do
+    state <- liftIO $ meowState' configMeows' [] emptyLib
+    let firstState = transState args state
+
+    configEnv <- readConfig firstState
+    configs <- liftIO $ applyConfigs initConfig configEnv
+
+    let beforeOpts = configState configs firstState
+    options <- parseOptions (_configFlags configs)
+    let newState = transState options beforeOpts
+
+    liftIO (runMeow newState) >>= \case
+        (Left exception) -> (throwError . snd) exception
+        (Right prim) -> return prim
+
+readConfig :: MeowState -> Project ObjectMap
+readConfig state = liftIO (safeDoesFileExist configMeows) >>= \case
+    (Left exception) -> (throwError . noConfig) exception
+    (Right False) -> (throwError . noConfig) "Script not found!"
+    (Right True)  -> do
+        contents <- fmap (state,) <$> liftIO (safeReadFile configMeows)
+        liftIO (importEnv state configMeows' contents) >>= \case
+            (Left exception) -> (throwError . snd) exception
+            (Right env) -> liftIO (readIORef env)
+
+parseOptions :: [Text.Text] -> Project [MeowrArg]
+parseOptions opts = case parseMeowed (Text.intercalate " " opts) of
+    (Left err) -> throwError $ Text.append "Error when passing 'options':\n" err
+    (Right options) -> (return . meowrArgs) options

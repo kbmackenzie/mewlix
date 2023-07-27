@@ -64,14 +64,14 @@ operators =
     ]
 
 parseList :: Parser Expr
-parseList = (lexeme . brackets) $
+parseList = (lexeme . brackets) $ whitespaceLn >>
     ExpList <$> sepByComma' (lexemeLnBi parseExpr) <* whitespaceLn
 
 parseBox :: Parser Expr
 parseBox = (Mega.try . lexemeLn . MChar.string') meowBox >> parseBox'
 
 parseBox' :: Parser Expr
-parseBox' = (lexeme . brackets) $
+parseBox' = (lexeme . brackets) $ whitespaceLn >>
     ExpObject <$> sepByComma' (lexemeLnBi parseKeyValue) <* whitespaceLn
 
 parseKeyValue :: Parser (Key, Expr)
@@ -90,7 +90,7 @@ parseLambda = do
     return (ExpLambda args)
 
 parseCall :: Parser (Expr -> Expr)
-parseCall = (lexeme . parens . Mega.try) $
+parseCall = (lexeme . parens . Mega.try) $ whitespaceLn >>
     flip ExpCall <$> sepByComma (lexemeLnBi parseExpr) <* whitespaceLn
 
 parseDotOp :: Parser (Expr -> Expr)

@@ -51,7 +51,7 @@ configActions :: [ConfigAction]
 configActions =
     [ transField "main"     extractStr      (set configMain)    "main.meows"
     , transField "args"     extractStrList  (set configArgs)    []          
-    , transField "flags"    extractStrList  (set configFlags)   []
+    , transField "options"  extractStrList  (set configFlags)   []
     , transField "sources"  extractStrList  (set sourceFiles)   []          
     , transField "name"     extractStr      (info "name")       Text.empty
     , transField "author"   extractStr      (info "author")     Text.empty
