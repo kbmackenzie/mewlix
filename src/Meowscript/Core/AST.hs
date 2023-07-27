@@ -75,7 +75,10 @@ type Environment = IORef ObjectMap
 type Closure = Environment
 type CatException = (MeowException, Text.Text)
 
-data DrawFlag = DrawFlag -- todo
+data DrawFlag =
+      NoDrawing
+    | IsDrawing
+    deriving (Show, Eq, Bounded, Enum)
 
 data MeowContext = MeowContext
     { meowState :: MeowState

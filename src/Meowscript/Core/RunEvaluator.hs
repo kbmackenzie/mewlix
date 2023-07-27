@@ -48,11 +48,11 @@ data MeowParams a b = MeowParams
 {- Run evaluator: -}
 -------------------------------------------------------------------------
 runEvaluator :: MeowState -> IO ObjectMap -> Evaluator a -> IO (Either CatException a)
-runEvaluator meow env eval = env >>= newIORef >>= (runExceptT . runReaderT eval . context)
-    where context n = MeowContext
+runEvaluator meow lib eval = lib >>= newIORef >>= (runExceptT . runReaderT eval . context)
+    where context env = MeowContext
             { meowState = meow
-            , meowEnv   = n
-            , meowDraw  = DrawFlag }
+            , meowEnv   = env
+            , meowDraw  = NoDrawing }
 
 runFile :: MeowParams [Statement] b -> IO (Either CatException b)
 runFile params = meowSearch state path >>= runFileCore params

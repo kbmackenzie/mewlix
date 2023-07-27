@@ -37,7 +37,7 @@ import Control.Monad.Except (throwError)
 import qualified Data.Map.Strict as Map
 import Data.Functor ((<&>))
 import Data.Foldable (foldl')
-import Lens.Micro.Platform (view, set, over)
+import Lens.Micro.Platform (set)
 
 {- Helpers -}
 -------------------------------------------------------------
@@ -124,16 +124,14 @@ localEnv :: Evaluator Environment
 localEnv = asks meowEnv >>= readMeowRef >>= newMeowRef
 
 runLocal :: Evaluator a -> Evaluator a
-{-# INLINABLE runLocal #-} --todo: lens here
-runLocal action = ask
-    >>= (\ctx -> flip (set meowEnvL) ctx <$> localEnv)
-    >>= (\ctx -> local (const ctx) action)
+{-# INLINABLE runLocal #-}
+runLocal action = set meowEnvL <$> localEnv <*> ask
+    >>= \ctx -> local (const ctx) action
 
 runClosure :: ObjectMap -> Evaluator a -> Evaluator a
 {-# INLINABLE runClosure #-}
-runClosure closure action = ask
-    >>= (\ctx -> flip (set meowEnvL) ctx <$> newMeowRef closure)
-    >>= (\ctx -> local (const ctx) action)
+runClosure closure action = set meowEnvL <$> newMeowRef closure <*> ask
+    >>= \ctx -> local (const ctx) action
 
 
 {- Object Handling -}
