@@ -18,7 +18,7 @@ import qualified Data.Text as Text
 import qualified Data.List as List
 import qualified Data.Map.Strict as Map
 import System.Environment (getArgs)
-import Lens.Micro.Platform (over, view)
+import Lens.Micro.Platform (over)
 import Meowscript.API.JSON (toJSON, prettyJSON)
 import Control.Monad ((>=>), void)
 import Control.Monad.Except (ExceptT, runExceptT, liftIO, throwError)
