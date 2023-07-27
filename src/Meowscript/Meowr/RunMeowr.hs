@@ -107,19 +107,18 @@ configMeows' = Text.pack configMeows
 type Project a = ExceptT Text.Text IO a
 
 project :: Name -> [MeowrArg] -> IO ()
-project _ args = runExceptT (runProject args) >>= \case
+project _ _ = runExceptT runProject >>= \case
     (Left exception) -> printExc exception
     (Right _) -> return ()
 
-runProject  :: [MeowrArg] -> Project Prim
-runProject args = do
+runProject  :: Project Prim
+runProject = do
     state <- liftIO $ meowState' configMeows' [] emptyLib
-    let firstState = transState args state
 
-    configEnv <- readConfig firstState
+    configEnv <- readConfig state
     configs <- liftIO $ applyConfigs initConfig configEnv
 
-    let beforeOpts = configState configs firstState
+    let beforeOpts = configState configs state
     options <- parseOptions (_configFlags configs)
     let newState = transState options beforeOpts
 
