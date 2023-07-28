@@ -1,3 +1,3 @@
-meow("yay!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-meow(__info__)
-meow(snoop())
+meow("This is the main file.")
+meow("Project info: "..__info__)
+meow("Project args: "..snoop())

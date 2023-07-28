@@ -1,7 +1,7 @@
 ~( ^.x.^)> Meowscript config file. <(^.x.^ )~
 
 -- Project information:
-name    = "Pong"
+name    = "Example"
 author  = "KBMackenzie"
 license = "MIT"
 
