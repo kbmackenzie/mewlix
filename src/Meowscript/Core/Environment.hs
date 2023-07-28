@@ -61,6 +61,7 @@ writeMeowRef :: (MonadIO m) => IORef a -> a -> m ()
 writeMeowRef = (liftIO .) . writeIORef
 
 modifyMeowRef :: (MonadIO m) => IORef a -> (a -> a) -> m ()
+{-# INLINABLE modifyMeowRef #-}
 modifyMeowRef = (liftIO .) . modifyIORef
 
 emptyLib :: IO ObjectMap
