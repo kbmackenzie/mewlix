@@ -11,13 +11,12 @@ module Meowscript.Meowr.Project
 ) where
 
 import Meowscript.Core.AST
+import Meowscript.Core.Environment
 import qualified Data.Text as Text
 import qualified Data.Map.Strict as Map
-import Meowscript.Core.Environment (createObject)
 import Lens.Micro.Platform (makeLenses, view, over, set)
 import Data.Bifunctor (second)
 import Data.Maybe (mapMaybe)
-import Data.IORef (newIORef, readIORef)
 import Data.Foldable (foldrM)
 import Control.Monad ((>=>))
 
@@ -76,7 +75,7 @@ configState config state = foldr ($) state transforms
 {- Creating Objects -}
 -------------------------------------------------
 makeInfoObject :: [(Text.Text, Text.Text)] -> IO PrimRef
-makeInfoObject = (createObject >=> newIORef . MeowObject) . map (second MeowString)
+makeInfoObject = (createObject >=> newMeowRef . MeowObject) . map (second MeowString)
 
 {- Apply -}
 -------------------------------------------------
@@ -109,4 +108,4 @@ type Extracted a = IO (Maybe a)
 getField :: Text.Text -> ObjectMap -> Extract a -> Extracted a
 getField key obj f = case Map.lookup key obj of
     Nothing -> return Nothing
-    (Just a) -> f <$> readIORef a
+    (Just a) -> f <$> readMeowRef a

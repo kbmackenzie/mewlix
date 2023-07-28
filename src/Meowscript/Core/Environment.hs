@@ -20,6 +20,7 @@ module Meowscript.Core.Environment
 , newMeowRef
 , readMeowRef
 , writeMeowRef
+, modifyMeowRef
 , createObject
 , insertObject
 , modifyObject
@@ -32,8 +33,9 @@ module Meowscript.Core.Environment
 import Meowscript.Core.AST
 import Data.IORef
 import Meowscript.Core.Exceptions
-import Control.Monad.Reader (ask, asks, liftIO, local)
+import Control.Monad.Reader (ask, asks, local)
 import Control.Monad.Except (throwError)
+import Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Data.Map.Strict as Map
 import Data.Functor ((<&>))
 import Data.Foldable (foldl')
@@ -46,17 +48,20 @@ newEnv :: IO Environment
 newEnv = newIORef Map.empty
 
 {- IORef Utils -}
-newMeowRef :: a -> Evaluator (IORef a)
+newMeowRef :: (MonadIO m) => a -> m (IORef a)
 {-# INLINABLE newMeowRef #-}
 newMeowRef = liftIO . newIORef
 
-readMeowRef :: IORef a -> Evaluator a
+readMeowRef :: (MonadIO m) => IORef a -> m a
 {-# INLINABLE readMeowRef #-}
 readMeowRef = liftIO . readIORef
 
-writeMeowRef :: IORef a -> a -> Evaluator ()
+writeMeowRef :: (MonadIO m) => IORef a -> a -> m ()
 {-# INLINABLE writeMeowRef #-}
 writeMeowRef = (liftIO .) . writeIORef
+
+modifyMeowRef :: (MonadIO m) => IORef a -> (a -> a) -> m ()
+modifyMeowRef = (liftIO .) . modifyIORef
 
 emptyLib :: IO ObjectMap
 {-# INLINABLE emptyLib #-}

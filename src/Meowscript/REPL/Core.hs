@@ -26,7 +26,6 @@ import qualified Data.Text as Text
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import Control.Monad.Reader (ReaderT, runReaderT)
-import Data.IORef (readIORef)
 
 {-
  - -- REPL LOOP --
@@ -81,7 +80,7 @@ addModule line env = case getArgs line of
         importEnv state' path contents' >>= \case
             (Left x) -> printExc (snd x) >> return (True, env)
             (Right x) -> do
-                imp <- publicKeys <$> readIORef x
+                imp <- publicKeys <$> readMeowRef x
                 let envNew = env <> imp
                 addModule (popArg line) envNew
     where newState = makeState' Text.empty [] emptyLib
@@ -114,7 +113,7 @@ showHelp _ env = printStrLn (Text.intercalate "\n" helpMessage) >> return (True,
 inspectEnv :: Command
 inspectEnv _ env = do
     let prettyKey = flip Text.append ": "
-    let prettyRef ref = showT <$> readIORef ref
+    let prettyRef ref = showT <$> readMeowRef ref
     let pretty (key, ref) = (prettyKey key `Text.append`) <$> prettyRef ref
     printStrLn . Text.unlines =<< mapM pretty (Map.toList env)
     return (True, env)
@@ -124,7 +123,7 @@ askFuncEnv line env = case getArgs line of
     [] -> inspectEnv line env
     (x:_) -> do
         let prettyKey = flip Text.append ": "
-        let prettyRef ref = showT <$> readIORef ref
+        let prettyRef ref = showT <$> readMeowRef ref
         let pretty (key, ref) = (prettyKey key `Text.append`) <$> prettyRef ref
         let keysAskedFor = Map.filterWithKey (\k _ -> Text.isPrefixOf x k) env
         printStrLn . Text.unlines =<< mapM pretty (Map.toList keysAskedFor)

@@ -35,7 +35,6 @@ import qualified Data.Set as Set
 import qualified Data.List as List
 import Control.Monad.Reader (asks, runReaderT, liftIO)
 import Control.Monad.Except (runExceptT, throwError)
-import Data.IORef (newIORef)
 import Meowscript.Utils.IO
 
 type EvalCallback a b = a -> Evaluator b
@@ -48,7 +47,7 @@ data MeowParams a b = MeowParams
 {- Run evaluator: -}
 -------------------------------------------------------------------------
 runEvaluator :: MeowState -> IO ObjectMap -> Evaluator a -> IO (Either CatException a)
-runEvaluator meow lib eval = lib >>= newIORef >>= (runExceptT . runReaderT eval . context)
+runEvaluator meow lib eval = lib >>= newMeowRef >>= (runExceptT . runReaderT eval . context)
     where context env = MeowContext
             { meowState = meow
             , meowEnv   = env

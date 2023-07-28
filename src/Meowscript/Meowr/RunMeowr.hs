@@ -25,7 +25,6 @@ import System.Environment (getArgs)
 import Lens.Micro.Platform (over)
 import Control.Monad ((>=>), void)
 import Control.Monad.Except (ExceptT, runExceptT, liftIO, throwError)
-import Data.IORef (readIORef)
 
 {- Args -}
 --------------------------------------------------
@@ -149,7 +148,7 @@ readConfig state = liftIO (safeDoesFileExist configMeows) >>= \case
         contents <- fmap (state,) <$> liftIO (safeReadFile configMeows)
         liftIO (importEnv state configMeows' contents) >>= \case
             (Left exception) -> (throwError . snd) exception
-            (Right env) -> liftIO (readIORef env)
+            (Right env) -> liftIO (readMeowRef env)
 
 parseOptions :: [Text.Text] -> Project [MeowrArg]
 parseOptions opts = case parseMeowed (Text.intercalate " " opts) of

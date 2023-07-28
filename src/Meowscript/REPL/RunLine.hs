@@ -17,6 +17,7 @@ import Meowscript.Core.Blocks
 import Meowscript.Core.MeowState
 import Meowscript.Core.RunEvaluator
 import Meowscript.Core.Exceptions
+import Meowscript.Core.Environment
 import Meowscript.Utils.IO
 import Meowscript.Parser.Expr (parseExpr')
 import Meowscript.Parser.RunParser (parseSpecial)
@@ -24,7 +25,6 @@ import Control.Monad.Reader (asks, liftIO)
 import qualified Data.Text as Text
 import qualified Data.Map.Strict as Map
 import qualified Text.Megaparsec as Mega
-import Data.IORef (readIORef)
 import Data.Functor ((<&>))
 
 replLine :: Parser Line
@@ -61,7 +61,7 @@ takeLine env line = case replParse line of
 runExpression :: ObjectMap -> Expr -> REPL ObjectMap
 runExpression env expr = liftIO $ evaluateExpr env expr >>= \case
     (Left exception) -> printExc (snd exception) >> return env
-    (Right (output, env')) -> printStrLn output >> readIORef env'
+    (Right (output, env')) -> printStrLn output >> readMeowRef env'
 
 notCommand :: Text.Text -> Text.Text
 notCommand x = Text.concat [ "\"", x, "\" is not a valid command!" ]

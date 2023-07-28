@@ -20,11 +20,11 @@ module Meowscript.Core.MeowState
 import Meowscript.Core.AST
 import Meowscript.Utils.Types
 import Meowscript.Core.StdFiles
+import Meowscript.Core.Environment
 import Meowscript.Utils.IO
 import qualified Data.Text as Text
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
-import Data.IORef (newIORef, readIORef, modifyIORef)
 import Control.Monad.Reader (asks, liftIO)
 import Control.Applicative (liftA2)
 import Lens.Micro.Platform (set)
@@ -62,15 +62,15 @@ meowSetPath = set meowPathL
 cacheAdd :: FilePathT -> Environment -> Evaluator ()
 cacheAdd path env = asks (meowCache . meowState) >>= \case
     Nothing -> return ()
-    (Just cache) -> liftIO $ modifyIORef cache (Map.insert path env)
+    (Just cache) -> liftIO $ modifyMeowRef cache (Map.insert path env)
 
 cacheLookup :: FilePathT -> Evaluator (Maybe Environment)
 cacheLookup path = asks (meowCache . meowState) >>= \case
     Nothing -> return Nothing
-    (Just cache) -> Map.lookup path <$> (liftIO . readIORef) cache
+    (Just cache) -> Map.lookup path <$> (liftIO . readMeowRef) cache
 
 meowCacheNew :: IO MeowCache
-meowCacheNew = newIORef Map.empty
+meowCacheNew = newMeowRef Map.empty
 
 meowHasFlag :: [Text.Text] -> MeowState -> Bool
 meowHasFlag keys state = let flags = meowFlags state
