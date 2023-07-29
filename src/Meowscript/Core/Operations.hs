@@ -3,8 +3,6 @@
 module Meowscript.Core.Operations
 ( binop
 , unop
-, binopVar
-, unopVar
 ) where
 
 import Meowscript.Core.AST
@@ -25,7 +23,7 @@ binop :: Binop -> Prim -> Prim -> Evaluator Prim
 {-# INLINE binop #-}
 binop MeowPush = meowPush
 binop MeowAssign = meowAssign
-binop op = binopVar $ case op of
+binop op = binopEval $ case op of
     MeowAdd -> meowAdd
     MeowSub -> meowSub
     MeowMul -> meowMul
@@ -42,7 +40,7 @@ unop :: Unop -> Prim -> Evaluator Prim
 unop MeowPaw = meowPaw
 unop MeowClaw = meowClaw
 unop MeowKnockOver = meowKnock
-unop op = unopVar $ case op of
+unop op = unopEval $ case op of
     MeowLen -> meowLen
     MeowNegate -> meowNegate
     MeowNot -> meowNot
@@ -51,13 +49,13 @@ unop op = unopVar $ case op of
 
 {- Variables -}
 -------------------------------------------------------------------------
-binopVar :: (Prim -> Prim -> Evaluator Prim) -> Prim -> Prim -> Evaluator Prim
-{-# INLINE binopVar #-}
-binopVar f x y = join (f <$> ensureValue x <*> ensureValue y)
+binopEval :: (Prim -> Prim -> Evaluator Prim) -> Prim -> Prim -> Evaluator Prim
+{-# INLINE binopEval #-}
+binopEval f x y = join (f <$> ensureValue x <*> ensureValue y)
 
-unopVar :: (Prim -> Evaluator Prim) -> Prim -> Evaluator Prim
-{-# INLINE unopVar #-}
-unopVar f x = ensureValue x >>= f
+unopEval :: (Prim -> Evaluator Prim) -> Prim -> Evaluator Prim
+{-# INLINE unopEval #-}
+unopEval f x = ensureValue x >>= f
 
 -- All of these operations assume a key is already in its most reduced form.
 -- A key should never point to another key!
