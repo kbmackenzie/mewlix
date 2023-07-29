@@ -13,6 +13,7 @@ import qualified Data.Text as Text
 import qualified Data.Set as Set
 
 stdFiles :: Set.Set FilePathT
+{-# INLINE stdFiles #-}
 stdFiles = Set.fromList
     [ "std.meows"
     , "io.meows"
@@ -25,10 +26,13 @@ stdFiles = Set.fromList
     , "exception.meows" ]
 
 asStd :: FilePathT -> FilePathT
+{-# INLINE asStd #-}
 asStd = Text.append "std/"
 
 isStdFile :: FilePathT -> Bool
+{-# INLINE isStdFile #-}
 isStdFile = flip Set.member stdFiles
 
 readStdFile :: FilePathT -> IO (Either Text.Text Text.Text)
+{-# INLINE readStdFile #-}
 readStdFile = readDataFile . Text.unpack . asStd

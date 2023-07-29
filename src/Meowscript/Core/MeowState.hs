@@ -100,10 +100,9 @@ meowSearch state path
     | isAbsolute path = fmap (state,) <$> readContents state path
     | otherwise = meowrFile state paths >>= \case
         (Left exception) -> (return . Left) exception
-        (Right (foundPath, tryRead)) -> case tryRead of
-            (Left exception) -> (return . Left) exception
-            (Right contents) -> let state' = state { meowPath = Text.pack foundPath }
-                in return (Right (state', contents))
+        (Right (foundPath, tryRead)) -> return $ tryRead >>= do
+            let state' = state { meowPath = Text.pack foundPath }
+            Right . (state',)
     where paths = (:) path $ map (</> path) (meowInclude state)
           readContents = meowFileIO safeReadFile
 

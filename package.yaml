@@ -54,7 +54,8 @@ ghc-options:
 - -Wredundant-constraints
 - -optc-O3
 - -optc-ffast-math
-#- -funfolding-use-threshold=16
+- -funfolding-use-threshold=16
+#- -fllvm
 
 data-files:
 - std/*.meows

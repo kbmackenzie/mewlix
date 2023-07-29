@@ -44,52 +44,52 @@ import Lens.Micro.Platform (set)
 {- Helpers -}
 -------------------------------------------------------------
 newEnv :: IO Environment
-{-# INLINABLE newEnv #-}
+{-# INLINE newEnv #-}
 newEnv = newIORef Map.empty
 
 {- IORef Utils -}
 newMeowRef :: (MonadIO m) => a -> m (IORef a)
-{-# INLINABLE newMeowRef #-}
+{-# INLINE newMeowRef #-}
 newMeowRef = liftIO . newIORef
 
 readMeowRef :: (MonadIO m) => IORef a -> m a
-{-# INLINABLE readMeowRef #-}
+{-# INLINE readMeowRef #-}
 readMeowRef = liftIO . readIORef
 
 writeMeowRef :: (MonadIO m) => IORef a -> a -> m ()
-{-# INLINABLE writeMeowRef #-}
+{-# INLINE writeMeowRef #-}
 writeMeowRef = (liftIO .) . writeIORef
 
 modifyMeowRef :: (MonadIO m) => IORef a -> (a -> a) -> m ()
-{-# INLINABLE modifyMeowRef #-}
+{-# INLINE modifyMeowRef #-}
 modifyMeowRef = (liftIO .) . modifyIORef
 
 emptyLib :: IO ObjectMap
-{-# INLINABLE emptyLib #-}
+{-# INLINE emptyLib #-}
 emptyLib = return Map.empty
 
 {- Variables -}
 -------------------------------------------------------------
 lookUpVar :: Key -> Evaluator (Maybe PrimRef)
-{-# INLINABLE lookUpVar #-}
+{-# INLINE lookUpVar #-}
 lookUpVar key = (asks meowEnv >>= readMeowRef) <&> Map.lookup key
 
 lookUpRef :: Key -> Evaluator PrimRef
-{-# INLINABLE lookUpRef #-}
+{-# INLINE lookUpRef #-}
 lookUpRef key = lookUpVar key >>= \case
     (Just x) -> return x
     Nothing -> throwError (badKey key)
 
 keyExists :: Key -> Evaluator Bool
-{-# INLINABLE keyExists #-}
+{-# INLINE keyExists #-}
 keyExists key = (asks meowEnv >>= readMeowRef) <&> Map.member key
 
 lookUp :: Key -> Evaluator Prim
-{-# INLINABLE lookUp #-}
+{-# INLINE lookUp #-}
 lookUp key = lookUpRef key >>= readMeowRef
 
 createVar :: Key -> Prim -> Evaluator ()
-{-# INLINABLE createVar #-}
+{-# INLINE createVar #-}
 createVar key value = do
     env <- asks meowEnv >>= readMeowRef
     value' <- newMeowRef value
@@ -97,18 +97,18 @@ createVar key value = do
     asks meowEnv >>= flip writeMeowRef env'
 
 modifyVar :: PrimRef -> Prim -> Evaluator ()
-{-# INLINABLE modifyVar #-}
+{-# INLINE modifyVar #-}
 modifyVar = writeMeowRef
 
 insertVar :: Key -> Prim -> Overwrite -> Evaluator ()
-{-# INLINABLE insertVar #-}
+{-# INLINE insertVar #-}
 insertVar key value True = overwriteVar key value
 insertVar key value False = lookUpVar key >>= \case
     Nothing -> createVar key value
     (Just x) -> modifyVar x value
 
 insertRef :: Key -> PrimRef -> Evaluator ()
-{-# INLINABLE insertRef #-}
+{-# INLINE insertRef #-}
 insertRef key ref = do
     env <- asks meowEnv >>= readMeowRef
     let env' = Map.insert key ref env
@@ -126,16 +126,16 @@ insertMany pairs = do
     asks meowEnv >>= flip writeMeowRef env'
 
 localEnv :: Evaluator Environment
-{-# INLINABLE localEnv #-}
+{-# INLINE localEnv #-}
 localEnv = asks meowEnv >>= readMeowRef >>= newMeowRef
 
 runLocal :: Evaluator a -> Evaluator a
-{-# INLINABLE runLocal #-}
+{-# INLINE runLocal #-}
 runLocal action = set meowEnvL <$> localEnv <*> ask
     >>= \ctx -> local (const ctx) action
 
 runClosure :: ObjectMap -> Evaluator a -> Evaluator a
-{-# INLINABLE runClosure #-}
+{-# INLINE runClosure #-}
 runClosure closure action = set meowEnvL <$> newMeowRef closure <*> ask
     >>= \ctx -> local (const ctx) action
 
@@ -143,13 +143,13 @@ runClosure closure action = set meowEnvL <$> newMeowRef closure <*> ask
 {- Object Handling -}
 -------------------------------------------------------------
 peekObject :: Key -> ObjectMap -> Evaluator PrimRef
-{-# INLINABLE peekObject #-}
+{-# INLINE peekObject #-}
 peekObject key obj = case Map.lookup key obj of
     (Just x) -> return x
     Nothing -> throwError =<< badDot key (MeowObject obj)
 
 createObject :: [(Key, Prim)] -> IO ObjectMap
-{-# INLINABLE createObject #-}
+{-# INLINE createObject #-}
 createObject [] = return Map.empty
 createObject xs = do
     let asRef (key, value) = newIORef value <&> (key,)
@@ -157,13 +157,13 @@ createObject xs = do
     return $ Map.fromList pairs
 
 modifyObject :: PrimRef -> (ObjectMap -> ObjectMap) -> Evaluator ()
-{-# INLINABLE modifyObject #-}
+{-# INLINE modifyObject #-}
 modifyObject ref f = readMeowRef ref >>= \case
     (MeowObject obj) -> (writeMeowRef ref . MeowObject . f) obj
     x -> throwError =<< notBox x
 
 insertObject :: PrimRef -> Key -> Prim -> Evaluator ()
-{-# INLINABLE insertObject #-}
+{-# INLINE insertObject #-}
 insertObject ref key value = readMeowRef ref >>= \case
     (MeowObject obj) -> if Map.member key obj
         then writeMeowRef (obj Map.! key) value
@@ -173,11 +173,11 @@ insertObject ref key value = readMeowRef ref >>= \case
     x -> throwError =<< notBox x
 
 primAsBox :: Prim -> Evaluator ObjectMap
-{-# INLINABLE primAsBox #-}
+{-# INLINE primAsBox #-}
 primAsBox (MeowObject x) = return x
 primAsBox x = throwError =<< notBox x
 
 peekAsObject :: Key -> Prim -> Evaluator PrimRef
-{-# INLINABLE peekAsObject #-}
+{-# INLINE peekAsObject #-}
 peekAsObject key (MeowObject x) = peekObject key x
 peekAsObject _ x = throwError =<< notBox x

@@ -24,6 +24,7 @@ import System.Random (randomIO)
 import Meowscript.Utils.Time (clockSec)
 
 baseLibrary :: IO ObjectMap
+{-# INLINE baseLibrary #-}
 baseLibrary = createObject
     [ ("meow"    , MeowIFunc  ["x"] meow      )
     , ("purr"    , MeowIFunc  ["x"] purr      )

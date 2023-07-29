@@ -316,7 +316,9 @@ $(makeLensesFor
  - 'Define'-style flags. (?) -}
 
 joinLibs :: (Monad m) => m ObjectMap -> m ObjectMap -> m ObjectMap
+{-# INLINE joinLibs #-}
 joinLibs = liftM2 (<>)
 
 nestLibs :: (Monad m) => Key -> m PrimRef -> m ObjectMap -> m ObjectMap
+{-# INLINE nestLibs #-}
 nestLibs key = ap . fmap (Map.insert key)

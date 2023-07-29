@@ -90,7 +90,7 @@ isImport (StmImport {}) = True
 isImport _ = False
 
 boolEval :: Expr -> Evaluator Bool
-{-# INLINABLE boolEval #-}
+{-# INLINE boolEval #-}
 boolEval x = (evaluate >=> ensureValue) x <&> meowBool
 
 
@@ -105,7 +105,7 @@ funcTrace key args = stackTrace $ do
 {-- Blocks --}
 -------------------------------------------------------------------------
 runBlock :: Block -> IsLoop -> Evaluator ReturnValue
-{-# INLINABLE runBlock #-}
+{-# INLINE runBlock #-}
 runBlock block = block `seq` runStatements block
 
 {-

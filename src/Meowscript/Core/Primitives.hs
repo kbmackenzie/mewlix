@@ -23,6 +23,7 @@ import Data.Bits (xor)
 {- Comparison (==, <, >, <=, >=) operations. -}
 ---------------------------------------------------------
 primCompare :: Prim -> Prim -> Evaluator Ordering
+{-# INLINE primCompare #-}
 -- Numbers
 MeowInt a    `primCompare` MeowInt b    = return (a `compare` b)
 MeowInt a    `primCompare` MeowDouble b = return (fromIntegral a `compare` b)
@@ -62,18 +63,21 @@ listCompareM fn (x:xs)  (y:ys) = fn x y >>= \case
 {- Equality (a == b) operation. -}
 ---------------------------------------------------------
 primEq :: Prim -> Prim -> Evaluator Bool
+{-# INLINE primEq #-}
 a `primEq` b = (== EQ) <$> (a `primCompare` b)
 
 
 {- Sorting operation. -}
 ---------------------------------------------------------
 primSort :: [Prim] -> Evaluator [Prim]
+{-# INLINE primSort #-}
 primSort = sortByM primCompare
 
 
 {- Deep-copying. -}
 ---------------------------------------------------------
 primCopy :: Prim -> Evaluator Prim
+{-# INLINE primCopy #-}
 primCopy (MeowList xs) = MeowList <$> mapM primCopy xs
 primCopy (MeowObject x) = do
     newValues <- mapM (readMeowRef >=> primCopy >=> newMeowRef) (Map.elems x)
@@ -85,6 +89,7 @@ primCopy x = return x
 {- Hashing -}
 ---------------------------------------------------------
 primHash :: Prim -> Evaluator Int
+{-# INLINE primHash #-}
 primHash (MeowInt x) = return (hash x)
 primHash (MeowDouble x) = return (hash x)
 primHash (MeowString x) = return (hash x)
