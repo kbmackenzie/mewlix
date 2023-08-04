@@ -32,12 +32,12 @@ mew AST = ~( ^.x.^) BOX!! [ -- AST constructors:
 ]
 
 mew TokenMap = to_hashmap ([
-    tuple(">",  TokenType.MoveLeft  ),
-    tuple("<",  TokenType.MoveRight ),
-    tuple("+",  TokenType.Increment ),
-    tuple("-",  TokenType.Decrement ),
-    tuple(".",  TokenType.Puts      ),
-    tuple(",",  TokenType.Gets      )
+    tuple( ">",  TokenType.MoveLeft  ),
+    tuple( "<",  TokenType.MoveRight ),
+    tuple( "+",  TokenType.Increment ),
+    tuple( "-",  TokenType.Decrement ),
+    tuple( ".",  TokenType.Puts      ),
+    tuple( ",",  TokenType.Gets      )
 ])
 
 =^.x.^= _parser_output(tokens, str)
