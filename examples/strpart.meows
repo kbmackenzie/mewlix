@@ -5,7 +5,7 @@ https://leetcode.com/problems/optimal-partition-of-string/
 
 takes "hashset.meows"
 
-=^.x.^= partitionString(str)
+=^.x.^= partition_string(str)
     mew chars = hashset()
     mew min = 1
     meowmeow(str)

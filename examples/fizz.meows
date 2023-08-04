@@ -6,8 +6,8 @@ mew words = ~( ^.x.^) BOX!! [
     bazz: "bazz"
 ]
 
-=^.x.^= fizzbuzzbazz(xs)
-    take (mew i = 1) and do (paw at i) while (i <= xs)
+=^.x.^= fizzbuzzbazz(n)
+    take (mew i = 1) and do (paw at i) while (i <= n)
         mew output = ""
 
         mew? (i % 3 == 0)
