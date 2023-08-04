@@ -17,7 +17,8 @@ syntax keyword meowsKeyword meow mew meowmeow take while run off bring takes as 
 " Constants
 syntax match meowsInt /\d\+/
 syntax match meowsFloat /\d\+\.\d\+/
-syntax region meowsString start=/"/ skip=/\\"/ end=/"/
+syntax match meowsEscape /\\[a-z\/\\"]/
+syntax region meowsString start=/"/ skip=/\\"/ end=/"/ contains=meowsEscape
 
 " Operators
 syntax keyword meowsOperator and or not knock over push peek paw claw at
@@ -28,8 +29,9 @@ syntax match meowsOperator /\//
 syntax match meowsOperator /\^/
 syntax match meowsOperator /\./
 syntax match meowsOperator /\~\~/
-syntax match meowsOperator /[=!]\==/
-syntax match meowsOperator /[<>]=\=/
+syntax match meowsOperator /=/
+syntax match meowsOperator /</
+syntax match meowsOperator />/
 syntax match meowsOperator /\[/
 syntax match meowsOperator /\]/
 syntax match meowsOperator /(/
@@ -43,7 +45,7 @@ syntax match meowsOperator /\\\n/
 " Expressions
 syntax match meowsFunc /=\^\.[xX]\.\^=/
 syntax match meowsBox /\~( \^\.[xX]\.\^) BOX!!/
-syntax match meowsLambda /[^~]( \^\.[xX]\.\^)>/
+syntax match meowsLambda /\([^~]\|^\)( \^\.[xX]\.\^)>/
 
 syntax match meowsLineComment /--.*$/
 syntax region meowsBlockComment start=/\~( \^\.[xX]\.\^)>/ end=/<(\^\.[xX]\.\^ )\~/
@@ -62,6 +64,7 @@ hi def link meowsInt Number
 hi def link meowsFloat Float
 hi def link meowsBool Boolean
 hi def link meowsLonely Keyword
+hi def link meowsEscape SpecialChar
 
 " Keywords:
 hi def link meowsKeyword Keyword
