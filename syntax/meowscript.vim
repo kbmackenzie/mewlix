@@ -20,7 +20,7 @@ syntax match meowsFloat /\d\+\.\d\+/
 syntax region meowsString start=/"/ skip=/\\"/ end=/"/
 
 " Operators
-syntax keyword meowsOperator and or not knock over push peek
+syntax keyword meowsOperator and or not knock over push peek paw claw at
 syntax match meowsOperator /+/
 syntax match meowsOperator /-/
 syntax match meowsOperator /\*/
