@@ -14,17 +14,17 @@ mew Tile = ~( ^.x.^) BOX!! [
     o:     "o"
 ]
 
-mew Turn = ~( ^.x.^) BOX!! [
-    x: 0,
-    o: 1
-]
+mew Turn = enum ([
+    "x",
+    "o"
+])
 
-mew GameState = ~( ^.x.^) BOX!! [
-    continue: 0,
-    x_won:    1,
-    o_won:    2,
-    draw:     3
-]
+mew GameState = enum ([
+    "continue",
+    "x_won",
+    "o_won",
+    "draw"
+])
 
 =^.x.^= make_board(size)
     mew board = hashmap()
