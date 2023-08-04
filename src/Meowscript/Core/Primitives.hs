@@ -80,9 +80,9 @@ primCopy :: Prim -> Evaluator Prim
 {-# INLINE primCopy #-}
 primCopy (MeowList xs) = MeowList <$> mapM primCopy xs
 primCopy (MeowObject x) = do
-    newValues <- mapM (readMeowRef >=> primCopy >=> newMeowRef) (Map.elems x)
-    let keys = Map.keys x
-    (return . MeowObject . Map.fromList) (zip keys newValues)
+    let copyPair (key, ref) = (key,) <$> (readMeowRef >=> primCopy >=> newMeowRef) ref
+    let xs = Map.toList x
+    MeowObject . Map.fromList <$> mapM copyPair xs
 primCopy x = return x
 
 
