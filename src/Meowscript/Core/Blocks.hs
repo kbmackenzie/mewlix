@@ -108,20 +108,18 @@ runBlock :: Block -> IsLoop -> Evaluator ReturnValue
 {-# INLINE runBlock #-}
 runBlock block = block `seq` runStatements block
 
-{-
--- Run block in proper order: Function definitions, then other statements.
--- ... We're going to do this later though.
--- Functions are already 'hoisted' so long as you don't call a function in
--- the global scope, so this is fine. I don't have to do all of that below.
--- 
--- I'm gonna keep the order of function definitions mattering exclusively if
--- you try to call a function *in the global scope* before defining it.
---
-runBlock xs isLoop = do
-    let (funcDefs, rest) = List.partition isFuncDef xs
-    void $ runStatements funcDefs False
-    runStatements rest isLoop
--}
+{- A note about functions:
+ - Function definitions aren't 'hoisted'.
+ - A function in the current block must be declared before it's used.
+ -
+ - This rule does not apply to function bodies, however: Function bodies
+ - do not follow this rule, however: Function bodies are only evaluated
+ - when a function is called, and thus they can contain calls to non-existent
+ - functions at the time it's declared and that's perfectly fine, so long as
+ - those non-existent functions do come to exist before the function is called.
+ -
+ - TL;DR: Function bodies can have anything in them and they aren't looked at
+ - until a function is called. -}
 
 {- Running Statements -}
 -------------------------------------------------------------------------
@@ -299,8 +297,7 @@ catchMeow isLoop (MeowCatch expr body) (x, y) = case expr of
     Nothing -> runBlock body isLoop
 
 runCatches :: [MeowCatch] -> IsLoop -> Evaluator ReturnValue -> Evaluator ReturnValue
-runCatches [] _      = id
-runCatches xs isLoop = foldr1 (flip (.)) (flip catchError . catchMeow isLoop <$> xs)
+runCatches xs isLoop = foldr (flip (.)) id (flip catchError . catchMeow isLoop <$> xs)
 
 runTryCatch :: Block -> [MeowCatch] -> IsLoop -> Evaluator ReturnValue
 runTryCatch tryBlock xs isLoop = runCatches xs isLoop (runBlock tryBlock isLoop)
