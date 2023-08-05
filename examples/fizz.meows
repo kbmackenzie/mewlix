@@ -7,19 +7,29 @@ mew words = ~( ^.x.^) BOX!! [
 ]
 
 =^.x.^= fizzbuzzbazz(n)
+    mew output = []
+
     take (mew i = 1) and do (paw at i) while (i <= n)
-        mew output = ""
+        mew buffer = ""
 
         mew? (i % 3 == 0)
-            output = output..words.fizz
-        mew? (i % 5 == 0)
-            output = output..words.buzz
-        mew? (i % 7 == 0)
-            output = output..words.bazz
-        hiss!
-            output = string(i)
+            buffer = buffer..words.fizz
         meow meow
 
-        meow(output)
+        mew? (i % 5 == 0)
+            buffer = buffer..words.buzz
+        meow meow
+
+        mew? (i % 7 == 0)
+            buffer = buffer..words.bazz
+        meow meow
+
+        mew? (not buffer)
+            buffer = string(i)
+        meow meow
+
+        buffer push output
     meow meow
+
+    bring output
 meow meow
