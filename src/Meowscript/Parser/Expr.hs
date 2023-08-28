@@ -1,16 +1,14 @@
-{-# LANGUAGE OverloadedStrings #-} 
+{-# LANGUAGE OverloadedStrings #-}
 
 module Meowscript.Parser.Expr
-( parseExpr
-, parseExpr'
-, chainedOps
+( exprTerm
+, parseExpr
 , parseDotOp
-, parseBoxOp
-, exprTerm
 ) where
 
-import Meowscript.Core.AST
-import Meowscript.Parser.Core
+import Meowscript.Parser.AST
+import Meowscript.Parser.Prim
+import Meowscript.Parser.Utils
 import Meowscript.Parser.Keywords
 import Text.Megaparsec ((<|>), (<?>))
 import qualified Text.Megaparsec as Mega
@@ -19,62 +17,62 @@ import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 import Control.Monad (void)
 
 exprTerm :: Parser Expr
-exprTerm = ((lexeme . parens) parseExpr'  <?> "parens"    )
+exprTerm = ((lexeme . parens) parseExpr   <?> "parens"    )
     <|> (lexeme parseBox                  <?> "box"       )
     <|> (lexeme parseList                 <?> "list"      )
-    <|> (ExpPrim <$> lexeme parsePrim                     ) 
+    <|> (ExprPrim <$> lexeme parsePrim                    )
+    <|> (lexeme parseKey                  <?> "key"       )
+
+expr :: Parser Expr
+expr = makeExprParser exprTerm operators
 
 parseExpr :: Parser Expr
-parseExpr = makeExprParser exprTerm operators
-
-parseExpr' :: Parser Expr
-parseExpr' = lexeme (whitespace >> parseExpr)
+parseExpr = lexeme (whitespace >> expr)
 
 operators :: [[Operator Parser Expr]]
 operators =
     [
-        [ Prefix  (ExpYarn                            <$ trySymbol "~~"        ) ]
-      , [ Postfix chainedOps                                                     ]
-      , [ Prefix  (ExpUnop  MeowPaw                   <$ tryKeyword meowPaw    )
-        , Prefix  (ExpUnop  MeowClaw                  <$ tryKeyword meowClaw   ) ]
-      , [ Postfix (ExpUnop  MeowLen                   <$ trySymbol "?!"        ) ]
-      , [ Prefix  (ExpUnop  MeowPeek                  <$ tryKeyword meowPeek   )
-        , InfixL  (ExpBinop MeowPush                  <$ tryKeyword meowPush   )
-        , Prefix  (ExpUnop  MeowKnockOver             <$ tryKeyword meowKnock  ) ]
-      , [ InfixL  (ExpBinop MeowConcat                <$ trySymbol ".."        ) ]
-      , [ InfixL  (ExpBinop MeowPow                   <$ trySymbol "^"         ) ]
-      , [ Prefix  (ExpUnop  MeowNegate                <$ symbol "-"            )
-        , Prefix  (ExpUnop  MeowNot                   <$ tryKeyword meowNot    ) ]
-      , [ InfixL  (ExpBinop MeowMul                   <$ symbol "*"            )
-        , InfixL  (ExpBinop MeowDiv                   <$ symbol "/"            )
-        , InfixL  (ExpBinop MeowMod                   <$ symbol "%"            ) ]
-      , [ InfixL  (ExpBinop MeowAdd                   <$ symbol "+"            )
-        , InfixL  (ExpBinop MeowSub                   <$ symbol "-"            ) ]
-      , [ InfixL  (ExpBinop (MeowCompare [LT, EQ])    <$ trySymbol "<="        )
-        , InfixL  (ExpBinop (MeowCompare [GT, EQ])    <$ trySymbol ">="        )
-        , InfixL  (ExpBinop (MeowCompare [LT])        <$ symbol "<"            )
-        , InfixL  (ExpBinop (MeowCompare [GT])        <$ symbol ">"            ) ]
-      , [ InfixL  (ExpBinop (MeowCompare [EQ])        <$ trySymbol "=="        )
-        , InfixL  (ExpBinop (MeowCompare [LT, GT])    <$ trySymbol "!="        ) ]
-      , [ InfixL  (ExpMeowAnd                         <$ tryKeyword meowAnd    ) ]
-      , [ InfixL  (ExpMeowOr                          <$ tryKeyword meowOr     ) ]
-      , [ Prefix  parseLambda                                                  ]
-      , [ TernR   ((ExpTernary <$ symbol ":")         <$ trySymbol "?"         ) ]
-      , [ InfixR  (ExpBinop MeowAssign                <$ symbol "="            ) ]
+        [ Postfix chainedOps                                                       ]
+      , [ Prefix  (ExprUnop  UnopPaw                    <$ tryKeyword meowPaw    )
+        , Prefix  (ExprUnop  UnopClaw                   <$ tryKeyword meowClaw   ) ]
+      , [ Postfix (ExprUnop  UnopLen                    <$ trySymbol "?!"        ) ]
+      , [ Prefix  (ExprUnop  UnopListPeek               <$ tryKeyword meowPeek   )
+        , InfixL  (ExprBinop BinopListPush              <$ tryKeyword meowPush   )
+        , Prefix  (ExprUnop  UnopListPop                <$ tryKeyword meowKnock  ) ]
+      , [ InfixL  (ExprBinop BinopConcat                <$ trySymbol ".."        ) ]
+      , [ InfixL  (ExprBinop BinopPow                   <$ trySymbol "^"         ) ]
+      , [ Prefix  (ExprUnop  UnopNegate                 <$ symbol "-"            )
+        , Prefix  (ExprUnop  UnopNot                    <$ tryKeyword meowNot    ) ]
+      , [ InfixL  (ExprBinop BinopMul                   <$ symbol "*"            )
+        , InfixL  (ExprBinop BinopDiv                   <$ symbol "/"            )
+        , InfixL  (ExprBinop BinopMod                   <$ symbol "%"            ) ]
+      , [ InfixL  (ExprBinop BinopAdd                   <$ symbol "+"            )
+        , InfixL  (ExprBinop BinopSub                   <$ symbol "-"            ) ]
+      , [ InfixL  (ExprBinop BinopCompareLEQ            <$ trySymbol "<="        )
+        , InfixL  (ExprBinop BinopCompareGEQ            <$ trySymbol ">="        )
+        , InfixL  (ExprBinop BinopCompareLess           <$ symbol "<"            )
+        , InfixL  (ExprBinop BinopCompareGreat          <$ symbol ">"            ) ]
+      , [ InfixL  (ExprBinop BinopCompareEq             <$ trySymbol "=="        )
+        , InfixL  (ExprBinop BinopCompareNotEq          <$ trySymbol "!="        ) ]
+      , [ InfixL  (ExprAnd                              <$ tryKeyword meowAnd    ) ]
+      , [ InfixL  (ExprOr                               <$ tryKeyword meowOr     ) ]
+      , [ Prefix  parseLambda                                                      ]
+      , [ TernR   ((ExprTernary <$ symbol ":")          <$ trySymbol "?"         ) ]
+      , [ InfixR  (ExprAssign                           <$ symbol "="            ) ]
     ]
 
 parseList :: Parser Expr
 parseList = (lexeme . brackets) $ whitespaceLn >>
-    ExpList <$> sepByComma' (lexemeLnBi parseExpr) <* whitespaceLn
+    ExprList <$> sepByCommaEnd (bilexemeLn parseExpr) <* whitespaceLn
 
 parseBox :: Parser Expr
 parseBox = (Mega.try . lexemeLn . MChar.string') meowBox >> parseBox'
 
 parseBox' :: Parser Expr
 parseBox' = (lexeme . brackets) $ whitespaceLn >>
-    ExpObject <$> sepByComma' (lexemeLnBi parseKeyValue) <* whitespaceLn
+    ExprBox <$> sepByCommaEnd (bilexemeLn parseKeyValue) <* whitespaceLn
 
-parseKeyValue :: Parser (Key, Expr)
+parseKeyValue :: Parser (Identifier, Expr)
 parseKeyValue = do
     key <- lexeme keyText
     (void . lexeme) (MChar.char ':')
@@ -84,24 +82,24 @@ parseKeyValue = do
 parseLambda :: Parser (Expr -> Expr)
 parseLambda = do
     (void . Mega.try . lexeme . MChar.string') meowLambda
-    let takeArgs = (sepByComma . lexemeBi) keyText
+    let takeArgs = (sepByComma . bilexeme) keyText
     args <- (lexeme . parens) (whitespace >> takeArgs)
     (void . lexeme . MChar.string) "=>"
-    return (ExpLambda args)
+    return (ExprLambda args)
 
 parseCall :: Parser (Expr -> Expr)
 parseCall = (lexeme . parens . Mega.try) $ whitespaceLn >>
-    flip ExpCall <$> sepByComma (lexemeLnBi parseExpr) <* whitespaceLn
+    flip ExprCall <$> sepByComma (bilexemeLn parseExpr) <* whitespaceLn
 
 parseDotOp :: Parser (Expr -> Expr)
 parseDotOp = do
     Mega.try $ do
         void (MChar.char '.')
         Mega.notFollowedBy (Mega.satisfy (== '.'))
-    flip ExpDotOp <$> lexeme exprTerm
+    flip ExprDotOp <$> lexeme exprTerm
 
 parseBoxOp :: Parser (Expr -> Expr)
-parseBoxOp = (Mega.try . lexeme . brackets) (flip ExpBoxOp . ExpYarn <$> parseExpr')
+parseBoxOp = (Mega.try . lexeme . brackets) (flip ExprBoxAccess <$> parseExpr)
 
 chainedOps :: Parser (Expr -> Expr)
 chainedOps = foldr1 (flip (.)) <$> Mega.some (parseDotOp <|> parseCall <|> parseBoxOp)

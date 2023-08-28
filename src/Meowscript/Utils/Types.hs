@@ -2,6 +2,6 @@ module Meowscript.Utils.Types
 ( FilePathT
 ) where
 
-import qualified Data.Text as Text
+import Data.Text (Text)
 
-type FilePathT = Text.Text
+type FilePathT = Text

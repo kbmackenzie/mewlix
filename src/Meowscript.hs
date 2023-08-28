@@ -1,7 +1,7 @@
 module Meowscript
-( Prim(..)
-, runMeowr
+( --Prim(..)
+--, runMeowr
 ) where
 
-import Meowscript.Core.AST
-import Meowscript.Meowr.RunMeowr
+--import Meowscript.Core.AST
+--import Meowscript.Meowr.RunMeowr
