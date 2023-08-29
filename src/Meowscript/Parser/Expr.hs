@@ -9,6 +9,8 @@ module Meowscript.Parser.Expr
 import Meowscript.Parser.AST
 import Meowscript.Parser.Prim
 import Meowscript.Parser.Utils
+import Meowscript.Data.Stack (Stack)
+import qualified Meowscript.Data.Stack as Stack
 import Meowscript.Parser.Keywords
 import Text.Megaparsec ((<|>), (<?>))
 import qualified Text.Megaparsec as Mega
@@ -83,13 +85,13 @@ parseLambda :: Parser (Expr -> Expr)
 parseLambda = do
     (void . Mega.try . lexeme . MChar.string') meowLambda
     let takeArgs = (sepByComma . bilexeme) keyText
-    args <- (lexeme . parens) (whitespace >> takeArgs)
+    args <- Stack.fromList <$> (lexeme . parens) (whitespace >> takeArgs)
     (void . lexeme . MChar.string) "=>"
     return (ExprLambda args)
 
 parseCall :: Parser (Expr -> Expr)
 parseCall = (lexeme . parens . Mega.try) $ whitespaceLn >>
-    flip ExprCall <$> sepByComma (bilexemeLn parseExpr) <* whitespaceLn
+    flip ExprCall . Stack.fromList <$> sepByComma (bilexemeLn parseExpr) <* whitespaceLn
 
 parseDotOp :: Parser (Expr -> Expr)
 parseDotOp = do

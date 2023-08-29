@@ -15,8 +15,9 @@ module Meowscript.Parser.AST
 ) where
 
 import qualified Data.Text as Text
-import Meowscript.Utils.Types
 import Meowscript.Abstract.Atom
+import Meowscript.Utils.Types
+import Meowscript.Data.Stack (Stack)
 
 type Identifier = Text.Text
 
@@ -40,7 +41,7 @@ data Expr =
     | ExprBox [(Identifier, Expr)]
     | ExprAssign Expr Expr
     | ExprLambda Params Expr
-    | ExprCall Expr [Expr]
+    | ExprCall Expr (Stack Expr)
     | ExprDotOp Expr Expr
     | ExprBoxAccess Expr Expr
     deriving (Show)
@@ -72,8 +73,8 @@ data Unop =
     | UnopLen
     deriving (Show)
 
-type Block  = [Statement]
-type Params = [Text.Text]
+type Block  = Stack Statement
+type Params = Stack Text.Text
 type CatchBlock = (Maybe Expr, Block)
 
 data Statement =
@@ -82,7 +83,7 @@ data Statement =
     | StmtFor (Expr, Expr, Expr) Block
     | StmtWhile Expr Block
     | StmtFuncDef Expr Params Block
-    | StmtDeclaration Identifier [Expr] Block
+    | StmtDeclaration Identifier Expr
     | StmtImport FilePathT (Maybe Identifier)
     | StmtReturn Expr
     | StmtBreak

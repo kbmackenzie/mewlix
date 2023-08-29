@@ -10,6 +10,8 @@ import Meowscript.Parser.Expr
 import Meowscript.Parser.Utils
 import Meowscript.Parser.Keywords
 import Meowscript.Parser.Prim
+import Meowscript.Data.Stack (Stack)
+import qualified Meowscript.Data.Stack as Stack
 import Text.Megaparsec ((<|>), (<?>))
 import qualified Data.Text as Text
 import qualified Text.Megaparsec as Mega
@@ -55,7 +57,8 @@ parseWhile = lexeme . Lexer.indentBlock whitespaceLn $ do
     (Mega.try . void . keyword) meowWhile
     whitespace
     condition <- parensExpression
-    return (Lexer.IndentMany Nothing ((<$ parseEnd) . StmtWhile condition) statements)
+    let makeBody = (<$ parseEnd) . StmtWhile condition . Stack.fromList
+    return (Lexer.IndentMany Nothing makeBody statements)
 
 
 {- If Else -}
@@ -66,16 +69,17 @@ parseIf :: Parser (Expr, Block)
 parseIf = lexeme . Lexer.indentBlock whitespaceLn $ do
     (Mega.try . void . keyword) meowIf
     condition <- parensExpression
-    return (Lexer.IndentMany Nothing (return . (condition,)) statements)
+    let makeBody = return . (condition,) . Stack.fromList
+    return (Lexer.IndentMany Nothing makeBody statements)
 
-parseElse :: Parser [Statement]
+parseElse :: Parser Block
 parseElse = lexeme . Lexer.indentBlock whitespaceLn $ do
     (Mega.try . void . keyword) meowElse
-    return (Lexer.IndentMany Nothing return statements)
+    return (Lexer.IndentMany Nothing (return . Stack.fromList) statements)
 
 -- Allows nested if/else!
-elseIf :: Parser [Statement]
-elseIf = Mega.try parseElse <|> fmap List.singleton parseIfElse <|> return []
+elseIf :: Parser Block
+elseIf = Mega.try parseElse <|> fmap Stack.singleton parseIfElse <|> return Stack.empty
 
 parseIfElse :: Parser Statement
 parseIfElse = lexeme $ do
@@ -86,15 +90,16 @@ parseIfElse = lexeme $ do
 
 {- Functions -}
 ----------------------------------------------------------------
-funParams :: Parser [Text.Text]
-funParams = (lexeme . parens) $ whitespace >> sepByComma (bilexeme keyText)
+funParams :: Parser Params
+funParams = (lexeme . parens) $ whitespace >> Stack.fromList <$> sepByComma (bilexeme keyText)
 
 parseFunc :: Parser Statement
 parseFunc = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . specialSymbol) meowCatface
     name <- lexeme funName
     args <- funParams
-    return (Lexer.IndentMany Nothing ((<$ parseEnd) . StmtFuncDef name args) statements)
+    let makeBody = (<$ parseEnd) . StmtFuncDef name args . Stack.fromList
+    return (Lexer.IndentMany Nothing makeBody statements)
 
 funName :: Parser Expr
 funName = makeExprParser (ExprPrim <$> lexeme parsePrim)
@@ -135,7 +140,8 @@ parseFor = lexeme . Lexer.indentBlock whitespaceLn $ do
     let tryFirst = Mega.try (getExp start)
     (a, b, c) <- (,,) <$> tryFirst <*> getExp middle <*> getExp end
     let expressions = (a, b, c)
-    return $ Lexer.IndentMany Nothing ((<$ parseEnd) . StmtFor expressions) statements
+    let makeBody = (<$ parseEnd) . StmtFor expressions . Stack.fromList
+    return $ Lexer.IndentMany Nothing makeBody statements
 
 
 {- Import -}
@@ -151,24 +157,25 @@ parseImport = lexeme $ do
 
 {- Watch/Catch -}
 ----------------------------------------------------------------
-parseTry :: Parser [Statement]
+parseTry :: Parser Block
 parseTry = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . Mega.try . keyword) meowTry
-    return $ Lexer.IndentMany Nothing return statements
+    return $ Lexer.IndentMany Nothing (return . Stack.fromList) statements
 
 parseCatch :: Parser CatchBlock
 parseCatch = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . Mega.try . keyword) meowCatch
     expr <- Mega.optional $ (lexeme . parens) parseExpr
-    return $ Lexer.IndentMany Nothing (return . (expr,)) statements
+    let makeBody = return . (expr,) . Stack.fromList
+    return $ Lexer.IndentMany Nothing makeBody statements
 
 manyCatch :: Block -> Parser Statement
 manyCatch tryblock = do
     catchblock <- parseCatch
     let expr = StmtTryCatch tryblock catchblock
-    manyCatch [expr] <|> (expr <$ parseEnd)
+    manyCatch (Stack.singleton expr) <|> (expr <$ parseEnd)
 
 parseTryCatch :: Parser Statement
 parseTryCatch = lexeme $ do
     tryBlock <- parseTry
-    Mega.try (manyCatch tryBlock) <|> return (StmtTryCatch tryBlock (Nothing, []))
+    Mega.try (manyCatch tryBlock) <|> return (StmtTryCatch tryBlock (Nothing, Stack.empty))

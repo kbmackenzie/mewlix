@@ -12,6 +12,7 @@ module Meowscript.Abstract.Atom
 import Meowscript.Data.Key (Key)
 import Data.Int (Int32)
 import Meowscript.Data.Ref
+import Meowscript.Data.Stack (Stack)
 import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
 
