@@ -79,9 +79,9 @@ type CatchBlock = (Maybe Expr, Block)
 
 data Statement =
       StmtExpr Expr
-    | StmtIf Expr Block Block
-    | StmtFor (Expr, Expr, Expr) Block
     | StmtWhile Expr Block
+    | StmtFor (Expr, Expr, Expr) Block
+    | StmtIfElse Expr Block Block
     | StmtFuncDef Expr Params Block
     | StmtDeclaration Identifier Expr
     | StmtImport FilePathT (Maybe Identifier)

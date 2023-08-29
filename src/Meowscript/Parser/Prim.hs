@@ -8,6 +8,7 @@ module Meowscript.Parser.Prim
 
 import Meowscript.Parser.AST
 import Meowscript.Parser.Utils
+import Meowscript.Parser.Keywords
 import qualified Data.Text as Text
 import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec as Mega
@@ -18,8 +19,9 @@ import Control.Monad (void)
 parsePrim :: Parser ParserPrim
 parsePrim = Mega.choice
     [ parseStr          <?> "string"
+    , parseStrM         <?> "string"
     , parseBool         <?> "bool"
-    , parseLonely       <?> "lonely"
+    , parseLonely       <?> "nothing"
     , parseFloat        <?> "float"
     , parseInt          <?> "int"    ]
 
@@ -29,8 +31,8 @@ parseStr = do
     void quotation
     (PrimStr . Text.pack <$> Mega.many escapeStr) <* void quotation
 
-escapeStr :: Parser Char
-escapeStr = Mega.choice
+escapes :: [Parser Char]
+escapes =
     [ '"'  <$ MChar.string "\\\""
     , '/'  <$ MChar.string "\\/"
     , '\b' <$ MChar.string "\\b"
@@ -40,6 +42,22 @@ escapeStr = Mega.choice
     , '\t' <$ MChar.string "\\t"
     , '\\' <$ MChar.string "\\\\"
     , Mega.satisfy (/= '"') ]
+
+-- Escapes single-line string.
+escapeStr :: Parser Char
+escapeStr = Mega.choice (newlineGuard : escapes)
+    where newlineGuard = MChar.newline >> fail "Linebreak in string!"
+
+-- Escapes multiline string.
+escapeStrM :: Parser Char
+escapeStrM = Mega.choice escapes
+
+-- Parse multiline string.
+parseStrM :: Parser ParserPrim
+parseStrM = do
+    let quotation = ((<?> "triple quotes") . MChar.string) "\"\"\""
+    void quotation
+    (PrimStr . Text.pack <$> Mega.many escapeStrM) <* void quotation
 
 parseInt :: Parser ParserPrim
 parseInt = do
@@ -53,11 +71,11 @@ parseFloat = Mega.try $ do
 
 parseBool :: Parser ParserPrim
 parseBool = PrimBool <$> Mega.choice
-    [ True  <$ keyword "happy"
-    , False <$ keyword "sad" ]
+    [ True  <$ keyword meowTrue
+    , False <$ keyword meowFalse ]
 
 parseLonely :: Parser ParserPrim
-parseLonely = PrimNil <$ keyword "lonely"
+parseLonely = PrimNil <$ keyword meowNil
 
 parseKey :: Parser Expr
 parseKey = ExprKey <$> keyText

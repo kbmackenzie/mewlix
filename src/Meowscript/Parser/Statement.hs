@@ -2,7 +2,8 @@
 {-# LANGUAGE TupleSections #-}
 
 module Meowscript.Parser.Statement
-(
+( statements
+, root
 ) where
 
 import Meowscript.Parser.AST
@@ -12,11 +13,10 @@ import Meowscript.Parser.Keywords
 import Meowscript.Parser.Prim
 import Meowscript.Data.Stack (Stack)
 import qualified Meowscript.Data.Stack as Stack
-import Text.Megaparsec ((<|>), (<?>))
+import Text.Megaparsec ((<|>))
 import qualified Data.Text as Text
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char.Lexer as Lexer
-import qualified Data.List as List
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 import Control.Monad (void)
 
@@ -27,16 +27,18 @@ root = Mega.between whitespaceLn Mega.eof (Mega.many (lexemeLn statements))
 ----------------------------------------------------------------
 statements :: Parser Statement
 statements = Mega.choice
-    [  parseWhile                <?> Text.unpack meowWhile
-     , parseFor                  <?> (Text.unpack . \(x,_,_) -> x) meowFor
-     , parseIfElse               <?> Text.unpack meowIf
-     , parseFunc                 <?> Text.unpack meowCatface
-     , parseReturn               <?> Text.unpack meowReturn
-     , parseContinue             <?> Text.unpack meowContinue
-     , parseBreak                <?> Text.unpack meowBreak
-     , parseImport               <?> (Text.unpack . fst) meowTakes
-     , parseTryCatch             <?> (Text.unpack . Text.concat) [ meowTry, meowCatch ]
-     , parseExpression           <?> "expression" ]
+    [ parseWhile                <??> meowWhile
+    , parseFor                  <??> (\(x,_,_) -> x) meowFor
+    , parseIfElse               <??> meowIf
+    , parseFunc                 <??> meowCatface
+    , parseDecl                 <??> meowLocal
+    , parseReturn               <??> meowReturn
+    , parseContinue             <??> meowContinue
+    , parseBreak                <??> meowBreak
+    , parseWhen                 <??> fst meowWhen
+    , parseImport               <??> fst meowTakes
+    , parseTryCatch             <??> Text.concat [ meowTry, "/", meowCatch ]
+    , parseExpression           <??> "expression" ]
 
 parseEnd :: Parser ()
 parseEnd = whitespace >> (void . keyword) meowEnd
@@ -49,17 +51,23 @@ parensExpression = (lexeme . parens) (whitespace >> parseExpr)
 parseExpression :: Parser Statement
 parseExpression = whitespace >> StmtExpr <$> parseExpr
 
+{- Declaration -}
+parseDecl :: Parser Statement
+parseDecl = lexeme $ do
+    (void . tryKeyword) meowLocal
+    key <- lexeme keyText
+    (void . symbol) "="
+    StmtDeclaration key <$> parseExpr
 
 {- While -}
 ----------------------------------------------------------------
 parseWhile:: Parser Statement
 parseWhile = lexeme . Lexer.indentBlock whitespaceLn $ do
-    (Mega.try . void . keyword) meowWhile
+    (void . tryKeyword) meowWhile
     whitespace
     condition <- parensExpression
     let makeBody = (<$ parseEnd) . StmtWhile condition . Stack.fromList
     return (Lexer.IndentMany Nothing makeBody statements)
-
 
 {- If Else -}
 ----------------------------------------------------------------
@@ -67,14 +75,14 @@ data MeowIf = MeowIf Expr Block deriving (Show)
 
 parseIf :: Parser (Expr, Block)
 parseIf = lexeme . Lexer.indentBlock whitespaceLn $ do
-    (Mega.try . void . keyword) meowIf
+    (void . tryKeyword) meowIf
     condition <- parensExpression
     let makeBody = return . (condition,) . Stack.fromList
     return (Lexer.IndentMany Nothing makeBody statements)
 
 parseElse :: Parser Block
 parseElse = lexeme . Lexer.indentBlock whitespaceLn $ do
-    (Mega.try . void . keyword) meowElse
+    (void . tryKeyword) meowElse
     return (Lexer.IndentMany Nothing (return . Stack.fromList) statements)
 
 -- Allows nested if/else!
@@ -86,7 +94,7 @@ parseIfElse = lexeme $ do
     (cond, ifBody) <- parseIf
     elseBody <- elseIf
     parseEnd
-    return (StmtIf cond ifBody elseBody)
+    return (StmtIfElse cond ifBody elseBody)
 
 {- Functions -}
 ----------------------------------------------------------------
@@ -130,7 +138,6 @@ parseBreak = lexeme $ do
     whitespace
     StmtBreak <$ (void . keyword) meowBreak
 
-
 {- For Loop -}
 ----------------------------------------------------------------
 parseFor :: Parser Statement
@@ -149,9 +156,9 @@ parseFor = lexeme . Lexer.indentBlock whitespaceLn $ do
 parseImport :: Parser Statement
 parseImport = lexeme $ do
     let (start, end) = meowTakes
-    (void . Mega.try . keyword) start
+    (void . tryKeyword) start
     (PrimStr filepath) <- lexeme parseStr
-    let key = (void . Mega.try . keyword) end >> lexeme keyText
+    let key = (void . tryKeyword) end >> lexeme keyText
     maybeKey <- Mega.optional key
     return (StmtImport filepath maybeKey)
 
@@ -159,12 +166,12 @@ parseImport = lexeme $ do
 ----------------------------------------------------------------
 parseTry :: Parser Block
 parseTry = lexeme . Lexer.indentBlock whitespaceLn $ do
-    (void . Mega.try . keyword) meowTry
+    (void . tryKeyword) meowTry
     return $ Lexer.IndentMany Nothing (return . Stack.fromList) statements
 
 parseCatch :: Parser CatchBlock
 parseCatch = lexeme . Lexer.indentBlock whitespaceLn $ do
-    (void . Mega.try . keyword) meowCatch
+    (void . tryKeyword) meowCatch
     expr <- Mega.optional $ (lexeme . parens) parseExpr
     let makeBody = return . (expr,) . Stack.fromList
     return $ Lexer.IndentMany Nothing makeBody statements
@@ -179,3 +186,20 @@ parseTryCatch :: Parser Statement
 parseTryCatch = lexeme $ do
     tryBlock <- parseTry
     Mega.try (manyCatch tryBlock) <|> return (StmtTryCatch tryBlock (Nothing, Stack.empty))
+
+
+----------------------------------------------------------------
+{- Syntatic Sugar -}
+----------------------------------------------------------------
+
+{- When -}
+-- Syntax is: when <expr> do <expr>
+-- Parsed into a simple 'if' statement.
+parseWhen :: Parser Statement
+parseWhen = lexeme $ do
+    let (start, end) = meowWhen
+    (void . tryKeyword) start
+    condition <- parensExpression
+    (void . keyword) end
+    body <- Stack.singleton . StmtExpr <$> parseExpr
+    return (StmtIfElse condition body Stack.empty)

@@ -40,7 +40,7 @@ showMeow (MeowBox x) = do
     items <- map pretty <$> mapM unpack (HashMap.toList x)
     (return . Text.concat) [ "[", Text.intercalate ", " items, "]" ]
 showMeow (MeowFunc _) = return "<function>"
-showMeow MeowNil = return "<nil>"
+showMeow MeowNil = return "<nothing>"
 
 prettyMeow :: (MonadIO m) => MeowAtom -> m Text.Text
 {-# INLINE prettyMeow #-}

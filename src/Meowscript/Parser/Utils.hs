@@ -2,6 +2,7 @@
 
 module Meowscript.Parser.Utils
 ( Parser
+, (<??>)
 , whitespace
 , whitespaceLn
 , lexeme
@@ -16,6 +17,7 @@ module Meowscript.Parser.Utils
 , comma
 , sepByComma
 , sepByCommaEnd
+, (<??>)
 , keyword
 , tryKeyword
 , validKeyChar
@@ -91,6 +93,10 @@ sepByComma = flip Mega.sepBy comma
 
 sepByCommaEnd :: Parser a -> Parser [a]
 sepByCommaEnd = flip Mega.sepEndBy commaLn
+
+infix 0 <??>
+(<??>) :: (Mega.MonadParsec e s m) => m a -> Text.Text -> m a
+a <??> b = a <?> Text.unpack b
 
 keyword :: Text.Text -> Parser ()
 keyword k = lexeme . (<?> "keyword") $ do

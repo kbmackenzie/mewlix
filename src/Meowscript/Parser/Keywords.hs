@@ -4,6 +4,9 @@ module Meowscript.Parser.Keywords
 ( meowCatface
 , meowLocal
 , meowComment
+, meowTrue
+, meowFalse
+, meowNil
 , meowEnd
 , meowReturn
 , meowContinue
@@ -25,6 +28,7 @@ module Meowscript.Parser.Keywords
 , meowTakes
 , meowTry
 , meowCatch
+, meowWhen
 , reservedKeywords
 ) where
 
@@ -38,6 +42,15 @@ meowLocal = "mew"
 
 meowComment :: (Text, Text)
 meowComment = ("~( ^.x.^)>", "<(^.x.^ )~")
+
+meowTrue :: Text
+meowTrue = "happy"
+
+meowFalse :: Text
+meowFalse = "sad"
+
+meowNil :: Text
+meowNil = "nothing"
 
 meowEnd :: Text
 meowEnd = "meow meow"
@@ -102,6 +115,9 @@ meowTry = "watch"
 meowCatch :: Text
 meowCatch = "catch"
 
+meowWhen :: (Text, Text)
+meowWhen = ("when", "do")
+
 reservedKeywords :: [Text]
 {-# INLINE reservedKeywords #-}
 reservedKeywords =
@@ -130,5 +146,6 @@ reservedKeywords =
     , "over"
     , "happy"
     , "sad"
-    , "lonely"
-    , "meowmeow"]
+    , "nothing"
+    , "when"
+    , "meowmeow" ]
