@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TupleSections #-}
 
-module Meowscript.Bytecode.PrimOperations
+module Meowscript.Abstract.Primitive
 ( showMeow
 , prettyMeow
 , meowBool
@@ -11,18 +11,21 @@ module Meowscript.Bytecode.PrimOperations
 , primSort
 ) where
 
-import Meowscript.Bytecode.Prim
-import Meowscript.Bytecode.Evaluator
+import Meowscript.Abstract.Atom
+import Meowscript.Data.Ref
+import Meowscript.Evaluate.Exception
+import Meowscript.Evaluate.MeowThrower
+import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
 import Meowscript.Utils.Show
 import Meowscript.Utils.List
-import qualified Data.Text as Text
-import Data.IORef (readIORef)
 import Control.Monad.ListM (sortByM)
+import Control.Monad.Except (MonadError(..))
+import Control.Monad.IO.Class (MonadIO(..))
 
 {- Pretty-Printing -}
 -----------------------------------------------------------------------------
-showMeow :: MeowPrim -> MeowMachine Text.Text
+showMeow :: (MonadIO m) => MeowAtom -> m Text.Text
 {-# INLINE showMeow #-}
 showMeow (MeowInt n) = (return . showT) n
 showMeow (MeowFloat f) = (return . showT) f
@@ -32,21 +35,21 @@ showMeow (MeowList xs) = do
     items <- mapM showMeow (unboxList xs)
     (return . Text.concat) [ "[", Text.intercalate ", " items, "]" ]
 showMeow (MeowBox x) = do
-    let unpack (key, ref) = fmap (key,) $ liftIO (readIORef ref) >>= showMeow
+    let unpack (key, ref) = fmap (key,) $ liftIO (readRef ref) >>= showMeow
     let pretty (key, prim) = Text.concat [ key, ": ", prim ]
     items <- map pretty <$> mapM unpack (HashMap.toList x)
     (return . Text.concat) [ "[", Text.intercalate ", " items, "]" ]
 showMeow (MeowFunc _) = return "<function>"
 showMeow MeowNil = return "<nil>"
 
-prettyMeow :: MeowPrim -> MeowMachine Text.Text
+prettyMeow :: (MonadIO m) => MeowAtom -> m Text.Text
 {-# INLINE prettyMeow #-}
 prettyMeow (MeowString s) = (return . showT . unboxStr) s
 prettyMeow other = showMeow other
 
 {- Truthy/Falsy -}
 -----------------------------------------------------------------------------
-meowBool :: MeowPrim -> Bool
+meowBool :: MeowAtom -> Bool
 meowBool MeowNil = False
 meowBool (MeowBool b) = b
 meowBool (MeowList xs) = (not . null . unboxList) xs
@@ -58,7 +61,7 @@ meowBool _ = True
 -----------------------------------------------------------------------------
 -- A generic comparison function.
 -- It throws exceptions with type mismatches.
-primCompare :: MeowPrim -> MeowPrim -> MeowMachine Ordering
+primCompare :: (MonadIO m, MeowThrower m) => MeowAtom -> MeowAtom -> m Ordering
 {-# INLINE primCompare #-}
 -- Numeric comparison:
 MeowInt a    `primCompare` MeowInt b    = return (a `compare` b)
@@ -80,23 +83,22 @@ MeowList as  `primCompare` MeowList bs  = mappend (listLen as `compare` listLen 
     listCompareM primCompare (unboxList as) (unboxList bs)
 -- Box comparison:
 MeowBox a    `primCompare` MeowBox b    = mappend (HashMap.size a `compare` HashMap.size b) <$> do
-    let unpack (key, ref) = (key,) <$> liftIO (readIORef ref)
+    let unpack (key, ref) = (key,) <$> liftIO (readRef ref)
     let pairComp (k1, p1) (k2, p2) = mappend (k1 `compare` k2) <$> primCompare p1 p2
     as <- mapM unpack (HashMap.toList a)
     bs <- mapM unpack (HashMap.toList b)
     listCompareM pairComp as bs
-_ `primCompare` _ = throwE undefined -- TODO
+_ `primCompare` _ = throwException undefined -- TODO
 
-primEq :: MeowPrim -> MeowPrim -> MeowMachine Bool
+primEq :: (MonadIO m, MeowThrower m) => MeowAtom -> MeowAtom -> m Bool
 {-# INLINE primEq #-}
 primEq a b = (== EQ) <$> primCompare a b
 
-safeEq :: MeowPrim -> MeowPrim -> MeowMachine Bool
+safeEq :: (MonadIO m, MeowThrower m) => MeowAtom -> MeowAtom -> m Bool
 {-# INLINE safeEq #-}
-safeEq a b = let f = const (return False) in catchE f (primEq a b)
-
+safeEq a b = let f = const (return False) in catchException (primEq a b) f
 
 {- Sorting -}
 -----------------------------------------------------------------------------
-primSort :: [MeowPrim] -> MeowMachine [MeowPrim]
+primSort :: (MonadIO m, MeowThrower m) => [MeowAtom] -> m [MeowAtom]
 primSort = sortByM primCompare

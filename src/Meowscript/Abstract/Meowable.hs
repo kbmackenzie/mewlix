@@ -1,21 +1,21 @@
 {-# LANGUAGE TupleSections #-}
 
-module Meowscript.Primitive.Meowable
+module Meowscript.Abstract.Meowable
 ( Meowable(..)
 ) where
 
-import Meowscript.Primitive.Prim -- Importing everything intentionally!
+import Meowscript.Abstract.Atom
+import Meowscript.Data.Key
+import Meowscript.Data.Ref
 import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
-import Meowscript.Primitive.MeowKey
-import Data.IORef (newIORef)
 import Data.Int (Int32)
 
 class Meowable a where
-    -- Lift value to MeowPrim.
-    toMeow :: a -> IO MeowPrim
+    -- Lift value to MeowAtom.
+    toMeow :: a -> IO MeowAtom
 
-instance Meowable MeowPrim where
+instance Meowable MeowAtom where
     toMeow = return
 
 {- Useful Instances -}
@@ -47,10 +47,12 @@ instance (Meowable a) => Meowable [a] where
 
 instance Meowable MeowPairs where
     toMeow xs = do
-        let pack (k, p) = (k,) <$> newIORef p
+        let pack (k, p) = (k,) <$> newRef p
         MeowBox . HashMap.fromList <$> mapM pack (getPairs xs)
 
-instance (MeowKey k, Meowable a) => Meowable (HashMap.HashMap k a) where
+{-
+instance (Meowable a) => Meowable (HashMap.HashMap Key a) where
     toMeow x = do
-        let pack (k, p) = (toMeowKey k,) <$> (toMeow p >>= newIORef)
+        let pack (k, p) = (k,) <$> (toMeow p >>= newRef)
         MeowBox . HashMap.fromList <$> mapM pack (HashMap.toList x)
+-}

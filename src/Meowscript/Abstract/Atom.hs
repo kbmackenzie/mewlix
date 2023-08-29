@@ -1,36 +1,29 @@
-module Meowscript.Primitive.Prim
-( MeowPrim(..)
-, Meowcode
-, MeowMachine
+module Meowscript.Abstract.Atom
+( MeowAtom(..)
+, AtomRef
 , BoxedString(..)
 , BoxedList(..)
-, BoxKey
-, PrimRef
 , MeowPairs(..)
 , MeowFunction(..)
 , boxString
 , boxList
 ) where
 
-import Meowscript.Primitive.MeowKey (Key)
+import Meowscript.Data.Key (Key)
 import Data.Int (Int32)
+import Meowscript.Data.Ref
 import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
-import Data.IORef (IORef)
 
-type Meowcode = Chunk MeowPrim
-type MeowMachine a = Evaluator MeowPrim a
+type AtomRef = Ref MeowAtom
 
-type BoxKey = Key
-type PrimRef = IORef MeowPrim
-
-data MeowPrim =
+data MeowAtom =
       MeowInt Int32
     | MeowFloat Double
     | MeowString BoxedString
     | MeowBool Bool
     | MeowList BoxedList
-    | MeowBox (HashMap.HashMap BoxKey PrimRef)
+    | MeowBox (HashMap.HashMap Key AtomRef)
     | MeowFunc MeowFunction
     | MeowNil
 
@@ -49,25 +42,24 @@ instance Semigroup BoxedString where
     BoxedString s1 l1 <> BoxedString s2 l2 = BoxedString (s1 <> s2) (l1 + l2)
 
 data BoxedList = BoxedList
-    { unboxList :: [MeowPrim]
+    { unboxList :: [MeowAtom]
     , listLen   :: Int        }
 
 instance Semigroup BoxedList where
     BoxedList u1 l1 <> BoxedList u2 l2 = BoxedList (u1 <> u2) (l1 + l2)
 
 -- An utility newtype that'll be useful when constructing new boxes later!
-newtype MeowPairs = MeowPairs { getPairs :: [(BoxKey, MeowPrim)] }
+newtype MeowPairs = MeowPairs { getPairs :: [(Key, MeowAtom)] }
 
 data MeowFunction = MeowFunction
     { funcName  :: Text.Text
     , funcArity :: Int
-    , funcBody  :: Chunk MeowPrim
-    , upValues  :: [PrimRef]      }
+    , upValues  :: [AtomRef]      }
 
 
 {- Utils -}
 boxString :: Text.Text -> BoxedString
 boxString x = BoxedString { unboxStr = x, strLen = Text.length x }
 
-boxList :: [MeowPrim] -> BoxedList
+boxList :: [MeowAtom] -> BoxedList
 boxList xs = BoxedList { unboxList = xs, listLen = length xs }

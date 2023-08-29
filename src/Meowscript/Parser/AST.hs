@@ -15,8 +15,8 @@ module Meowscript.Parser.AST
 ) where
 
 import qualified Data.Text as Text
-import Meowscript.Bytecode.Prim
 import Meowscript.Utils.Types
+import Meowscript.Abstract.Atom
 
 type Identifier = Text.Text
 
@@ -90,7 +90,7 @@ data Statement =
     | StmtTryCatch Block CatchBlock
     deriving (Show)
 
-liftToMeow :: ParserPrim -> MeowPrim
+liftToMeow :: ParserPrim -> MeowAtom
 liftToMeow (PrimInt n) = (MeowInt . fromIntegral) n
 liftToMeow (PrimStr s) = (MeowString . boxString) s
 liftToMeow (PrimFloat f) = MeowFloat f

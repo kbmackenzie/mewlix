@@ -17,9 +17,11 @@ module Meowscript.Data.Stack
 , (++|)
 , concat
 , concatMap
+, reverse
 ) where
 
-import Prelude hiding (lookup, concat, concatMap)
+import Prelude hiding (lookup, concat, concatMap, reverse)
+import Data.Foldable (foldl')
 
 data Stack a =
       !a ::| !(Stack a)
@@ -34,7 +36,7 @@ instance Monoid (Stack a) where
 
 instance Applicative Stack where
     pure = singleton
-    fs <*> xs = concatMap (<$> xs) fs
+    fs <*> xs = concatMap (`fmap` xs) fs
 
 instance Monad Stack where
     return = pure
@@ -74,7 +76,7 @@ singleton = (::| Bottom)
 (++|) :: Stack a -> Stack a -> Stack a
 Bottom      ++| other   = other
 other       ++| Bottom  = other
-(x ::| xs)  ++| ys      = xs ++| (x ::| ys)
+(x ::| xs)  ++| ys      = x ::| (xs ++| ys)
 
 concat :: Stack (Stack a) -> Stack a
 concat Bottom = Bottom
@@ -82,3 +84,6 @@ concat (x ::| xs) = x ++| concat xs
 
 concatMap :: (a -> Stack b) -> Stack a -> Stack b
 concatMap f = foldr ((++|) . f) Bottom
+
+reverse :: Stack a -> Stack a
+reverse = foldl' (flip (::|)) Bottom

@@ -1,13 +1,13 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Meowscript.Bytecode.PrimLens
+module Meowscript.Abstract.PrimLens
 ( unboxStrL
 , strLenL
 , unboxListL
 , listLenL
 ) where
 
-import Meowscript.Bytecode.Prim
+import Meowscript.Abstract.Atom
 import Lens.Micro.Platform (makeLensesFor)
 
 $(makeLensesFor

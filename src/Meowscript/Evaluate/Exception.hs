@@ -1,9 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
 
-module Meowscript.Bytecode.VirtualException
+module Meowscript.Evaluate.Exception
 ( CatException(..)
 , MeowException(..)
+, MeowableException(..)
 , showException
 ) where
 
@@ -33,6 +34,26 @@ instance Show MeowException where
         MeowDivByZero       -> "DivisionByZero"
         MeowBadIO           -> "IO"
         MeowBadImport       -> "Import"
+
+-----------------------------------------------------------------------------------
+
+class MeowableException a where
+    toCatException :: a -> CatException
+    fromCatException :: CatException -> a
+
+instance MeowableException Text.Text where
+    toCatException = CatException MeowVM
+    fromCatException = exceptionMessage
+
+instance MeowableException CatException where
+    toCatException = id
+    fromCatException = id
+
+instance MeowableException MeowException where
+    toCatException = flip CatException Text.empty
+    fromCatException = exceptionType
+
+------------------------------------------------------------------------------------
 
 showException :: CatException -> Text.Text
 showException e = let excType = showT (exceptionType e) in Text.concat

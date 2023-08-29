@@ -36,21 +36,23 @@ source-repository head
 library
   exposed-modules:
       Meowscript
-      Meowscript.Data.EnvRef
+      Meowscript.Abstract.Atom
+      Meowscript.Abstract.Meowable
+      Meowscript.Abstract.Primitive
+      Meowscript.Abstract.PrimLens
+      Meowscript.Data.Key
+      Meowscript.Data.Ref
       Meowscript.Data.Stack
+      Meowscript.Evaluate.Environment
+      Meowscript.Evaluate.Evaluator
+      Meowscript.Evaluate.Exception
+      Meowscript.Evaluate.MeowThrower
       Meowscript.Parser.AST
       Meowscript.Parser.Expr
       Meowscript.Parser.Keywords
       Meowscript.Parser.Prim
       Meowscript.Parser.Statement
       Meowscript.Parser.Utils
-      Meowscript.Primitive.Meowable
-      Meowscript.Primitive.MeowKey
-      Meowscript.Primitive.Prim
-      Meowscript.Primitive.PrimLens
-      Meowscript.Primitive.PrimOperations
-      Meowscript.Primitive.VirtualException
-      Meowscript.Primitive.VirtualMachine
       Meowscript.Utils.List
       Meowscript.Utils.Show
       Meowscript.Utils.Types
