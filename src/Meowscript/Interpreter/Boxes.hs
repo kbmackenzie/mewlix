@@ -27,12 +27,15 @@ boxPeek key atom = getBox atom >>= \box -> case HashMap.lookup key box of
     Nothing       -> throwException =<< notAPropertyException key [atom]
     (Just ref)    -> return ref
 
-boxWrite :: (MonadIO m, MeowThrower m) => Identifier -> MeowAtom -> MeowAtom -> m Box
-boxWrite key value atom = getBox atom >>= \box -> case HashMap.lookup key box of
-    Nothing       -> do
-        ref <- newRef value
-        return (HashMap.insert key ref box)
-    (Just ref)    -> writeRef value ref >> return box
+boxWrite :: (MonadIO m, MeowThrower m) => Identifier -> MeowAtom -> Ref MeowAtom -> m ()
+boxWrite key value boxRef = do
+    box <- readRef boxRef >>= getBox
+    case HashMap.lookup key box of
+        Nothing       -> do
+            ref <- newRef value
+            let newBox = MeowBox (HashMap.insert key ref box)
+            writeRef newBox boxRef
+        (Just ref)    -> writeRef value ref
 
 asIdentifier :: (MonadIO m, MeowThrower m) => MeowAtom -> m Identifier
 asIdentifier value = case value of

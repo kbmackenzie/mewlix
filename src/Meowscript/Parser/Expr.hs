@@ -128,9 +128,10 @@ chainedOperators = foldr1 (flip (.)) <$> Mega.some (parseDotOp <|> parseCall <|>
 declaration :: Parser (Identifier, Expr)
 declaration = lexeme $ do
     (void . tryKeyword) meowLocal
-    key <- lexeme keyText
-    (void . symbol) "="
-    (key,) <$> parseExpr
+    key  <- lexeme keyText
+    let rvalue = trySymbol "=" >> parseExpr
+    expr <- rvalue <|> return (ExprPrim PrimNil)
+    return (key, expr)
 
 
 {- Lifted Expr -}

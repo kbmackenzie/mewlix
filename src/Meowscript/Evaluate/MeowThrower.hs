@@ -1,5 +1,6 @@
 module Meowscript.Evaluate.MeowThrower
 ( MeowThrower(..)
+, liftEither
 ) where
 
 import Meowscript.Evaluate.Exception
@@ -16,3 +17,8 @@ instance (Monad m, MeowableException e) => MeowThrower (ExceptT e m) where
 instance (MeowableException e) => MeowThrower (Either e) where
     throwException = Left . fromCatException
     catchException m f = catchError m (f . toCatException)
+
+liftEither :: (MeowThrower m, MeowableException e) => Either e a -> m a
+{-# INLINE liftEither #-}
+liftEither (Left e) = (throwException . toCatException) e
+liftEither (Right a) = return a

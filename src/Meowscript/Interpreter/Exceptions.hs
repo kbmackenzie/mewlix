@@ -8,6 +8,7 @@ module Meowscript.Interpreter.Exceptions
 , notABoxException
 , notAPropertyException
 , notAnIdentifier
+, notAFunctionName
 ) where
 
 import Meowscript.Abstract.Atom
@@ -43,3 +44,6 @@ notAPropertyException = exceptionBase MeowNotProperty . Text.append
 
 notAnIdentifier :: (MonadIO m) => [MeowAtom] -> m CatException
 notAnIdentifier = exceptionBase MeowNotIdentifier "Value providied is not a valid identifier!"
+
+notAFunctionName :: (MonadIO m) => [MeowAtom] -> m CatException
+notAFunctionName = exceptionBase MeowNotIdentifier "Value provided is not a valid function identifier!"
