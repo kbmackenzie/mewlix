@@ -10,9 +10,10 @@ module Meowscript.Abstract.Atom
 ) where
 
 import Meowscript.Data.Key (Key)
-import Data.Int (Int32)
 import Meowscript.Data.Ref
+import Meowscript.Data.ToString
 import Meowscript.Data.Stack (Stack)
+import Data.Int (Int32)
 import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
 
@@ -41,6 +42,9 @@ instance Ord BoxedString where
 
 instance Semigroup BoxedString where
     BoxedString s1 l1 <> BoxedString s2 l2 = BoxedString (s1 <> s2) (l1 + l2)
+
+instance ToString BoxedString where
+    toString = toString . unboxStr
 
 data BoxedList = BoxedList
     { unboxList :: [MeowAtom]

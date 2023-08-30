@@ -17,7 +17,6 @@ module Meowscript.Parser.Utils
 , comma
 , sepByComma
 , sepByCommaEnd
-, (<??>)
 , keyword
 , tryKeyword
 , validKeyChar
@@ -26,8 +25,9 @@ module Meowscript.Parser.Utils
 ) where
 
 import Meowscript.Parser.Keywords
+import Meowscript.Data.ToString
 import qualified Data.Text as Text
-import Text.Megaparsec ((<?>))
+import Text.Megaparsec ((<?>), MonadParsec)
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
@@ -37,6 +37,11 @@ import Data.Bifunctor (bimap)
 import Data.Char (isAlphaNum)
 
 type Parser = Mega.Parsec Void Text.Text
+
+-- A string-generic form of '<?>' for Haskell's many string types (String, Text, Bytestring).
+infix 0 <??>
+(<??>) :: (MonadParsec e s m, ToString b) => m a -> b -> m a
+a <??> b = a <?> toString b
 
 lineComment :: Parser ()
 lineComment = Lexer.skipLineComment "--"
@@ -94,10 +99,6 @@ sepByComma = flip Mega.sepBy comma
 sepByCommaEnd :: Parser a -> Parser [a]
 sepByCommaEnd = flip Mega.sepEndBy commaLn
 
-infix 0 <??>
-(<??>) :: (Mega.MonadParsec e s m) => m a -> Text.Text -> m a
-a <??> b = a <?> Text.unpack b
-
 keyword :: Text.Text -> Parser ()
 keyword k = lexeme . (<?> "keyword") $ do
     (void . MChar.string) k
@@ -118,5 +119,3 @@ keyText = do
 
 specialSymbol :: Text.Text -> Parser ()
 specialSymbol = lexeme . void . MChar.string'
-
-

@@ -23,6 +23,7 @@ extra-deps:
 - scientific-0.3.7.0
 #- hashable-1.4.2.0
 - integer-logarithms-1.0.3.1
+- utf8-string-1.0.2
 #- primitive-0.8.0.0
 #- base-orphans-0.9.0
 #- data-array-byte-0.1.0.1

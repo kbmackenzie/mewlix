@@ -6,6 +6,7 @@ module Meowscript.Parser.AST
 , Expr(..)
 , Binop(..)
 , Unop(..)
+, LiftedExpr(..)
 , Statement(..)
 , Identifier
 , Block
@@ -77,10 +78,16 @@ type Block  = Stack Statement
 type Params = Stack Text.Text
 type CatchBlock = (Maybe Expr, Block)
 
+-- A 'lifted' expression type that allows declarations.
+data LiftedExpr =
+      LiftExpr Expr
+    | LiftDecl Identifier Expr
+    deriving (Show)
+
 data Statement =
       StmtExpr Expr
     | StmtWhile Expr Block
-    | StmtFor (Expr, Expr, Expr) Block
+    | StmtFor (LiftedExpr, Expr, Expr) Block
     | StmtIfElse Expr Block Block
     | StmtFuncDef Expr Params Block
     | StmtDeclaration Identifier Expr

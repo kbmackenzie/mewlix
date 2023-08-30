@@ -1,4 +1,4 @@
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 module Meowscript.Evaluate.Environment
@@ -29,7 +29,7 @@ class (Monad m, MonadIO m) => MeowEnvironment s m where
     lookUpRef  :: Key -> m (Maybe (Ref s))
     contextGet :: (Context s -> a) -> m a
     contextSet :: (Context s -> Context s) -> m ()
-    runLocal   :: (Context s -> Context s) -> m a -> m a
+    runLocal   :: m a -> Context s -> m a
 
     context :: m (Context s)
     context = contextGet id
@@ -38,30 +38,30 @@ class (Monad m, MonadIO m) => MeowEnvironment s m where
     lookUp key = do
         x <- lookUpRef key
         case x of
-            (Just ref) -> Just <$> readRef ref
+            (Just !ref) -> Just <$> readRef ref
             Nothing -> return Nothing
 
 -----------------------------------------------------------------------------
 
 contextSearch :: (MonadIO m) => Key -> Context a -> m (Maybe (Ref a))
-contextSearch key ctx = (readRef . currentEnv) ctx >>= \envref ->
+contextSearch !key !ctx = (readRef . currentEnv) ctx >>= \envref ->
     case (HashMap.lookup key . getEnv) envref of
-    (Just ref) -> return (Just ref)
-    Nothing    -> case enclosingCtx ctx of
+    (Just !ref) -> return (Just ref)
+    Nothing     -> case enclosingCtx ctx of
         (Just enclosing) -> contextSearch key enclosing
         Nothing          -> return Nothing
 
 contextWrite :: (MonadIO m) => Key -> a -> Context a -> m ()
-contextWrite key value ctx = do
-    let env = currentEnv ctx
-    valueRef <- newRef value
+contextWrite !key !value !ctx = do
+    let !env = currentEnv ctx
+    !valueRef <- newRef value
     let f = Environment . HashMap.insert key valueRef . getEnv
     modifyRef f env
 
 localContext :: (MonadIO m) => Context a -> m (Context a)
-localContext ctx = do
+localContext !ctx = do
     newEnv <- newRef $ Environment HashMap.empty
-    let newCtx = Context {
+    let !newCtx = Context {
         globalEnv = globalEnv ctx,
         currentEnv = newEnv,
         enclosingCtx = Just ctx
@@ -70,8 +70,8 @@ localContext ctx = do
 
 initContext :: (MonadIO m) => m (Context a)
 initContext = do
-    initial <- newRef $ Environment HashMap.empty
-    let ctx = Context {
+    !initial <- newRef $ Environment HashMap.empty
+    let !ctx = Context {
         globalEnv = initial,
         currentEnv = initial,
         enclosingCtx = Nothing
@@ -82,5 +82,5 @@ initContext = do
 -- for use in lambda closures.
 freezeLocal :: (MonadIO m) => Context a -> m (Context a)
 freezeLocal ctx = do
-    newLocal <- copyRef $ currentEnv ctx
+    !newLocal <- copyRef $ currentEnv ctx
     return ctx { currentEnv = newLocal }

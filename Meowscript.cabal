@@ -43,6 +43,7 @@ library
       Meowscript.Data.Key
       Meowscript.Data.Ref
       Meowscript.Data.Stack
+      Meowscript.Data.ToString
       Meowscript.Evaluate.Environment
       Meowscript.Evaluate.Evaluator
       Meowscript.Evaluate.Exception
@@ -64,6 +65,7 @@ library
   ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -optc-O3 -optc-ffast-math -funfolding-use-threshold=16
   build-depends:
       base >=4.7 && <5
+    , bytestring >=0.11 && <0.13
     , containers ==0.6.*
     , megaparsec ==9.3.*
     , microlens-platform ==0.4.*
@@ -72,6 +74,7 @@ library
     , parser-combinators ==1.3.*
     , text ==2.0.*
     , unordered-containers ==0.2.*
+    , utf8-string ==1.0.*
     , vector ==0.13.*
   default-language: Haskell2010
 
@@ -85,6 +88,7 @@ executable Meowscript
   build-depends:
       Meowscript
     , base >=4.7 && <5
+    , bytestring >=0.11 && <0.13
     , containers ==0.6.*
     , megaparsec ==9.3.*
     , microlens-platform ==0.4.*
@@ -93,6 +97,7 @@ executable Meowscript
     , parser-combinators ==1.3.*
     , text ==2.0.*
     , unordered-containers ==0.2.*
+    , utf8-string ==1.0.*
     , vector ==0.13.*
   default-language: Haskell2010
 
@@ -107,6 +112,7 @@ test-suite Meowscript-test
   build-depends:
       Meowscript
     , base >=4.7 && <5
+    , bytestring >=0.11 && <0.13
     , containers ==0.6.*
     , megaparsec ==9.3.*
     , microlens-platform ==0.4.*
@@ -115,5 +121,6 @@ test-suite Meowscript-test
     , parser-combinators ==1.3.*
     , text ==2.0.*
     , unordered-containers ==0.2.*
+    , utf8-string ==1.0.*
     , vector ==0.13.*
   default-language: Haskell2010

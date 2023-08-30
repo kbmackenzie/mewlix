@@ -1,9 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections #-}
 
 module Meowscript.Parser.Expr
-( exprTerm
+( exprL
+, exprR
 , parseExpr
-, parseDotOp
+, declaration
+, liftedExpr
 ) where
 
 import Meowscript.Parser.AST
@@ -18,23 +21,36 @@ import qualified Text.Megaparsec.Char as MChar
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 import Control.Monad (void)
 
-exprTerm :: Parser Expr
-exprTerm = ((lexeme . parens) parseExpr   <?> "parens"    )
+type OperatorTable = [[Operator Parser Expr]]
+
+termL :: Parser Expr
+termL = lexeme parseKey
+
+termR :: Parser Expr
+termR = ((lexeme . parens) parseExpr      <?> "parens"    )
     <|> (lexeme parseBox                  <?> "box"       )
     <|> (lexeme parseList                 <?> "list"      )
     <|> (ExprPrim <$> lexeme parsePrim                    )
     <|> (lexeme parseKey                  <?> "key"       )
 
-expr :: Parser Expr
-expr = makeExprParser exprTerm operators
+exprL :: Parser Expr
+exprL = makeExprParser termL operatorsL
+
+exprR :: Parser Expr
+exprR = makeExprParser termR operatorsR
 
 parseExpr :: Parser Expr
-parseExpr = lexeme (whitespace >> expr)
+parseExpr = whitespace >> lexeme exprR
 
-operators :: [[Operator Parser Expr]]
-operators =
+{- Operators -}
+------------------------------------------------------------------------------------
+operatorsL :: OperatorTable
+operatorsL = [[ Postfix chainedOperators ]]
+
+operatorsR :: OperatorTable
+operatorsR =
     [
-        [ Postfix chainedOps                                                       ]
+        [ Postfix chainedOperators                                                 ]
       , [ Prefix  (ExprUnop  UnopPaw                    <$ tryKeyword meowPaw    )
         , Prefix  (ExprUnop  UnopClaw                   <$ tryKeyword meowClaw   ) ]
       , [ Postfix (ExprUnop  UnopLen                    <$ trySymbol "?!"        ) ]
@@ -98,10 +114,28 @@ parseDotOp = do
     Mega.try $ do
         void (MChar.char '.')
         Mega.notFollowedBy (Mega.satisfy (== '.'))
-    flip ExprDotOp <$> lexeme exprTerm
+    flip ExprDotOp <$> lexeme termR
 
 parseBoxOp :: Parser (Expr -> Expr)
 parseBoxOp = (Mega.try . lexeme . brackets) (flip ExprBoxAccess <$> parseExpr)
 
-chainedOps :: Parser (Expr -> Expr)
-chainedOps = foldr1 (flip (.)) <$> Mega.some (parseDotOp <|> parseCall <|> parseBoxOp)
+chainedOperators :: Parser (Expr -> Expr)
+chainedOperators = foldr1 (flip (.)) <$> Mega.some (parseDotOp <|> parseCall <|> parseBoxOp)
+
+
+{- Declaration -}
+------------------------------------------------------------------------------------
+declaration :: Parser (Identifier, Expr)
+declaration = lexeme $ do
+    (void . tryKeyword) meowLocal
+    key <- lexeme keyText
+    (void . symbol) "="
+    (key,) <$> parseExpr
+
+
+{- Lifted Expr -}
+------------------------------------------------------------------------------------
+liftedExpr :: Parser LiftedExpr
+liftedExpr = (bilexeme . Mega.choice)
+    [ uncurry LiftDecl  <$> declaration
+    , LiftExpr          <$> exprR       ]

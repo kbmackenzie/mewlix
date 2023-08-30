@@ -17,7 +17,6 @@ import Text.Megaparsec ((<|>))
 import qualified Data.Text as Text
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char.Lexer as Lexer
-import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 import Control.Monad (void)
 
 root :: Parser [Statement]
@@ -31,14 +30,14 @@ statements = Mega.choice
     , parseFor                  <??> (\(x,_,_) -> x) meowFor
     , parseIfElse               <??> meowIf
     , parseFunc                 <??> meowCatface
-    , parseDecl                 <??> meowLocal
+    , parseDeclaration          <??> meowLocal
     , parseReturn               <??> meowReturn
     , parseContinue             <??> meowContinue
     , parseBreak                <??> meowBreak
     , parseWhen                 <??> fst meowWhen
     , parseImport               <??> fst meowTakes
     , parseTryCatch             <??> Text.concat [ meowTry, "/", meowCatch ]
-    , parseExpression           <??> "expression" ]
+    , parseExpression           <??> ("expression" :: String) ]
 
 parseEnd :: Parser ()
 parseEnd = whitespace >> (void . keyword) meowEnd
@@ -51,13 +50,12 @@ parensExpression = (lexeme . parens) (whitespace >> parseExpr)
 parseExpression :: Parser Statement
 parseExpression = whitespace >> StmtExpr <$> parseExpr
 
+
 {- Declaration -}
-parseDecl :: Parser Statement
-parseDecl = lexeme $ do
-    (void . tryKeyword) meowLocal
-    key <- lexeme keyText
-    (void . symbol) "="
-    StmtDeclaration key <$> parseExpr
+----------------------------------------------------------------
+parseDeclaration :: Parser Statement
+parseDeclaration = uncurry StmtDeclaration <$> declaration
+
 
 {- While -}
 ----------------------------------------------------------------
@@ -68,6 +66,7 @@ parseWhile = lexeme . Lexer.indentBlock whitespaceLn $ do
     condition <- parensExpression
     let makeBody = (<$ parseEnd) . StmtWhile condition . Stack.fromList
     return (Lexer.IndentMany Nothing makeBody statements)
+
 
 {- If Else -}
 ----------------------------------------------------------------
@@ -96,6 +95,7 @@ parseIfElse = lexeme $ do
     parseEnd
     return (StmtIfElse cond ifBody elseBody)
 
+
 {- Functions -}
 ----------------------------------------------------------------
 funParams :: Parser Params
@@ -110,9 +110,7 @@ parseFunc = lexeme . Lexer.indentBlock whitespaceLn $ do
     return (Lexer.IndentMany Nothing makeBody statements)
 
 funName :: Parser Expr
-funName = makeExprParser (ExprPrim <$> lexeme parsePrim)
-    [ [ Postfix parseDotOp                   ] ]
-
+funName = whitespace >> exprL
 
 {- Return -}
 ----------------------------------------------------------------
@@ -138,13 +136,15 @@ parseBreak = lexeme $ do
     whitespace
     StmtBreak <$ (void . keyword) meowBreak
 
+
 {- For Loop -}
 ----------------------------------------------------------------
 parseFor :: Parser Statement
 parseFor = lexeme . Lexer.indentBlock whitespaceLn $ do
     let (start, middle, end) = meowFor
-    let getExp name = (void . keyword) name >> parensExpression
-    let tryFirst = Mega.try (getExp start)
+    let lifted = parens liftedExpr
+    let tryFirst = tryKeyword start >> lifted
+    let getExp name = keyword name >> parensExpression
     (a, b, c) <- (,,) <$> tryFirst <*> getExp middle <*> getExp end
     let expressions = (a, b, c)
     let makeBody = (<$ parseEnd) . StmtFor expressions . Stack.fromList
