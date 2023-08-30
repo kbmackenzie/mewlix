@@ -11,16 +11,19 @@ module Meowscript.Abstract.Atom
 , stackPop
 , stackPush
 , strTail
+, liftToMeow
 ) where
 
 import Meowscript.Data.Key (Key)
 import Meowscript.Data.Ref
 import Meowscript.Data.ToString
+import Meowscript.Evaluate.Environment
 import Meowscript.Data.Stack (Stack(..))
 import qualified Meowscript.Data.Stack as Stack
 import Data.Int (Int32)
 import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
+import Meowscript.Parser.AST
 
 type AtomRef = Ref MeowAtom
 
@@ -62,10 +65,11 @@ instance Semigroup BoxedStack where
 newtype MeowPairs = MeowPairs { getPairs :: [(Key, MeowAtom)] }
 
 data MeowFunction = MeowFunction
-    { funcName  :: Text.Text
-    , funcArity :: Int
-    , upValues  :: [AtomRef]      }
-
+    { funcName      :: Text.Text
+    , funcArity     :: Int
+    , funcParams    :: Stack Text.Text
+    , funcBody      :: Stack Statement
+    , funcClosure   :: Context MeowAtom }
 
 {- Utils -}
 boxString :: Text.Text -> BoxedString
@@ -89,3 +93,10 @@ strTail :: BoxedString -> BoxedString
 strTail (BoxedString str n) = if Text.null str
     then error "Meowscript.Abstract.Atom.strTail: Cannot get tail of empty string!"
     else BoxedString { unboxStr = Text.tail str, strLen = n - 1 }
+
+liftToMeow :: ParserPrim -> MeowAtom
+liftToMeow (PrimInt n) = (MeowInt . fromIntegral) n
+liftToMeow (PrimStr s) = (MeowString . boxString) s
+liftToMeow (PrimFloat f) = MeowFloat f
+liftToMeow (PrimBool b) = MeowBool b
+liftToMeow PrimNil = MeowNil

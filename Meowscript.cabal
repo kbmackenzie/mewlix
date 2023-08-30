@@ -48,7 +48,9 @@ library
       Meowscript.Evaluate.Evaluator
       Meowscript.Evaluate.Exception
       Meowscript.Evaluate.MeowThrower
+      Meowscript.Interpreter.Boxes
       Meowscript.Interpreter.Exceptions
+      Meowscript.Interpreter.Interpret
       Meowscript.Interpreter.Operations
       Meowscript.Interpreter.Primitive
       Meowscript.Parser.AST

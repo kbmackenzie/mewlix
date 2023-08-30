@@ -12,11 +12,9 @@ module Meowscript.Parser.AST
 , Block
 , Params
 , CatchBlock
-, liftToMeow
 ) where
 
 import qualified Data.Text as Text
-import Meowscript.Abstract.Atom
 import Meowscript.Utils.Types
 import Meowscript.Data.Stack (Stack)
 
@@ -97,10 +95,3 @@ data Statement =
     | StmtContinue
     | StmtTryCatch Block CatchBlock
     deriving (Show)
-
-liftToMeow :: ParserPrim -> MeowAtom
-liftToMeow (PrimInt n) = (MeowInt . fromIntegral) n
-liftToMeow (PrimStr s) = (MeowString . boxString) s
-liftToMeow (PrimFloat f) = MeowFloat f
-liftToMeow (PrimBool b) = MeowBool b
-liftToMeow PrimNil = MeowNil

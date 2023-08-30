@@ -4,6 +4,10 @@ module Meowscript.Interpreter.Exceptions
 ( exceptionBase
 , operationException
 , divisionByZeroException
+, unboundException
+, notABoxException
+, notAPropertyException
+, notAnIdentifier
 ) where
 
 import Meowscript.Abstract.Atom
@@ -25,3 +29,17 @@ operationException = exceptionBase MeowTypeMismatch . Text.append "Invalid opera
 
 divisionByZeroException :: (MonadIO m) => [MeowAtom] -> m CatException
 divisionByZeroException = exceptionBase MeowDivByZero "Invalid operation: Cannot divide by zero!"
+
+unboundException :: (MonadIO m) => Text.Text -> [MeowAtom] -> m CatException
+unboundException = exceptionBase MeowUnboundKey . Text.append "Unbound key: "
+
+notABoxException :: (MonadIO m) => [MeowAtom] -> m CatException
+notABoxException = exceptionBase MeowNotBox 
+    "Invalid operation: Attempted to perform lookup on a value that isn't a box."
+
+notAPropertyException :: (MonadIO m) => Text.Text -> [MeowAtom] -> m CatException
+notAPropertyException = exceptionBase MeowNotProperty . Text.append
+    "Key provided is not an existent property in box: "
+
+notAnIdentifier :: (MonadIO m) => [MeowAtom] -> m CatException
+notAnIdentifier = exceptionBase MeowNotIdentifier "Value providied is not a valid identifier!"

@@ -21,7 +21,11 @@ data MeowException =
     | MeowTypeMismatch
     | MeowUnboundKey
     | MeowDivByZero
+    | MeowNotBox
+    | MeowNotProperty
+    | MeowNotIdentifier
     | MeowBadIO
+    -- Uncatchable:
     | MeowBadImport
     deriving (Eq, Ord, Enum, Bounded)
 
@@ -32,6 +36,9 @@ instance Show MeowException where
         MeowTypeMismatch    -> "Type"
         MeowUnboundKey      -> "Unbound"
         MeowDivByZero       -> "DivisionByZero"
+        MeowNotBox          -> "InvalidBox"
+        MeowNotProperty     -> "UnboundProperty"
+        MeowNotIdentifier   -> "InvalidIdentifier"
         MeowBadIO           -> "IO"
         MeowBadImport       -> "Import"
 
