@@ -7,6 +7,12 @@ module Meowscript.Interpreter.Operations
 , meowDiv
 , meowMod
 , meowPow
+, meowEq
+, meowLesser
+, meowGreater
+, meowLEQ
+, meowGEQ
+, meowNotEq
 , meowPush
 , meowPeek
 , meowPop
@@ -16,8 +22,9 @@ module Meowscript.Interpreter.Operations
 
 import Meowscript.Abstract.Atom
 import Meowscript.Abstract.Meowable
-import Meowscript.Abstract.Primitive
+import Meowscript.Abstract.Prettify
 import Meowscript.Evaluate.Evaluator
+import Meowscript.Interpreter.Primitive
 import Meowscript.Interpreter.Exceptions
 import qualified Data.Text as Text
 import qualified Meowscript.Data.Stack as Stack
@@ -69,6 +76,30 @@ meowPow :: (MonadIO m, MeowThrower m) => MeowAtom -> MeowAtom -> m MeowAtom
 MeowInt a   `meowPow` MeowInt b      = (return . MeowInt) (a ^ b)
 MeowFloat a `meowPow` MeowInt b      = (return . MeowFloat) (a ^ b)
 a `meowPow` b = throwException =<< operationException "power" [a, b]
+
+
+{- Comparison Operations -}
+---------------------------------------------------------------------------------
+comparisonBase :: (MonadIO m, MeowThrower m) => (Ordering -> Bool) -> MeowAtom -> MeowAtom -> m MeowAtom
+comparisonBase f a b = MeowBool . f <$> primCompare a b
+
+meowEq :: (MonadIO m, MeowThrower m) => MeowAtom -> MeowAtom -> m MeowAtom
+meowEq = comparisonBase (== EQ)
+
+meowLesser :: (MonadIO m, MeowThrower m) => MeowAtom -> MeowAtom -> m MeowAtom
+meowLesser = comparisonBase (== LT)
+
+meowGreater :: (MonadIO m, MeowThrower m) => MeowAtom -> MeowAtom -> m MeowAtom
+meowGreater = comparisonBase (== GT)
+
+meowLEQ :: (MonadIO m, MeowThrower m) => MeowAtom -> MeowAtom -> m MeowAtom
+meowLEQ = comparisonBase (/= GT)
+
+meowGEQ :: (MonadIO m, MeowThrower m) => MeowAtom -> MeowAtom -> m MeowAtom
+meowGEQ = comparisonBase (/= LT)
+
+meowNotEq :: (MonadIO m, MeowThrower m) => MeowAtom -> MeowAtom -> m MeowAtom
+meowNotEq = comparisonBase (/= EQ)
 
 
 {- String/Stack Operations -}

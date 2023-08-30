@@ -7,7 +7,7 @@ module Meowscript.Interpreter.Exceptions
 ) where
 
 import Meowscript.Abstract.Atom
-import Meowscript.Abstract.Primitive
+import Meowscript.Abstract.Prettify
 import Meowscript.Evaluate.Exception
 import Control.Monad.IO.Class (MonadIO(..))
 import Meowscript.Utils.Show

@@ -38,7 +38,7 @@ library
       Meowscript
       Meowscript.Abstract.Atom
       Meowscript.Abstract.Meowable
-      Meowscript.Abstract.Primitive
+      Meowscript.Abstract.Prettify
       Meowscript.Abstract.PrimLens
       Meowscript.Data.Key
       Meowscript.Data.Ref
@@ -50,6 +50,7 @@ library
       Meowscript.Evaluate.MeowThrower
       Meowscript.Interpreter.Exceptions
       Meowscript.Interpreter.Operations
+      Meowscript.Interpreter.Primitive
       Meowscript.Parser.AST
       Meowscript.Parser.Expr
       Meowscript.Parser.Keywords
