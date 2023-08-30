@@ -10,12 +10,15 @@ module Meowscript.Evaluate.Evaluator
 , getState
 , askState
 , setState
+-- Re-exports
+, MeowEnvironment(..)
+, MeowThrower(..)
+, MonadIO(..)
 ) where
 
 import Meowscript.Evaluate.Environment
 import Meowscript.Evaluate.MeowThrower
 import Meowscript.Evaluate.Exception
-import qualified Data.Text as Text
 import Control.Monad.IO.Class (MonadIO(..))
 
 data EvaluatorState p = EvaluatorState

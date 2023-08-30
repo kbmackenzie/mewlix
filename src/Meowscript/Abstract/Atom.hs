@@ -2,17 +2,22 @@ module Meowscript.Abstract.Atom
 ( MeowAtom(..)
 , AtomRef
 , BoxedString(..)
-, BoxedList(..)
+, BoxedStack(..)
 , MeowPairs(..)
 , MeowFunction(..)
 , boxString
+, boxStack
 , boxList
+, stackPop
+, stackPush
+, strTail
 ) where
 
 import Meowscript.Data.Key (Key)
 import Meowscript.Data.Ref
 import Meowscript.Data.ToString
-import Meowscript.Data.Stack (Stack)
+import Meowscript.Data.Stack (Stack(..))
+import qualified Meowscript.Data.Stack as Stack
 import Data.Int (Int32)
 import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
@@ -24,7 +29,7 @@ data MeowAtom =
     | MeowFloat Double
     | MeowString BoxedString
     | MeowBool Bool
-    | MeowList BoxedList
+    | MeowStack BoxedStack
     | MeowBox (HashMap.HashMap Key AtomRef)
     | MeowFunc MeowFunction
     | MeowNil
@@ -46,12 +51,12 @@ instance Semigroup BoxedString where
 instance ToString BoxedString where
     toString = toString . unboxStr
 
-data BoxedList = BoxedList
-    { unboxList :: [MeowAtom]
-    , listLen   :: Int        }
+data BoxedStack = BoxedStack
+    { unboxStack :: Stack MeowAtom
+    , stackLen   :: Int            }
 
-instance Semigroup BoxedList where
-    BoxedList u1 l1 <> BoxedList u2 l2 = BoxedList (u1 <> u2) (l1 + l2)
+instance Semigroup BoxedStack where
+    BoxedStack u1 l1 <> BoxedStack u2 l2 = BoxedStack (u1 <> u2) (l1 + l2)
 
 -- An utility newtype that'll be useful when constructing new boxes later!
 newtype MeowPairs = MeowPairs { getPairs :: [(Key, MeowAtom)] }
@@ -66,5 +71,21 @@ data MeowFunction = MeowFunction
 boxString :: Text.Text -> BoxedString
 boxString x = BoxedString { unboxStr = x, strLen = Text.length x }
 
-boxList :: [MeowAtom] -> BoxedList
-boxList xs = BoxedList { unboxList = xs, listLen = length xs }
+boxStack :: Stack MeowAtom -> BoxedStack
+boxStack xs = BoxedStack { unboxStack = xs, stackLen = Stack.length xs }
+
+boxList :: [MeowAtom] -> BoxedStack
+boxList xs = BoxedStack { unboxStack = Stack.fromList xs, stackLen = length xs }
+
+stackPop :: BoxedStack -> BoxedStack
+stackPop (BoxedStack stack n) = case stack of
+    Bottom -> error "Meowscript.Abstract.Atom.stackPop: Cannot pop empty stack!"
+    (_ ::| xs) -> BoxedStack { unboxStack = xs, stackLen = n - 1 }
+
+stackPush :: MeowAtom -> BoxedStack -> BoxedStack
+x `stackPush` BoxedStack xs n  = BoxedStack (x ::| xs) (n + 1)
+
+strTail :: BoxedString -> BoxedString
+strTail (BoxedString str n) = if Text.null str
+    then error "Meowscript.Abstract.Atom.strTail: Cannot get tail of empty string!"
+    else BoxedString { unboxStr = Text.tail str, strLen = n - 1 }

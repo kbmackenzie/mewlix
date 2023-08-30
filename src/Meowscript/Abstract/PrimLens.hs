@@ -3,8 +3,8 @@
 module Meowscript.Abstract.PrimLens
 ( unboxStrL
 , strLenL
-, unboxListL
-, listLenL
+, unboxStackL
+, stackLenL
 ) where
 
 import Meowscript.Abstract.Atom
@@ -15,5 +15,5 @@ $(makeLensesFor
     , ("strLen"    , "strLenL"   ) ] ''BoxedString)
 
 $(makeLensesFor
-    [ ("unboxList" , "unboxListL")
-    , ("listLen"   , "listLenL"  ) ] ''BoxedList)
+    [ ("unboxStack" , "unboxStackL")
+    , ("stackLen"   , "stackLenL"  ) ] ''BoxedStack)

@@ -7,13 +7,15 @@ module Meowscript.Abstract.Meowable
 import Meowscript.Abstract.Atom
 import Meowscript.Data.Key
 import Meowscript.Data.Ref
+import Meowscript.Data.Stack (Stack)
 import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
 import Data.Int (Int32)
+import Control.Monad.IO.Class (MonadIO(..))
 
 class Meowable a where
     -- Lift value to MeowAtom.
-    toMeow :: a -> IO MeowAtom
+    toMeow :: (MonadIO m) => a -> m MeowAtom
 
 instance Meowable MeowAtom where
     toMeow = return
@@ -40,10 +42,11 @@ instance Meowable Bool where
 instance Meowable Char where
     toMeow = toMeow . Text.singleton
 
+instance (Meowable a) => Meowable (Stack a) where
+    toMeow xs = mapM toMeow xs >>= \stack -> (return . MeowStack . boxStack) stack
+
 instance (Meowable a) => Meowable [a] where
-    toMeow xs = mapM toMeow xs >>= \list -> (return . MeowList) $ BoxedList
-        { unboxList = list
-        , listLen = length list }
+    toMeow xs = mapM toMeow xs >>= \list -> (return . MeowStack . boxList) list
 
 instance Meowable MeowPairs where
     toMeow xs = do

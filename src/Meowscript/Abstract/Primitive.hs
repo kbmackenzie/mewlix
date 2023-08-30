@@ -15,12 +15,12 @@ import Meowscript.Abstract.Atom
 import Meowscript.Data.Ref
 import Meowscript.Evaluate.Exception
 import Meowscript.Evaluate.MeowThrower
+import qualified Meowscript.Data.Stack as Stack
 import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
 import Meowscript.Utils.Show
 import Meowscript.Utils.List
 import Control.Monad.ListM (sortByM)
-import Control.Monad.Except (MonadError(..))
 import Control.Monad.IO.Class (MonadIO(..))
 
 {- Pretty-Printing -}
@@ -31,8 +31,8 @@ showMeow (MeowInt n) = (return . showT) n
 showMeow (MeowFloat f) = (return . showT) f
 showMeow (MeowString s) = (return . unboxStr) s
 showMeow (MeowBool b) = (return . showT) b
-showMeow (MeowList xs) = do
-    items <- mapM showMeow (unboxList xs)
+showMeow (MeowStack xs) = do
+    items <- mapM showMeow $ (Stack.toList . unboxStack) xs
     (return . Text.concat) [ "[", Text.intercalate ", " items, "]" ]
 showMeow (MeowBox x) = do
     let unpack (key, ref) = fmap (key,) $ liftIO (readRef ref) >>= showMeow
@@ -50,11 +50,11 @@ prettyMeow other = showMeow other
 {- Truthy/Falsy -}
 -----------------------------------------------------------------------------
 meowBool :: MeowAtom -> Bool
-meowBool MeowNil = False
-meowBool (MeowBool b) = b
-meowBool (MeowList xs) = (not . null . unboxList) xs
+meowBool MeowNil        = False
+meowBool (MeowBool b)   = b
+meowBool (MeowStack xs)  = (not . Stack.null . unboxStack) xs
 meowBool (MeowString b) = (not . Text.null . unboxStr) b
-meowBool (MeowBox x) = (not . HashMap.null) x
+meowBool (MeowBox x)    = (not . HashMap.null) x
 meowBool _ = True
 
 {- Comparison -}
@@ -79,8 +79,8 @@ MeowBool a   `primCompare` MeowBool b   = return (a `compare` b)
 MeowBool a   `primCompare` b            = return (a `compare` meowBool b)
 a            `primCompare` MeowBool b   = return (meowBool a `compare` b)
 -- List comparison:
-MeowList as  `primCompare` MeowList bs  = mappend (listLen as `compare` listLen bs) <$>
-    listCompareM primCompare (unboxList as) (unboxList bs)
+MeowStack as  `primCompare` MeowStack bs  = mappend (stackLen as `compare` stackLen bs) <$>
+    Stack.compareM primCompare (unboxStack as) (unboxStack bs)
 -- Box comparison:
 MeowBox a    `primCompare` MeowBox b    = mappend (HashMap.size a `compare` HashMap.size b) <$> do
     let unpack (key, ref) = (key,) <$> liftIO (readRef ref)
