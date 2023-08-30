@@ -39,6 +39,8 @@ data Expr =
     | ExprList [Expr]
     | ExprBox [(Identifier, Expr)]
     | ExprAssign Expr Expr
+    | ExprPaw Expr
+    | ExprClaw Expr
     | ExprLambda Params Expr
     | ExprCall Expr (Stack Expr)
     | ExprDotOp Expr Expr
@@ -65,8 +67,6 @@ data Binop =
 data Unop =
       UnopNegate
     | UnopNot
-    | UnopPaw
-    | UnopClaw
     | UnopListPop
     | UnopListPeek
     | UnopLen

@@ -51,8 +51,8 @@ operatorsR :: OperatorTable
 operatorsR =
     [
         [ Postfix chainedOperators                                                 ]
-      , [ Prefix  (ExprUnop  UnopPaw                    <$ tryKeyword meowPaw    )
-        , Prefix  (ExprUnop  UnopClaw                   <$ tryKeyword meowClaw   ) ]
+      , [ Prefix  (ExprPaw                              <$ tryKeyword meowPaw    )
+        , Prefix  (ExprClaw                             <$ tryKeyword meowClaw   ) ]
       , [ Postfix (ExprUnop  UnopLen                    <$ trySymbol "?!"        ) ]
       , [ Prefix  (ExprUnop  UnopListPeek               <$ tryKeyword meowPeek   )
         , InfixL  (ExprBinop BinopListPush              <$ tryKeyword meowPush   )

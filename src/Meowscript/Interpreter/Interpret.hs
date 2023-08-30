@@ -18,6 +18,7 @@ import qualified Meowscript.Data.Stack as Stack
 import Meowscript.Interpreter.Exceptions
 import Meowscript.Interpreter.Boxes
 import Meowscript.Interpreter.Primitive
+import Meowscript.Interpreter.Operations
 import Meowscript.Parser.AST
 
 type Meower a = Evaluator MeowAtom a
@@ -78,6 +79,18 @@ expression (ExprAssign left right) = do
     writeRef rvalue lref
     return rvalue
 
+expression (ExprPaw expr) = do
+    ref <- asKey expr >>= asRef
+    newValue <- readRef ref >>= flip meowAdd (MeowInt 1)
+    writeRef newValue ref
+    return newValue
+
+expression (ExprClaw expr) = do
+    ref <- asKey expr >>= asRef
+    newValue <- readRef ref >>= flip meowSub (MeowInt 1)
+    writeRef newValue ref
+    return newValue
+
 -- Boxes:
 expression (ExprDotOp boxExpr expr) = do
     box <- asKey boxExpr >>= asRef >>= readRef
@@ -88,24 +101,41 @@ expression (ExprBoxAccess boxExpr expr) = do
     box <- asKey boxExpr >>= asRef >>= readRef
     key <- expression expr >>= showMeow
     boxPeek key box >>= readRef
- 
-{-data Expr =
-      ExprPrim ParserPrim
-    | ExprKey Identifier
-    | ExprAnd Expr Expr
-    | ExprOr Expr Expr
-    | ExprBinop Binop Expr Expr
-    | ExprUnop Unop Expr
-    | ExprTernary Expr Expr Expr
-    | ExprList [Expr]
-    | ExprBox [(Identifier, Expr)]
-    | ExprAssign Expr Expr
-    | ExprLambda Params Expr
-    | ExprCall Expr (Stack Expr)
-    | ExprDotOp Expr Expr
-    | ExprBoxAccess Expr Expr
-    deriving (Show)
- -}
+
+-- Binary/unary operations:
+expression (ExprBinop op exprA exprB) = do
+    a <- expression exprA
+    b <- expression exprB
+    let f = case op of
+            BinopAdd            -> meowAdd
+            BinopSub            -> meowSub
+            BinopMul            -> meowMul
+            BinopDiv            -> meowDiv
+            BinopMod            -> meowMod
+            BinopPow            -> meowPow
+            BinopConcat         -> meowConcat
+            BinopListPush       -> meowPush
+            BinopCompareEq      -> meowEq
+            BinopCompareLess    -> meowLesser
+            BinopCompareGreat   -> meowGreater
+            BinopCompareNotEq   -> meowNotEq
+            BinopCompareLEQ     -> meowLEQ
+            BinopCompareGEQ     -> meowGEQ
+    f a b
+
+expression (ExprUnop op exprA) = do
+    a <- expression exprA
+    let f = case op of
+            UnopNegate          -> meowNegate
+            UnopListPop         -> meowPop
+            UnopListPeek        -> meowPeek
+            UnopLen             -> meowLength
+            UnopNot             -> return . meowNot
+    f a
+
+expression (ExprCall func args) = do
+    undefined
+
 
 identifier :: Expr -> Meower Identifier
 identifier (ExprKey key) = return key

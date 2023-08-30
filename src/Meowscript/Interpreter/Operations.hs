@@ -7,6 +7,8 @@ module Meowscript.Interpreter.Operations
 , meowDiv
 , meowMod
 , meowPow
+, meowNegate
+, meowNot
 , meowEq
 , meowLesser
 , meowGreater
@@ -76,6 +78,17 @@ meowPow :: (MonadIO m, MeowThrower m) => MeowAtom -> MeowAtom -> m MeowAtom
 MeowInt a   `meowPow` MeowInt b      = (return . MeowInt) (a ^ b)
 MeowFloat a `meowPow` MeowInt b      = (return . MeowFloat) (a ^ b)
 a `meowPow` b = throwException =<< operationException "power" [a, b]
+
+
+{- Unary Operations -}
+---------------------------------------------------------------------------------
+meowNegate :: (MonadIO m, MeowThrower m) => MeowAtom -> m MeowAtom
+meowNegate (MeowInt a) = (return . MeowInt . negate) a
+meowNegate (MeowFloat a) = (return . MeowFloat . negate) a
+meowNegate a = throwException =<< operationException "negate" [a]
+
+meowNot :: MeowAtom -> MeowAtom
+meowNot = MeowBool . not . meowBool
 
 
 {- Comparison Operations -}
