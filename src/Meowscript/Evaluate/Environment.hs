@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
@@ -16,6 +17,9 @@ module Meowscript.Evaluate.Environment
 
 import Meowscript.Data.Key
 import Meowscript.Data.Ref
+import Meowscript.Evaluate.Exception
+import Meowscript.Evaluate.MeowThrower
+import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
 import Control.Monad.IO.Class (MonadIO(..))
 
@@ -36,12 +40,15 @@ class (Monad m, MonadIO m) => MeowEnvironment s m where
     context :: m (Context s)
     context = contextGet id
 
-    lookUp :: Key -> m (Maybe s)
+    lookUp :: (MeowThrower m) => Key -> m s
     lookUp key = do
         x <- lookUpRef key
         case x of
-            (Just !ref) -> Just <$> readRef ref
-            Nothing -> return Nothing
+            (Just !ref) -> readRef ref
+            Nothing     -> throwException CatException {
+                exceptionType = MeowUnboundKey,
+                exceptionMessage = Text.concat [ "Unbound key: \"", key, "\"!" ]
+            }
 
 -----------------------------------------------------------------------------
 

@@ -10,6 +10,7 @@ module Meowscript.Interpreter.Exceptions
 , notAnIdentifier
 , notAFunctionName
 , arityException
+, notAFuncionException
 , unexpectedException
 ) where
 
@@ -23,8 +24,7 @@ import qualified Data.Text as Text
 exceptionBase :: (MonadIO m) => MeowException -> Text.Text -> [MeowAtom] -> m CatException
 exceptionBase meow text xs = do
     items <- mapM prettyMeow xs
-    let meowPretty = Text.concat [ "[", showT meow, "]" ]
-    let message = Text.concat [ "[", meowPretty, "] ", text, " | Terms: ", Text.intercalate ", " items ]
+    let message = Text.concat [ text, " | Terms: ", Text.intercalate ", " items ]
     return CatException { exceptionType = meow, exceptionMessage = message }
 
 operationException :: (MonadIO m) => Text.Text -> [MeowAtom] -> m CatException
@@ -33,8 +33,9 @@ operationException = exceptionBase MeowTypeMismatch . Text.append "Invalid opera
 divisionByZeroException :: (MonadIO m) => [MeowAtom] -> m CatException
 divisionByZeroException = exceptionBase MeowDivByZero "Invalid operation: Cannot divide by zero!"
 
-unboundException :: (MonadIO m) => Text.Text -> [MeowAtom] -> m CatException
-unboundException = exceptionBase MeowUnboundKey . Text.append "Unbound key: "
+unboundException :: (MonadIO m) => Text.Text -> m CatException
+unboundException key = flip (exceptionBase MeowUnboundKey) [] $ Text.concat
+    [ "Unbound key: \"", key, "\"!" ]
 
 notABoxException :: (MonadIO m) => [MeowAtom] -> m CatException
 notABoxException = exceptionBase MeowNotBox 
@@ -53,6 +54,9 @@ notAFunctionName = exceptionBase MeowNotIdentifier "Value provided is not a vali
 arityException :: (MonadIO m) => Text.Text -> Text.Text -> m CatException
 arityException message key = flip (exceptionBase MeowArity) [] $ Text.concat
     [ message, " passed to function \"", key, "\"!" ]
+
+notAFuncionException :: (MonadIO m) => [MeowAtom] -> m CatException
+notAFuncionException = exceptionBase MeowTypeMismatch "Cannot invoke a non-callable value as a function!"
 
 unexpectedException :: (MonadIO m) => Text.Text -> m CatException
 unexpectedException = flip (exceptionBase MeowUnexpected) [] . flip Text.append pleaseContactTheDev

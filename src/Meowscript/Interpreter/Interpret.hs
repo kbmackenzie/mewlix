@@ -30,7 +30,7 @@ type Meower a = Evaluator MeowAtom a
 ---------------------------------------------------------------
 expression :: Expr -> Meower MeowAtom
 expression (ExprPrim a) = return (liftToMeow a)
-expression (ExprKey k)  = asRef (SimpleKey k) >>= readRef
+expression (ExprKey k)  = lookUp k
 
 -- Boolean operations:
 expression (ExprAnd a b) = do
@@ -162,15 +162,23 @@ expression (ExprUnop op exprA) = do
 expression (ExprCall expr args argCount) = do
     key <- asKey expr
     case key of
-        (SimpleKey name)  -> asRef key >>= readRef >>= \case
+        -- Simple keys:
+        (SimpleKey name)  -> lookUp name >>= \case
                 (MeowFunc f)  -> callFunction name argCount args f
                 (MeowIFunc f) -> callInnerFunc name argCount args f
+                x             -> throwException =<< notAFuncionException [x]
+
+        -- Box lookup:
         (RefKey ref name) -> asRef key >>= readRef >>= \case
                 (MeowFunc f)  -> callMethod name argCount args f ref
                 (MeowIFunc f) -> callInnerFunc name argCount args f
+                x             -> throwException =<< notAFuncionException [x]
+
+        -- Singleton calls:
         (SingletonAtom a) -> case a of
-                (MeowFunc f)  -> callFunction "<lambda>" argCount args f
-                (MeowIFunc f) -> callInnerFunc "<lambda" argCount args f
+                (MeowFunc f)  -> callFunction (funcName f) argCount args f
+                (MeowIFunc f) -> callInnerFunc (ifuncName f) argCount args f
+                x             -> throwException =<< notAFuncionException [x]
 
 identifier :: Expr -> Meower Identifier
 identifier (ExprKey key) = return key
@@ -186,7 +194,7 @@ data CatKey =
 
 asRef :: CatKey -> Meower (Ref MeowAtom)
 asRef (SimpleKey key) = lookUpRef key >>= \case
-    Nothing     -> throwException =<< unboundException key []
+    Nothing     -> throwException =<< unboundException key
     (Just ref)  -> return ref
 asRef (RefKey ref key) = readRef ref >>= boxPeek key
 asRef (SingletonAtom a) = newRef a
@@ -314,6 +322,10 @@ statement ( StmtBreak    ::| _ ) = return ReturnBreak
 statement ( StmtContinue ::| _ ) = return ReturnVoid
 
 statement ( (StmtTryCatch tryBlock (maybeExpr, catchBlock)) ::| rest ) = do
+    -- 'Is this exception catchable?'
+    let canCatch :: Int -> Bool
+        canCatch num = num > 0 && num < fromEnum MeowBadImport
+
     let catcher :: CatException -> Meower ReturnValue
         catcher cat = do
             let num = (fromEnum . exceptionType) cat
@@ -323,9 +335,10 @@ statement ( (StmtTryCatch tryBlock (maybeExpr, catchBlock)) ::| rest ) = do
             matched <- expression expr >>= \case
                 (MeowInt a) -> return (fromIntegral a == num)
                 _           -> return False
-            if matched
+            if canCatch num && matched
                 then statement catchBlock
                 else throwException cat
+
     ret <- localBlock $ statement tryBlock `catchException` catcher
     case ret of
         ReturnVoid  -> statement rest

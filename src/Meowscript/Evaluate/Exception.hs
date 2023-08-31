@@ -63,5 +63,4 @@ instance MeowableException MeowException where
 ------------------------------------------------------------------------------------
 
 showException :: CatException -> Text.Text
-showException e = let excType = showT (exceptionType e) in Text.concat
-    [ "[", excType, "] ", exceptionMessage e ]
+showException e = Text.concat [ "[", (showT . exceptionType) e , "] ", exceptionMessage e ]
