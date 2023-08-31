@@ -42,7 +42,7 @@ instance Applicative (Evaluator e) where
     f <*> ma = Evaluator $ \state -> do
         (newState, mf) <- runEvaluator f state
         case mf of 
-            (Left e) -> return (newState, Left e)
+            (Left e)  -> return (newState, Left e)
             (Right k) -> fmap (fmap k) <$> runEvaluator ma newState
 
 instance Monad (Evaluator e) where
@@ -50,7 +50,7 @@ instance Monad (Evaluator e) where
     m >>= f = Evaluator $ \state -> do
         (newState, ma) <- runEvaluator m state
         case ma of
-            (Left e) -> return (newState, Left e)
+            (Left e)  -> return (newState, Left e)
             (Right a) -> runEvaluator (f a) newState
 
 instance MonadIO (Evaluator e) where
@@ -63,26 +63,26 @@ instance MeowThrower (Evaluator p) where
     catchException m f = Evaluator $ \state -> do
         (newState, ma) <- runEvaluator m state
         case ma of
-            (Left e) -> runEvaluator (f e) newState
+            (Left e)  -> runEvaluator (f e) newState
             (Right a) -> return (newState, Right a)
 
 instance MeowEnvironment p (Evaluator p) where
     lookUpRef key = Evaluator $ \state -> do
-        let ctx = evaluatorCtx state
+        let !ctx = evaluatorCtx state
         !ref <- contextSearch key ctx
         return (state, Right ref)
     contextGet f = Evaluator $ \state -> do
-        let ctx = evaluatorCtx state
+        let !ctx = evaluatorCtx state
         return (state, (Right . f) ctx)
     contextSet f = Evaluator $ \state -> do
-        let ctx = evaluatorCtx state
-        let newState = state { evaluatorCtx = f ctx }
+        let !ctx = evaluatorCtx state
+        let !newState = state { evaluatorCtx = f ctx }
         return (newState, Right ())
     runLocal m ctx = Evaluator $ \state -> do
-        let modifiedState = state { evaluatorCtx = ctx }
+        let !modifiedState = state { evaluatorCtx = ctx }
         (_, ma) <- runEvaluator m modifiedState
         case ma of
-            (Left e) -> return (state, Left e)
+            (Left e)  -> return (state, Left e)
             (Right a) -> return (state, Right a)
 
 ----------------------------------------------------------------------

@@ -239,7 +239,7 @@ data ReturnValue =
 
 localBlock :: Meower a -> Meower a
 localBlock m = do
-    ctx <- context :: Meower (Context MeowAtom)
+    ctx <- context
     localContext ctx >>= runLocal m
 
 statement :: Stack Statement -> Meower ReturnValue
@@ -299,7 +299,7 @@ statement ( (StmtFor (decl, condExpr, incr) block) ::| rest ) = do
         other      -> return other
 
 statement ( (StmtFuncDef keyExpr params block) ::| rest ) = do
-    closure <- context :: Meower (Context MeowAtom)
+    closure <- context
     key <- asKey keyExpr
     name <- case key of
         (SimpleKey x)       -> return x

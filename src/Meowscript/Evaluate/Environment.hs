@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FunctionalDependencies #-}
 
 module Meowscript.Evaluate.Environment
 ( Environment(..)
@@ -31,7 +31,7 @@ data Context a = Context
     , currentEnv   :: Ref (Environment a)
     , enclosingCtx :: Maybe (Context a)  }
 
-class (Monad m, MonadIO m) => MeowEnvironment s m where
+class (Monad m, MonadIO m) => MeowEnvironment s m | m -> s where
     lookUpRef  :: Key -> m (Maybe (Ref s))
     contextGet :: (Context s -> a) -> m a
     contextSet :: (Context s -> Context s) -> m ()
