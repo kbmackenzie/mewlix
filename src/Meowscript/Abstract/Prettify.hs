@@ -30,9 +30,11 @@ showMeow (MeowStack xs) = do
 showMeow (MeowBox x) = do
     let unpack (key, ref) = fmap (key,) $ readRef ref >>= showMeow
     let pretty (key, prim) = Text.concat [ key, ": ", prim ]
-    items <- map pretty . sortBy (compare `on` fst) <$> mapM unpack (HashMap.toList x)
+    pairs <- (fmap HashMap.toList . readRef . getBox) x
+    items <- map pretty . sortBy (compare `on` fst) <$> mapM unpack pairs
     (return . Text.concat) [ "[", Text.intercalate ", " items, "]" ]
 showMeow (MeowFunc _) = return "<function>"
+showMeow (MeowIFunc _) = return "<inner-func>"
 showMeow MeowNil = return "<nothing>"
 
 prettyMeow :: (MonadIO m) => MeowAtom -> m Text.Text

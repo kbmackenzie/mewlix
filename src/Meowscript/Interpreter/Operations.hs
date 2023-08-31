@@ -23,6 +23,7 @@ module Meowscript.Interpreter.Operations
 ) where
 
 import Meowscript.Abstract.Atom
+import Meowscript.Data.Ref
 import Meowscript.Abstract.Meowable
 import Meowscript.Abstract.Prettify
 import Meowscript.Evaluate.Evaluator
@@ -143,7 +144,10 @@ meowPop a = throwException =<< operationException "pop" [a]
 
 meowConcat :: (MonadIO m) => MeowAtom -> MeowAtom -> m MeowAtom
 MeowStack a    `meowConcat` MeowStack b     = (return . MeowStack) (a <> b)
-MeowBox a      `meowConcat` MeowBox b       = (return . MeowBox) (a <> b)
+MeowBox a      `meowConcat` MeowBox b       = do
+    let getMap = readRef . getBox
+    newMap <- (<>) <$> getMap a <*> getMap b
+    MeowBox . CatBox <$> newRef newMap
 MeowString a   `meowConcat` MeowString b    = (return . MeowString) (a <> b)
 MeowString a   `meowConcat` b               = MeowString . (a <>) . boxString <$> showMeow b
 a              `meowConcat` MeowString b    = MeowString . (<> b) . boxString <$> showMeow a
@@ -155,5 +159,5 @@ a              `meowConcat` b               = do
 meowLength :: (MonadIO m, MeowThrower m) => MeowAtom -> m MeowAtom
 meowLength (MeowString xs) = (return . MeowInt . fromIntegral . strLen) xs
 meowLength (MeowStack xs)  = (return . MeowInt . fromIntegral . stackLen) xs
-meowLength (MeowBox xs)    = (return . MeowInt . fromIntegral . HashMap.size) xs
+meowLength (MeowBox xs)    = MeowInt . fromIntegral . HashMap.size <$> (readRef . getBox) xs
 meowLength a = throwException =<< operationException "length" [a]

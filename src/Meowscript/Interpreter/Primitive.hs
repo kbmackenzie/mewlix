@@ -28,7 +28,7 @@ meowBool MeowNil        = False
 meowBool (MeowBool b)   = b
 meowBool (MeowStack xs)  = (not . Stack.null . unboxStack) xs
 meowBool (MeowString b) = (not . Text.null . unboxStr) b
-meowBool (MeowBox x)    = (not . HashMap.null) x
+--meowBool (MeowBox x)    = (not . HashMap.null) x
 meowBool _ = True
 
 
@@ -64,11 +64,12 @@ MeowStack as  `primCompare` MeowStack bs  = mappend (stackLen as `compare` stack
     Stack.compareM primCompare (unboxStack as) (unboxStack bs)
 
 -- Box comparison:
-MeowBox a    `primCompare` MeowBox b    = mappend (HashMap.size a `compare` HashMap.size b) <$> do
+MeowBox a    `primCompare` MeowBox b    = do
+    let getPairs = fmap HashMap.toList . readRef . getBox
     let unpack (key, ref) = (key,) <$> liftIO (readRef ref)
     let pairComp (k1, p1) (k2, p2) = mappend (k1 `compare` k2) <$> primCompare p1 p2
-    as <- mapM unpack (HashMap.toList a)
-    bs <- mapM unpack (HashMap.toList b)
+    as <- mapM unpack =<< getPairs a
+    bs <- mapM unpack =<< getPairs b
     listCompareM pairComp as bs
 a `primCompare` b = throwException =<< operationException "comparison" [a, b]
 

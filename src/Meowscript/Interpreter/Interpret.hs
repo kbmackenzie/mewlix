@@ -22,7 +22,7 @@ import Meowscript.Interpreter.Boxes
 import Meowscript.Interpreter.Primitive
 import Meowscript.Interpreter.Operations
 import Meowscript.Parser.AST
-import Control.Monad (void, mapM_)
+import Control.Monad (void)
 
 type Meower a = Evaluator MeowAtom a
 

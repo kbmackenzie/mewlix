@@ -50,9 +50,11 @@ library
       Meowscript.Evaluate.MeowThrower
       Meowscript.Interpreter.Boxes
       Meowscript.Interpreter.Exceptions
+      Meowscript.Interpreter.Import
       Meowscript.Interpreter.Interpret
       Meowscript.Interpreter.Operations
       Meowscript.Interpreter.Primitive
+      Meowscript.Interpreter.Run
       Meowscript.Parser.AST
       Meowscript.Parser.Expr
       Meowscript.Parser.Keywords

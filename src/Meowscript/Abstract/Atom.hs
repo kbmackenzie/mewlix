@@ -7,6 +7,7 @@ module Meowscript.Abstract.Atom
 , MeowPairs(..)
 , MeowFunction(..)
 , MeowIFunction(..)
+, CatBox(..)
 , boxString
 , boxStack
 , boxList
@@ -37,7 +38,7 @@ data MeowAtom =
     | MeowString BoxedString
     | MeowBool Bool
     | MeowStack BoxedStack
-    | MeowBox (HashMap.HashMap Key AtomRef)
+    | MeowBox CatBox
     | MeowFunc MeowFunction
     | MeowIFunc MeowIFunction
     | MeowNil
@@ -69,6 +70,7 @@ instance Semigroup BoxedStack where
 -- An utility newtype that'll be useful when constructing new boxes later!
 newtype MeowPairs = MeowPairs { getPairs :: [(Key, MeowAtom)] }
 
+{- Functions -}
 data MeowFunction = MeowFunction
     { funcName      :: Identifier
     , funcArity     :: Int
@@ -81,6 +83,9 @@ data MeowIFunction = MeowIFunction
     , ifuncArity    :: Int
     , ifuncParams   :: Stack Text.Text
     , ifunc         :: InnerFunc        }
+
+{- Boxes -}
+newtype CatBox = CatBox { getBox :: Ref (HashMap.HashMap Key AtomRef) }
 
 {- Utils -}
 boxString :: Text.Text -> BoxedString

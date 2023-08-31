@@ -51,7 +51,9 @@ instance (Meowable a) => Meowable [a] where
 instance Meowable MeowPairs where
     toMeow xs = do
         let pack (k, p) = (k,) <$> newRef p
-        MeowBox . HashMap.fromList <$> mapM pack (getPairs xs)
+        ref <- newRef . HashMap.fromList =<< mapM pack (getPairs xs)
+        let box = CatBox { getBox = ref }
+        return (MeowBox box)
 
 {-
 instance (Meowable a) => Meowable (HashMap.HashMap Key a) where
