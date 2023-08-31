@@ -52,6 +52,7 @@ library
       Meowscript.Interpreter.Exceptions
       Meowscript.Interpreter.Import
       Meowscript.Interpreter.Interpret
+      Meowscript.Interpreter.Module
       Meowscript.Interpreter.Operations
       Meowscript.Interpreter.Primitive
       Meowscript.Interpreter.Run
@@ -62,8 +63,10 @@ library
       Meowscript.Parser.Run
       Meowscript.Parser.Statement
       Meowscript.Parser.Utils
+      Meowscript.Utils.IO
       Meowscript.Utils.List
       Meowscript.Utils.Show
+      Meowscript.Utils.Time
       Meowscript.Utils.Types
   other-modules:
       Paths_Meowscript
@@ -71,9 +74,13 @@ library
       src
   ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -optc-O3 -optc-ffast-math -funfolding-use-threshold=16
   build-depends:
-      base >=4.7 && <5
+      ansi-terminal ==1.0.*
+    , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
+    , clock ==0.8.*
     , containers ==0.6.*
+    , directory ==1.3.*
+    , filepath ==1.4.*
     , megaparsec ==9.3.*
     , microlens-platform ==0.4.*
     , monadlist ==0.0.*
@@ -94,9 +101,13 @@ executable Meowscript
   ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -optc-O3 -optc-ffast-math -funfolding-use-threshold=16 -threaded -rtsopts -with-rtsopts=-M128m
   build-depends:
       Meowscript
+    , ansi-terminal ==1.0.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
+    , clock ==0.8.*
     , containers ==0.6.*
+    , directory ==1.3.*
+    , filepath ==1.4.*
     , megaparsec ==9.3.*
     , microlens-platform ==0.4.*
     , monadlist ==0.0.*
@@ -118,9 +129,13 @@ test-suite Meowscript-test
   ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -optc-O3 -optc-ffast-math -funfolding-use-threshold=16 -threaded -rtsopts -with-rtsopts=-M128m
   build-depends:
       Meowscript
+    , ansi-terminal ==1.0.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
+    , clock ==0.8.*
     , containers ==0.6.*
+    , directory ==1.3.*
+    , filepath ==1.4.*
     , megaparsec ==9.3.*
     , microlens-platform ==0.4.*
     , monadlist ==0.0.*

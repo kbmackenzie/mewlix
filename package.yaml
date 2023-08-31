@@ -32,13 +32,13 @@ dependencies:
 - parser-combinators >= 1.3 && < 1.4
 - bytestring >= 0.11 && < 0.13
 - utf8-string >= 1.0 && < 1.1
+- filepath >= 1.4 && < 1.5
+- directory >= 1.3 && < 1.4
+- ansi-terminal >= 1.0 && < 1.1
+- clock >= 0.8 && < 0.9
 #- stopwatch
-#- filepath
-#- ansi-terminal
 #- random
-#- directory
 #- network
-#- clock
 #- hashable
 #- transformers
 #- haskeline

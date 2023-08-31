@@ -24,13 +24,15 @@ extra-deps:
 #- hashable-1.4.2.0
 - integer-logarithms-1.0.3.1
 - utf8-string-1.0.2
+- ansi-terminal-1.0
+- ansi-terminal-types-0.11.5
+- colour-2.3.6
+- clock-0.8.3
 #- primitive-0.8.0.0
 #- base-orphans-0.9.0
 #- data-array-byte-0.1.0.1
 #- megaparsec-9.3.0
 #- stopwatch-0.1.0.6
-#- clock-0.8.3
-#- ansi-terminal-0.11.4
 #- colour-2.3.6
 #- filepath-1.4.100.3
 #- bytestring-0.11.4.0
