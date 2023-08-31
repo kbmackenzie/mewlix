@@ -33,6 +33,7 @@ module Meowscript.Parser.Keywords
 ) where
 
 import Data.Text (Text)
+import Data.HashSet (HashSet, fromList)
 
 meowCatface :: Text
 meowCatface = "=^.x.^="
@@ -83,10 +84,10 @@ meowClaw :: Text
 meowClaw = "claw at"
 
 meowBox :: Text
-meowBox = "~( ^.x.^) BOX!!"
+meowBox = "=^.x.^="
 
 meowLambda :: Text
-meowLambda = "( ^.x.^)>"
+meowLambda = "=^.x.^="
 
 meowNot :: Text
 meowNot = "not"
@@ -118,9 +119,9 @@ meowCatch = "catch"
 meowWhen :: (Text, Text)
 meowWhen = ("when", "do")
 
-reservedKeywords :: [Text]
+reservedKeywords :: HashSet Text
 {-# INLINE reservedKeywords #-}
-reservedKeywords =
+reservedKeywords = fromList
     [ "mew"
     , "paw"
     , "claw"

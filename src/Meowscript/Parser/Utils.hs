@@ -27,6 +27,7 @@ module Meowscript.Parser.Utils
 import Meowscript.Parser.Keywords
 import Meowscript.Data.ToString
 import qualified Data.Text as Text
+import qualified Data.HashSet as HashSet
 import Text.Megaparsec ((<?>), MonadParsec)
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
@@ -113,7 +114,7 @@ validKeyChar c = isAlphaNum c || c `elem` ['\'', '_']
 keyText :: Parser Text.Text
 keyText = do
     x <- Mega.takeWhile1P (Just "key") validKeyChar
-    if x `elem` reservedKeywords
+    if x `HashSet.member` reservedKeywords
         then fail "Variable name cannot be a keyword!"
         else return x
 
