@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE BangPatterns #-}
 
 module Meowscript.Interpreter.Import
@@ -9,7 +10,13 @@ import Meowscript.Data.Ref
 import Meowscript.Evaluate.Evaluator
 import Meowscript.Evaluate.Environment
 import Meowscript.Data.Key
+import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
+
+filterKeys :: HashMap.HashMap Key a -> HashMap.HashMap Key a
+{-# INLINABLE filterKeys #-}
+filterKeys = HashMap.filterWithKey publicKey
+    where publicKey k _ = (not . Text.isPrefixOf "_") k
 
 contextImport :: a -> (a -> Evaluator s b) -> EvaluatorState s -> Evaluator s ()
 {-# INLINABLE contextImport #-}
@@ -21,7 +28,7 @@ contextImport a m boxedState = Evaluator $ \state -> do
             let !globalRef = (globalEnv . evaluatorCtx) state
             !env        <- readRef globalRef
             !importEnv  <- (readRef . globalEnv . evaluatorCtx) importState
-            let !newEnv = Environment $ getEnv env <> getEnv importEnv
+            let !newEnv = Environment $ getEnv env <> (filterKeys . getEnv) importEnv
             writeRef newEnv globalRef
             return (state, Right ())
 
@@ -36,7 +43,7 @@ meowImport qualified a m boxedState = case qualified of
             _        -> do
                 let !env = (currentEnv . evaluatorCtx) state
                 !importEnv <- (readRef . globalEnv . evaluatorCtx) importState
-                !newBox    <- newRef . MeowBox . CatBox =<< (newRef . getEnv) importEnv
+                !newBox    <- newRef . MeowBox . CatBox =<< (newRef . filterKeys . getEnv) importEnv
                 let f = Environment . HashMap.insert key newBox . getEnv
                 modifyRef f env
                 return (state, Right ())
