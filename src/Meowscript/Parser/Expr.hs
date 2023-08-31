@@ -55,8 +55,8 @@ operatorsR =
         , Prefix  (ExprClaw                             <$ tryKeyword meowClaw   ) ]
       , [ Postfix (ExprUnop  UnopLen                    <$ trySymbol "?!"        ) ]
       , [ Prefix  (ExprUnop  UnopListPeek               <$ tryKeyword meowPeek   )
-        , InfixL  (ExprBinop BinopListPush              <$ tryKeyword meowPush   )
-        , Prefix  (ExprUnop  UnopListPop                <$ tryKeyword meowKnock  ) ]
+        , InfixL  (ExprPush                             <$ tryKeyword meowPush   )
+        , Prefix  (ExprPop                              <$ tryKeyword meowKnock  ) ]
       , [ InfixL  (ExprBinop BinopConcat                <$ trySymbol ".."        ) ]
       , [ InfixL  (ExprBinop BinopPow                   <$ trySymbol "^"         ) ]
       , [ Prefix  (ExprUnop  UnopNegate                 <$ symbol "-"            )
@@ -106,8 +106,11 @@ parseLambda = do
     return (ExprLambda args)
 
 parseCall :: Parser (Expr -> Expr)
-parseCall = (lexeme . parens . Mega.try) $ whitespaceLn >>
-    flip ExprCall . Stack.fromList <$> sepByComma (bilexemeLn parseExpr) <* whitespaceLn
+parseCall = (lexeme . parens . Mega.try) $ do
+    whitespaceLn
+    args <- Stack.fromList <$> sepByComma (bilexemeLn parseExpr) <* whitespaceLn
+    let argCount = Stack.length args
+    return (\expr -> ExprCall expr args argCount)
 
 parseDotOp :: Parser (Expr -> Expr)
 parseDotOp = do

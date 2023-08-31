@@ -1,10 +1,12 @@
 module Meowscript.Abstract.Atom
 ( MeowAtom(..)
 , AtomRef
+, InnerFunc
 , BoxedString(..)
 , BoxedStack(..)
 , MeowPairs(..)
 , MeowFunction(..)
+, MeowIFunction(..)
 , boxString
 , boxStack
 , boxList
@@ -17,6 +19,7 @@ module Meowscript.Abstract.Atom
 import Meowscript.Data.Key (Key)
 import Meowscript.Data.Ref
 import Meowscript.Data.ToString
+import Meowscript.Evaluate.Evaluator
 import Meowscript.Evaluate.Environment
 import Meowscript.Data.Stack (Stack(..))
 import qualified Meowscript.Data.Stack as Stack
@@ -26,6 +29,7 @@ import qualified Data.HashMap.Strict as HashMap
 import Meowscript.Parser.AST
 
 type AtomRef = Ref MeowAtom
+type InnerFunc = Evaluator MeowAtom MeowAtom
 
 data MeowAtom =
       MeowInt Int32
@@ -35,6 +39,7 @@ data MeowAtom =
     | MeowStack BoxedStack
     | MeowBox (HashMap.HashMap Key AtomRef)
     | MeowFunc MeowFunction
+    | MeowIFunc MeowIFunction
     | MeowNil
 
 data BoxedString = BoxedString
@@ -65,11 +70,17 @@ instance Semigroup BoxedStack where
 newtype MeowPairs = MeowPairs { getPairs :: [(Key, MeowAtom)] }
 
 data MeowFunction = MeowFunction
-    { funcName      :: Text.Text
+    { funcName      :: Identifier
     , funcArity     :: Int
     , funcParams    :: Stack Text.Text
     , funcBody      :: Stack Statement
     , funcClosure   :: Context MeowAtom }
+
+data MeowIFunction = MeowIFunction
+    { ifuncName     :: Identifier
+    , ifuncArity    :: Int
+    , ifuncParams   :: Stack Text.Text
+    , ifunc         :: InnerFunc        }
 
 {- Utils -}
 boxString :: Text.Text -> BoxedString

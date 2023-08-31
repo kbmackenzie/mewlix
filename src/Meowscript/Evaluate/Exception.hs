@@ -16,7 +16,7 @@ data CatException = CatException
     , exceptionMessage  :: Text.Text     }
 
 data MeowException =
-      MeowVM
+      MeowUnexpected
     | MeowArity
     | MeowTypeMismatch
     | MeowUnboundKey
@@ -31,7 +31,7 @@ data MeowException =
 
 instance Show MeowException where
     show x = (++ "Exception") $ case x of
-        MeowVM              -> "VM"
+        MeowUnexpected      -> "Unexpected"
         MeowArity           -> "Arity"
         MeowTypeMismatch    -> "Type"
         MeowUnboundKey      -> "Unbound"
@@ -49,7 +49,7 @@ class MeowableException a where
     fromCatException :: CatException -> a
 
 instance MeowableException Text.Text where
-    toCatException = CatException MeowVM
+    toCatException = CatException MeowUnexpected
     fromCatException = exceptionMessage
 
 instance MeowableException CatException where

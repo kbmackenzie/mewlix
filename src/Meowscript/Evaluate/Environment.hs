@@ -8,6 +8,8 @@ module Meowscript.Evaluate.Environment
 , contextSearch
 , contextWrite
 , localContext
+, contextDefine
+, contextMany
 , initContext
 , freezeLocal
 ) where
@@ -67,6 +69,19 @@ localContext !ctx = do
         enclosingCtx = Just ctx
     }
     return newCtx
+
+contextDefine :: (MonadIO m) => Key -> Ref a -> Context a -> m ()
+contextDefine !key !ref !ctx = do
+    let !env = currentEnv ctx
+    let f = Environment . HashMap.insert key ref . getEnv
+    modifyRef f env
+
+contextMany :: (MonadIO m) => [(Key, Ref a)] -> Context a -> m ()
+contextMany pairs ctx = do
+    let !env = currentEnv ctx
+    let bind (key, ref) = HashMap.insert key ref
+    let makeMap = Environment . (\hashmap -> foldr bind hashmap pairs) . getEnv
+    modifyRef makeMap env
 
 initContext :: (MonadIO m) => m (Context a)
 initContext = do

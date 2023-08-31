@@ -22,8 +22,7 @@ import Meowscript.Interpreter.Boxes
 import Meowscript.Interpreter.Primitive
 import Meowscript.Interpreter.Operations
 import Meowscript.Parser.AST
-import Control.Monad (void)
-import qualified Data.List as List
+import Control.Monad (void, mapM_)
 
 type Meower a = Evaluator MeowAtom a
 
@@ -83,17 +82,42 @@ expression (ExprAssign left right) = do
     keyAssign lref rvalue
     return rvalue
 
-expression (ExprPaw expr) = do
-    ref <- asKey expr >>= asRef
-    newValue <- readRef ref >>= flip meowAdd (MeowInt 1)
-    writeRef newValue ref
-    return newValue
+expression (ExprPaw expr) = asKey expr >>= \case
+    (SingletonAtom a) -> meowAdd a (MeowInt 1)
+    key               -> do
+        ref      <- asRef key
+        a        <- readRef ref
+        newValue <- meowAdd a (MeowInt 1)
+        writeRef newValue ref
+        return newValue
 
-expression (ExprClaw expr) = do
-    ref <- asKey expr >>= asRef
-    newValue <- readRef ref >>= flip meowSub (MeowInt 1)
-    writeRef newValue ref
-    return newValue
+expression (ExprClaw expr) = asKey expr >>= \case
+    (SingletonAtom a) -> meowSub a (MeowInt 1)
+    key               -> do
+        ref      <- asRef key
+        a        <- readRef ref
+        newValue <- meowSub a (MeowInt 1)
+        writeRef newValue ref
+        return newValue
+
+expression (ExprPush exprA exprB) = asKey exprA >>= \case
+    (SingletonAtom a) -> expression exprB >>= meowPush a
+    key               -> do
+        ref <- asRef key
+        a   <- readRef ref
+        b   <- expression exprB
+        newValue <- meowPush a b
+        writeRef newValue ref
+        return newValue
+
+expression (ExprPop expr) = asKey expr >>= \case
+    (SingletonAtom a) -> meowPop a
+    key               -> do
+        ref      <- asRef key
+        a        <- readRef ref
+        newValue <- meowPop a
+        writeRef newValue ref
+        return newValue
 
 -- Boxes:
 expression (ExprDotOp boxExpr expr) = do
@@ -118,7 +142,6 @@ expression (ExprBinop op exprA exprB) = do
             BinopMod            -> meowMod
             BinopPow            -> meowPow
             BinopConcat         -> meowConcat
-            BinopListPush       -> meowPush
             BinopCompareEq      -> meowEq
             BinopCompareLess    -> meowLesser
             BinopCompareGreat   -> meowGreater
@@ -131,15 +154,23 @@ expression (ExprUnop op exprA) = do
     a <- expression exprA
     let f = case op of
             UnopNegate          -> meowNegate
-            UnopListPop         -> meowPop
             UnopListPeek        -> meowPeek
             UnopLen             -> meowLength
             UnopNot             -> return . meowNot
     f a
 
-expression (ExprCall func args) = do
-    undefined
-
+expression (ExprCall expr args argCount) = do
+    key <- asKey expr
+    case key of
+        (SimpleKey name)  -> asRef key >>= readRef >>= \case
+                (MeowFunc f)  -> callFunction name argCount args f
+                (MeowIFunc f) -> callInnerFunc name argCount args f
+        (RefKey ref name) -> asRef key >>= readRef >>= \case
+                (MeowFunc f)  -> callMethod name argCount args f ref
+                (MeowIFunc f) -> callInnerFunc name argCount args f
+        (SingletonAtom a) -> case a of
+                (MeowFunc f)  -> callFunction "<lambda>" argCount args f
+                (MeowIFunc f) -> callInnerFunc "<lambda" argCount args f
 
 identifier :: Expr -> Meower Identifier
 identifier (ExprKey key) = return key
@@ -151,14 +182,14 @@ identifier other         = expression other >>= asIdentifier
 data CatKey =
       SimpleKey Identifier
     | RefKey (Ref MeowAtom) Identifier
-    | SingletonRef (Ref MeowAtom)
+    | SingletonAtom MeowAtom
 
 asRef :: CatKey -> Meower (Ref MeowAtom)
 asRef (SimpleKey key) = lookUpRef key >>= \case
     Nothing     -> throwException =<< unboundException key []
     (Just ref)  -> return ref
 asRef (RefKey ref key) = readRef ref >>= boxPeek key
-asRef (SingletonRef ref) = return ref
+asRef (SingletonAtom a) = newRef a
 
 asKey :: Expr -> Meower CatKey
 asKey (ExprKey key) = return (SimpleKey key)
@@ -170,14 +201,15 @@ asKey (ExprBoxAccess box expr) = do
     ref <- asKey box >>= asRef
     key <- expression expr >>= showMeow
     return (RefKey ref key)
-asKey other = do
-    ref <- expression other >>= newRef
-    return (SingletonRef ref)
+asKey other = SingletonAtom <$> expression other
+
+define :: Identifier -> MeowAtom -> Meower ()
+define key rvalue = context >>= contextWrite key rvalue
 
 keyAssign :: CatKey -> MeowAtom -> Meower ()
-keyAssign (SimpleKey key)    rvalue = context >>= contextWrite key rvalue
+keyAssign (SimpleKey key)    rvalue = define key rvalue
 keyAssign (RefKey ref key)   rvalue = boxWrite key rvalue ref
-keyAssign (SingletonRef ref) _      = throwException =<< notAnIdentifier . List.singleton =<< readRef ref
+keyAssign (SingletonAtom a)  _      = throwException =<< notAnIdentifier [a]
 
 
 {- Lifted Expressions -}
@@ -264,7 +296,7 @@ statement ( (StmtFuncDef keyExpr params block) ::| rest ) = do
     name <- case key of
         (SimpleKey x)       -> return x
         (RefKey _  x)       -> return x
-        (SingletonRef x)    -> throwException =<< notAFunctionName . List.singleton =<< readRef x
+        (SingletonAtom x)   -> throwException =<< notAFunctionName [x]
     let function = MeowFunc $ MeowFunction
             { funcArity   = Stack.length params
             , funcName    = name
@@ -301,3 +333,62 @@ statement ( (StmtTryCatch tryBlock (maybeExpr, catchBlock)) ::| rest ) = do
 
 statement ( (StmtImport path maybeName) ::| rest ) = do
     statement rest
+
+
+{- Functions -}
+---------------------------------------------------------------
+liftReturn :: (MeowThrower m) => ReturnValue -> m MeowAtom
+liftReturn (ReturnAtom a) = return a
+liftReturn ReturnVoid     = return MeowNil
+liftReturn ReturnBreak    = throwException =<< undefined --todo: unexpected break
+
+bindArgs :: Params -> Stack Expr -> Meower ()
+bindArgs params exprs = do
+    let zipped = zip (Stack.toList params) (Stack.toList exprs)
+    let assign (key, expr) = do
+            value <- expression expr
+            (key,) <$> newRef value
+    pairs <- mapM assign zipped
+    context >>= contextMany pairs
+
+paramGuard :: Identifier -> Int -> Int -> Meower ()
+paramGuard key a b = case a `compare` b of
+    EQ -> return ()
+    LT -> throwException =<< arityException "Too many arguments" key
+    GT -> throwException =<< arityException "Not enough arguments" key
+
+localClosure :: Context MeowAtom-> Meower a -> Meower a
+localClosure closure m = localContext closure >>= runLocal m
+
+callFunction :: Identifier -> Int -> Stack Expr -> MeowFunction -> Meower MeowAtom
+callFunction key arity exprs function = stackTrace key $ do
+    paramGuard key arity (funcArity function)
+    let closure = funcClosure function
+    localClosure closure $ do
+        bindArgs (funcParams function) exprs
+        statement (funcBody function) >>= liftReturn
+
+callMethod :: Identifier -> Int -> Stack Expr -> MeowFunction -> Ref MeowAtom -> Meower MeowAtom
+callMethod key arity exprs function ref = stackTrace key $ do
+    paramGuard key arity (funcArity function)
+    let closure = funcClosure function
+    localClosure closure $ do
+        bindArgs (funcParams function) exprs
+        context >>= contextDefine key ref
+        statement (funcBody function) >>= liftReturn
+
+callInnerFunc :: Identifier -> Int -> Stack Expr -> MeowIFunction -> Meower MeowAtom
+callInnerFunc key arity exprs f = stackTrace key $ do
+    paramGuard key arity (ifuncArity f)
+    localBlock $ do
+        bindArgs (ifuncParams f) exprs
+        ifunc f
+
+stackTrace :: Identifier -> Meower a -> Meower a
+stackTrace key m = m `catchException` addStackTrace key
+
+addStackTrace :: Identifier -> CatException -> Meower a
+addStackTrace key exc = do
+    let message = Text.append (exceptionMessage exc) $ Text.concat
+            [ "\n    In function \"", key, "\"" ]
+    throwException exc { exceptionMessage = message }

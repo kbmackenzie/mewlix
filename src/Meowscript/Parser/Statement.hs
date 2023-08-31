@@ -22,6 +22,21 @@ import Control.Monad (void)
 root :: Parser [Statement]
 root = Mega.between whitespaceLn Mega.eof (Mega.many (lexemeLn statements))
 
+
+{- Nesting -}
+----------------------------------------------------------------
+data Nesting =
+      Root
+    | Nested
+    | NestedInLoop
+    deriving (Eq, Ord, Show, Enum, Bounded)
+
+-- to resolve nesting, do
+-- a `max` b
+-- the maximum nesting always propagates! for example
+-- root `max` nestedinloop = nestedinloop
+
+
 {- Parse statements: -}
 ----------------------------------------------------------------
 statements :: Parser Statement

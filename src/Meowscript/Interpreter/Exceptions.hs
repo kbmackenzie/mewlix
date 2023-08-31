@@ -9,6 +9,8 @@ module Meowscript.Interpreter.Exceptions
 , notAPropertyException
 , notAnIdentifier
 , notAFunctionName
+, arityException
+, unexpectedException
 ) where
 
 import Meowscript.Abstract.Atom
@@ -47,3 +49,13 @@ notAnIdentifier = exceptionBase MeowNotIdentifier "Value providied is not a vali
 
 notAFunctionName :: (MonadIO m) => [MeowAtom] -> m CatException
 notAFunctionName = exceptionBase MeowNotIdentifier "Value provided is not a valid function identifier!"
+
+arityException :: (MonadIO m) => Text.Text -> Text.Text -> m CatException
+arityException message key = flip (exceptionBase MeowArity) [] $ Text.concat
+    [ message, " passed to function \"", key, "\"!" ]
+
+unexpectedException :: (MonadIO m) => Text.Text -> m CatException
+unexpectedException = flip (exceptionBase MeowUnexpected) [] . flip Text.append pleaseContactTheDev
+
+pleaseContactTheDev :: Text.Text
+pleaseContactTheDev = " | Please contact the dev at @KBMackenzie on Github to report if you can!"

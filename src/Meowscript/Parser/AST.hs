@@ -41,8 +41,10 @@ data Expr =
     | ExprAssign Expr Expr
     | ExprPaw Expr
     | ExprClaw Expr
+    | ExprPush Expr Expr
+    | ExprPop Expr
     | ExprLambda Params Expr
-    | ExprCall Expr (Stack Expr)
+    | ExprCall Expr (Stack Expr) Int
     | ExprDotOp Expr Expr
     | ExprBoxAccess Expr Expr
     deriving (Show)
@@ -55,7 +57,6 @@ data Binop =
     | BinopMod
     | BinopPow
     | BinopConcat
-    | BinopListPush
     | BinopCompareEq
     | BinopCompareLess
     | BinopCompareGreat
@@ -67,7 +68,6 @@ data Binop =
 data Unop =
       UnopNegate
     | UnopNot
-    | UnopListPop
     | UnopListPeek
     | UnopLen
     deriving (Show)
