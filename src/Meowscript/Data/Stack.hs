@@ -23,6 +23,8 @@ module Meowscript.Data.Stack
 , reverse
 , null
 , compareM
+, select
+, partition
 ) where
 
 import Prelude hiding (lookup, concat, concatMap, reverse, length, null, mapM)
@@ -127,3 +129,12 @@ compareM _ _           Bottom      = return GT
 compareM f (x ::| xs)  (y ::| ys)  = f x y >>= \case
     EQ      -> compareM f xs ys
     other   -> return other
+
+select :: (a -> Bool) -> Stack a -> (Stack a, Stack a) -> (Stack a, Stack a)
+select _ Bottom     (as, bs) = (as, bs)
+select f (x ::| xs) (as, bs) = if f x
+    then select f xs (x ::| as, bs)
+    else select f xs (as, x ::| bs)
+
+partition :: (a -> Bool) -> Stack a -> (Stack a, Stack a)
+partition fn stack = select fn stack (empty, empty)
