@@ -59,6 +59,7 @@ library
       Meowscript.Parser.Expr
       Meowscript.Parser.Keywords
       Meowscript.Parser.Prim
+      Meowscript.Parser.Run
       Meowscript.Parser.Statement
       Meowscript.Parser.Utils
       Meowscript.Utils.List
