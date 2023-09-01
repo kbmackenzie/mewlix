@@ -19,7 +19,9 @@ module Meowscript.Evaluate.Evaluator
 import Meowscript.Evaluate.Environment
 import Meowscript.Evaluate.MeowThrower
 import Meowscript.Evaluate.Exception
+import Meowscript.IO.SafeIO
 import Control.Monad.IO.Class (MonadIO(..))
+import Control.Monad.Except (MonadError(..))
 
 data EvaluatorState p = EvaluatorState
     { evaluatorCtx  :: Context p
@@ -84,6 +86,18 @@ instance MeowEnvironment p (Evaluator p) where
         case ma of
             (Left e)  -> return (state, Left e)
             (Right a) -> return (state, Right a)
+
+instance SafeIO (Evaluator p) where
+    safeIO m = Evaluator $ \state -> do
+        ma <- m
+        case ma of
+            (Left e)  -> return (state, makeException e)
+            (Right a) -> return (state, Right a)
+        where makeException = Left . CatException MeowBadIO
+
+instance MonadError CatException (Evaluator p) where
+    throwError = throwException
+    catchError = catchException
 
 ----------------------------------------------------------------------
 {- Utils -}

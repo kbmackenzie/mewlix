@@ -56,6 +56,10 @@ library
       Meowscript.Interpreter.Operations
       Meowscript.Interpreter.Primitive
       Meowscript.Interpreter.Run
+      Meowscript.IO.Directory
+      Meowscript.IO.File
+      Meowscript.IO.Print
+      Meowscript.IO.SafeIO
       Meowscript.Parser.AST
       Meowscript.Parser.Expr
       Meowscript.Parser.Keywords
@@ -63,7 +67,6 @@ library
       Meowscript.Parser.Run
       Meowscript.Parser.Statement
       Meowscript.Parser.Utils
-      Meowscript.Utils.IO
       Meowscript.Utils.List
       Meowscript.Utils.Show
       Meowscript.Utils.Time
