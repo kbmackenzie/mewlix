@@ -194,7 +194,7 @@ data CatKey =
 
 asRef :: CatKey -> Meower (Ref MeowAtom)
 asRef (SimpleKey key) = lookUpRef key >>= \case
-    Nothing     -> throwException =<< unboundException key
+    Nothing     -> throwException (unboundException key)
     (Just ref)  -> return ref
 asRef (RefKey ref key) = readRef ref >>= boxPeek key
 asRef (SingletonAtom a) = newRef a
@@ -367,8 +367,8 @@ bindArgs params exprs = do
 paramGuard :: Identifier -> Int -> Int -> Meower ()
 paramGuard key a b = case a `compare` b of
     EQ -> return ()
-    LT -> throwException =<< arityException "Too many arguments" key
-    GT -> throwException =<< arityException "Not enough arguments" key
+    LT -> throwException (arityException "Too many arguments" key)
+    GT -> throwException (arityException "Not enough arguments" key)
 
 localClosure :: Context MeowAtom-> Meower a -> Meower a
 localClosure closure m = localContext closure >>= runLocal m

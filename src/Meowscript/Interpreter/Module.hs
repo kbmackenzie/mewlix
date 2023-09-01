@@ -20,17 +20,22 @@ import Control.Applicative ((<|>))
 import Lens.Micro.Platform ((^.))
 import System.FilePath ((</>))
 import Meowscript.Parser.Run (parseRoot)
+import Meowscript.Interpreter.Exceptions
+
+-- The output of module-searching.
+-- "Why?" -> Because the resolved filepath is important!
+type SearchOutput = (FilePath, Module)
 
 {- Get Module -}
 ----------------------------------------------------------------------------------------
 -- Try reading a file:
-readModule :: FilePath -> Evaluator a Module
+readModule :: FilePath -> Evaluator a SearchOutput
 readModule path = if isStdModule path
     then getStdModule path
     else findModule path
 
 -- Searching for a file:
-findModule :: FilePath -> Evaluator a Module
+findModule :: FilePath -> Evaluator a SearchOutput
 findModule path = do
     -- Function to search each possible path safely.
     let search :: [FilePath] -> Evaluator a (Maybe (FilePath, Text.Text))
@@ -49,27 +54,29 @@ findModule path = do
 
     -- Loading module cache.
     cache   <- cacheGet
-    let cacheSearch :: [FilePath] -> Maybe Module
+    let cacheSearch :: [FilePath] -> Maybe SearchOutput
         cacheSearch = foldr predicate Nothing
-            where predicate fp acc = acc <|> HashMap.lookup fp cache
+            where predicate filepath acc = acc <|> do
+                    modu <- HashMap.lookup filepath cache
+                    return (filepath, modu)
 
     -- Search module cache. If miss, search directories.
     case cacheSearch paths of
-        (Just modu)   -> return modu
-        Nothing       -> search paths >>= \case
-            Nothing         -> undefined --throw "not found" error herE
+        (Just modu) -> return modu
+        Nothing     -> search paths >>= \case
             (Just contents) -> uncurry makeModule contents
+            Nothing         -> throwException $ importException path
 
 
 {- Parsing -}
 ----------------------------------------------------------------------------------------
-makeModule :: FilePath -> Text.Text -> Evaluator a Module
+makeModule :: FilePath -> Text.Text -> Evaluator a SearchOutput
 makeModule path contents = case parseRoot path contents of
-    (Left e)       -> undefined --throw parse error
+    (Left exc)     -> throwException $ importSyntaxException path exc
     (Right output) -> do
         let newModule = Module output
         cacheAdd path newModule
-        return newModule
+        return (path, newModule)
 
 {- Utils -}
 ----------------------------------------------------------------------------------------
@@ -112,10 +119,10 @@ asStd = ("std/" ++)
 isStdModule :: FilePath -> Bool
 isStdModule = flip HashSet.member stdModules
 
-getStdModule :: FilePath -> Evaluator a Module
+getStdModule :: FilePath -> Evaluator a SearchOutput
 getStdModule path = do
     cache <- cacheGet
     let stdPath = asStd path
     case HashMap.lookup stdPath cache of
-        (Just modu) -> return modu
+        (Just modu) -> return (stdPath, modu)
         Nothing     -> readDataFile stdPath >>| makeModule stdPath

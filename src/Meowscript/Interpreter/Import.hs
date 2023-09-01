@@ -8,6 +8,7 @@ module Meowscript.Interpreter.Import
 import Meowscript.Abstract.Atom
 import Meowscript.Data.Ref
 import Meowscript.Evaluate.Evaluator
+import Meowscript.Evaluate.State
 import Meowscript.Evaluate.Environment
 import Meowscript.Data.Key
 import qualified Data.Text as Text

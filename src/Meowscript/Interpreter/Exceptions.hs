@@ -11,6 +11,8 @@ module Meowscript.Interpreter.Exceptions
 , notAFunctionName
 , arityException
 , notAFuncionException
+, importException
+, importSyntaxException
 , unexpectedException
 ) where
 
@@ -33,8 +35,8 @@ operationException = exceptionBase MeowTypeMismatch . Text.append "Invalid opera
 divisionByZeroException :: (MonadIO m) => [MeowAtom] -> m CatException
 divisionByZeroException = exceptionBase MeowDivByZero "Invalid operation: Cannot divide by zero!"
 
-unboundException :: (MonadIO m) => Text.Text -> m CatException
-unboundException key = flip (exceptionBase MeowUnboundKey) [] $ Text.concat
+unboundException :: Text.Text -> CatException
+unboundException key = CatException MeowUnboundKey $ Text.concat
     [ "Unbound key: \"", key, "\"!" ]
 
 notABoxException :: (MonadIO m) => [MeowAtom] -> m CatException
@@ -51,15 +53,23 @@ notAnIdentifier = exceptionBase MeowNotIdentifier "Value providied is not a vali
 notAFunctionName :: (MonadIO m) => [MeowAtom] -> m CatException
 notAFunctionName = exceptionBase MeowNotIdentifier "Value provided is not a valid function identifier!"
 
-arityException :: (MonadIO m) => Text.Text -> Text.Text -> m CatException
-arityException message key = flip (exceptionBase MeowArity) [] $ Text.concat
+arityException :: Text.Text -> Text.Text -> CatException
+arityException message key = CatException MeowArity $ Text.concat
     [ message, " passed to function \"", key, "\"!" ]
 
 notAFuncionException :: (MonadIO m) => [MeowAtom] -> m CatException
 notAFuncionException = exceptionBase MeowTypeMismatch "Cannot invoke a non-callable value as a function!"
 
-unexpectedException :: (MonadIO m) => Text.Text -> m CatException
-unexpectedException = flip (exceptionBase MeowUnexpected) [] . flip Text.append pleaseContactTheDev
+importException :: FilePath -> CatException
+importException path = CatException MeowBadImport $ Text.concat
+    [ "Could not import file \"", Text.pack path, "\": File not found!" ]
+
+importSyntaxException :: FilePath -> Text.Text -> CatException
+importSyntaxException path message = CatException MeowBadImport $ Text.concat
+    [ "Could not import file \"", Text.pack path, "\" due to a syntax error:\n", message ]
+
+unexpectedException :: Text.Text -> CatException
+unexpectedException = CatException MeowUnexpected . flip Text.append pleaseContactTheDev
 
 pleaseContactTheDev :: Text.Text
 pleaseContactTheDev = " | Please contact the dev at @KBMackenzie on Github to report if you can!"
