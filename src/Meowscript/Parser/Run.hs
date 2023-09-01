@@ -13,13 +13,13 @@ import Meowscript.Parser.Expr (liftedExpr)
 import Text.Megaparsec (parse, errorBundlePretty)
 import qualified Data.Text as Text
 
-runParser :: Parser a -> FilePath -> Either Text.Text Text.Text -> Either Text.Text a
-runParser parser path contents = contents >>= \x -> case parse parser path x of
+runParser :: Parser a -> FilePath -> Text.Text -> Either Text.Text a
+runParser parser path contents = case parse parser path contents of
     (Left e)  -> (Left . Text.pack . errorBundlePretty) e
     (Right a) -> Right a
 
-parseRoot :: FilePath -> Either Text.Text Text.Text -> Either Text.Text [Statement]
+parseRoot :: FilePath -> Text.Text -> Either Text.Text [Statement]
 parseRoot = runParser root
 
-parseLiftedExpr :: FilePath -> Either Text.Text Text.Text -> Either Text.Text LiftedExpr
+parseLiftedExpr :: FilePath -> Text.Text -> Either Text.Text LiftedExpr
 parseLiftedExpr = runParser liftedExpr

@@ -2,6 +2,7 @@
 
 module Meowscript.IO.Directory
 ( localPath
+, isDirectoryPath
 , safeMoveDirectory
 , safeRemoveDirectory
 , safeRenameDirectory
@@ -19,7 +20,8 @@ import System.Directory (getCurrentDirectory
     , createDirectory
     , removeDirectory
     , renameDirectory)
-import System.FilePath (dropFileName, (</>))
+import System.FilePath (dropFileName, (</>), hasTrailingPathSeparator)
+import Control.Applicative (liftA2)
 
 
 {- Directory Handling -}
@@ -27,6 +29,10 @@ import System.FilePath (dropFileName, (</>))
 localPath :: FilePath -> FilePath -> FilePath
 {-# INLINABLE localPath #-}
 localPath path = (dropFileName path </>)
+
+isDirectoryPath :: FilePath -> Bool
+{-# INLINABLE isDirectoryPath #-}
+isDirectoryPath = liftA2 (||) hasTrailingPathSeparator (== ".")
 
 safeDirectoryFunc :: (FilePath -> IO ()) -> FilePath -> IO (Either Text.Text ())
 {-# INLINABLE safeDirectoryFunc #-}

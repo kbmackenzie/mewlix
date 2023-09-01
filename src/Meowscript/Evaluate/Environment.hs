@@ -38,9 +38,11 @@ class (Monad m, MonadIO m) => MeowEnvironment s m | m -> s where
     runLocal   :: m a -> Context s -> m a
 
     context :: m (Context s)
+    {-# INLINE context #-}
     context = contextGet id
 
     lookUp :: (MeowThrower m) => Key -> m s
+    {-# INLINE lookUp #-}
     lookUp key = do
         x <- lookUpRef key
         case x of
