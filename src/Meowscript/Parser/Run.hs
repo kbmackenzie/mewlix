@@ -18,7 +18,7 @@ runParser parser path contents = case parse parser path contents of
     (Left e)  -> (Left . Text.pack . errorBundlePretty) e
     (Right a) -> Right a
 
-parseRoot :: FilePath -> Text.Text -> Either Text.Text [Statement]
+parseRoot :: FilePath -> Text.Text -> Either Text.Text Block
 parseRoot = runParser root
 
 parseLiftedExpr :: FilePath -> Text.Text -> Either Text.Text LiftedExpr

@@ -11,7 +11,6 @@ import Meowscript.Parser.Expr
 import Meowscript.Parser.Utils
 import Meowscript.Parser.Keywords
 import Meowscript.Parser.Prim
-import Meowscript.Data.Stack (Stack)
 import qualified Meowscript.Data.Stack as Stack
 import Text.Megaparsec ((<|>))
 import qualified Data.Text as Text
@@ -19,9 +18,10 @@ import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char.Lexer as Lexer
 import Control.Monad (void)
 
-root :: Parser [Statement]
-root = Mega.between whitespaceLn Mega.eof (Mega.many (lexemeLn statements))
-
+root :: Parser Block
+root = do
+    let parser = Mega.many (lexemeLn statements)
+    Stack.fromList <$> Mega.between whitespaceLn Mega.eof parser
 
 {- Nesting -}
 ----------------------------------------------------------------

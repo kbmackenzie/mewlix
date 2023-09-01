@@ -37,7 +37,7 @@ import Lens.Micro.Platform (makeLensesFor)
 import qualified Data.Set as Set
 import Control.Monad.IO.Class (MonadIO(..))
 
-newtype Module = Module { getModule :: [Statement] }
+newtype Module = Module { getModule :: Block }
 newtype ModuleCache = ModuleCache { getCache :: Ref CacheMap }
 
 data EvaluatorMeta = EvaluatorMeta
