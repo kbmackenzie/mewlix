@@ -25,6 +25,7 @@ module Meowscript.Evaluate.State
 , getCacheL
 -- Inititializers:
 , initMeta
+, emptyMeta
 ) where
 
 import Meowscript.Data.Ref
@@ -104,3 +105,6 @@ initMeta defmap include flagset = do
         flagSet         = flagset,
         moduleSocket    = Nothing
     }
+
+emptyMeta :: (MonadIO m) => m (EvaluatorMeta p)
+emptyMeta = initMeta HashMap.empty [] Set.empty
