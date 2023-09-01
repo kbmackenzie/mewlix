@@ -23,6 +23,8 @@ module Meowscript.Evaluate.State
 , evaluatorMetaL
 , getModuleL
 , getCacheL
+-- Inititializers:
+, initMeta
 ) where
 
 import Meowscript.Data.Ref
@@ -32,6 +34,7 @@ import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
 import Lens.Micro.Platform (makeLensesFor)
 import qualified Data.Set as Set
+import Control.Monad.IO.Class (MonadIO(..))
 
 newtype Module = Module { getModule :: [Statement] }
 newtype ModuleCache = ModuleCache { getCache :: Ref CacheMap }
@@ -88,3 +91,16 @@ $(makeLensesFor
 
 $(makeLensesFor
     [ ("getCache"     , "getCacheL"     ) ] ''ModuleCache)
+
+{- Initializers -}
+-------------------------------------------------------------------------------------
+initMeta :: (MonadIO m) => DefineMap -> [FilePath] -> FlagSet -> m (EvaluatorMeta p)
+initMeta defmap include flagset = do
+    moduleCache <- ModuleCache <$> newRef HashMap.empty
+    return EvaluatorMeta {
+        cachedModules   = moduleCache,
+        defineMap       = defmap,
+        includePaths    = include,
+        flagSet         = flagset,
+        moduleSocket    = Nothing
+    }

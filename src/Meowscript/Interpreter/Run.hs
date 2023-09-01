@@ -5,3 +5,4 @@ module Meowscript.Interpreter.Run
 import Meowscript.Abstract.Atom
 import Meowscript.Parser.AST
 import Meowscript.Evaluate.Evaluator
+import Meowscript.Evaluate.State
