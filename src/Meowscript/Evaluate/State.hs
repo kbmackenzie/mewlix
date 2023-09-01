@@ -40,7 +40,7 @@ import Control.Monad.IO.Class (MonadIO(..))
 newtype Module = Module { getModule :: [Statement] }
 newtype ModuleCache = ModuleCache { getCache :: Ref CacheMap }
 
-data EvaluatorMeta p = EvaluatorMeta
+data EvaluatorMeta = EvaluatorMeta
     { cachedModules :: ModuleCache
     , defineMap     :: DefineMap
     , includePaths  :: [FilePath]
@@ -54,7 +54,7 @@ data ModuleInfo = ModuleInfo
 data EvaluatorState p = EvaluatorState
     { evaluatorCtx  :: Context p
     , moduleInfo    :: ModuleInfo
-    , evaluatorMeta :: EvaluatorMeta p }
+    , evaluatorMeta :: EvaluatorMeta }
 
 {- Flags -}
 -------------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ $(makeLensesFor
 
 {- Initializers -}
 -------------------------------------------------------------------------------------
-initMeta :: (MonadIO m) => DefineMap -> [FilePath] -> FlagSet -> m (EvaluatorMeta p)
+initMeta :: (MonadIO m) => DefineMap -> [FilePath] -> FlagSet -> m EvaluatorMeta
 initMeta defmap include flagset = do
     moduleCache <- ModuleCache <$> newRef HashMap.empty
     return EvaluatorMeta {
@@ -106,5 +106,5 @@ initMeta defmap include flagset = do
         moduleSocket    = Nothing
     }
 
-emptyMeta :: (MonadIO m) => m (EvaluatorMeta p)
+emptyMeta :: (MonadIO m) => m EvaluatorMeta
 emptyMeta = initMeta HashMap.empty [] Set.empty
