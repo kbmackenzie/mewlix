@@ -9,6 +9,7 @@ module Meowscript.Evaluate.State
 , MeowFlags(..)
 , DefineMap
 , FlagSet
+, CacheMap
 -- Lenses:
 , cachedModulesL
 , defineMapL
@@ -33,7 +34,7 @@ import Lens.Micro.Platform (makeLensesFor)
 import qualified Data.Set as Set
 
 newtype Module = Module { getModule :: [Statement] }
-newtype ModuleCache = ModuleCache { getCache :: Ref (HashMap.HashMap Text.Text Module) }
+newtype ModuleCache = ModuleCache { getCache :: Ref CacheMap }
 
 data EvaluatorMeta p = EvaluatorMeta
     { cachedModules :: ModuleCache
@@ -62,6 +63,7 @@ data MeowFlags =
 -------------------------------------------------------------------------------------
 type DefineMap = HashMap.HashMap Text.Text Text.Text
 type FlagSet   = Set.Set MeowFlags
+type CacheMap  = HashMap.HashMap FilePath Module
 
 {- Acessors -}
 -------------------------------------------------------------------------------------

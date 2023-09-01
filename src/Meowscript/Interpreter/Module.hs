@@ -3,10 +3,9 @@
 {-# LANGUAGE TupleSections #-}
 
 module Meowscript.Interpreter.Module
-(
+( readModule
 ) where
 
-import Meowscript.Abstract.Atom
 import Meowscript.Data.Ref
 import Meowscript.Evaluate.Evaluator
 import Meowscript.Evaluate.State
@@ -15,33 +14,20 @@ import qualified Data.Set as Set
 import qualified Data.HashSet as HashSet
 import qualified Data.HashMap.Strict as HashMap
 import Meowscript.IO.DataFile (readDataFile)
-import Meowscript.Utils.Types (FilePathT)
 import Meowscript.IO.Directory (isDirectoryPath)
 import Meowscript.IO.File (safeDoesFileExist, safeReadFile)
-import Lens.Micro.Platform ((^.), view, set, over)
+import Control.Applicative ((<|>))
+import Lens.Micro.Platform ((^.))
 import System.FilePath ((</>))
-import Meowscript.Parser.AST (Statement)
 import Meowscript.Parser.Run (parseRoot)
 
 {- Get Module -}
 ----------------------------------------------------------------------------------------
-
--- Try loading from cache:
-loadModule :: FilePath -> Evaluator a Module
-loadModule path = do
-    flagSet <- askState (^.evaluatorMetaL.flagSetL)
-    let resolve  = Text.pack . resolvePath flagSet
-    let resolved = resolve path
-    cacheSearch (resolve path) >>= \case
-        Nothing     -> readModule resolved
-        (Just modu) -> return modu
-
 -- Try reading a file:
-readModule :: FilePathT -> Evaluator a Module
+readModule :: FilePath -> Evaluator a Module
 readModule path = if isStdModule path
-    then readStdFile path >>| makeModule unpacked
-    else findModule unpacked
-    where unpacked = Text.unpack path
+    then getStdModule path
+    else findModule path
 
 -- Searching for a file:
 findModule :: FilePath -> Evaluator a Module
@@ -61,9 +47,18 @@ findModule path = do
     let resolver = resolvePath flagSet . (</> path)
     let paths    = path : map resolver include
 
-    search paths >>= \case
-        Nothing         -> undefined --throw "not found" error here
-        (Just contents) -> uncurry makeModule contents
+    -- Loading module cache.
+    cache   <- cacheGet
+    let cacheSearch :: [FilePath] -> Maybe Module
+        cacheSearch = foldr predicate Nothing
+            where predicate fp acc = acc <|> HashMap.lookup fp cache
+
+    -- Search module cache. If miss, search directories.
+    case cacheSearch paths of
+        (Just modu)   -> return modu
+        Nothing       -> search paths >>= \case
+            Nothing         -> undefined --throw "not found" error herE
+            (Just contents) -> uncurry makeModule contents
 
 
 {- Parsing -}
@@ -73,9 +68,8 @@ makeModule path contents = case parseRoot path contents of
     (Left e)       -> undefined --throw parse error
     (Right output) -> do
         let newModule = Module output
-        cacheAdd packed newModule
+        cacheAdd path newModule
         return newModule
-    where packed = Text.pack path
 
 {- Utils -}
 ----------------------------------------------------------------------------------------
@@ -87,20 +81,19 @@ resolvePath flags path =
 
 {- Module Cache -}
 ----------------------------------------------------------------------------------------
-cacheSearch :: FilePathT -> Evaluator a (Maybe Module)
-cacheSearch path = do
+cacheGet :: Evaluator a CacheMap
+cacheGet = do
     state <- askState (^.evaluatorMetaL.cachedModulesL)
-    cache <- readRef (getCache state)
-    return (HashMap.lookup path cache)
+    readRef (getCache state)
 
-cacheAdd :: FilePathT -> Module -> Evaluator a ()
+cacheAdd :: FilePath -> Module -> Evaluator a ()
 cacheAdd path modu = do
     state <- askState (^.evaluatorMetaL.cachedModulesL)
     modifyRef (HashMap.insert path modu) (getCache state)
 
 {- Standard Modules -}
 ----------------------------------------------------------------------------------------
-stdModules :: HashSet.HashSet Text.Text
+stdModules :: HashSet.HashSet FilePath
 {-# INLINABLE stdModules #-}
 stdModules = HashSet.fromList
     [ "std.meows"
@@ -113,10 +106,16 @@ stdModules = HashSet.fromList
     , "numbers.meows"
     , "exception.meows" ]
 
-isStdModule :: FilePathT -> Bool
+asStd :: FilePath -> FilePath
+asStd = ("std/" ++)
+
+isStdModule :: FilePath -> Bool
 isStdModule = flip HashSet.member stdModules
 
-readStdFile :: FilePathT -> IO (Either Text.Text Text.Text)
-{-# INLINABLE readStdFile #-}
-readStdFile = readDataFile . Text.unpack . asStd
-    where asStd = Text.append "std/"
+getStdModule :: FilePath -> Evaluator a Module
+getStdModule path = do
+    cache <- cacheGet
+    let stdPath = asStd path
+    case HashMap.lookup stdPath cache of
+        (Just modu) -> return modu
+        Nothing     -> readDataFile stdPath >>| makeModule stdPath
