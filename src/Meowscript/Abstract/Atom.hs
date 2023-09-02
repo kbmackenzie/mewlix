@@ -8,6 +8,7 @@ module Meowscript.Abstract.Atom
 , MeowFunction(..)
 , MeowIFunction(..)
 , CatBox(..)
+, BoxMap
 , boxString
 , boxStack
 , boxList
@@ -85,7 +86,9 @@ data MeowIFunction = MeowIFunction
     , ifunc         :: InnerFunc        }
 
 {- Boxes -}
-newtype CatBox = CatBox { getBox :: Ref (HashMap.HashMap Key AtomRef) }
+newtype CatBox = CatBox { getBox :: Ref BoxMap }
+-- Type alias for convenience:
+type BoxMap = HashMap.HashMap Key AtomRef
 
 {- Utils -}
 boxString :: Text.Text -> BoxedString

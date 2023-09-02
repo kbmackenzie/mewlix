@@ -5,6 +5,7 @@
 module Meowscript.Interpreter.Interpret
 ( expression
 , statement
+, ReturnValue(..)
 ) where
 
 import Meowscript.Abstract.Atom
