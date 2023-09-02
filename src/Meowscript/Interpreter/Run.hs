@@ -12,8 +12,10 @@ import Meowscript.Evaluate.Environment
 import Meowscript.Evaluate.Exception
 import Meowscript.Interpreter.Module
 import Meowscript.Interpreter.Interpret
+import qualified Meowscript.Data.Stack as Stack
 import Meowscript.Parser.AST
 import Lens.Micro.Platform (set)
+import Control.Monad (mapM_)
 
 {- Run Interpreter -}
 --------------------------------------------------------------------
@@ -23,8 +25,20 @@ interpret = runEvaluator
 runModule :: FilePath -> Evaluator MeowAtom ReturnValue
 runModule path = do
     (resolved, mainModule) <- readModule path
+    let moduleBlock = getModule mainModule
     setState (set (moduleInfoL.modulePathL) resolved)
-    statement (getModule mainModule)
+
+    let isImport :: Statement -> Bool
+        isImport (StmtImport _ _) = True
+        isImport _                = False
+
+    let runImport :: Statement -> Evaluator MeowAtom ()
+        runImport _ = undefined
+
+    let (imports, rest) = Stack.partition isImport moduleBlock
+    mapM_ runImport (Stack.toList imports)
+
+    statement rest
 
 {- Evaluator State -}
 --------------------------------------------------------------------

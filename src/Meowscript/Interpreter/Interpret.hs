@@ -345,7 +345,7 @@ statement ( (StmtTryCatch tryBlock (maybeExpr, catchBlock)) ::| rest ) = do
         ReturnVoid  -> statement rest
         other       -> return other
 
-statement ( (StmtImport path maybeName) ::| rest ) = do
+statement ( (StmtImport _ _) ::| rest ) = do
     statement rest
 
 
