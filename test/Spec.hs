@@ -8,7 +8,6 @@ import Meowscript.Evaluate.State
 import Meowscript.Evaluate.Exception
 import Meowscript.Interpreter.Begin
 import Meowscript.Abstract.Prettify (prettyMeow)
-import Meowscript.Interpreter.Interpret (ReturnValue(..))
 import Meowscript.Interpreter.Interpret
 import Meowscript.Library.Base
 import Meowscript.IO.Print (printException, printTextLn)

@@ -64,7 +64,7 @@ expression (ExprBox pairs) = do
     (toMeow . MeowPairs) items
 
 expression (ExprLambda params expr) = do
-    closure <- context >>= freezeLocal -- Freeze local call frame.
+    closure <- context -- >>= freezeLocal -- Freeze local call frame.
     let arity = Stack.length params
     let body = Stack.singleton (StmtExpr expr)
     let function = MeowFunction {
