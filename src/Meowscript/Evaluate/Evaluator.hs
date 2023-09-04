@@ -35,11 +35,15 @@ instance Applicative (Evaluator e) where
     {-# INLINE pure #-}
     pure a = Evaluator $ \state -> return (state, Right a)
     {-# INLINE (<*>) #-}
-    f <*> ma = Evaluator $ \state -> do
+    f <*> m = Evaluator $ \state -> do
         (newState, mf) <- runEvaluator f state
         case mf of 
             (Left e)  -> return (newState, Left e)
-            (Right k) -> fmap (fmap k) <$> runEvaluator ma newState
+            (Right k) -> do
+                (newState', ma) <- runEvaluator m newState
+                case ma of
+                    (Left e) -> return (newState', Left e)
+                    (Right a) -> return (newState', Right (k a))
 
 instance Monad (Evaluator e) where
     {-# INLINE return #-}

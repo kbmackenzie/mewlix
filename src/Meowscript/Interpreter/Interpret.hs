@@ -252,6 +252,7 @@ statement ( (StmtExpr expr) ::| rest ) = do
     statement rest
 
 statement ( (StmtDeclaration key expr) ::| rest ) = do
+    liftIO (print ("yay" :: String))
     value <- expression expr
     context >>= contextWrite key value
     statement rest

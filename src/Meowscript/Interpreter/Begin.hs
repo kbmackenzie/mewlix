@@ -47,6 +47,7 @@ begin path action ts = do
 runFile :: FilePath -> Evaluator MeowAtom ReturnValue
 runFile path = do
     (resolved, mainModule) <- readModule path
+    liftIO (print (getModule mainModule))
     setState $ moduleInfoL.modulePathL .~ resolved
     runModule mainModule
 

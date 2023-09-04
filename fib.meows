@@ -4,6 +4,9 @@
 meow meow
 <(^.x.^ )~
 
+bring fib(30)
 mew fib = ( ^.x.^)> (n) => (n <= 1 ? n : fib(n - 1) + fib(n - 2))
 
-bring fib(30)
+--bring 3
+--bring 2
+--bring fib(30)
