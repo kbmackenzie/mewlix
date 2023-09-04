@@ -46,10 +46,10 @@ findModule path = do
 
     -- Include paths specified in the interpreter.
     include <- askState (^.evaluatorMetaL.includePathsL)
-    flagSet <- askState (^.evaluatorMetaL.flagSetL)
+    flagset <- askState (^.evaluatorMetaL.flagSetL)
 
     -- The 'path' parameter is already resolved!
-    let resolver = resolvePath flagSet . (</> path)
+    let resolver = resolvePath flagset . (</> path)
     let paths    = path : map resolver include
 
     -- Loading module cache.

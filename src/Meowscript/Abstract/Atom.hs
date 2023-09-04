@@ -1,3 +1,5 @@
+{-# LANGUAGE StrictData #-}
+
 module Meowscript.Abstract.Atom
 ( MeowAtom(..)
 , AtomRef
@@ -30,6 +32,8 @@ import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
 import Meowscript.Parser.AST
 
+{- Meowscript Primitives -}
+--------------------------------------------------------------------------------
 type AtomRef = Ref MeowAtom
 type InnerFunc = Evaluator MeowAtom MeowAtom
 
@@ -44,6 +48,8 @@ data MeowAtom =
     | MeowIFunc MeowIFunction
     | MeowNil
 
+{- Boxed Types -}
+--------------------------------------------------------------------------------
 data BoxedString = BoxedString
     { unboxStr  :: Text.Text
     , strLen    :: Int       }
@@ -71,7 +77,9 @@ instance Semigroup BoxedStack where
 -- An utility newtype that'll be useful when constructing new boxes later!
 newtype MeowPairs = MeowPairs { getPairs :: [(Key, MeowAtom)] }
 
+
 {- Functions -}
+--------------------------------------------------------------------------------
 data MeowFunction = MeowFunction
     { funcName      :: Identifier
     , funcArity     :: Int
@@ -85,12 +93,17 @@ data MeowIFunction = MeowIFunction
     , ifuncParams   :: Stack Text.Text
     , ifunc         :: InnerFunc        }
 
-{- Boxes -}
+
+{- Meowscript Boxes -}
+--------------------------------------------------------------------------------
 newtype CatBox = CatBox { getBox :: Ref BoxMap }
+
 -- Type alias for convenience:
 type BoxMap = HashMap.HashMap Key AtomRef
 
+
 {- Utils -}
+--------------------------------------------------------------------------------
 boxString :: Text.Text -> BoxedString
 boxString x = BoxedString { unboxStr = x, strLen = Text.length x }
 
@@ -119,3 +132,45 @@ liftToMeow (PrimStr s) = (MeowString . boxString) s
 liftToMeow (PrimFloat f) = MeowFloat f
 liftToMeow (PrimBool b) = MeowBool b
 liftToMeow PrimNil = MeowNil
+
+
+{- Specialization -}
+--------------------------------------------------------------------------------
+-- Evaluator refs:
+{-# SPECIALIZE newRef     :: MeowAtom -> Evaluator MeowAtom (Ref MeowAtom)                      #-}
+{-# SPECIALIZE readRef    :: Ref MeowAtom -> Evaluator MeowAtom MeowAtom                        #-}
+{-# SPECIALIZE writeRef   :: MeowAtom -> Ref MeowAtom -> Evaluator MeowAtom ()                  #-}
+{-# SPECIALIZE modifyRef  :: (MeowAtom -> MeowAtom) -> Ref MeowAtom -> Evaluator MeowAtom ()    #-}
+
+-- Context references:
+{-# SPECIALIZE newRef     :: Context MeowAtom -> Evaluator MeowAtom (Ref (Context MeowAtom))       #-}
+{-# SPECIALIZE readRef    :: Ref (Context MeowAtom) -> Evaluator MeowAtom (Context MeowAtom)       #-}
+{-# SPECIALIZE writeRef   :: Context MeowAtom -> Ref (Context MeowAtom) -> Evaluator MeowAtom ()   #-}
+{-# SPECIALIZE modifyRef  :: (Context MeowAtom -> Context MeowAtom) -> Ref (Context MeowAtom) -> Evaluator MeowAtom () #-}
+
+-- Context getters/setters:
+{-# SPECIALIZE contextSearch :: Key -> Context MeowAtom -> Evaluator MeowAtom (Maybe (Ref MeowAtom)) #-}
+{-# SPECIALIZE contextWrite  :: Key -> MeowAtom -> Context MeowAtom -> Evaluator MeowAtom ()         #-}
+{-# SPECIALIZE localContext  :: Context MeowAtom -> Evaluator MeowAtom (Context MeowAtom)            #-}
+{-# SPECIALIZE contextDefine :: Key -> Ref MeowAtom -> Context MeowAtom -> Evaluator MeowAtom ()     #-}
+{-# SPECIALIZE contextMany   :: [(Key, Ref MeowAtom)] -> Context MeowAtom -> Evaluator MeowAtom ()   #-}
+{-# SPECIALIZE initContext   :: Evaluator MeowAtom (Context MeowAtom)                                #-}
+{-# SPECIALIZE freezeLocal   :: Context MeowAtom -> Evaluator MeowAtom (Context MeowAtom)            #-}
+
+{--- Evaluator monad:
+{-# SPECIALIZE (>>=)  :: Evaluator MeowAtom a -> (a -> Evaluator MeowAtom a) #-}
+{-# SPECIALIZE (>>)   :: Evaluator MeowAtom a -> Evaluator MeowAtom a        #-}
+{-# SPECIALIZE return :: a -> Evaluator MeowAtom a                           #-}
+
+-- Evaluator functor:
+{-# SPECIALIZE fmap   :: (a -> b) -> Evaluator MeowAtom a -> Evaluator MeowAtom b                       #-}
+{-# SPECIALIZE pure   :: a -> Evaluator MeowAtom a                                                      #-}
+{-# SPECIALIZE (<*>)  :: Evaluator MeowAtom (a -> b) -> Evaluator MeowAtom a -> Evaluator MeowAtom b    #-}
+
+-- Evaluator context:
+{-# SPECIALIZE lookUpRef  :: Key -> Evaluator MeowAtom (Maybe (Ref MeowAtom))                   #-}
+{-# SPECIALIZE lookUp     :: Key -> Evaluator MeowAtom MeowAtom                                 #-}
+{-# SPECIALIZE contextGet :: (Context MeowAtom -> a) -> Evaluator MeowAtom a                    #-}
+{-# SPECIALIZE contextSet :: (Context MeowAtom -> Context MeowAtom) -> Evaluator MeowAtom ()    #-}
+{-# SPECIALIZE runLocal   :: Evaluator MeowAtom a -> Context MeowAtom -> Evaluator MeowAtom ()  #-}
+ -}

@@ -179,4 +179,46 @@ packages:
       size: 499
   original:
     hackage: clock-0.8.3
+- completed:
+    hackage: Win32-2.13.4.0@sha256:9b8a82743985f8a95c03b2bc64be33ad1cd603e2493cb8b48d3cb923556dbb61,5585
+    pantry-tree:
+      sha256: aec6e0f00f4cc90416e3a6cb4bf972ebdf8927784900579acf72bfe4febb7744
+      size: 8011
+  original:
+    hackage: Win32-2.13.4.0
+- completed:
+    hackage: time-1.12.2@sha256:88e8493d9130038d3b9968a2530a0900141cd3d938483c83dde56e12b875ebc8,6510
+    pantry-tree:
+      sha256: de0ab314661da3788b5dad20254e44929b1659b00d32b5a0cd54922a05e006e8
+      size: 7264
+  original:
+    hackage: time-1.12.2
+- completed:
+    hackage: directory-1.3.8.1@sha256:e384a4831b0ac0f8908a1d99d14ce44bf9c5fe2092eec5b2c47ea072d477a493,2942
+    pantry-tree:
+      sha256: 5265dc75d29245961933e91bbae05b5f7630da84489b6e157a44d95d4c097618
+      size: 3519
+  original:
+    hackage: directory-1.3.8.1
+- completed:
+    hackage: haskeline-0.8.2.1@sha256:23369899343e5d60fe45263367126ca6bf20e3edc019b53285ef6d020665493a,5827
+    pantry-tree:
+      sha256: 64aac9978489c26695809db39dc61c433976c972ce6cc4cb5973a8e3610214b4
+      size: 2955
+  original:
+    hackage: haskeline-0.8.2.1
+- completed:
+    hackage: filepath-1.4.100.3@sha256:ab6e3330c42817b0effb14cae9c60d5cdc41d61f7354d04bc529ed031113f27c,5623
+    pantry-tree:
+      sha256: f1b2b6c62b0de17f7a63a1ee7e9a9810fc6a76ecd1d5db7e7b1c44802d83ea10
+      size: 3407
+  original:
+    hackage: filepath-1.4.100.3
+- completed:
+    hackage: process-1.6.17.0@sha256:49d8a7f372d35363011591b253cae4c8db8b9ec594590448e20b7bed7acaee98,2845
+    pantry-tree:
+      sha256: cfcb73c1a6a3f653f02e838e146d36505c1506d8bf57a4bb306d7ca905110a9e
+      size: 1545
+  original:
+    hackage: process-1.6.17.0
 snapshots: []

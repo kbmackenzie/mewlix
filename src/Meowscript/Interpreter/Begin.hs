@@ -1,4 +1,4 @@
-module Meowscript.Interpreter.Run
+module Meowscript.Interpreter.Begin
 ( interpret
 , runModule
 , makeState
@@ -15,7 +15,6 @@ import Meowscript.Interpreter.Interpret
 import qualified Meowscript.Data.Stack as Stack
 import Meowscript.Parser.AST
 import Lens.Micro.Platform (set)
-import Control.Monad (mapM_)
 
 {- Run Interpreter -}
 --------------------------------------------------------------------

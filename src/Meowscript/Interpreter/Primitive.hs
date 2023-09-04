@@ -65,11 +65,11 @@ MeowStack as  `primCompare` MeowStack bs  = mappend (stackLen as `compare` stack
 
 -- Box comparison:
 MeowBox a    `primCompare` MeowBox b    = do
-    let getPairs = fmap HashMap.toList . readRef . getBox
+    let pairs = fmap HashMap.toList . readRef . getBox
     let unpack (key, ref) = (key,) <$> liftIO (readRef ref)
     let pairComp (k1, p1) (k2, p2) = mappend (k1 `compare` k2) <$> primCompare p1 p2
-    as <- mapM unpack =<< getPairs a
-    bs <- mapM unpack =<< getPairs b
+    as <- mapM unpack =<< pairs a
+    bs <- mapM unpack =<< pairs b
     listCompareM pairComp as bs
 a `primCompare` b = throwException =<< operationException "comparison" [a, b]
 

@@ -20,7 +20,6 @@ import Meowscript.Abstract.Atom
 import Meowscript.Abstract.Prettify
 import Meowscript.Evaluate.Exception
 import Control.Monad.IO.Class (MonadIO(..))
-import Meowscript.Utils.Show
 import qualified Data.Text as Text
 
 exceptionBase :: (MonadIO m) => MeowException -> Text.Text -> [MeowAtom] -> m CatException
