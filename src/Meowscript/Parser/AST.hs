@@ -12,6 +12,9 @@ module Meowscript.Parser.AST
 , Block
 , Params
 , CatchBlock
+-- Utils:
+, isImport
+, fromImport
 ) where
 
 import qualified Data.Text as Text
@@ -95,3 +98,17 @@ data Statement =
     | StmtContinue
     | StmtTryCatch Block CatchBlock
     deriving (Show)
+
+
+{- Utils -}
+----------------------------------------------------------------------------------
+isImport :: Statement -> Bool
+{-# INLINE isImport #-}
+isImport (StmtImport _ _) = True
+isImport _                = False
+
+fromImport :: Statement -> (FilePath, Maybe Identifier)
+{-# INLINE fromImport #-}
+fromImport (StmtImport path key) = (Text.unpack path, key)
+fromImport _ = error "Meowscript.Parser.AST.fromImport: Statement isn't an import!"
+-- This error should *never* happen!!! I'm adding it just for tidiness.

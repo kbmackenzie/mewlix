@@ -22,15 +22,21 @@ module Meowscript.Evaluate.State
 , evaluatorCtxL
 , moduleInfoL
 , evaluatorMetaL
+, evaluatorLibsL
 , getModuleL
 , getCacheL
 -- Inititializers:
 , initMeta
 , emptyMeta
+, initState
 -- Setters:
 , addDefine
 , addFlag
 , addInclude
+, addLibrary
+-- Utils:
+, joinLibraries
+, cleanContext
 ) where
 
 import Meowscript.Data.Ref
@@ -38,6 +44,8 @@ import Meowscript.Parser.AST
 import Meowscript.Evaluate.Environment
 import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
+import Meowscript.Data.Stack (Stack)
+import qualified Meowscript.Data.Stack as Stack
 import Lens.Micro.Platform (makeLensesFor, (^.), (%~), over)
 import qualified Data.Set as Set
 import Control.Monad.IO.Class (MonadIO(..))
@@ -56,10 +64,14 @@ data ModuleInfo = ModuleInfo
     { modulePath    :: FilePath
     , moduleIsMain  :: Bool        }
 
+newtype Libraries p = Libraries
+    { getLibs :: Stack (Environment p) }
+
 data EvaluatorState p = EvaluatorState
     { evaluatorCtx  :: Context p
     , moduleInfo    :: ModuleInfo
-    , evaluatorMeta :: EvaluatorMeta }
+    , evaluatorMeta :: EvaluatorMeta
+    , evaluatorLibs :: Libraries p  }
 
 {- Flags -}
 -------------------------------------------------------------------------------------
@@ -74,7 +86,7 @@ type DefineMap = HashMap.HashMap Text.Text Text.Text
 type FlagSet   = Set.Set MeowFlag
 type CacheMap  = HashMap.HashMap FilePath Module
 
-{- Acessors -}
+{- Lenses -}
 -------------------------------------------------------------------------------------
 $(makeLensesFor
     [ ("cachedModules", "cachedModulesL")
@@ -90,13 +102,17 @@ $(makeLensesFor
 $(makeLensesFor
     [ ("evaluatorCtx" , "evaluatorCtxL" )
     , ("moduleInfo"   , "moduleInfoL"   )
-    , ("evaluatorMeta", "evaluatorMetaL") ] ''EvaluatorState)
+    , ("evaluatorMeta", "evaluatorMetaL")
+    , ("evaluatorLibs", "evaluatorLibsL") ] ''EvaluatorState)
 
 $(makeLensesFor
     [ ("getModule"    , "getModuleL"    ) ] ''Module)
 
 $(makeLensesFor
     [ ("getCache"     , "getCacheL"     ) ] ''ModuleCache)
+
+$(makeLensesFor
+    [ ("getLibs"      , "getLibsL"      ) ] ''Libraries)
 
 {- Initializers -}
 -------------------------------------------------------------------------------------
@@ -114,6 +130,24 @@ initMeta defmap include flagset = do
 emptyMeta :: (MonadIO m) => m EvaluatorMeta
 emptyMeta = initMeta HashMap.empty [] Set.empty
 
+initState :: (MonadIO m) => FilePath -> Bool -> m (EvaluatorState p)
+initState path isMain = do
+    ctx     <- initContext 
+    meta    <- emptyMeta
+    let info = ModuleInfo {
+        modulePath   = path,
+        moduleIsMain = isMain
+    }
+    let libs = Libraries {
+        getLibs = Stack.empty
+    }
+    return EvaluatorState {
+        evaluatorCtx  = ctx,
+        moduleInfo    = info,
+        evaluatorMeta = meta,
+        evaluatorLibs = libs
+    }
+
 {- Setters -}
 -------------------------------------------------------------------------------------
 addDefine :: Text.Text -> Text.Text -> EvaluatorState p -> EvaluatorState p
@@ -124,3 +158,21 @@ addFlag = over (evaluatorMetaL.flagSetL) . Set.insert
 
 addInclude :: FilePath -> EvaluatorState p -> EvaluatorState p
 addInclude = over (evaluatorMetaL.includePathsL) . (:)
+
+addLibrary :: Environment p -> EvaluatorState p -> EvaluatorState p
+addLibrary = over (evaluatorLibsL.getLibsL) . Stack.push
+
+{- Utils -}
+-------------------------------------------------------------------------------------
+joinLibraries :: Libraries p -> Environment p
+joinLibraries = foldr (<>) emptyEnv . getLibs
+    where emptyEnv = Environment HashMap.empty
+
+-- Creates state with a clean context; everything else is unchanged.
+-- This function does not affect context.
+cleanContext :: (MonadIO m) => EvaluatorState p -> m (EvaluatorState p)
+cleanContext state = do
+    let libs = joinLibraries (evaluatorLibs state)
+    !newCtx <- initContext
+    modifyRef (<> libs) (globalEnv newCtx)
+    return state { evaluatorCtx = newCtx }

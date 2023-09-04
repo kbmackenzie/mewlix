@@ -25,7 +25,7 @@ showMeow (MeowFloat f) = (return . showT) f
 showMeow (MeowString s) = (return . unboxStr) s
 showMeow (MeowBool b) = (return . showT) b
 showMeow (MeowStack xs) = do
-    items <- mapM showMeow $ (Stack.toList . unboxStack) xs
+    items <- Stack.toList <$> mapM showMeow (unboxStack xs)
     (return . Text.concat) [ "[", Text.intercalate ", " items, "]" ]
 showMeow (MeowBox x) = do
     let unpack (key, ref) = fmap (key,) $ readRef ref >>= showMeow

@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Meowscript.Evaluate.Environment
 ( Environment(..)
@@ -25,6 +26,7 @@ import Control.Monad.IO.Class (MonadIO(..))
 
 newtype Environment a = Environment
     { getEnv :: HashMap.HashMap Key (Ref a) }
+    deriving (Semigroup)
 
 data Context a = Context
     { globalEnv    :: Ref (Environment a) 
