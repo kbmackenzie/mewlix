@@ -61,8 +61,8 @@ class (Monad m, MonadIO m) => MeowEnvironment s m | m -> s where
 {- Context -}
 -----------------------------------------------------------------------------
 contextSearch :: (MonadIO m) => Key -> Context a -> m (Maybe (Ref a))
-contextSearch !key !ctx = (readRef . currentEnv) ctx >>= \envref ->
-    case (HashMap.lookup key . getEnv) envref of
+contextSearch !key !ctx = (readRef . currentEnv) ctx >>= \env ->
+    case (HashMap.lookup key . getEnv) env of
     (Just !ref) -> return (Just ref)
     Nothing     -> case enclosingCtx ctx of
         (Just enclosing) -> contextSearch key enclosing
@@ -74,6 +74,7 @@ contextWrite !key !value !ctx = do
     !valueRef <- newRef value
     let f = Environment . HashMap.insert key valueRef . getEnv
     modifyRef f env
+    readRef env >>= liftIO . print . HashMap.keys . getEnv
 
 localContext :: (MonadIO m) => Context a -> m (Context a)
 localContext !ctx = do

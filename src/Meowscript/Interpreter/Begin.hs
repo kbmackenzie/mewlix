@@ -54,9 +54,10 @@ runFile path = do
 -- Run a module. (This function affects context.)
 runModule :: Module -> Evaluator MeowAtom ReturnValue
 runModule (Module moduleBlock) = do
-    let (imports, rest) = Stack.partition isImport moduleBlock
-    mapM_ (uncurry runImport . fromImport) imports
-    statement rest
+    --let (imports, rest) = Stack.partition isImport moduleBlock
+    --mapM_ (uncurry runImport . fromImport) imports
+    -- Note to self: Stack.partition reverses the stack. @-----@ fix that.
+    statement moduleBlock
 
 -- Run import module in sandbox and then import its global environment.
 runImport :: FilePath -> Maybe Key -> Evaluator MeowAtom ()
