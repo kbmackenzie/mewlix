@@ -5,7 +5,6 @@ module Meowscript.Abstract.Meowable
 ) where
 
 import Meowscript.Abstract.Atom
-import Meowscript.Data.Key
 import Meowscript.Data.Ref
 import Meowscript.Data.Stack (Stack)
 import qualified Data.Text as Text
@@ -32,9 +31,7 @@ instance Meowable Double where
     toMeow = return . MeowFloat
 
 instance Meowable Text.Text where
-    toMeow x = (return . MeowString) $ BoxedString
-        { unboxStr = x
-        , strLen = Text.length x }
+    toMeow = return . MeowString . boxString
 
 instance Meowable Bool where
     toMeow = return . MeowBool

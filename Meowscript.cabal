@@ -63,6 +63,7 @@ library
       Meowscript.IO.Print
       Meowscript.IO.SafeIO
       Meowscript.Library.Base
+      Meowscript.Library.Utils
       Meowscript.Parser.AST
       Meowscript.Parser.Expr
       Meowscript.Parser.Keywords

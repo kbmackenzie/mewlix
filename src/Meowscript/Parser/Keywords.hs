@@ -87,7 +87,7 @@ meowBox :: Text
 meowBox = "=^.x.^="
 
 meowLambda :: Text
-meowLambda = "=^.x.^="
+meowLambda = "( ^.x.^)>" --"=^.x.^="
 
 meowNot :: Text
 meowNot = "not"

@@ -27,7 +27,7 @@ termL :: Parser Expr
 termL = lexeme parseKey
 
 termR :: Parser Expr
-termR = ((lexeme . parens) parseExpr      <?> "parens"    )
+termR = ((Mega.try . lexeme . parens) parseExpr      <?> "parens"    )
     <|> (lexeme parseBox                  <?> "box"       )
     <|> (lexeme parseList                 <?> "list"      )
     <|> (ExprPrim <$> lexeme parsePrim                    )

@@ -3,7 +3,7 @@
 module Meowscript.Abstract.Atom
 ( MeowAtom(..)
 , AtomRef
-, InnerFunc
+, IFunc
 , BoxedString(..)
 , BoxedStack(..)
 , MeowPairs(..)
@@ -35,7 +35,7 @@ import Meowscript.Parser.AST
 {- Meowscript Primitives -}
 --------------------------------------------------------------------------------
 type AtomRef = Ref MeowAtom
-type InnerFunc = Evaluator MeowAtom MeowAtom
+type IFunc = Evaluator MeowAtom MeowAtom
 
 data MeowAtom =
       MeowInt Int32
@@ -91,7 +91,7 @@ data MeowIFunction = MeowIFunction
     { ifuncName     :: Identifier
     , ifuncArity    :: Int
     , ifuncParams   :: Stack Text.Text
-    , ifunc         :: InnerFunc        }
+    , ifunc         :: IFunc            }
 
 
 {- Meowscript Boxes -}

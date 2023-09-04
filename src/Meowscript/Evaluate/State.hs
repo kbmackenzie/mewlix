@@ -1,5 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE StrictData #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Meowscript.Evaluate.State
 ( Module(..)

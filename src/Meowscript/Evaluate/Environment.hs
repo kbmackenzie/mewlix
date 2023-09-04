@@ -2,11 +2,13 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TupleSections #-}
 
 module Meowscript.Evaluate.Environment
 ( Environment(..)
 , Context(..)
 , MeowEnvironment(..)
+-- Context:
 , contextSearch
 , contextWrite
 , localContext
@@ -14,6 +16,8 @@ module Meowscript.Evaluate.Environment
 , contextMany
 , initContext
 , freezeLocal
+-- Environment:
+, createEnvironment
 ) where
 
 import Meowscript.Data.Key
@@ -54,8 +58,8 @@ class (Monad m, MonadIO m) => MeowEnvironment s m | m -> s where
                 exceptionMessage = Text.concat [ "Unbound key: \"", key, "\"!" ]
             }
 
+{- Context -}
 -----------------------------------------------------------------------------
-
 contextSearch :: (MonadIO m) => Key -> Context a -> m (Maybe (Ref a))
 contextSearch !key !ctx = (readRef . currentEnv) ctx >>= \envref ->
     case (HashMap.lookup key . getEnv) envref of
@@ -110,3 +114,11 @@ freezeLocal :: (MonadIO m) => Context a -> m (Context a)
 freezeLocal ctx = do
     !newLocal <- copyRef $ currentEnv ctx
     return ctx { currentEnv = newLocal }
+
+
+{- Environments -}
+-----------------------------------------------------------------------------
+createEnvironment :: (MonadIO m) => [(Key, a)] -> m (Environment a)
+createEnvironment pairs = do
+    let pack (key, ref) = (key,) <$> newRef ref
+    Environment . HashMap.fromList <$> mapM pack pairs

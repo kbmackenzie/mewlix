@@ -4,6 +4,7 @@
 module Meowscript.Interpreter.Begin
 ( interpret
 , runFile
+, begin
 ) where
 
 import Meowscript.Abstract.Atom
@@ -61,3 +62,7 @@ runImport :: FilePath -> Maybe Key -> Evaluator MeowAtom ()
 runImport path key = do
     cleanState <- getState >>= cleanContext
     meowImport key path runFile cleanState
+
+{- Presets -}
+-----------------------------------------------------------------------------------------
+
