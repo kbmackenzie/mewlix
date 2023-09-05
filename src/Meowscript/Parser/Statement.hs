@@ -13,6 +13,7 @@ import Meowscript.Parser.Keywords
 import Meowscript.Parser.Prim
 import qualified Meowscript.Data.Stack as Stack
 import Text.Megaparsec ((<|>))
+import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char.Lexer as Lexer
@@ -20,7 +21,7 @@ import Control.Monad (void)
 
 root :: Parser Block
 root = do
-    let parser = Mega.many (lexemeLn statements)
+    let parser = (Mega.many . lexemeLn) (statements Root)
     Stack.fromList <$> Mega.between whitespaceLn Mega.eof parser
 
 {- Nesting -}
@@ -39,20 +40,20 @@ data Nesting =
 
 {- Parse statements: -}
 ----------------------------------------------------------------
-statements :: Parser Statement
-statements = Mega.choice
-    [ parseWhile                <??> meowWhile
-    , parseFor                  <??> (\(x,_,_) -> x) meowFor
-    , parseIfElse               <??> meowIf
-    , parseFunc                 <??> meowCatface
-    , parseDeclaration          <??> meowLocal
-    , parseReturn               <??> meowReturn
-    , parseContinue             <??> meowContinue
-    , parseBreak                <??> meowBreak
-    , parseWhen                 <??> fst meowWhen
-    , parseImport               <??> fst meowTakes
-    , parseTryCatch             <??> Text.concat [ meowTry, "/", meowCatch ]
-    , parseExpression           <??> ("expression" :: String) ]
+statements :: Nesting -> Parser Statement
+statements n = Mega.choice
+    [ parseWhile n               <??> meowWhile
+    , parseFor n                 <??> (\(x,_,_) -> x) meowFor
+    , parseIfElse n              <??> meowIf
+    , parseFunc n                <??> meowCatface
+    , parseDeclaration n         <??> meowLocal
+    , parseReturn n              <??> meowReturn
+    , parseContinue n            <??> meowContinue
+    , parseBreak n               <??> meowBreak
+    , parseWhen n                <??> fst meowWhen
+    , parseImport n              <??> fst meowTakes
+    , parseTryCatch n            <??> Text.concat [ meowTry, "/", meowCatch ]
+    , parseExpression n          <??> ("expression" :: String) ]
 
 parseEnd :: Parser ()
 parseEnd = whitespace >> (void . keyword) meowEnd
@@ -62,51 +63,59 @@ parseEnd = whitespace >> (void . keyword) meowEnd
 parensExpression :: Parser Expr
 parensExpression = (lexeme . parens) (whitespace >> parseExpr)
 
-parseExpression :: Parser Statement
-parseExpression = whitespace >> StmtExpr <$> parseExpr
+{- Expression -}
+----------------------------------------------------------------
+parseExpression :: Nesting -> Parser Statement
+parseExpression _ = whitespace >> StmtExpr <$> parseExpr
 
 
 {- Declaration -}
 ----------------------------------------------------------------
-parseDeclaration :: Parser Statement
-parseDeclaration = uncurry StmtDeclaration <$> declaration
+parseDeclaration :: Nesting -> Parser Statement
+parseDeclaration _ = uncurry StmtDeclaration <$> declaration
 
 
 {- While -}
 ----------------------------------------------------------------
-parseWhile:: Parser Statement
-parseWhile = lexeme . Lexer.indentBlock whitespaceLn $ do
+parseWhile:: Nesting -> Parser Statement
+parseWhile nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . tryKeyword) meowWhile
     whitespace
     condition <- parensExpression
+    let nest = max nesting NestedInLoop
     let makeBody = (<$ parseEnd) . StmtWhile condition . Stack.fromList
-    return (Lexer.IndentMany Nothing makeBody statements)
+    return $ Lexer.IndentMany Nothing makeBody (statements nest)
 
 
 {- If Else -}
 ----------------------------------------------------------------
 data MeowIf = MeowIf Expr Block deriving (Show)
 
-parseIf :: Parser (Expr, Block)
-parseIf = lexeme . Lexer.indentBlock whitespaceLn $ do
+parseIf :: Nesting -> Parser (Expr, Block)
+parseIf nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . tryKeyword) meowIf
     condition <- parensExpression
+    let nest = max nesting Nested
     let makeBody = return . (condition,) . Stack.fromList
-    return (Lexer.IndentMany Nothing makeBody statements)
+    return $ Lexer.IndentMany Nothing makeBody (statements nest)
 
-parseElse :: Parser Block
-parseElse = lexeme . Lexer.indentBlock whitespaceLn $ do
+parseElse :: Nesting -> Parser Block
+parseElse nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . tryKeyword) meowElse
-    return (Lexer.IndentMany Nothing (return . Stack.fromList) statements)
+    let nest = max nesting Nested
+    return $ Lexer.IndentMany Nothing (return . Stack.fromList) (statements nest)
 
 -- Allows nested if/else!
-elseIf :: Parser Block
-elseIf = Mega.try parseElse <|> fmap Stack.singleton parseIfElse <|> return Stack.empty
+elseIf :: Nesting -> Parser Block
+elseIf nesting = Mega.choice 
+    [ Mega.try (parseElse nesting)
+    , fmap Stack.singleton (parseIfElse nesting) 
+    , return Stack.empty                        ]
 
-parseIfElse :: Parser Statement
-parseIfElse = lexeme $ do
-    (cond, ifBody) <- parseIf
-    elseBody <- elseIf
+parseIfElse :: Nesting -> Parser Statement
+parseIfElse nesting = lexeme $ do
+    (cond, ifBody) <- parseIf nesting
+    elseBody <- elseIf nesting
     parseEnd
     return (StmtIfElse cond ifBody elseBody)
 
@@ -116,21 +125,21 @@ parseIfElse = lexeme $ do
 funParams :: Parser Params
 funParams = (lexeme . parens) $ whitespace >> Stack.fromList <$> sepByComma (bilexeme keyText)
 
-parseFunc :: Parser Statement
-parseFunc = lexeme . Lexer.indentBlock whitespaceLn $ do
+parseFunc :: Nesting -> Parser Statement
+parseFunc _ = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . specialSymbol) meowCatface
     name <- lexeme funName
     args <- funParams
     let makeBody = (<$ parseEnd) . StmtFuncDef name args . Stack.fromList
-    return (Lexer.IndentMany Nothing makeBody statements)
+    return $ Lexer.IndentMany Nothing makeBody (statements Nested)
 
 funName :: Parser Expr
 funName = whitespace >> lexeme exprFnKey
 
 {- Return -}
 ----------------------------------------------------------------
-parseReturn :: Parser Statement
-parseReturn = lexeme $ do
+parseReturn :: Nesting -> Parser Statement
+parseReturn _ = lexeme $ do
     whitespace
     (void . keyword) meowReturn
     StmtReturn <$> parseExpr
@@ -138,38 +147,45 @@ parseReturn = lexeme $ do
 
 {- Continue -}
 ----------------------------------------------------------------
-parseContinue :: Parser Statement
-parseContinue = lexeme $ do
+parseContinue :: Nesting -> Parser Statement
+parseContinue nesting = lexeme $ do
     whitespace
-    StmtContinue <$ (void . keyword) meowContinue
+    (void . keyword) meowContinue
+    case nesting of
+        NestedInLoop -> return StmtContinue
+        _            -> fail $ loopKeywordOutsideLoop meowContinue
 
 
 {- Break -}
 ----------------------------------------------------------------
-parseBreak :: Parser Statement
-parseBreak = lexeme $ do
+parseBreak :: Nesting -> Parser Statement
+parseBreak nesting = lexeme $ do
     whitespace
-    StmtBreak <$ (void . keyword) meowBreak
+    (void . keyword) meowBreak
+    case nesting of
+        NestedInLoop -> return StmtBreak
+        _            -> fail $ loopKeywordOutsideLoop meowBreak
 
 
 {- For Loop -}
 ----------------------------------------------------------------
-parseFor :: Parser Statement
-parseFor = lexeme . Lexer.indentBlock whitespaceLn $ do
+parseFor :: Nesting -> Parser Statement
+parseFor nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
     let (start, middle, end) = meowFor
     let lifted = (lexeme . parens) liftedExpr
     let tryFirst = tryKeyword start >> lifted
     let getExp name = keyword name >> parensExpression
     (a, b, c) <- (,,) <$> tryFirst <*> getExp middle <*> getExp end
     let expressions = (a, b, c)
+    let nest = max nesting NestedInLoop
     let makeBody = (<$ parseEnd) . StmtFor expressions . Stack.fromList
-    return $ Lexer.IndentMany Nothing makeBody statements
+    return $ Lexer.IndentMany Nothing makeBody (statements nest)
 
 
 {- Import -}
 ----------------------------------------------------------------
-parseImport :: Parser Statement
-parseImport = lexeme $ do
+parseImport :: Nesting -> Parser Statement
+parseImport _ = lexeme $ do
     let (start, end) = meowTakes
     (void . tryKeyword) start
     (PrimStr filepath) <- lexeme parseStr
@@ -179,28 +195,30 @@ parseImport = lexeme $ do
 
 {- Watch/Catch -}
 ----------------------------------------------------------------
-parseTry :: Parser Block
-parseTry = lexeme . Lexer.indentBlock whitespaceLn $ do
+parseTry :: Nesting -> Parser Block
+parseTry nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . tryKeyword) meowTry
-    return $ Lexer.IndentMany Nothing (return . Stack.fromList) statements
+    let nest = max nesting Nested
+    return $ Lexer.IndentMany Nothing (return . Stack.fromList) (statements nest)
 
-parseCatch :: Parser CatchBlock
-parseCatch = lexeme . Lexer.indentBlock whitespaceLn $ do
+parseCatch :: Nesting -> Parser CatchBlock
+parseCatch nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . tryKeyword) meowCatch
     expr <- Mega.optional $ (lexeme . parens) parseExpr
     let makeBody = return . (expr,) . Stack.fromList
-    return $ Lexer.IndentMany Nothing makeBody statements
+    let nest = max nesting Nested
+    return $ Lexer.IndentMany Nothing makeBody (statements nest)
 
-manyCatch :: Block -> Parser Statement
-manyCatch tryblock = do
-    catchblock <- parseCatch
+manyCatch :: Nesting -> Block -> Parser Statement
+manyCatch nesting tryblock = do
+    catchblock <- parseCatch nesting
     let expr = StmtTryCatch tryblock catchblock
-    manyCatch (Stack.singleton expr) <|> (expr <$ parseEnd)
+    manyCatch nesting (Stack.singleton expr) <|> (expr <$ parseEnd)
 
-parseTryCatch :: Parser Statement
-parseTryCatch = lexeme $ do
-    tryBlock <- parseTry
-    Mega.try (manyCatch tryBlock) <|> return (StmtTryCatch tryBlock (Nothing, Stack.empty))
+parseTryCatch :: Nesting -> Parser Statement
+parseTryCatch nesting = lexeme $ do
+    tryBlock <- parseTry nesting
+    Mega.try (manyCatch nesting tryBlock) <|> return (StmtTryCatch tryBlock (Nothing, Stack.empty))
 
 
 ----------------------------------------------------------------
@@ -210,11 +228,18 @@ parseTryCatch = lexeme $ do
 {- When -}
 -- Syntax is: when <expr> do <expr>
 -- Parsed into a simple 'if' statement.
-parseWhen :: Parser Statement
-parseWhen = lexeme $ do
+parseWhen :: Nesting -> Parser Statement
+parseWhen _ = lexeme $ do
     let (start, end) = meowWhen
     (void . tryKeyword) start
     condition <- parensExpression
     (void . keyword) end
     body <- Stack.singleton . StmtExpr <$> parseExpr
     return (StmtIfElse condition body Stack.empty)
+
+
+----------------------------------------------------------------
+{- Utils -}
+----------------------------------------------------------------
+loopKeywordOutsideLoop :: Text -> String
+loopKeywordOutsideLoop k = concat ["Cannot have '", Text.unpack k, "' statement outside of a loop!"]

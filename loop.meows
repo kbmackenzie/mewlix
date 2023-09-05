@@ -1,0 +1,11 @@
+mew x = 0
+meowmeow (x < 1000)
+    mew? (x > 100)
+        run off
+    meow meow
+    paw at x
+meow meow
+
+mew? (happy)
+    catnap
+meow meow

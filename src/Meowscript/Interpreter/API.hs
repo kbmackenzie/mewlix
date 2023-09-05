@@ -2,6 +2,8 @@
 
 module Meowscript.Interpreter.API
 ( runFile
+-- Re-export:
+, ReturnValue(..)
 ) where
 
 import Meowscript.Abstract.Meow
