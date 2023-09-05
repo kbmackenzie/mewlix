@@ -4,33 +4,31 @@ module Meowscript.Abstract.Meowable
 ( Meowable(..)
 ) where
 
-import Meowscript.Abstract.Atom
+import Meowscript.Abstract.Meow
 import Meowscript.Data.Ref
 import Meowscript.Data.Stack (Stack)
+import Data.Text (Text)
+import Data.HashMap.Strict (HashMap)
 import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
-import Data.Int (Int32)
 import Control.Monad.IO.Class (MonadIO(..))
 
 class Meowable a where
-    -- Lift value to MeowAtom.
-    toMeow :: (MonadIO m) => a -> m MeowAtom
+    -- Lift value to MeowPrim.
+    toMeow :: (MonadIO m) => a -> m MeowPrim
 
-instance Meowable MeowAtom where
+instance Meowable MeowPrim where
     toMeow = return
 
 {- Useful Instances -}
 ----------------------------------------------------------------
 instance Meowable Int where
-    toMeow = return . MeowInt . fromIntegral
-
-instance Meowable Int32 where
     toMeow = return . MeowInt
 
 instance Meowable Double where
     toMeow = return . MeowFloat
 
-instance Meowable Text.Text where
+instance Meowable Text where
     toMeow = return . MeowString . boxString
 
 instance Meowable Bool where
@@ -51,10 +49,3 @@ instance Meowable MeowPairs where
         ref <- newRef . HashMap.fromList =<< mapM pack (getPairs xs)
         let box = CatBox { getBox = ref }
         return (MeowBox box)
-
-{-
-instance (Meowable a) => Meowable (HashMap.HashMap Key a) where
-    toMeow x = do
-        let pack (k, p) = (k,) <$> (toMeow p >>= newRef)
-        MeowBox . HashMap.fromList <$> mapM pack (HashMap.toList x)
--}

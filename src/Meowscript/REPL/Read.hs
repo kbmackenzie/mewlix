@@ -4,7 +4,7 @@ module Meowscript.REPL.Read
 ( runGetInput
 ) where
 
-import Meowscript.Abstract.Atom (BoxMap)
+import Meowscript.Abstract.Meow (BoxMap)
 import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
 import System.Console.Haskeline

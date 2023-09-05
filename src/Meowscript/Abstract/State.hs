@@ -1,9 +1,12 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE StrictData #-}
 {-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Meowscript.Evaluate.State
-( Module(..)
+module Meowscript.Abstract.State
+( Environment(..)
+, Module(..)
 , ModuleCache(..)
 , EvaluatorMeta(..)
 , ModuleInfo(..)
@@ -12,6 +15,7 @@ module Meowscript.Evaluate.State
 , DefineMap
 , FlagSet
 , CacheMap
+, Libraries(..)
 -- Lenses:
 , cachedModulesL
 , defineMapL
@@ -20,16 +24,12 @@ module Meowscript.Evaluate.State
 , moduleSocketL
 , modulePathL
 , moduleIsMainL
-, evaluatorCtxL
+, evaluatorEnvL
 , moduleInfoL
 , evaluatorMetaL
 , evaluatorLibsL
 , getModuleL
 , getCacheL
--- Inititializers:
-, initMeta
-, emptyMeta
-, initState
 -- Setters:
 , addDefine
 , addFlag
@@ -37,19 +37,32 @@ module Meowscript.Evaluate.State
 , addLibrary
 -- Utils:
 , joinLibraries
-, cleanContext
+, createEnvironment
+-- Inititializers:
+--, initMeta
+--, emptyMeta
+--, initState
 ) where
 
+-- Meow:
 import Meowscript.Data.Ref
 import Meowscript.Parser.AST
-import Meowscript.Evaluate.Environment
+-- Types:
+import Data.Set (Set)
+import Data.Text (Text)
+import Meowscript.Data.Stack (Stack)
+import Data.HashMap.Strict (HashMap)
+-- Qualified:
+import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
-import Meowscript.Data.Stack (Stack)
 import qualified Meowscript.Data.Stack as Stack
+-- Other:
 import Lens.Micro.Platform (makeLensesFor, (^.), (%~), over)
-import qualified Data.Set as Set
 import Control.Monad.IO.Class (MonadIO(..))
+
+newtype Environment a = Environment { getEnv :: HashMap Text (Ref a) }
+    deriving (Semigroup)
 
 newtype Module = Module { getModule :: Block }
 newtype ModuleCache = ModuleCache { getCache :: Ref CacheMap }
@@ -69,10 +82,10 @@ newtype Libraries p = Libraries
     { getLibs :: Stack (Environment p) }
 
 data EvaluatorState p = EvaluatorState
-    { evaluatorCtx  :: Context p
+    { evaluatorEnv  :: Ref (Environment p)
     , moduleInfo    :: ModuleInfo
     , evaluatorMeta :: EvaluatorMeta
-    , evaluatorLibs :: Libraries p  }
+    , evaluatorLibs :: Libraries p        }
 
 {- Flags -}
 -------------------------------------------------------------------------------------
@@ -83,9 +96,9 @@ data MeowFlag =
 
 {- Aliases -}
 -------------------------------------------------------------------------------------
-type DefineMap = HashMap.HashMap Text.Text Text.Text
-type FlagSet   = Set.Set MeowFlag
-type CacheMap  = HashMap.HashMap FilePath Module
+type DefineMap = HashMap Text Text
+type FlagSet   = Set MeowFlag
+type CacheMap  = HashMap FilePath Module
 
 {- Lenses -}
 -------------------------------------------------------------------------------------
@@ -101,7 +114,7 @@ $(makeLensesFor
     , ("moduleIsMain" , "moduleIsMainL" ) ] ''ModuleInfo)
 
 $(makeLensesFor
-    [ ("evaluatorCtx" , "evaluatorCtxL" )
+    [ ("evaluatorEnv" , "evaluatorEnvL" )
     , ("moduleInfo"   , "moduleInfoL"   )
     , ("evaluatorMeta", "evaluatorMetaL")
     , ("evaluatorLibs", "evaluatorLibsL") ] ''EvaluatorState)
@@ -115,8 +128,35 @@ $(makeLensesFor
 $(makeLensesFor
     [ ("getLibs"      , "getLibsL"      ) ] ''Libraries)
 
+{- Setters -}
+-------------------------------------------------------------------------------------
+addDefine :: Text -> Text -> EvaluatorState p -> EvaluatorState p
+addDefine key item = (evaluatorMetaL.defineMapL) %~ HashMap.insert key item
+
+addFlag :: MeowFlag -> EvaluatorState p -> EvaluatorState p
+addFlag = over (evaluatorMetaL.flagSetL) . Set.insert
+
+addInclude :: FilePath -> EvaluatorState p -> EvaluatorState p
+addInclude = over (evaluatorMetaL.includePathsL) . (:)
+
+addLibrary :: Environment p -> EvaluatorState p -> EvaluatorState p
+addLibrary = over (evaluatorLibsL.getLibsL) . Stack.push
+
+{- Utils -}
+-------------------------------------------------------------------------------------
+joinLibraries :: Libraries p -> Environment p
+joinLibraries = foldr (<>) emptyEnv . getLibs
+    where emptyEnv = Environment HashMap.empty
+
+createEnvironment :: (MonadIO m) => [(Text, a)] -> m (Environment a)
+createEnvironment pairs = do
+    let pack (key, ref) = (key,) <$> newRef ref
+    Environment . HashMap.fromList <$> mapM pack pairs
+
+
 {- Initializers -}
 -------------------------------------------------------------------------------------
+{-
 initMeta :: (MonadIO m) => DefineMap -> [FilePath] -> FlagSet -> m EvaluatorMeta
 initMeta defmap include flagset = do
     moduleCache <- ModuleCache <$> newRef HashMap.empty
@@ -143,32 +183,14 @@ initState path isMain = do
         getLibs = Stack.empty
     }
     return EvaluatorState {
-        evaluatorCtx  = ctx,
+        evaluatorEnv  = ctx,
         moduleInfo    = info,
         evaluatorMeta = meta,
         evaluatorLibs = libs
     }
+-}
 
-{- Setters -}
--------------------------------------------------------------------------------------
-addDefine :: Text.Text -> Text.Text -> EvaluatorState p -> EvaluatorState p
-addDefine key item = (evaluatorMetaL.defineMapL) %~ HashMap.insert key item
-
-addFlag :: MeowFlag -> EvaluatorState p -> EvaluatorState p
-addFlag = over (evaluatorMetaL.flagSetL) . Set.insert
-
-addInclude :: FilePath -> EvaluatorState p -> EvaluatorState p
-addInclude = over (evaluatorMetaL.includePathsL) . (:)
-
-addLibrary :: Environment p -> EvaluatorState p -> EvaluatorState p
-addLibrary = over (evaluatorLibsL.getLibsL) . Stack.push
-
-{- Utils -}
--------------------------------------------------------------------------------------
-joinLibraries :: Libraries p -> Environment p
-joinLibraries = foldr (<>) emptyEnv . getLibs
-    where emptyEnv = Environment HashMap.empty
-
+{-
 -- Creates state with a clean context; everything else is unchanged.
 -- This function does not affect context.
 cleanContext :: (MonadIO m) => EvaluatorState p -> m (EvaluatorState p)
@@ -176,4 +198,5 @@ cleanContext state = do
     let libs = joinLibraries (evaluatorLibs state)
     !newCtx <- initContext
     modifyRef (<> libs) (globalEnv newCtx)
-    return state { evaluatorCtx = newCtx }
+    return state { evaluatorEnv = newCtx }
+-}

@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Meowscript.Interpreter.Primitive
 ( meowBool
@@ -9,10 +10,9 @@ module Meowscript.Interpreter.Primitive
 , primSort
 ) where
 
-import Meowscript.Abstract.Atom
+import Meowscript.Abstract.Meow
 import Meowscript.Data.Ref
 import Meowscript.Interpreter.Exceptions
-import Meowscript.Evaluate.MeowThrower
 import Meowscript.Data.Stack (Stack)
 import qualified Meowscript.Data.Stack as Stack
 import qualified Data.Text as Text
@@ -20,10 +20,11 @@ import qualified Data.HashMap.Strict as HashMap
 import Meowscript.Utils.List
 import Control.Monad.ListM (sortByM)
 import Control.Monad.IO.Class (MonadIO(..))
+import Control.Monad.Except (MonadError(..))
 
 {- Truthy/Falsy -}
 -----------------------------------------------------------------------------
-meowBool :: MeowAtom -> Bool
+meowBool :: MeowPrim -> Bool
 meowBool MeowNil        = False
 meowBool (MeowBool b)   = b
 meowBool (MeowStack xs)  = (not . Stack.null . unboxStack) xs
@@ -37,7 +38,7 @@ meowBool _ = True
 -- A generic comparison function.
 -- It throws exceptions with type mismatches.
 
-primCompare :: (MonadIO m, MeowThrower m) => MeowAtom -> MeowAtom -> m Ordering
+primCompare :: (MonadIO m, MonadError CatException m) => MeowPrim -> MeowPrim -> m Ordering
 {-# INLINE primCompare #-}
 
 -- Numeric comparison:
@@ -71,20 +72,20 @@ MeowBox a    `primCompare` MeowBox b    = do
     as <- mapM unpack =<< pairs a
     bs <- mapM unpack =<< pairs b
     listCompareM pairComp as bs
-a `primCompare` b = throwException =<< operationException "comparison" [a, b]
+a `primCompare` b = throwError =<< operationException "comparison" [a, b]
 
 
 -- A few more specific functions:
-primEq :: (MonadIO m, MeowThrower m) => MeowAtom -> MeowAtom -> m Bool
+primEq :: (MonadIO m, MonadError CatException m) => MeowPrim -> MeowPrim -> m Bool
 {-# INLINE primEq #-}
 primEq a b = (== EQ) <$> primCompare a b
 
-safeEq :: (MonadIO m, MeowThrower m) => MeowAtom -> MeowAtom -> m Bool
+safeEq :: (MonadIO m, MonadError CatException m) => MeowPrim -> MeowPrim -> m Bool
 {-# INLINE safeEq #-}
-safeEq a b = let f = const (return False) in catchException (primEq a b) f
+safeEq a b = let f = const (return False) in catchError (primEq a b) f
 
 
 {- Sorting -}
 -----------------------------------------------------------------------------
-primSort :: (MonadIO m, MeowThrower m) => Stack MeowAtom -> m (Stack MeowAtom)
+primSort :: (MonadIO m, MonadError CatException m) => Stack MeowPrim -> m (Stack MeowPrim)
 primSort = fmap Stack.fromList . sortByM primCompare . Stack.toList

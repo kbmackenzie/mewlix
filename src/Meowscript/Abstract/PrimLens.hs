@@ -7,7 +7,7 @@ module Meowscript.Abstract.PrimLens
 , stackLenL
 ) where
 
-import Meowscript.Abstract.Atom
+import Meowscript.Abstract.Meow
 import Lens.Micro.Platform (makeLensesFor)
 
 $(makeLensesFor

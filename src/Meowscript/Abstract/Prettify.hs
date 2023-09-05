@@ -6,8 +6,9 @@ module Meowscript.Abstract.Prettify
 , prettyMeow
 ) where
 
-import Meowscript.Abstract.Atom
+import Meowscript.Abstract.Meow
 import Meowscript.Data.Ref
+import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Meowscript.Data.Stack as Stack
 import qualified Data.HashMap.Strict as HashMap
@@ -18,7 +19,7 @@ import Data.Function (on)
 
 {- Pretty-Printing -}
 -----------------------------------------------------------------------------
-showMeow :: (MonadIO m) => MeowAtom -> m Text.Text
+showMeow :: (MonadIO m) => MeowPrim -> m Text
 {-# INLINE showMeow #-}
 showMeow (MeowInt n) = (return . showT) n
 showMeow (MeowFloat f) = (return . showT) f
@@ -37,7 +38,7 @@ showMeow (MeowFunc _) = return "<function>"
 showMeow (MeowIFunc _) = return "<inner-func>"
 showMeow MeowNil = return "<nothing>"
 
-prettyMeow :: (MonadIO m) => MeowAtom -> m Text.Text
+prettyMeow :: (MonadIO m) => MeowPrim -> m Text
 {-# INLINE prettyMeow #-}
 prettyMeow (MeowString s) = (return . showT . unboxStr) s
 prettyMeow other = showMeow other

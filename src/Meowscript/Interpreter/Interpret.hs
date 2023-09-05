@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Meowscript.Interpreter.Interpret
 ( expression
@@ -8,15 +9,12 @@ module Meowscript.Interpreter.Interpret
 , ReturnValue(..)
 ) where
 
-import Meowscript.Abstract.Atom
+import Meowscript.Abstract.Meow
 import Meowscript.Data.Ref
 import Meowscript.Data.Stack (Stack(..))
 import Meowscript.Abstract.Meowable
 import Meowscript.Abstract.Prettify
-import Meowscript.Evaluate.Evaluator
-import Meowscript.Evaluate.Exception
-import Meowscript.Evaluate.Environment
-import Meowscript.Evaluate.State
+import Meowscript.Abstract.State
 import qualified Data.Text as Text
 import qualified Meowscript.Data.Stack as Stack
 import Meowscript.Interpreter.Exceptions
@@ -25,19 +23,15 @@ import Meowscript.Interpreter.Primitive
 import Meowscript.Interpreter.Operations
 import Meowscript.Parser.AST
 import Control.Monad (void)
+import Control.Monad.Except (MonadError)
 import qualified Data.HashMap.Strict as HashMap
 import Meowscript.IO.Print (printTextLn)
 
-type Meower a = Evaluator MeowAtom a
-
 {- Expressions -}
 ---------------------------------------------------------------
-expression :: Expr -> Meower MeowAtom
+expression :: Expr -> Evaluator MeowPrim
 expression (ExprPrim a) = return (liftToMeow a)
-expression (ExprKey k)  = do
-    --liftIO (printTextLn "Key lookup:")
-    --printContext
-    lookUp k
+expression (ExprKey k)  = lookUp k
 
 -- Boolean operations:
 expression (ExprAnd a b) = do
@@ -70,9 +64,7 @@ expression (ExprBox pairs) = do
     (toMeow . MeowPairs) items
 
 expression (ExprLambda params expr) = do
-    closure <- context -- >>= freezeLocal -- Freeze local call frame.
-    --liftIO (printTextLn "Lambda def:")
-    --printContext
+    closure <- asks evaluatorEnv -- >>= freezeLocal -- Freeze local call frame.
     let arity = Stack.length params
     let body = Stack.singleton (StmtReturn expr)
     let function = MeowFunction {
@@ -170,28 +162,26 @@ expression (ExprUnop op exprA) = do
 
 expression (ExprCall expr args argCount) = do
     key <- asKey expr
-    --liftIO (printTextLn "Call:")
-    --printContext
     case key of
         -- Simple keys:
         (SimpleKey name)  -> lookUp name >>= \case
                 (MeowFunc f)  -> callFunction name argCount args f
                 (MeowIFunc f) -> callInnerFunc name argCount args f
-                x             -> throwException =<< notAFuncionException [x]
+                x             -> throwError =<< notAFuncionException [x]
 
         -- Box lookup:
         (RefKey ref name) -> asRef key >>= readRef >>= \case
                 (MeowFunc f)  -> callMethod name argCount args f ref
                 (MeowIFunc f) -> callInnerFunc name argCount args f
-                x             -> throwException =<< notAFuncionException [x]
+                x             -> throwError =<< notAFuncionException [x]
 
         -- Singleton calls:
         (SingletonAtom a) -> case a of
                 (MeowFunc f)  -> callFunction (funcName f) argCount args f
                 (MeowIFunc f) -> callInnerFunc (ifuncName f) argCount args f
-                x             -> throwException =<< notAFuncionException [x]
+                x             -> throwError =<< notAFuncionException [x]
 
-identifier :: Expr -> Meower Identifier
+identifier :: Expr -> Evaluator Identifier
 identifier (ExprKey key) = return key
 identifier other         = expression other >>= asIdentifier
 
@@ -200,17 +190,17 @@ identifier other         = expression other >>= asIdentifier
 ---------------------------------------------------------------
 data CatKey =
       SimpleKey Identifier
-    | RefKey (Ref MeowAtom) Identifier
-    | SingletonAtom MeowAtom
+    | RefKey (Ref MeowPrim) Identifier
+    | SingletonAtom MeowPrim
 
-asRef :: CatKey -> Meower (Ref MeowAtom)
+asRef :: CatKey -> Evaluator (Ref MeowPrim)
 asRef (SimpleKey key) = lookUpRef key >>= \case
-    Nothing     -> throwException (unboundException key)
+    Nothing     -> throwError (unboundException key)
     (Just ref)  -> return ref
 asRef (RefKey ref key) = readRef ref >>= boxPeek key
 asRef (SingletonAtom a) = newRef a
 
-asKey :: Expr -> Meower CatKey
+asKey :: Expr -> Evaluator CatKey
 asKey (ExprKey key) = return (SimpleKey key)
 asKey (ExprDotOp box expr) = do
     ref <- asKey box >>= asRef
@@ -222,39 +212,30 @@ asKey (ExprBoxAccess box expr) = do
     return (RefKey ref key)
 asKey other = SingletonAtom <$> expression other
 
-define :: Identifier -> MeowAtom -> Meower ()
-define key rvalue = context >>= contextWrite key rvalue
-
-keyAssign :: CatKey -> MeowAtom -> Meower ()
-keyAssign (SimpleKey key)    rvalue = define key rvalue
+keyAssign :: CatKey -> MeowPrim -> Evaluator ()
+keyAssign (SimpleKey key)    rvalue = contextWrite key rvalue
 keyAssign (RefKey ref key)   rvalue = boxWrite key rvalue ref
-keyAssign (SingletonAtom a)  _      = throwException =<< notAnIdentifier [a]
+keyAssign (SingletonAtom a)  _      = throwError =<< notAnIdentifier [a]
 
 
 {- Lifted Expressions -}
 ---------------------------------------------------------------
-liftedExpression :: LiftedExpr -> Meower MeowAtom
+liftedExpression :: LiftedExpr -> Evaluator MeowPrim
 liftedExpression (LiftExpr expr) = expression expr
 liftedExpression (LiftDecl key expr) = do
     value <- expression expr
-    context >>= contextWrite key value
+    contextWrite key value
     return value
 
 
 {- Statements -}
 ---------------------------------------------------------------
 data ReturnValue =
-      ReturnAtom MeowAtom
+      ReturnPrim MeowPrim
     | ReturnVoid
     | ReturnBreak
 
-localBlock :: Meower a -> Meower a
-localBlock m = do
-    ctx <- context
-    localContext ctx >>= runLocal m
-
-statement :: Stack Statement -> Meower ReturnValue
-
+statement :: Stack Statement -> Evaluator ReturnValue
 statement Bottom = return ReturnVoid
 
 statement ( (StmtExpr expr) ::| rest ) = do
@@ -263,25 +244,23 @@ statement ( (StmtExpr expr) ::| rest ) = do
 
 statement ( (StmtDeclaration key expr) ::| rest ) = do
     value <- expression expr
-    context >>= contextWrite key value
-    --liftIO (printTextLn "Declaration:")
-    --printContext
+    contextDefine key value
     statement rest
 
 statement ( (StmtIfElse condExpr ifBlock elseBlock) ::| rest ) = do
     condition <- expression condExpr
     let block = if meowBool condition then ifBlock else elseBlock
-    ret <- localBlock (statement block) 
+    ret <- runLocal (statement block) 
     case ret of
         ReturnVoid  -> statement rest
         other       -> return other
 
 statement ( (StmtWhile condExpr block) ::| rest ) = do
-    let loop :: Meower ReturnValue
+    let loop :: Evaluator ReturnValue
         loop = do
             condition <- expression condExpr
             if meowBool condition then do 
-                ret <- localBlock (statement block)
+                ret <- runLocal (statement block)
                 case ret of
                     ReturnVoid  -> loop
                     ReturnBreak -> return ReturnVoid
@@ -293,18 +272,18 @@ statement ( (StmtWhile condExpr block) ::| rest ) = do
         other      -> return other
 
 statement ( (StmtFor (decl, condExpr, incr) block) ::| rest ) = do
-    let loop :: Meower ReturnValue
+    let loop :: Evaluator ReturnValue
         loop = do
             condition <- expression condExpr
             if meowBool condition then do
-                ret <- localBlock (statement block)
+                ret <- runLocal (statement block)
                 void (expression incr)
                 case ret of
                     ReturnVoid  -> loop
                     ReturnBreak -> return ReturnVoid
                     other       -> return other
             else return ReturnVoid
-    ret <- localBlock $ do
+    ret <- runLocal $ do
         void (liftedExpression decl)
         loop
     case ret of
@@ -312,12 +291,12 @@ statement ( (StmtFor (decl, condExpr, incr) block) ::| rest ) = do
         other      -> return other
 
 statement ( (StmtFuncDef keyExpr params block) ::| rest ) = do
-    closure <- context
+    closure <- asks evaluatorEnv
     key <- asKey keyExpr
     name <- case key of
         (SimpleKey x)       -> return x
         (RefKey _  x)       -> return x
-        (SingletonAtom x)   -> throwException =<< notAFunctionName [x]
+        (SingletonAtom x)   -> throwError =<< notAFunctionName [x]
     let function = MeowFunc $ MeowFunction
             { funcArity   = Stack.length params
             , funcName    = name
@@ -329,7 +308,7 @@ statement ( (StmtFuncDef keyExpr params block) ::| rest ) = do
 
 statement ( (StmtReturn expr) ::| _ ) = do
     value <- expression expr
-    return (ReturnAtom value)
+    return (ReturnPrim value)
 
 statement ( StmtBreak    ::| _ ) = return ReturnBreak
 statement ( StmtContinue ::| _ ) = return ReturnVoid
@@ -339,20 +318,20 @@ statement ( (StmtTryCatch tryBlock (maybeExpr, catchBlock)) ::| rest ) = do
     let canCatch :: Int -> Bool
         canCatch num = num > 0 && num < fromEnum MeowBadImport
 
-    let catcher :: CatException -> Meower ReturnValue
+    let catcher :: CatException -> Evaluator ReturnValue
         catcher cat = do
             let num = (fromEnum . exceptionType) cat
             let expr = case maybeExpr of
                     Nothing  -> ExprPrim PrimNil
                     (Just x) -> x
             matched <- expression expr >>= \case
-                (MeowInt a) -> return (fromIntegral a == num)
+                (MeowInt a) -> return (a == num)
                 _           -> return False
             if canCatch num && matched
                 then statement catchBlock
-                else throwException cat
+                else throwError cat
 
-    ret <- localBlock $ statement tryBlock `catchException` catcher
+    ret <- runLocal $ statement tryBlock `catchError` catcher
     case ret of
         ReturnVoid  -> statement rest
         other       -> return other
@@ -363,77 +342,55 @@ statement ( (StmtImport _ _) ::| rest ) = do
 
 {- Functions -}
 ---------------------------------------------------------------
-liftReturn :: (MeowThrower m) => ReturnValue -> m MeowAtom
-liftReturn (ReturnAtom a) = return a
+liftReturn :: (MonadError CatException m) => ReturnValue -> m MeowPrim
+liftReturn (ReturnPrim a) = return a
 liftReturn ReturnVoid     = return MeowNil
-liftReturn ReturnBreak    = throwException =<< undefined --todo: unexpected break
+liftReturn ReturnBreak    = throwError =<< undefined --todo: unexpected break
 
-bindArgs :: Params -> Stack Expr -> Meower ()
+bindArgs :: Params -> Stack Expr -> Evaluator ()
 bindArgs params exprs = do
     let zipped = zip (Stack.toList params) (Stack.toList exprs)
     let assign (key, expr) = do
             value <- expression expr
-            context >>= contextWrite key value
+            contextDefine key value
     mapM_ assign zipped
     --context >>= contextMany pairs
 
-paramGuard :: Identifier -> Int -> Int -> Meower ()
+paramGuard :: Identifier -> Int -> Int -> Evaluator ()
 paramGuard key a b = case a `compare` b of
     EQ -> return ()
-    LT -> throwException (arityException "Too many arguments" key)
-    GT -> throwException (arityException "Not enough arguments" key)
+    LT -> throwError (arityException "Too many arguments" key)
+    GT -> throwError (arityException "Not enough arguments" key)
 
-localClosure :: Context MeowAtom-> Meower a -> Meower a
-localClosure closure m = localContext closure >>= runLocal m
-
-callFunction :: Identifier -> Int -> Stack Expr -> MeowFunction -> Meower MeowAtom
+callFunction :: Identifier -> Int -> Stack Expr -> MeowFunction -> Evaluator MeowPrim
 callFunction key arity exprs function = stackTrace key $ do
     paramGuard key arity (funcArity function)
     let closure = funcClosure function
-    --localClosure closure $ do
-    localBlock $ do
-        --liftIO (printTextLn "Closure:")
-        --printContext
+    runClosure closure $ do
         bindArgs (funcParams function) exprs
         statement (funcBody function) >>= liftReturn
 
-callMethod :: Identifier -> Int -> Stack Expr -> MeowFunction -> Ref MeowAtom -> Meower MeowAtom
+callMethod :: Identifier -> Int -> Stack Expr -> MeowFunction -> Ref MeowPrim -> Evaluator MeowPrim
 callMethod key arity exprs function ref = stackTrace key $ do
     paramGuard key arity (funcArity function)
     let closure = funcClosure function
-    localClosure closure $ do
+    runClosure closure $ do
         bindArgs (funcParams function) exprs
-        context >>= contextDefine "home" ref
+        contextPush "home" ref
         statement (funcBody function) >>= liftReturn
 
-callInnerFunc :: Identifier -> Int -> Stack Expr -> MeowIFunction -> Meower MeowAtom
+callInnerFunc :: Identifier -> Int -> Stack Expr -> MeowIFunction -> Evaluator MeowPrim
 callInnerFunc key arity exprs f = stackTrace key $ do
     paramGuard key arity (ifuncArity f)
-    localBlock $ do
+    runLocal $ do
         bindArgs (ifuncParams f) exprs
         ifunc f
 
-stackTrace :: Identifier -> Meower a -> Meower a
-stackTrace key m = m `catchException` addStackTrace key
+stackTrace :: Identifier -> Evaluator a -> Evaluator a
+stackTrace key m = m `catchError` addStackTrace key
 
-addStackTrace :: Identifier -> CatException -> Meower a
+addStackTrace :: Identifier -> CatException -> Evaluator a
 addStackTrace key exc = do
     let message = Text.append (exceptionMessage exc) $ Text.concat
             [ "\n    In function \"", key, "\"" ]
-    throwException exc { exceptionMessage = message }
-
-
-
-{- Debugging -}
---------------------------------------------------------------------
-printContext :: Evaluator MeowAtom ()
-printContext = do
-    ctx <- askState evaluatorCtx
-    let printCtx :: Context MeowAtom -> Evaluator MeowAtom ()
-        printCtx c = do
-            keys <- HashMap.keys . getEnv <$> readRef (currentEnv ctx)
-            liftIO $ printTextLn $ Text.concat [ "Keys:", (Text.pack . show) keys ]
-            case enclosingCtx c of
-                Nothing -> liftIO (printTextLn "[Context End]")
-                (Just c') -> printCtx c'
-    printCtx ctx
+    throwError exc { exceptionMessage = message }

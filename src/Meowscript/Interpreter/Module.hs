@@ -6,9 +6,11 @@ module Meowscript.Interpreter.Module
 ( readModule
 ) where
 
+import Meowscript.Abstract.Meow
 import Meowscript.Data.Ref
-import Meowscript.Evaluate.Evaluator
-import Meowscript.Evaluate.State
+import Meowscript.Abstract.State
+import Data.Text (Text)
+import Data.HashSet (HashSet)
 import qualified Data.Text as Text
 import qualified Data.Set as Set
 import qualified Data.HashSet as HashSet
@@ -29,24 +31,24 @@ type SearchOutput = (FilePath, Module)
 {- Get Module -}
 ----------------------------------------------------------------------------------------
 -- Try reading a file:
-readModule :: FilePath -> Evaluator a SearchOutput
+readModule :: FilePath -> Evaluator SearchOutput
 readModule path = if isStdModule path
     then getStdModule path
     else findModule path
 
 -- Searching for a file:
-findModule :: FilePath -> Evaluator a SearchOutput
+findModule :: FilePath -> Evaluator SearchOutput
 findModule path = do
     -- Function to search each possible path safely.
-    let search :: [FilePath] -> Evaluator a (Maybe (FilePath, Text.Text))
+    let search :: [FilePath] -> Evaluator (Maybe (FilePath, Text))
         search []       = return Nothing
         search (x : xs) = safeDoesFileExist x >>| \case
             True  -> safeReadFile x >>| return . Just . (x,)
             False -> search xs
 
     -- Include paths specified in the interpreter.
-    include <- askState (^.evaluatorMetaL.includePathsL)
-    flagset <- askState (^.evaluatorMetaL.flagSetL)
+    include <- asks (^.evaluatorMetaL.includePathsL)
+    flagset <- asks (^.evaluatorMetaL.flagSetL)
 
     -- The 'path' parameter is already resolved!
     let resolver = resolvePath flagset . (</> path)
@@ -65,14 +67,14 @@ findModule path = do
         (Just modu) -> return modu
         Nothing     -> search paths >>= \case
             (Just contents) -> uncurry makeModule contents
-            Nothing         -> throwException $ importException path
+            Nothing         -> throwError $ importException path
 
 
 {- Parsing -}
 ----------------------------------------------------------------------------------------
-makeModule :: FilePath -> Text.Text -> Evaluator a SearchOutput
+makeModule :: FilePath -> Text -> Evaluator SearchOutput
 makeModule path contents = case parseRoot path contents of
-    (Left exc)     -> throwException $ importSyntaxException path exc
+    (Left exc)     -> throwError $ importSyntaxException path exc
     (Right output) -> do
         let newModule = Module output
         cacheAdd path newModule
@@ -88,19 +90,19 @@ resolvePath flags path =
 
 {- Module Cache -}
 ----------------------------------------------------------------------------------------
-cacheGet :: Evaluator a CacheMap
+cacheGet :: Evaluator CacheMap
 cacheGet = do
-    state <- askState (^.evaluatorMetaL.cachedModulesL)
+    state <- asks (^.evaluatorMetaL.cachedModulesL)
     readRef (getCache state)
 
-cacheAdd :: FilePath -> Module -> Evaluator a ()
+cacheAdd :: FilePath -> Module -> Evaluator ()
 cacheAdd path modu = do
-    state <- askState (^.evaluatorMetaL.cachedModulesL)
+    state <- asks (^.evaluatorMetaL.cachedModulesL)
     modifyRef (HashMap.insert path modu) (getCache state)
 
 {- Standard Modules -}
 ----------------------------------------------------------------------------------------
-stdModules :: HashSet.HashSet FilePath
+stdModules :: HashSet FilePath
 {-# INLINABLE stdModules #-}
 stdModules = HashSet.fromList
     [ "std.meows"
@@ -119,7 +121,7 @@ asStd = ("std/" ++)
 isStdModule :: FilePath -> Bool
 isStdModule = flip HashSet.member stdModules
 
-getStdModule :: FilePath -> Evaluator a SearchOutput
+getStdModule :: FilePath -> Evaluator SearchOutput
 getStdModule path = do
     cache <- cacheGet
     let stdPath = asStd path
