@@ -5,6 +5,8 @@ module Meowscript.Interpreter.Begin
 ( interpret
 , runFile
 , begin
+, runImport
+, librarySet
 ) where
 
 import Meowscript.Abstract.Atom
@@ -64,6 +66,12 @@ runImport :: FilePath -> Maybe Key -> Evaluator MeowAtom ()
 runImport path key = do
     cleanState <- getState >>= cleanContext
     meowImport key path runFile cleanState
+
+librarySet :: Evaluator MeowAtom ()
+librarySet = do
+    libs <- joinLibraries <$> askState evaluatorLibs
+    global <- askState (globalEnv . evaluatorCtx)
+    modifyRef (<> libs) global
 
 {- Presets -}
 -----------------------------------------------------------------------------------------

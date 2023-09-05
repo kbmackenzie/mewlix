@@ -16,6 +16,7 @@ import Meowscript.Abstract.Prettify
 import Meowscript.Evaluate.Evaluator
 import Meowscript.Evaluate.Exception
 import Meowscript.Evaluate.Environment
+import Meowscript.Evaluate.State
 import qualified Data.Text as Text
 import qualified Meowscript.Data.Stack as Stack
 import Meowscript.Interpreter.Exceptions
@@ -24,6 +25,8 @@ import Meowscript.Interpreter.Primitive
 import Meowscript.Interpreter.Operations
 import Meowscript.Parser.AST
 import Control.Monad (void)
+import qualified Data.HashMap.Strict as HashMap
+import Meowscript.IO.Print (printTextLn)
 
 type Meower a = Evaluator MeowAtom a
 
@@ -31,7 +34,10 @@ type Meower a = Evaluator MeowAtom a
 ---------------------------------------------------------------
 expression :: Expr -> Meower MeowAtom
 expression (ExprPrim a) = return (liftToMeow a)
-expression (ExprKey k)  = lookUp k
+expression (ExprKey k)  = do
+    --liftIO (printTextLn "Key lookup:")
+    --printContext
+    lookUp k
 
 -- Boolean operations:
 expression (ExprAnd a b) = do
@@ -65,8 +71,10 @@ expression (ExprBox pairs) = do
 
 expression (ExprLambda params expr) = do
     closure <- context -- >>= freezeLocal -- Freeze local call frame.
+    --liftIO (printTextLn "Lambda def:")
+    --printContext
     let arity = Stack.length params
-    let body = Stack.singleton (StmtExpr expr)
+    let body = Stack.singleton (StmtReturn expr)
     let function = MeowFunction {
         funcArity = arity,
         funcParams = params,
@@ -162,6 +170,8 @@ expression (ExprUnop op exprA) = do
 
 expression (ExprCall expr args argCount) = do
     key <- asKey expr
+    --liftIO (printTextLn "Call:")
+    --printContext
     case key of
         -- Simple keys:
         (SimpleKey name)  -> lookUp name >>= \case
@@ -252,9 +262,10 @@ statement ( (StmtExpr expr) ::| rest ) = do
     statement rest
 
 statement ( (StmtDeclaration key expr) ::| rest ) = do
-    liftIO (print ("yay" :: String))
     value <- expression expr
     context >>= contextWrite key value
+    --liftIO (printTextLn "Declaration:")
+    --printContext
     statement rest
 
 statement ( (StmtIfElse condExpr ifBlock elseBlock) ::| rest ) = do
@@ -362,9 +373,9 @@ bindArgs params exprs = do
     let zipped = zip (Stack.toList params) (Stack.toList exprs)
     let assign (key, expr) = do
             value <- expression expr
-            (key,) <$> newRef value
-    pairs <- mapM assign zipped
-    context >>= contextMany pairs
+            context >>= contextWrite key value
+    mapM_ assign zipped
+    --context >>= contextMany pairs
 
 paramGuard :: Identifier -> Int -> Int -> Meower ()
 paramGuard key a b = case a `compare` b of
@@ -379,7 +390,10 @@ callFunction :: Identifier -> Int -> Stack Expr -> MeowFunction -> Meower MeowAt
 callFunction key arity exprs function = stackTrace key $ do
     paramGuard key arity (funcArity function)
     let closure = funcClosure function
-    localClosure closure $ do
+    --localClosure closure $ do
+    localBlock $ do
+        --liftIO (printTextLn "Closure:")
+        --printContext
         bindArgs (funcParams function) exprs
         statement (funcBody function) >>= liftReturn
 
@@ -389,7 +403,7 @@ callMethod key arity exprs function ref = stackTrace key $ do
     let closure = funcClosure function
     localClosure closure $ do
         bindArgs (funcParams function) exprs
-        context >>= contextDefine key ref
+        context >>= contextDefine "home" ref
         statement (funcBody function) >>= liftReturn
 
 callInnerFunc :: Identifier -> Int -> Stack Expr -> MeowIFunction -> Meower MeowAtom
@@ -407,3 +421,19 @@ addStackTrace key exc = do
     let message = Text.append (exceptionMessage exc) $ Text.concat
             [ "\n    In function \"", key, "\"" ]
     throwException exc { exceptionMessage = message }
+
+
+
+{- Debugging -}
+--------------------------------------------------------------------
+printContext :: Evaluator MeowAtom ()
+printContext = do
+    ctx <- askState evaluatorCtx
+    let printCtx :: Context MeowAtom -> Evaluator MeowAtom ()
+        printCtx c = do
+            keys <- HashMap.keys . getEnv <$> readRef (currentEnv ctx)
+            liftIO $ printTextLn $ Text.concat [ "Keys:", (Text.pack . show) keys ]
+            case enclosingCtx c of
+                Nothing -> liftIO (printTextLn "[Context End]")
+                (Just c') -> printCtx c'
+    printCtx ctx

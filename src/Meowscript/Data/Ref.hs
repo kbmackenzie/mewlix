@@ -25,15 +25,16 @@ readRef = liftIO . readIORef . getRef
 
 writeRef :: (MonadIO m) => a -> Ref a -> m ()
 {-# INLINE writeRef #-}
-writeRef = (liftIO .) . flip (writeIORef . getRef)
+writeRef !a = liftIO . flip writeIORef a . getRef
 
 -- A strict alternative to 'modifyIORef', as 'modifyIORef' is lazy and creates a lot of chunks.
 -- A better monadic variation (a -> m a) might be necessary.
 modifyRef :: (MonadIO m) => (a -> a) -> Ref a -> m ()
 {-# INLINE modifyRef #-}
-modifyRef f ref = do
+modifyRef !f !ref = do
     !a <- readRef ref
-    writeRef (f a) ref
+    let !a' = f a
+    writeRef a' ref
 
 copyRef :: (MonadIO m) => Ref a -> m (Ref a)
 {-# INLINE copyRef #-}

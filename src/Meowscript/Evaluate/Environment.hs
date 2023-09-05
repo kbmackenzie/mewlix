@@ -67,6 +67,12 @@ contextSearch !key !ctx = (readRef . currentEnv) ctx >>= \env ->
     Nothing     -> case enclosingCtx ctx of
         (Just enclosing) -> contextSearch key enclosing
         Nothing          -> return Nothing
+        {-
+        Nothing          -> do
+            -- Global lookup, duh!
+            global <- readRef (globalEnv ctx)
+            return (HashMap.lookup key (getEnv global))
+        -}
 
 contextWrite :: (MonadIO m) => Key -> a -> Context a -> m ()
 contextWrite !key !value !ctx = do
@@ -74,7 +80,6 @@ contextWrite !key !value !ctx = do
     !valueRef <- newRef value
     let f = Environment . HashMap.insert key valueRef . getEnv
     modifyRef f env
-    readRef env >>= liftIO . print . HashMap.keys . getEnv
 
 localContext :: (MonadIO m) => Context a -> m (Context a)
 localContext !ctx = do
