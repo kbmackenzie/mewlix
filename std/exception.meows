@@ -4,7 +4,7 @@ Exception constants.
 
 mew __exc = ( ^.x.^)> (a) => (a.."Exception")
 
-mew MeowException = ~( ^.x.^) BOX!! [
+mew MeowException = =^.x.^= [
     InvalidVariable:        __exc("InvalidVariable"),
     Syntax:                 __exc("Syntax"),
     InvalidOperation:       __exc("InvalidOperation"),

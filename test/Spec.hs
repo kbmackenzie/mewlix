@@ -13,7 +13,7 @@ import qualified Data.HashMap.Strict as HashMap
 
 main :: IO ()
 main = do
-    let path = "fib.meows"
+    let path = "std.meows"
     let libs = Libraries { getLibs = Stack.empty }
     ma <- runFile path True [] libs
     case ma of

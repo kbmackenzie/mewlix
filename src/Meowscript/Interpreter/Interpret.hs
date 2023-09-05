@@ -303,7 +303,9 @@ statement ( (StmtFuncDef keyExpr params block) ::| rest ) = do
             , funcParams  = params
             , funcBody    = block
             , funcClosure = closure             }
-    keyAssign key function
+    case key of
+        (SimpleKey k) -> contextDefine k function
+        other         -> keyAssign other function
     statement rest
 
 statement ( (StmtReturn expr) ::| _ ) = do

@@ -121,12 +121,11 @@ parseFunc = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . specialSymbol) meowCatface
     name <- lexeme funName
     args <- funParams
-    whitespaceLn
     let makeBody = (<$ parseEnd) . StmtFuncDef name args . Stack.fromList
     return (Lexer.IndentMany Nothing makeBody statements)
 
 funName :: Parser Expr
-funName = whitespace >> lexeme exprL
+funName = whitespace >> lexeme exprFnKey
 
 {- Return -}
 ----------------------------------------------------------------
@@ -158,7 +157,7 @@ parseBreak = lexeme $ do
 parseFor :: Parser Statement
 parseFor = lexeme . Lexer.indentBlock whitespaceLn $ do
     let (start, middle, end) = meowFor
-    let lifted = parens liftedExpr
+    let lifted = (lexeme . parens) liftedExpr
     let tryFirst = tryKeyword start >> lifted
     let getExp name = keyword name >> parensExpression
     (a, b, c) <- (,,) <$> tryFirst <*> getExp middle <*> getExp end

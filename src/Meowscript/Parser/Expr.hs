@@ -7,6 +7,7 @@ module Meowscript.Parser.Expr
 , parseExpr
 , declaration
 , liftedExpr
+, exprFnKey
 ) where
 
 import Meowscript.Parser.AST
@@ -143,3 +144,19 @@ liftedExpr :: Parser LiftedExpr
 liftedExpr = (bilexeme . Mega.choice)
     [ uncurry LiftDecl  <$> declaration
     , LiftExpr          <$> exprR       ]
+
+
+{- Function Names -}
+------------------------------------------------------------------------------------
+termFn :: Parser Expr
+termFn = lexeme parseKey
+
+operatorsFn :: OperatorTable
+operatorsFn =
+    [[ Postfix assignable ]]
+
+assignable :: Parser (Expr -> Expr)
+assignable = foldr1 (flip (.)) <$> Mega.some (parseDotOp <|> parseBoxOp)
+
+exprFnKey :: Parser Expr
+exprFnKey = makeExprParser termFn operatorsFn

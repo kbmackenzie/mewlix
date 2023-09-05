@@ -138,14 +138,14 @@ meow meow
 -------------- <(^.x.^ )~
 
 =^.x.^= tuple(a, b)
-    bring ~( ^.x.^) BOX!! [
+    bring =^.x.^= [
         first:  a,
         second: b
     ]
 meow meow
 
 =^.x.^= triple(a, b, c)
-    bring ~( ^.x.^) BOX!! [
+    bring =^.x.^= [
         first:  a,
         second: b,
         third:  c
@@ -179,7 +179,7 @@ mew b = MyEnum.B    -- b is 1
 <(^.x.^ )~
 
 =^.x.^= enum (xs)
-    mew output = ~( ^.x.^) BOX!! []
+    mew output = =^.x.^= []
     mew i = 0
     meowmeow (xs)
         output[string(peek xs)] = i
