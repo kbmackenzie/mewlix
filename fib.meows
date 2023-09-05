@@ -9,4 +9,4 @@ mew fib = ( ^.x.^)> (n) => (n <= 1 ? n : fib(n - 1) + fib(n - 2))
 
 --bring 3
 --bring 2
-bring fib(6)
+bring fib(40)

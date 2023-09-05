@@ -347,14 +347,12 @@ liftReturn (ReturnPrim a) = return a
 liftReturn ReturnVoid     = return MeowNil
 liftReturn ReturnBreak    = throwError =<< undefined --todo: unexpected break
 
-bindArgs :: Params -> Stack Expr -> Evaluator ()
-bindArgs params exprs = do
-    let zipped = zip (Stack.toList params) (Stack.toList exprs)
-    let assign (key, expr) = do
-            value <- expression expr
+bindArgs :: Params -> Stack MeowPrim -> Evaluator ()
+bindArgs params prims = do
+    let zipped = zip (Stack.toList params) (Stack.toList prims)
+    let assign (key, value) = do
             contextDefine key value
     mapM_ assign zipped
-    --context >>= contextMany pairs
 
 paramGuard :: Identifier -> Int -> Int -> Evaluator ()
 paramGuard key a b = case a `compare` b of
@@ -366,24 +364,27 @@ callFunction :: Identifier -> Int -> Stack Expr -> MeowFunction -> Evaluator Meo
 callFunction key arity exprs function = stackTrace key $ do
     paramGuard key arity (funcArity function)
     let closure = funcClosure function
+    values <- mapM expression exprs
     runClosure closure $ do
-        bindArgs (funcParams function) exprs
+        bindArgs (funcParams function) values
         statement (funcBody function) >>= liftReturn
 
 callMethod :: Identifier -> Int -> Stack Expr -> MeowFunction -> Ref MeowPrim -> Evaluator MeowPrim
 callMethod key arity exprs function ref = stackTrace key $ do
     paramGuard key arity (funcArity function)
     let closure = funcClosure function
+    values <- mapM expression exprs
     runClosure closure $ do
-        bindArgs (funcParams function) exprs
+        bindArgs (funcParams function) values
         contextPush "home" ref
         statement (funcBody function) >>= liftReturn
 
 callInnerFunc :: Identifier -> Int -> Stack Expr -> MeowIFunction -> Evaluator MeowPrim
 callInnerFunc key arity exprs f = stackTrace key $ do
     paramGuard key arity (ifuncArity f)
+    values <- mapM expression exprs
     runLocal $ do
-        bindArgs (ifuncParams f) exprs
+        bindArgs (ifuncParams f) values
         ifunc f
 
 stackTrace :: Identifier -> Evaluator a -> Evaluator a
