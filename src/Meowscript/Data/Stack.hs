@@ -130,11 +130,10 @@ compareM f (x ::| xs)  (y ::| ys)  = f x y >>= \case
     EQ      -> compareM f xs ys
     other   -> return other
 
-select :: (a -> Bool) -> Stack a -> (Stack a, Stack a) -> (Stack a, Stack a)
-select _ Bottom     (as, bs) = (as, bs)
-select f (x ::| xs) (as, bs) = if f x
-    then select f xs (x ::| as, bs)
-    else select f xs (as, x ::| bs)
+select :: (a -> Bool) -> a -> (Stack a, Stack a) -> (Stack a, Stack a)
+select f x (as, bs) = if f x
+    then (x ::| as, bs)
+    else (as, x ::| bs)
 
 partition :: (a -> Bool) -> Stack a -> (Stack a, Stack a)
-partition fn stack = select fn stack (empty, empty)
+partition f = foldr (select f) (empty, empty)
