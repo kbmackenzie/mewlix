@@ -67,6 +67,8 @@ library
       Meowscript.Parser.Run
       Meowscript.Parser.Statement
       Meowscript.Parser.Utils
+      Meowscript.REPL.Actions
+      Meowscript.REPL.Parse
       Meowscript.REPL.Read
       Meowscript.Utils.List
       Meowscript.Utils.Show
