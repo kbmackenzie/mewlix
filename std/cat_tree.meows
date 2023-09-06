@@ -117,7 +117,7 @@ which it **always deep-copies.**
         bring home -- Allow chaining.
     meow meow
 
-    bring ~( ^.x.^) BOX!! [
+    bring =^.x.^= [
         current:    copy(init),
         state:      copy(state),
         iterator:   copy(iterator),
@@ -328,7 +328,7 @@ meow meow
         queue = []
     meow meow
 
-    bring ~( ^.x.^) BOX!! [
+    bring =^.x.^= [
         scratch: scratch,
         step: do_step,
         pick: pick,

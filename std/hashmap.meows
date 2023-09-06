@@ -66,7 +66,7 @@ takes "std.meows" as std
             pair push top
         meow meow
 
-        mew new_pair = ~( ^.x.^) BOX!! [ 
+        mew new_pair = =^.x.^= [ 
             key: key,
             value: value
         ]
@@ -123,13 +123,13 @@ takes "std.meows" as std
         bring top
     meow meow
 
-    bring ~( ^.x.^) BOX!! [
-        pairs: ~( ^.x.^) BOX!! [],
+    bring =^.x.^= [
+        pairs: =^.x.^= [],
         add: add_pair,
         get: get_pair,
         contains: contains_pair,
         remove: remove_pair,
-        clear: ( ^.x.^)> () => (home.pairs = ~( ^.x.^) BOX!! [])
+        clear: ( ^.x.^)> () => (home.pairs = =^.x.^= [])
     ]
 meow meow
 

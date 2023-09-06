@@ -9,11 +9,14 @@ import Meowscript.Interpreter.API
 import qualified Meowscript.Data.Stack as Stack
 import Meowscript.IO.Print (printException, printTextLn)
 import qualified Data.HashMap.Strict as HashMap
+import Meowscript.Libraries.Base (baseLibrary)
 
 main :: IO ()
 main = do
+    --let path = "examples/tictactoe/main.meows"
     let path = "loop.meows"
-    let libs = Libraries { getLibs = Stack.empty }
+    baseLib <- baseLibrary
+    let libs = Libraries { getLibs = Stack.singleton baseLib }
     ma <- runFile path True [] libs
     case ma of
         (Left e) -> printException (showException e)

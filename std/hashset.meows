@@ -101,12 +101,12 @@ takes "exception.meows"
         bring top
     meow meow
 
-    bring ~( ^.x.^) BOX!! [
-        items: ~( ^.x.^) BOX!! [],
+    bring =^.x.^= [
+        items: =^.x.^= [],
         add: add_value,
         contains: contains_value,
         remove: remove_value,
-        clear: ( ^.x.^)> () => (home.items = ~( ^.x.^) BOX!! [])
+        clear: ( ^.x.^)> () => (home.items = =^.x.^= [])
     ]
 meow meow
 

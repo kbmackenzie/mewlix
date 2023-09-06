@@ -30,7 +30,7 @@ mew TokenAction = to_hashmap ([
 ])
 
 =^.x.^= make_context (input)
-    bring ~( ^.x.^) BOX!! [
+    bring =^.x.^= [
         index: 0,
         map: hashmap(),
         update:    ( ^.x.^)> (x) => home.map.add(home.index, x),

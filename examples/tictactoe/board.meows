@@ -8,7 +8,7 @@ This yarn ball creates the board.
 takes "std.meows"
 takes "hashmap.meows"
 
-mew Tile = ~( ^.x.^) BOX!! [
+mew Tile = =^.x.^= [
     empty: " ",
     x:     "x",
     o:     "o"

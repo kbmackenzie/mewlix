@@ -22,7 +22,7 @@ Time conversion functions.
     mew min = floor(x / 60)
     mew sec = floor(x % 60)
     mew msec = (x % 1) * 1000
-    bring ~( ^.x.^) BOX!! [
+    bring =^.x.^= [
         min: min,
         sec: sec,
         msec: msec

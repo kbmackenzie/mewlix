@@ -18,14 +18,14 @@ mew TokenType = enum ([
     "Gets"          -- Read the next value from input.
 ])
 
-mew AST = ~( ^.x.^) BOX!! [ -- AST constructors:
+mew AST = =^.x.^= [ -- AST constructors:
     -- Simple instruction:
-    Instruction: ( ^.x.^)> (type, count) => ~( ^.x.^) BOX!! [        
+    Instruction: ( ^.x.^)> (type, count) => =^.x.^= [        
         type: type,
         count: count
     ],
     -- Loop block:
-    Loop:  ( ^.x.^)> (block) => ~( ^.x.^) BOX!! [
+    Loop:  ( ^.x.^)> (block) => =^.x.^= [
         type: TokenType.Loop,
         block: block
     ]
@@ -41,7 +41,7 @@ mew TokenMap = to_hashmap ([
 ])
 
 =^.x.^= _parser_output(tokens, str)
-    bring ~( ^.x.^) BOX!! [
+    bring =^.x.^= [
         tokens: tokens,
         rest_of_input: str
     ]
