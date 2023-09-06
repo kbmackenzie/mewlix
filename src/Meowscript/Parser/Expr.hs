@@ -13,7 +13,6 @@ module Meowscript.Parser.Expr
 import Meowscript.Parser.AST
 import Meowscript.Parser.Prim
 import Meowscript.Parser.Utils
-import Meowscript.Data.Stack (Stack)
 import qualified Meowscript.Data.Stack as Stack
 import Meowscript.Parser.Keywords
 import Text.Megaparsec ((<|>), (<?>))

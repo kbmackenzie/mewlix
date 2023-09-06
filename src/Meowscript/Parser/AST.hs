@@ -17,15 +17,16 @@ module Meowscript.Parser.AST
 , fromImport
 ) where
 
+import Data.Text (Text)
 import qualified Data.Text as Text
 import Meowscript.Utils.Types
 import Meowscript.Data.Stack (Stack)
 
-type Identifier = Text.Text
+type Identifier = Text
 
 data ParserPrim =
       PrimInt Int
-    | PrimStr Text.Text
+    | PrimStr Text
     | PrimFloat Double
     | PrimBool Bool
     | PrimNil
@@ -76,7 +77,7 @@ data Unop =
     deriving (Show)
 
 type Block  = Stack Statement
-type Params = Stack Text.Text
+type Params = Stack Text
 type CatchBlock = (Maybe Expr, Block)
 
 -- A 'lifted' expression type that allows declarations.
