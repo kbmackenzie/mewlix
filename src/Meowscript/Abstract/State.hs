@@ -22,6 +22,7 @@ module Meowscript.Abstract.State
 , includePathsL
 , flagSetL
 , moduleSocketL
+, moduleArgsL
 , modulePathL
 , moduleIsMainL
 , evaluatorEnvL
@@ -35,13 +36,10 @@ module Meowscript.Abstract.State
 , addFlag
 , addInclude
 , addLibrary
+, addArgs
 -- Utils:
 , joinLibraries
 , createEnvironment
--- Inititializers:
---, initMeta
---, emptyMeta
---, initState
 ) where
 
 -- Meow:
@@ -58,7 +56,7 @@ import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
 import qualified Meowscript.Data.Stack as Stack
 -- Other:
-import Lens.Micro.Platform (makeLensesFor, (^.), (%~), over)
+import Lens.Micro.Platform (makeLensesFor, (%~), over, set)
 import Control.Monad.IO.Class (MonadIO(..))
 
 newtype Environment a = Environment { getEnv :: HashMap Text (Ref a) }
@@ -72,7 +70,8 @@ data EvaluatorMeta = EvaluatorMeta
     , defineMap     :: DefineMap
     , includePaths  :: [FilePath]
     , flagSet       :: FlagSet
-    , moduleSocket  :: Maybe Int   }
+    , moduleSocket  :: Maybe Int
+    , moduleArgs    :: Stack Text  }
 
 data ModuleInfo = ModuleInfo
     { modulePath    :: FilePath
@@ -107,7 +106,8 @@ $(makeLensesFor
     , ("defineMap"    , "defineMapL"    )
     , ("includePaths" , "includePathsL" )
     , ("flagSet"      , "flagSetL"      )
-    , ("moduleSocket" , "moduleSocketL" ) ] ''EvaluatorMeta)
+    , ("moduleSocket" , "moduleSocketL" )
+    , ("moduleArgs"   , "moduleArgsL"   ) ] ''EvaluatorMeta)
 
 $(makeLensesFor
     [ ("modulePath"   , "modulePathL"   )
@@ -142,6 +142,9 @@ addInclude = over (evaluatorMetaL.includePathsL) . (:)
 addLibrary :: Environment p -> EvaluatorState p -> EvaluatorState p
 addLibrary = over (evaluatorLibsL.getLibsL) . Stack.push
 
+addArgs :: [Text] -> EvaluatorState p -> EvaluatorState p
+addArgs = set (evaluatorMetaL.moduleArgsL) . Stack.fromList
+
 {- Utils -}
 -------------------------------------------------------------------------------------
 joinLibraries :: Libraries p -> Environment p
@@ -152,51 +155,3 @@ createEnvironment :: (MonadIO m) => [(Text, a)] -> m (Environment a)
 createEnvironment pairs = do
     let pack (key, ref) = (key,) <$> newRef ref
     Environment . HashMap.fromList <$> mapM pack pairs
-
-
-{- Initializers -}
--------------------------------------------------------------------------------------
-{-
-initMeta :: (MonadIO m) => DefineMap -> [FilePath] -> FlagSet -> m EvaluatorMeta
-initMeta defmap include flagset = do
-    moduleCache <- ModuleCache <$> newRef HashMap.empty
-    return EvaluatorMeta {
-        cachedModules   = moduleCache,
-        defineMap       = defmap,
-        includePaths    = include,
-        flagSet         = flagset,
-        moduleSocket    = Nothing
-    }
-
-emptyMeta :: (MonadIO m) => m EvaluatorMeta
-emptyMeta = initMeta HashMap.empty [] Set.empty
-
-initState :: (MonadIO m) => FilePath -> Bool -> m (EvaluatorState p)
-initState path isMain = do
-    ctx     <- initContext 
-    meta    <- emptyMeta
-    let info = ModuleInfo {
-        modulePath   = path,
-        moduleIsMain = isMain
-    }
-    let libs = Libraries {
-        getLibs = Stack.empty
-    }
-    return EvaluatorState {
-        evaluatorEnv  = ctx,
-        moduleInfo    = info,
-        evaluatorMeta = meta,
-        evaluatorLibs = libs
-    }
--}
-
-{-
--- Creates state with a clean context; everything else is unchanged.
--- This function does not affect context.
-cleanContext :: (MonadIO m) => EvaluatorState p -> m (EvaluatorState p)
-cleanContext state = do
-    let libs = joinLibraries (evaluatorLibs state)
-    !newCtx <- initContext
-    modifyRef (<> libs) (globalEnv newCtx)
-    return state { evaluatorEnv = newCtx }
--}

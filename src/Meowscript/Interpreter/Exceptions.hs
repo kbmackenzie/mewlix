@@ -12,6 +12,8 @@ module Meowscript.Interpreter.Exceptions
 , notAFunctionName
 , arityException
 , notAFuncionException
+, argumentTypeException
+, conversionException
 , importException
 , importSyntaxException
 , unexpectedException
@@ -60,6 +62,14 @@ arityException message key = CatException MeowArity $ Text.concat
 notAFuncionException :: (MonadIO m) => [MeowPrim] -> m CatException
 notAFuncionException = exceptionBase MeowTypeMismatch "Cannot invoke a non-callable value as a function!"
 
+argumentTypeException :: (MonadIO m) => Text -> [MeowPrim] -> m CatException
+argumentTypeException key = exceptionBase MeowTypeMismatch $ Text.concat
+    [ "Invalid arguments passed to function \"", key, "\"!" ]
+
+conversionException :: Text -> Text -> CatException
+conversionException target message = CatException MeowTypeMismatch $ Text.concat
+    [ "Could not convert string to ", target,": ", message ]
+
 importException :: FilePath -> CatException
 importException path = CatException MeowBadImport $ Text.concat
     [ "Could not import file \"", Text.pack path, "\": File not found!" ]
@@ -72,4 +82,4 @@ unexpectedException :: Text -> CatException
 unexpectedException = CatException MeowUnexpected . flip Text.append pleaseContactTheDev
 
 pleaseContactTheDev :: Text
-pleaseContactTheDev = " | Please contact the dev at @KBMackenzie on Github to report if you can!"
+pleaseContactTheDev = " | Please contact the dev at @KBMackenzie on Github to report this error if you can!"

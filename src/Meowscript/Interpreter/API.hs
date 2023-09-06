@@ -44,7 +44,8 @@ initMeta = do
         flagSet         = Set.empty,
         defineMap       = HashMap.empty,
         includePaths    = [],
-        moduleSocket    = Nothing
+        moduleSocket    = Nothing,
+        moduleArgs      = Stack.empty
     }
 
 initState :: (MonadIO m) => EvaluatorMeta -> Libraries MeowPrim -> ModuleInfo -> m (EvaluatorState MeowPrim)

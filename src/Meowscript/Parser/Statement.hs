@@ -57,8 +57,7 @@ statements n = Mega.choice
 
 parseEnd :: Parser ()
 parseEnd = whitespace >> (void . keyword) meowEnd
-    <|> fail (concat ["Expected '", Text.unpack meowEnd,
-                "': Block is unclosed instead!"])
+    <|> fail (concat ["Expected '", Text.unpack meowEnd, "': Block is unclosed instead!"])
 
 parensExpression :: Parser Expr
 parensExpression = (lexeme . parens) (whitespace >> parseExpr)
@@ -185,13 +184,15 @@ parseFor nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
 {- Import -}
 ----------------------------------------------------------------
 parseImport :: Nesting -> Parser Statement
-parseImport _ = lexeme $ do
+parseImport nesting = lexeme $ do
     let (start, end) = meowTakes
     (void . tryKeyword) start
     (PrimStr filepath) <- lexeme parseStr
     let key = (void . tryKeyword) end >> lexeme keyText
     maybeKey <- Mega.optional key
-    return (StmtImport filepath maybeKey)
+    case nesting of
+        Root -> return (StmtImport filepath maybeKey)
+        _    -> fail "Import statements cannot be nested!"
 
 {- Watch/Catch -}
 ----------------------------------------------------------------

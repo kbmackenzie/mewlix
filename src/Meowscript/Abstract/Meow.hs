@@ -35,12 +35,12 @@ module Meowscript.Abstract.Meow
 , runLocal
 , runClosure
 , showException
-, boxString
-, boxStack
-, boxList
-, stackPop
-, stackPush
-, strTail
+, toBoxedString
+, toBoxedStack
+, listToBoxedStack
+, boxedStackPop
+, boxedStackPush
+, boxedStringTail
 , liftToMeow
 ) where
 
@@ -256,32 +256,32 @@ showException :: CatException -> Text
 showException e = Text.concat [ "[", (showT . exceptionType) e , "] ", exceptionMessage e ]
 
 -- Boxed --
-boxString :: Text -> BoxedString
-boxString x = BoxedString { unboxStr = x, strLen = Text.length x }
+toBoxedString :: Text -> BoxedString
+toBoxedString x = BoxedString { unboxStr = x, strLen = Text.length x }
 
-boxStack :: Stack MeowPrim -> BoxedStack
-boxStack xs = BoxedStack { unboxStack = xs, stackLen = Stack.length xs }
+toBoxedStack :: Stack MeowPrim -> BoxedStack
+toBoxedStack xs = BoxedStack { unboxStack = xs, stackLen = Stack.length xs }
 
-boxList :: [MeowPrim] -> BoxedStack
-boxList xs = BoxedStack { unboxStack = Stack.fromList xs, stackLen = length xs }
+listToBoxedStack :: [MeowPrim] -> BoxedStack
+listToBoxedStack xs = BoxedStack { unboxStack = Stack.fromList xs, stackLen = length xs }
 
-stackPop :: BoxedStack -> BoxedStack
-stackPop (BoxedStack stack n) = case stack of
-    Bottom -> error "Meowscript.Abstract.Atom.stackPop: Cannot pop empty stack!"
+boxedStackPop :: BoxedStack -> BoxedStack
+boxedStackPop (BoxedStack stack n) = case stack of
+    Bottom -> error "Meowscript.Abstract.Atom.boxedStackPop: Cannot pop empty stack!"
     (_ ::| xs) -> BoxedStack { unboxStack = xs, stackLen = n - 1 }
 
-stackPush :: MeowPrim -> BoxedStack -> BoxedStack
-x `stackPush` BoxedStack xs n  = BoxedStack (x ::| xs) (n + 1)
+boxedStackPush :: MeowPrim -> BoxedStack -> BoxedStack
+x `boxedStackPush` BoxedStack xs n  = BoxedStack (x ::| xs) (n + 1)
 
-strTail :: BoxedString -> BoxedString
-strTail (BoxedString str n) = if Text.null str
-    then error "Meowscript.Abstract.Atom.strTail: Cannot get tail of empty string!"
+boxedStringTail :: BoxedString -> BoxedString
+boxedStringTail (BoxedString str n) = if Text.null str
+    then error "Meowscript.Abstract.Atom.boxedStringTail: Cannot get tail of empty string!"
     else BoxedString { unboxStr = Text.tail str, strLen = n - 1 }
 
 -- Lifting --
 liftToMeow :: ParserPrim -> MeowPrim
 liftToMeow (PrimInt n) = MeowInt n
-liftToMeow (PrimStr s) = (MeowString . boxString) s
+liftToMeow (PrimStr s) = (MeowString . toBoxedString) s
 liftToMeow (PrimFloat f) = MeowFloat f
 liftToMeow (PrimBool b) = MeowBool b
 liftToMeow PrimNil = MeowNil

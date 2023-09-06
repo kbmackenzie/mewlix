@@ -338,9 +338,8 @@ statement ( (StmtTryCatch tryBlock (maybeExpr, catchBlock)) ::| rest ) = do
         ReturnVoid  -> statement rest
         other       -> return other
 
-statement ( (StmtImport _ _) ::| rest ) = do
-    statement rest
-
+statement ( (StmtImport _ _) ::| _ ) = do
+    throwError $ unexpectedException "Nested import should never be parsed."
 
 {- Functions -}
 ---------------------------------------------------------------

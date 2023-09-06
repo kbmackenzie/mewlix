@@ -120,8 +120,8 @@ meowNotEq = comparisonBase (/= EQ)
 ---------------------------------------------------------------------------------
 meowPush :: MeowPrim -> MeowPrim -> Evaluator MeowPrim
 MeowString a `meowPush` MeowString b        = (return . MeowString) (a <> b)
-a            `meowPush` MeowString b        = MeowString . (<> b) . boxString <$> showMeow a
-a            `meowPush` MeowStack xs         = (return . MeowStack) (a `stackPush` xs)
+a            `meowPush` MeowString b        = MeowString . (<> b) . toBoxedString <$> showMeow a
+a            `meowPush` MeowStack xs        = (return . MeowStack) (a `boxedStackPush` xs)
 a `meowPush` b = throwError =<< operationException "push" [a, b]
 
 meowPeek :: MeowPrim -> Evaluator MeowPrim
@@ -136,10 +136,10 @@ meowPeek a = throwError =<< operationException "peek" [a]
 meowPop :: MeowPrim -> Evaluator MeowPrim
 meowPop (MeowString xs) = let str = unboxStr xs in if Text.null str
     then (return . MeowString) xs
-    else (return . MeowString . strTail) xs
+    else (return . MeowString . boxedStringTail) xs
 meowPop (MeowStack xs) = if (Stack.null . unboxStack) xs
     then return MeowNil
-    else (return . MeowStack . stackPop) xs
+    else (return . MeowStack . boxedStackPop) xs
 meowPop a = throwError =<< operationException "pop" [a]
 
 meowConcat :: MeowPrim -> MeowPrim -> Evaluator MeowPrim
@@ -149,11 +149,11 @@ MeowBox a      `meowConcat` MeowBox b       = do
     newMap <- (<>) <$> getMap a <*> getMap b
     MeowBox . CatBox <$> newRef newMap
 MeowString a   `meowConcat` MeowString b    = (return . MeowString) (a <> b)
-MeowString a   `meowConcat` b               = MeowString . (a <>) . boxString <$> showMeow b
-a              `meowConcat` MeowString b    = MeowString . (<> b) . boxString <$> showMeow a
+MeowString a   `meowConcat` b               = MeowString . (a <>) . toBoxedString <$> showMeow b
+a              `meowConcat` MeowString b    = MeowString . (<> b) . toBoxedString <$> showMeow a
 a              `meowConcat` b               = do
-    strA <- boxString <$> showMeow a
-    strB <- boxString <$> showMeow b
+    strA <- toBoxedString <$> showMeow a
+    strB <- toBoxedString <$> showMeow b
     (return . MeowString) (strA <> strB)
 
 meowLength :: MeowPrim -> Evaluator MeowPrim

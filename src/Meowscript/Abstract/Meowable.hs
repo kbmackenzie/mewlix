@@ -29,7 +29,7 @@ instance Meowable Double where
     toMeow = return . MeowFloat
 
 instance Meowable Text where
-    toMeow = return . MeowString . boxString
+    toMeow = return . MeowString . toBoxedString
 
 instance Meowable Bool where
     toMeow = return . MeowBool
@@ -38,10 +38,10 @@ instance Meowable Char where
     toMeow = toMeow . Text.singleton
 
 instance (Meowable a) => Meowable (Stack a) where
-    toMeow xs = mapM toMeow xs >>= \stack -> (return . MeowStack . boxStack) stack
+    toMeow xs = mapM toMeow xs >>= \stack -> (return . MeowStack . toBoxedStack) stack
 
 instance (Meowable a) => Meowable [a] where
-    toMeow xs = mapM toMeow xs >>= \list -> (return . MeowStack . boxList) list
+    toMeow xs = mapM toMeow xs >>= \list -> (return . MeowStack . listToBoxedStack) list
 
 instance Meowable MeowPairs where
     toMeow xs = do
