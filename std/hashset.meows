@@ -28,7 +28,7 @@ takes "exception.meows"
     pollute the outer environment.
     <(^.x.^ )~
 
-    TABLE_SIZE = 769
+    mew TABLE_SIZE = 769
 
     =^.x.^= get_hash(key)
         bring string(hash(key) % TABLE_SIZE)

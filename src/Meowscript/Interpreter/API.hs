@@ -71,7 +71,7 @@ runFile path isMain transforms libs = do
 
     let run :: Evaluator ReturnValue
         run = do
-            (resolvedPath, Module block) <- readModule path
+            (resolvedPath, Module block) <- readModule path True
             local (moduleInfoL.modulePathL .~ resolvedPath) $ do
                 let !(imports, rest) = Stack.partition isImport block
                 mapM_ (uncurry runAsImport . fromImport) imports
@@ -81,8 +81,7 @@ runFile path isMain transforms libs = do
 
 runAsImport :: FilePath -> Maybe Key -> Evaluator ()
 runAsImport path qualified = do
-    localize <- localizePath <$> asks (modulePath . moduleInfo)
-    (resolvedPath, Module block) <- readModule (localize path)
+    (resolvedPath, Module block) <- readModule path False
     let info = ModuleInfo {
         modulePath = resolvedPath,
         moduleIsMain = False

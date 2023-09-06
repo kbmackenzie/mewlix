@@ -90,12 +90,12 @@ parseWhile nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
 ----------------------------------------------------------------
 data MeowIf = MeowIf Expr Block deriving (Show)
 
-parseIf :: Nesting -> Parser (Expr, Block)
+parseIf :: Nesting -> Parser (Block -> Statement)
 parseIf nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . tryKeyword) meowIf
     condition <- parensExpression
     let nest = max nesting Nested
-    let makeBody = return . (condition,) . Stack.fromList
+    let makeBody = return . StmtIfElse condition. Stack.fromList
     return $ Lexer.IndentMany Nothing makeBody (statements nest)
 
 parseElse :: Nesting -> Parser Block
@@ -104,19 +104,15 @@ parseElse nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
     let nest = max nesting Nested
     return $ Lexer.IndentMany Nothing (return . Stack.fromList) (statements nest)
 
--- Allows nested if/else!
-elseIf :: Nesting -> Parser Block
-elseIf nesting = Mega.choice 
-    [ Mega.try (parseElse nesting)
-    , fmap Stack.singleton (parseIfElse nesting) 
-    , return Stack.empty                        ]
-
 parseIfElse :: Nesting -> Parser Statement
-parseIfElse nesting = lexeme $ do
-    (cond, ifBody) <- parseIf nesting
-    elseBody <- elseIf nesting
+parseIfElse nesting = do
+    ifs         <- Mega.some (parseIf nesting)
+    elseBlock   <- Mega.try (parseElse nesting) <|> return Stack.empty
+    let f :: (Block -> Statement) -> (Block -> Statement) -> (Block -> Statement)
+        f x acc = x . Stack.singleton . acc
+    let foldedIf = foldr1 f ifs
     parseEnd
-    return (StmtIfElse cond ifBody elseBody)
+    return $ foldedIf elseBlock
 
 
 {- Functions -}

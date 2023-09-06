@@ -224,7 +224,7 @@ liftedExpression :: LiftedExpr -> Evaluator MeowPrim
 liftedExpression (LiftExpr expr) = expression expr
 liftedExpression (LiftDecl key expr) = do
     value <- expression expr
-    contextWrite key value
+    contextDefine key value
     return value
 
 
@@ -358,8 +358,8 @@ bindArgs params prims = do
 paramGuard :: Identifier -> Int -> Int -> Evaluator ()
 paramGuard key a b = case a `compare` b of
     EQ -> return ()
-    LT -> throwError (arityException "Too many arguments" key)
-    GT -> throwError (arityException "Not enough arguments" key)
+    LT -> throwError (arityException "Not enough arguments" key)
+    GT -> throwError (arityException "Too many arguments" key)
 
 callFunction :: Identifier -> Int -> Stack Expr -> MeowFunction -> Evaluator MeowPrim
 callFunction key arity exprs function = stackTrace key $ do

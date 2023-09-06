@@ -1,5 +1,6 @@
-takes "std.meows" as std
+--takes "std.meows" as std
 
+~( ^.x.^)>
 mew x = 0
 meowmeow (x < 1000)
     mew? (x > 100)
@@ -8,6 +9,20 @@ meowmeow (x < 1000)
     paw at x
 meow meow
 
+mew? (sad)
+    meow("x")
 mew? (happy)
-    catnap
+    meow("y")
+mew? (happy)
+    meow("z")
 meow meow
+<(^.x.^ )~
+
+watch
+catch (2)
+catch (3)
+meow meow
+
+--mew? (happy)
+    --catnap
+--meow meow

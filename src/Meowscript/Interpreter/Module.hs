@@ -16,7 +16,7 @@ import qualified Data.Set as Set
 import qualified Data.HashSet as HashSet
 import qualified Data.HashMap.Strict as HashMap
 import Meowscript.IO.DataFile (readDataFile)
-import Meowscript.IO.Directory (isDirectoryPath)
+import Meowscript.IO.Directory (isDirectoryPath, localizePath)
 import Meowscript.IO.File (safeDoesFileExist, safeReadFile)
 import Control.Applicative ((<|>))
 import Lens.Micro.Platform ((^.))
@@ -31,14 +31,14 @@ type SearchOutput = (FilePath, Module)
 {- Get Module -}
 ----------------------------------------------------------------------------------------
 -- Try reading a file:
-readModule :: FilePath -> Evaluator SearchOutput
-readModule path = if isStdModule path
+readModule :: FilePath -> Bool -> Evaluator SearchOutput
+readModule path isMain = if isStdModule path
     then getStdModule path
-    else findModule path
+    else findModule path isMain
 
 -- Searching for a file:
-findModule :: FilePath -> Evaluator SearchOutput
-findModule path = do
+findModule :: FilePath -> Bool -> Evaluator SearchOutput
+findModule path isMain = do
     -- Function to search each possible path safely.
     let search :: [FilePath] -> Evaluator (Maybe (FilePath, Text))
         search []       = return Nothing
@@ -46,13 +46,21 @@ findModule path = do
             True  -> safeReadFile x >>| return . Just . (x,)
             False -> search xs
 
+    -- Localize module path if module being imported isn't
+    -- the main module.
+    truePath <- if isMain
+        then return path
+        else do
+            mainPath <- asks (^.moduleInfoL.modulePathL)
+            return $ localizePath mainPath path
+
     -- Include paths specified in the interpreter.
     include <- asks (^.evaluatorMetaL.includePathsL)
     flagset <- asks (^.evaluatorMetaL.flagSetL)
 
     -- The 'path' parameter is already resolved!
-    let resolver = resolvePath flagset . (</> path)
-    let paths    = path : map resolver include
+    let resolver = resolvePath flagset . (</> truePath)
+    let paths    = truePath : map resolver include
 
     -- Loading module cache.
     cache   <- cacheGet
@@ -77,6 +85,7 @@ makeModule path contents = case parseRoot path contents of
     (Left exc)     -> throwError $ importSyntaxException path exc
     (Right output) -> do
         let newModule = Module output
+        liftIO (print output)
         cacheAdd path newModule
         return (path, newModule)
 

@@ -39,7 +39,7 @@ baseLibrary = createEnvironment
     [ makeIFunc "meow"      ["x"]   meow
     , makeIFunc "purr"      ["x"]   purr
     , makeIFunc "listen"    ["x"]   listen
-    , makeIFunc "snoop"     ["x"]   snoop
+    , makeIFunc "snoop"     [   ]   snoop
     , makeIFunc "search"    ["x"]   search
     , makeIFunc "angry"     ["x"]   angry
     , makeIFunc "reverse"   ["x"]   reverseFn
@@ -103,12 +103,12 @@ baseLibrary = createEnvironment
 ----------------------------------------------------------
 meow :: IFunc
 meow = do
-    lookUp "x" >>= prettyMeow >>= liftIO . printTextLn
+    lookUp "x" >>= showMeow >>= liftIO . printTextLn
     return MeowNil
 
 purr :: IFunc
 purr = do
-    lookUp "x" >>= prettyMeow >>= liftIO . printText
+    lookUp "x" >>= showMeow >>= liftIO . printText
     return MeowNil
 
 listen :: IFunc
@@ -123,7 +123,7 @@ snoop = do
 
 angry :: IFunc
 angry = do
-    lookUp "x" >>= prettyMeow >>= liftIO . printErrorLn
+    lookUp "x" >>= showMeow >>= liftIO . printErrorLn
     return MeowNil
 
 search :: IFunc
