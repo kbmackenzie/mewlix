@@ -56,7 +56,7 @@ expression (ExprTernary condition a b) = do
 -- Atom generators:
 expression (ExprList exprs) = do
     items <- mapM expression exprs
-    (return . MeowStack . boxList) items
+    (return . MeowStack . listToBoxedStack) items
 
 expression (ExprBox pairs) = do
     let eval (key, expr) = (key,) <$> expression expr

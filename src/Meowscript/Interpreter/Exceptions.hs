@@ -14,6 +14,7 @@ module Meowscript.Interpreter.Exceptions
 , notAFuncionException
 , argumentTypeException
 , conversionException
+, catOnComputer
 , importException
 , importSyntaxException
 , unexpectedException
@@ -69,6 +70,9 @@ argumentTypeException key = exceptionBase MeowTypeMismatch $ Text.concat
 conversionException :: Text -> Text -> CatException
 conversionException target message = CatException MeowTypeMismatch $ Text.concat
     [ "Could not convert string to ", target,": ", message ]
+
+catOnComputer :: Text -> CatException
+catOnComputer = CatException MeowCatOnComputer
 
 importException :: FilePath -> CatException
 importException path = CatException MeowBadImport $ Text.concat

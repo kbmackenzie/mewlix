@@ -45,7 +45,7 @@ safeMoveFile = safeFileAction . renameFile
 safeRenameFile :: FilePath -> String -> IO (Either Text.Text ())
 {-# INLINABLE safeRenameFile #-}
 safeRenameFile path name = do
-    let newPath = localPath path name
+    let newPath = localizePath path name
     safeFileAction (renameFile path) newPath
 
 safeRemoveFile :: FilePath -> IO (Either Text.Text ())

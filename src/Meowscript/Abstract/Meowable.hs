@@ -49,3 +49,6 @@ instance Meowable MeowPairs where
         ref <- newRef . HashMap.fromList =<< mapM pack (getPairs xs)
         let box = CatBox { getBox = ref }
         return (MeowBox box)
+
+instance Meowable () where
+    toMeow _ = return MeowNil

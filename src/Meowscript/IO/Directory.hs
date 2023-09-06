@@ -1,7 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Meowscript.IO.Directory
-( localPath
+( localizePath
 , isDirectoryPath
 , safeMoveDirectory
 , safeRemoveDirectory
@@ -26,9 +26,9 @@ import Control.Applicative (liftA2)
 
 {- Directory Handling -}
 ----------------------------------------------------------
-localPath :: FilePath -> FilePath -> FilePath
-{-# INLINABLE localPath #-}
-localPath path = (dropFileName path </>)
+localizePath :: FilePath -> FilePath -> FilePath
+{-# INLINABLE localizePath #-}
+localizePath path = (dropFileName path </>)
 
 isDirectoryPath :: FilePath -> Bool
 {-# INLINABLE isDirectoryPath #-}
@@ -47,7 +47,7 @@ safeMoveDirectory = safeDirectoryFunc . renameDirectory
 safeRenameDirectory :: FilePath -> String -> IO (Either Text.Text ())
 {-# INLINABLE safeRenameDirectory #-}
 safeRenameDirectory path name = do
-    let newPath = localPath path name
+    let newPath = localizePath path name
     safeDirectoryFunc (renameDirectory path) newPath
 
 safeRemoveDirectory :: FilePath -> IO (Either Text.Text ())

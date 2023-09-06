@@ -28,6 +28,7 @@ import Control.Monad.Except (runExceptT)
 import Control.Monad.Reader (runReaderT)
 import Lens.Micro.Platform ((.~))
 import Control.Monad (void, mapM_)
+import Meowscript.IO.Directory (localizePath)
 
 ---------------------------------------------------------------------------------
 interpret :: EvaluatorState MeowPrim -> Evaluator a -> IO (Either CatException a)
@@ -80,7 +81,8 @@ runFile path isMain transforms libs = do
 
 runAsImport :: FilePath -> Maybe Key -> Evaluator ()
 runAsImport path qualified = do
-    (resolvedPath, Module block) <- readModule path
+    localize <- localizePath <$> asks (modulePath . moduleInfo)
+    (resolvedPath, Module block) <- readModule (localize path)
     let info = ModuleInfo {
         modulePath = resolvedPath,
         moduleIsMain = False

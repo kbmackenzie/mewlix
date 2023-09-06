@@ -34,10 +34,12 @@ module Meowscript.Abstract.Meow
 , contextPush
 , runLocal
 , runClosure
+, contextHas
 , showException
 , toBoxedString
 , toBoxedStack
 , listToBoxedStack
+, toCatBox
 , boxedStackPop
 , boxedStackPush
 , boxedStringTail
@@ -178,6 +180,7 @@ data MeowException =
     | MeowNotBox
     | MeowNotProperty
     | MeowNotIdentifier
+    | MeowCatOnComputer
     | MeowBadIO
     -- Uncatchable:
     | MeowBadImport
@@ -193,6 +196,7 @@ instance Show MeowException where
         MeowNotBox          -> "InvalidBox"
         MeowNotProperty     -> "UnboundProperty"
         MeowNotIdentifier   -> "InvalidIdentifier"
+        MeowCatOnComputer   -> "CatOnComputer"
         MeowBadIO           -> "IO"
         MeowBadImport       -> "Import"
 
@@ -251,6 +255,12 @@ runClosure closure action = do
     newEnv <- copyRef closure
     local (evaluatorEnvL .~ newEnv) action
 
+contextHas :: Key -> Evaluator Bool
+{-# INLINE contextHas #-}
+contextHas key = do
+    envmap <- asks evaluatorEnv >>= readRef <&> getEnv
+    return $ HashMap.member key envmap
+
 --- Exceptions ----
 showException :: CatException -> Text
 showException e = Text.concat [ "[", (showT . exceptionType) e , "] ", exceptionMessage e ]
@@ -277,6 +287,9 @@ boxedStringTail :: BoxedString -> BoxedString
 boxedStringTail (BoxedString str n) = if Text.null str
     then error "Meowscript.Abstract.Atom.boxedStringTail: Cannot get tail of empty string!"
     else BoxedString { unboxStr = Text.tail str, strLen = n - 1 }
+
+toCatBox :: (MonadIO m) => BoxMap -> m MeowPrim
+toCatBox = fmap (MeowBox . CatBox) . newRef
 
 -- Lifting --
 liftToMeow :: ParserPrim -> MeowPrim

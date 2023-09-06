@@ -1,3 +1,5 @@
+takes "std.meows" as std
+
 mew x = 0
 meowmeow (x < 1000)
     mew? (x > 100)

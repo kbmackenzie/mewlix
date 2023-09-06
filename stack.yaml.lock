@@ -179,4 +179,18 @@ packages:
       size: 499
   original:
     hackage: clock-0.8.3
+- completed:
+    hackage: random-1.2.1.1@sha256:dea1f11e5569332dc6c8efaad1cb301016a5587b6754943a49f9de08ae0e56d9,6541
+    pantry-tree:
+      sha256: 646ee77fe01178837ee928b61ae8653dcf190e9b5353ebebd094079c77a18b76
+      size: 1528
+  original:
+    hackage: random-1.2.1.1
+- completed:
+    hackage: splitmix-0.1.0.4@sha256:db25c2e17967aa6b6046ab8b1b96ba3f344ca59a62b60fb6113d51ea305a3d8e,6537
+    pantry-tree:
+      sha256: d0ee67a1005ff3b666d3edce14e0b1f9ff966de7d090f6340fd436d958293839
+      size: 1519
+  original:
+    hackage: splitmix-0.1.0.4
 snapshots: []

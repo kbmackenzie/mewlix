@@ -14,32 +14,93 @@ import qualified Meowscript.Data.Stack as Stack
 import Meowscript.Abstract.Prettify
 import Meowscript.Abstract.Meowable
 import Meowscript.Abstract.PrimLens
-import Meowscript.Interpreter.Primitive
 import Meowscript.Parser.AST
 import Meowscript.Libraries.Utils
+import Meowscript.Interpreter.Primitive
+import Meowscript.Interpreter.Exceptions
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Read as Read
+import qualified Data.HashMap.Strict as HashMap
 import Lens.Micro.Platform ((%~), over)
 import Data.Functor ((<&>))
 -- IO:
 import Meowscript.IO.Print (printText, printTextLn, printErrorLn)
 import qualified Data.Text.IO as TextIO
+import Meowscript.Utils.Time (clockSec)
 import Control.Monad.IO.Class (MonadIO)
-import Meowscript.Interpreter.Primitive (primSort)
-import Meowscript.Interpreter.Exceptions (argumentTypeException, conversionException)
+import System.Random (randomIO)
+import Meowscript.IO.File
+import Meowscript.IO.Directory
 
 {- Base -}
 baseLibrary :: (MonadIO m) => m (Environment MeowPrim)
 baseLibrary = createEnvironment
     [ makeIFunc "meow"      ["x"]   meow
     , makeIFunc "purr"      ["x"]   purr
-    , makeIFunc "listen"    ["x"]   listen ]
+    , makeIFunc "listen"    ["x"]   listen
+    , makeIFunc "snoop"     ["x"]   snoop
+    , makeIFunc "search"    ["x"]   search
+    , makeIFunc "angry"     ["x"]   angry
+    , makeIFunc "reverse"   ["x"]   reverseFn
+    , makeIFunc "sort"      ["x"]   sortFn
+    , makeIFunc "int"       ["x"]   toInt
+    , makeIFunc "float"     ["x"]   toFloat
+    , makeIFunc "string"    ["x"]   toString
+    , makeIFunc "nuzzle"    ["x"]   toBool
+    , makeIFunc "bap"       ["x"]   toChar 
+    , makeIFunc "bop"       ["x"]   fromChar
+    , makeIFunc "keys"      ["x"]   getKeys
+    , makeIFunc "values"    ["x"]   getValues
+    , makeIFunc "copy"      ["x"]   meowCopy
+    , makeIFunc "hash"      ["x"]   meowHash
+    , makeIFunc "exists"    ["x"]   meowExist
+    , makeIFunc "typeof"    ["x"]   meowTypeOf
+    , makeIFunc "throw"     ["x"]   throwEx
+    -- Math:
+    , makeIFunc "pi"        [   ]   meowPi
+    , makeIFunc "exp"       ["x"]   meowExp
+    , makeIFunc "log"       ["x"]   meowLog
+    , makeIFunc "sqrt"      ["x"]   meowSqrt
+    , makeIFunc "sin"       ["x"]   meowSin
+    , makeIFunc "cos"       ["x"]   meowCos
+    , makeIFunc "tan"       ["x"]   meowTan
+    , makeIFunc "asin"      ["x"]   meowAsin
+    , makeIFunc "acos"      ["x"]   meowAcos
+    , makeIFunc "atan"      ["x"]   meowAtan
+    , makeIFunc "round"     ["x"]   meowRound
+    , makeIFunc "floor"     ["x"]   meowFloor
+    , makeIFunc "ceiling"   ["x"]   meowCeiling
+    , makeIFunc "random"    ["x"]   meowRandom
+    , makeIFunc "time"      ["x"]   meowTime
+    -- Boxes --
+    , makeIFunc "lookup"    ["box", "key"]  meowLookup
+    , makeIFunc "haskey"    ["box", "key"]  meowHasKey
+    -- Text --
+    , makeIFunc "upper"     ["x"]                   meowUpper
+    , makeIFunc "lower"     ["x"]                   meowLower
+    , makeIFunc "trim"      ["x"]                   meowTrim
+    , makeIFunc "split"     ["str", "token"]        meowSplit
+    , makeIFunc "substring" ["str", "token", "len"] meowSubstr
+    , makeIFunc "replace"   ["str", "token", "rep"] meowReplace
+    -- IO --
+    , makeIFunc "read_file"         ["path"]                meowRead
+    , makeIFunc "write_file"        ["path", "contents"]    meowWrite
+    , makeIFunc "append_file"       ["path", "contents"]    meowAppend
+    , makeIFunc "move_file"         ["from", "to"]          meowMoveFile
+    , makeIFunc "remove_file"       ["path"]                meowRemoveFile
+    , makeIFunc "rename_file"       ["path", "name"]        meowRenameFile
+    , makeIFunc "file_exists"       ["path"]                meowHasFile
+    , makeIFunc "make_directory"    ["path"]                meowMakeDirectory
+    , makeIFunc "move_directory"    ["from", "to"]          meowMoveDirectory
+    , makeIFunc "remove_directory"  ["path"]                meowRemoveDirectory
+    , makeIFunc "rename_directory"  ["path", "name"]        meowRenameDirectory
+    , makeIFunc "directory_exists"  ["path"]                meowHasDirectory
+    ]
 
--------------------------------------------------------------------------------------
-
+----------------------------------------------------------
 {- IO -}
----------------------------------
+----------------------------------------------------------
 meow :: IFunc
 meow = do
     lookUp "x" >>= prettyMeow >>= liftIO . printTextLn
@@ -65,7 +126,16 @@ angry = do
     lookUp "x" >>= prettyMeow >>= liftIO . printErrorLn
     return MeowNil
 
+search :: IFunc
+search = lookUp "x" >>= \case
+    (MeowString x) -> do
+        defmap <- asks (defineMap . evaluatorMeta)
+        let key = unboxStr x
+        hasKey <- contextHas key 
+        (return . MeowBool) $ hasKey || HashMap.member key defmap
+    x -> throwError =<< argumentTypeException "search" [x]
 
+----------------------------------------------------------
 {- Lists/Strings -}
 ----------------------------------------------------------
 reverseFn :: IFunc
@@ -79,6 +149,8 @@ sortFn = lookUp "x" >>= \case
     (MeowStack x) -> MeowStack . toBoxedStack <$> primSort (unboxStack x)
     x -> throwError =<< argumentTypeException "sort" [x]
 
+
+----------------------------------------------------------
 {- Conversion -}
 ----------------------------------------------------------
 toString :: IFunc
@@ -131,316 +203,290 @@ fromChar = lookUp "x" >>= \case
     x -> throwError =<< argumentTypeException "bop" [x]
 
 
-{-
-{- Conversion -}
 ----------------------------------------------------------
-toChar :: Evaluator Prim
-toChar = lookUp "x" >>= \case
-    (MeowInt x) -> (return . MeowString . Text.singleton . toEnum) x
-    (MeowString x) -> return $ if Text.null x
-        then MeowLonely
-        else (MeowString . Text.singleton . Text.head) x
-    x -> throwError =<< badArgs "to_char" [x]
-
-fromChar :: Evaluator Prim
-fromChar = lookUp "x" >>= \case
-    (MeowString x) -> if Text.null x
-        then (return . MeowInt) 0
-        else (return . MeowInt . fromEnum . Text.head) x
-    x -> throwError =<< badArgs "from_char" [x]
-
-
-
 {- Math -}
 ----------------------------------------------------------
 
-meowPi :: Evaluator Prim
-meowPi = (return . MeowDouble) pi
+meowPi :: IFunc
+meowPi = (return . MeowFloat) pi
 
-mathFn :: (Double -> Double) -> Text.Text -> Evaluator Prim
-mathFn fn name = lookUp "x" >>= \case
-    (MeowDouble x) -> (return . MeowDouble . fn) x
-    (MeowInt x) -> (return . MeowDouble . fn . fromIntegral) x
-    x -> throwError =<< badArgs name [x]
+mathBase :: (Double -> Double) -> Text -> IFunc
+mathBase f name = lookUp "x" >>= \case
+    (MeowFloat x) -> (return . MeowFloat . f) x
+    (MeowInt x)   -> (return . MeowFloat . f . fromIntegral) x
+    x -> throwError =<< argumentTypeException name [x]
 
-meowExp :: Evaluator Prim
-meowExp = mathFn exp "exp"
+meowExp :: IFunc
+meowExp = mathBase exp "exp"
 
-meowSqrt :: Evaluator Prim
-meowSqrt = mathFn sqrt "sqrt"
+meowLog :: IFunc
+meowLog = mathBase log "log"
 
-meowLog :: Evaluator Prim
-meowLog = mathFn log "log"
+meowSqrt :: IFunc
+meowSqrt = mathBase sqrt "sqrt"
 
-meowSin :: Evaluator Prim
-meowSin = mathFn sin "sin"
+meowSin :: IFunc
+meowSin = mathBase sin "sin"
 
-meowCos :: Evaluator Prim
-meowCos = mathFn cos "cos"
+meowCos :: IFunc
+meowCos = mathBase cos "cos"
 
-meowTan :: Evaluator Prim
-meowTan = mathFn tan "tan"
+meowTan :: IFunc
+meowTan = mathBase tan "tan"
 
-meowAsin :: Evaluator Prim
-meowAsin = mathFn asin "asin"
+meowAsin :: IFunc
+meowAsin = mathBase asin "asin"
 
-meowAcos :: Evaluator Prim
-meowAcos = mathFn acos "acos"
+meowAcos :: IFunc
+meowAcos = mathBase acos "acos"
 
-meowAtan :: Evaluator Prim
-meowAtan = mathFn atan "atan"
+meowAtan :: IFunc
+meowAtan = mathBase atan "atan"
 
-meowFloatFn :: (Double -> Int) -> Text.Text -> Evaluator Prim
-meowFloatFn fn name = lookUp "x" >>= \case
-    (MeowDouble x) -> (return . MeowInt . fn) x
-    (MeowInt x) -> (return . MeowInt) x
-    x -> throwError =<< badArgs name [x]
+floatTransformBase :: (Double -> Int) -> Text -> IFunc
+floatTransformBase f name = lookUp "x" >>= \case
+    (MeowFloat x) -> (return . MeowInt . f) x
+    (MeowInt x)   -> (return . MeowInt . f . fromIntegral) x
+    x -> throwError =<< argumentTypeException name [x]
 
-meowRound :: Evaluator Prim
-meowRound = meowFloatFn round "round"
+meowRound :: IFunc
+meowRound = floatTransformBase round "round"
 
-meowCeil :: Evaluator Prim
-meowCeil = meowFloatFn ceiling "ceiling"
+meowFloor :: IFunc
+meowFloor = floatTransformBase floor "floor"
 
-meowFloor :: Evaluator Prim
-meowFloor = meowFloatFn floor "floor"
+meowCeiling :: IFunc
+meowCeiling = floatTransformBase ceiling "ceiling"
 
-meowRand :: Evaluator Prim
-meowRand = MeowDouble <$> liftIO (randomIO :: IO Double)
+meowRandom :: IFunc
+meowRandom = MeowFloat <$> liftIO (randomIO :: IO Double)
 
-meowTime :: Evaluator Prim
-meowTime = MeowDouble <$> liftIO clockSec
+meowTime :: IFunc
+meowTime = MeowFloat <$> liftIO clockSec
 
 
+----------------------------------------------------------
 {- Text -}
 ----------------------------------------------------------
-meowStrFn :: (Text.Text -> Text.Text) -> Text.Text -> Evaluator Prim
-meowStrFn fn name = lookUp "x" >>= \case
-    (MeowString x) -> (return . MeowString . fn) x
-    x -> throwError =<< badArgs name [x]
+textTransformBase :: (Text -> Text) -> Text -> IFunc
+textTransformBase f name = lookUp "x" >>= \case
+    (MeowString x) -> (toMeow . f . unboxStr) x
+    x -> throwError =<< argumentTypeException name [x]
 
-meowUpper :: Evaluator Prim
-meowUpper = meowStrFn Text.toUpper "upper"
+meowUpper :: IFunc
+meowUpper = textTransformBase Text.toUpper "upper"
 
-meowLower :: Evaluator Prim
-meowLower = meowStrFn Text.toLower "lower"
+meowLower :: IFunc
+meowLower = textTransformBase Text.toLower "lower"
 
-meowSubstr :: Evaluator Prim
-meowSubstr = (,,) <$> lookUp "str" <*> lookUp "start" <*> lookUp "len" >>= \case
-    (MeowString str, MeowInt start, MeowInt len) ->
-        (return . MeowString . Text.take len . Text.drop start) str
-    (x, y, z) -> throwError =<< badArgs "substring" [x, y, z]
-
-meowSplit :: Evaluator Prim
-meowSplit = (,) <$> lookUp "str" <*> lookUp "token" >>= \case
-    (MeowString str, MeowString token) -> if (not . Text.null) token
-        then (return . MeowList . (MeowString <$>)) (Text.splitOn token str)
-        else throwError =<< badArgs "split" [MeowString str, MeowString token]
-    (x, y) -> throwError =<< badArgs "split" [x, y]
-
-meowTrim :: Evaluator Prim
+meowTrim :: IFunc
 meowTrim = lookUp "x" >>= \case
-    (MeowString x) -> (return . MeowString . Text.strip) x
-    x -> throwError =<< badArgs "trim" [x]
+    (MeowString x) -> (toMeow . Text.strip . unboxStr) x
+    x -> throwError =<< argumentTypeException "trim" [x]
 
-meowReplace :: Evaluator Prim
+meowSubstr :: IFunc
+meowSubstr = (,,) <$> lookUp "str" <*> lookUp "start" <*> lookUp "len" >>= \case
+    (MeowString str, MeowInt start, MeowInt len) -> do
+        (toMeow . Text.take len . Text.drop start . unboxStr) str
+    (x, y, z) -> throwError =<< argumentTypeException "substring" [x, y, z]
+
+meowSplit :: IFunc
+meowSplit = (,) <$> lookUp "str" <*> lookUp "token" >>= \case
+    (MeowString str, MeowString token) -> if (not . Text.null . unboxStr) token
+        then toMeow $ Text.splitOn (unboxStr str) (unboxStr token)
+        else throwError =<< argumentTypeException "split" [MeowString str, MeowString token]
+    (x, y) -> throwError =<< argumentTypeException "split" [x, y]
+
+meowReplace :: IFunc
 meowReplace = (,,) <$> lookUp "str" <*> lookUp "token" <*> lookUp "rep" >>= \case
-    (MeowString str, MeowString token, MeowString replacement) -> if (not . Text.null) token
-        then (return . MeowString) (Text.replace token replacement str)
-        else throwError =<< badArgs "replace" (MeowString <$> [str, token, replacement])
-    (x, y, z) -> throwError =<< badArgs "replace" [x, y, z]
+    (MeowString str, MeowString token, MeowString replacement) -> if (not . Text.null . unboxStr) token
+        then toMeow $ Text.replace (unboxStr token) (unboxStr replacement) (unboxStr str)
+        else throwError =<< argumentTypeException "replace" (map MeowString [str, token, replacement])
+    (x, y, z) -> throwError =<< argumentTypeException "replace" [x, y, z]
 
 
+----------------------------------------------------------
 {- Boxes -}
 ----------------------------------------------------------
-
-getKeys :: Evaluator Prim
+getKeys :: IFunc
 getKeys = lookUp "x" >>= \case
-    (MeowObject x) -> (return . MeowList) (MeowString <$> Map.keys x)
-    x -> throwError =<< badArgs "keys" [x]
+    (MeowBox x) -> do
+        keys <- (fmap HashMap.keys . readRef . getBox) x
+        toMeow keys
+    x -> throwError =<< argumentTypeException "keys" [x]
 
-getValues :: Evaluator Prim
+getValues :: IFunc
 getValues = lookUp "x" >>= \case
-    (MeowObject x) -> MeowList <$> mapM (readMeowRef >=> ensureValue) (Map.elems x)
-    x -> throwError =<< badArgs "values" [x]
+    (MeowBox x) -> do
+        values <- (readRef . getBox) x >>= mapM readRef . HashMap.elems
+        (return . MeowStack . listToBoxedStack) values
+    x -> throwError =<< argumentTypeException "values" [x]
 
-meowLookup :: Evaluator Prim
+-- Safe box lookup.
+-- When a key isn't found, it returns MeowNil.
+meowLookup :: IFunc
 meowLookup = (,) <$> lookUp "box" <*> lookUp "key" >>= \case
-    (MeowObject box, MeowString key) -> case Map.lookup key box of
-        (Just ref) -> readMeowRef ref
-        Nothing -> return MeowLonely
-    (x, y) -> throwError =<< badArgs "lookup" [x, y]
+    (MeowBox box, MeowString key) -> do
+        boxmap <- (readRef . getBox) box
+        case HashMap.lookup (unboxStr key) boxmap of
+            (Just ref) -> readRef ref
+            Nothing    -> return MeowNil
+    (x, y) -> throwError =<< argumentTypeException "lookup" [x, y]
 
-meowHasKey :: Evaluator Prim
+meowHasKey :: IFunc
 meowHasKey = (,) <$> lookUp "box" <*> lookUp "key" >>= \case
-    (MeowObject box, MeowString key) -> (return . MeowBool) (Map.member key box)
-    (x, y) -> throwError =<< badArgs "haskey" [x, y]
+    (MeowBox box, MeowString key) -> do
+        boxmap <- (readRef . getBox) box
+        (return . MeowBool) $ HashMap.member (unboxStr key) boxmap
+    (x, y) -> throwError =<< argumentTypeException "haskey" [x, y]
 
 
+----------------------------------------------------------
 {- Reflection -}
 ----------------------------------------------------------
-
-meowCopy :: Evaluator Prim
+meowCopy :: IFunc
 meowCopy = lookUp "x" >>= primCopy
 
-meowHash :: Evaluator Prim
-meowHash = lookUp "x" >>= primHash <&> MeowInt
+meowHash :: IFunc
+meowHash = lookUp "x" >>= fmap MeowInt . primHash
 
-meowExist :: Evaluator Prim 
+meowExist :: IFunc
 meowExist = lookUp "x" >>= \case
-    (MeowString key) -> MeowBool <$> keyExists key
-    x -> throwError =<< badArgs "exists" [x]
+    (MeowString key) -> MeowBool <$> contextHas (unboxStr key)
+    x -> throwError =<< argumentTypeException "exists" [x]
 
-typeOf :: Evaluator Prim
-typeOf = lookUp "x" >>= \x -> return . MeowString $ case x of
+meowTypeOf :: IFunc
+meowTypeOf = lookUp "x" >>= \x -> (return . MeowString . toBoxedString) $ case x of
     (MeowString _)  -> "string"
     (MeowInt _)     -> "int"
-    (MeowDouble _)  -> "float"
+    (MeowFloat _)   -> "float"
     (MeowBool _)    -> "bool"
-    (MeowList _)    -> "list"
-    (MeowObject _)  -> "object"
-    (MeowFunc {})   -> "function"
-    (MeowIFunc {})  -> "inner-function"
-    MeowLonely      -> "lonely"
-    (MeowKey _)     -> "key" -- This shouldn't be evaluated, but alas.
+    (MeowStack _)   -> "stack"
+    (MeowBox _)     -> "box"
+    (MeowFunc _)    -> "function"
+    (MeowIFunc _)   -> "inner-function"
+    MeowNil         -> "nothing"
 
-
+----------------------------------------------------------
 {- Exceptions -}
 ----------------------------------------------------------
--- Allow users to throw their own exceptions.
--- This is shown a special exception, 'CatOnComputerException'.
 
-throwEx :: Evaluator Prim
+throwEx :: IFunc
 throwEx = lookUp "x" >>= \case
-    (MeowString x) -> throwError (catOnComputer x)
-    x -> throwError =<< badArgs "throw" [x]
+    (MeowString x) -> (throwError . catOnComputer . unboxStr) x
+    x -> throwError =<< argumentTypeException "throw" [x]
 
 
+----------------------------------------------------------
 {- File IO -}
 ----------------------------------------------------------
-meowRead :: Evaluator Prim
+meowRead :: IFunc
 meowRead = lookUp "path" >>= \case
-    (MeowString path) -> do 
-        local <- asks (localPath . Text.unpack . meowPath . meowState)
-        (liftIO . safeReadFile . local . Text.unpack) path >>= \case
-            (Left exception) -> throwError (badFile "In 'read_file'" [path] exception)
-            (Right contents) -> (return . MeowString) contents
-    x -> throwError =<< badArgs "read_file" [x]
+    (MeowString path) -> do
+        localize <- localizePath <$> asks (modulePath . moduleInfo)
+        let localPath = (localize . Text.unpack . unboxStr) path
+        liftIO (safeReadFile localPath) >>= \case
+            (Left exception) -> throwError =<< undefined
+            (Right contents) -> toMeow contents
+    x -> throwError =<< argumentTypeException "read_file" [x]
 
 ------ ### -------
 
-type WriteCallback = Text.Text -> FilePath -> IO (Either Text.Text ())
+type WriteCallback = Text -> FilePath -> IO (Either Text ())
 
-inFnName :: Text.Text -> Text.Text
-inFnName name = Text.concat [ "In '", name, "'" ]
-
-writeBase :: Text.Text -> WriteCallback -> Evaluator Prim
-writeBase name f = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
+writeFileBase :: Text -> WriteCallback -> IFunc
+writeFileBase name f = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
     (MeowString path, MeowString contents) -> do
-        local <- asks (localPath . Text.unpack . meowPath . meowState)
-        let path' = (local . Text.unpack) path
-        liftIO (f contents path') >>= \case
-            (Left exception) -> throwError $ badFile (inFnName name) [path] exception
-            (Right _) -> (return . MeowString) contents
-    (x, y) -> throwError =<< badArgs name [x, y]
+        localize <- localizePath <$> asks (modulePath . moduleInfo)
+        let localPath = (localize . Text.unpack . unboxStr) path
+        liftIO (f (unboxStr contents) localPath) >>= \case
+            (Left exception) -> throwError =<< undefined
+            (Right _)        -> return MeowNil
+    (x, y) -> throwError =<< argumentTypeException name [x, y]
 
-meowWrite :: Evaluator Prim
-meowWrite = writeBase "write_file" safeWriteFile
+meowWrite :: IFunc
+meowWrite = writeFileBase "write_file" safeWriteFile
 
-meowAppend :: Evaluator Prim
-meowAppend = writeBase "append_file" safeAppendFile
+meowAppend :: IFunc
+meowAppend = writeFileBase "append_file" safeAppendFile
+
 
 ------ ### -------
 
-type ExistCallback = FilePath -> IO (Either Text.Text Bool)
+type PathCallback a = FilePath -> IO (Either Text a)
 
-existsBase :: Text.Text -> ExistCallback -> Evaluator Prim
-existsBase name f = lookUp "path" >>= \case
+pathActionBase :: (Meowable a) => Text -> PathCallback a -> IFunc
+pathActionBase name f = lookUp "path" >>= \case
     (MeowString path) -> do
-        local <- asks (localPath . Text.unpack . meowPath . meowState)
-        (liftIO . f . local . Text.unpack) path >>= \case
-            (Left exception) -> throwError $ badFile (inFnName name) [path] exception
-            (Right exists) -> (return . MeowBool) exists
-    x -> throwError =<< badArgs name [x]
+        localize <- localizePath <$> asks (modulePath . moduleInfo)
+        let localPath = (localize . Text.unpack . unboxStr) path
+        liftIO (f localPath) >>= \case
+            (Left exception) -> throwError =<< undefined
+            (Right a)        -> toMeow a
+    x -> throwError =<< argumentTypeException name [x]
 
-meowHasFile :: Evaluator Prim
-meowHasFile = existsBase "file_exists" safeDoesFileExist
+-- Files:
+meowHasFile :: IFunc
+meowHasFile = pathActionBase "file_exists" safeDoesFileExist
 
-meowHasDir :: Evaluator Prim
-meowHasDir = existsBase "directory_exists" safeDirectoryExists
+meowRemoveFile :: IFunc
+meowRemoveFile = pathActionBase "remove_file" safeRemoveFile
+
+-- Directories:
+meowHasDirectory :: IFunc
+meowHasDirectory = pathActionBase "directory_exists" safeDirectoryExists
+
+meowMakeDirectory :: IFunc
+meowMakeDirectory = pathActionBase "make_directory" safeMakeDirectory
+
+meowRemoveDirectory :: IFunc
+meowRemoveDirectory = pathActionBase "remove_directory" safeRemoveDirectory
 
 ------ ### -------
 
-meowMkDir :: Evaluator Prim
-meowMkDir = lookUp "path" >>= \case
-    (MeowString path) -> do
-        local <- asks (localPath . Text.unpack . meowPath . meowState)
-        (liftIO . safeMakeDirectory . local . Text.unpack) path >>= \case
-            (Left exception) -> throwError $ badFile "In 'make_directory'" [path] exception
-            (Right _) -> return MeowLonely
-    x -> throwError =<< badArgs "make_directory" [x]
+type MoveCallback = FilePath -> FilePath -> IO (Either Text ())
 
------- ### -------
-
-type MoveCallback = FilePath -> FilePath -> IO (Either Text.Text ())
-
-moveBase :: Text.Text -> MoveCallback -> Evaluator Prim
-moveBase name f = (,) <$> lookUp "a" <*> lookUp "b" >>= \case
+pathMoveBase :: Text -> MoveCallback -> IFunc
+pathMoveBase name f = (,) <$> lookUp "from" <*> lookUp "to" >>= \case
     (MeowString a, MeowString b) -> do
-        local <- asks (localPath . Text.unpack . meowPath . meowState)
-        let pathA = (local . Text.unpack) a
-        let pathB = (local . Text.unpack) b
-        liftIO (f pathA pathB) >>= \case
-            (Left exception) -> throwError $ badFile (inFnName name) [a, b] exception
-            (Right _) -> return MeowLonely
-    (x, y) -> throwError =<< badArgs name [x, y]
+        localize <- localizePath <$> asks (modulePath . moduleInfo) 
+        let unpack = Text.unpack . unboxStr
+        let pathFrom = (localize . unpack) a
+        let pathTo = (localize . unpack) b
+        liftIO (f pathFrom pathTo) >>= \case
+            (Left exception) -> throwError =<< undefined
+            (Right _)        -> return MeowNil
+    (x, y) ->  throwError =<< argumentTypeException name [x, y]
 
-meowMvFile :: Evaluator Prim
-meowMvFile = moveBase "move_file" safeMoveFile
+meowMoveFile :: IFunc
+meowMoveFile = pathMoveBase "move_file" safeMoveFile
 
-meowMvDir :: Evaluator Prim
-meowMvDir = moveBase "move_directory" safeMoveDir
-
------- ### -------
-
-type RemoveCallback = FilePath -> IO (Either Text.Text ())
-
-removeBase :: Text.Text -> RemoveCallback -> Evaluator Prim
-removeBase name f = lookUp "path" >>= \case
-    (MeowString path) -> do
-        local <- asks (localPath . Text.unpack . meowPath . meowState)
-        (liftIO . f . local . Text.unpack) path >>= \case
-            (Left exception) -> throwError $ badFile (inFnName name) [path] exception
-            (Right _) -> return MeowLonely
-    x -> throwError =<< badArgs name [x]
-
-meowRmFile :: Evaluator Prim
-meowRmFile = removeBase "remove_file" safeRemoveFile
-
-meowRmDir :: Evaluator Prim
-meowRmDir = removeBase "remove_directory" safeRemoveDir
+meowMoveDirectory :: IFunc
+meowMoveDirectory = pathMoveBase "move_directory" safeMoveDirectory
 
 ------ ### -------
 
-type RenameCallback = FilePath -> String -> IO (Either Text.Text ())
+type RenameCallback = FilePath -> String -> IO (Either Text ())
 
-renameBase :: Text.Text -> RenameCallback -> Evaluator Prim
-renameBase name f = (,) <$> lookUp "path" <*> lookUp "name" >>= \case
-    (MeowString path, MeowString newName) -> do
-        local <- asks (localPath . Text.unpack . meowPath . meowState)
-        let path' = (local . Text.unpack) path
-        let newName' = (local . Text.unpack) newName
-        liftIO (f path' newName') >>= \case
-            (Left exception) ->  throwError $ badFile (inFnName name) [path, newName] exception
-            (Right _) -> return MeowLonely
-    (x, y) -> throwError =<< badArgs name [x, y]
+pathRenameBase :: Text -> RenameCallback -> IFunc
+pathRenameBase name f = (,) <$> lookUp "path" <*> lookUp "name" >>= \case
+    (MeowString path, MeowString n) -> do
+        localize <- localizePath <$> asks (modulePath . moduleInfo)
+        let unpack = Text.unpack . unboxStr
+        let localPath = (localize . unpack) path
+        liftIO (f localPath (unpack n)) >>= \case
+            (Left exception) -> throwError =<< undefined
+            (Right _)        -> return MeowNil
+    (x, y) -> throwError =<< argumentTypeException name [x, y]
 
-meowRenFile :: Evaluator Prim
-meowRenFile = renameBase "rename_file" safeRenameFile
+meowRenameFile :: IFunc
+meowRenameFile = pathRenameBase "rename_file" safeRenameFile
 
-meowRenDir :: Evaluator Prim
-meowRenDir = renameBase "rename_directory" safeRenameDir
+meowRenameDirectory :: IFunc
+meowRenameDirectory = pathRenameBase "rename_directory" safeRenameDirectory
 
+
+{-
 ------ ### -------
 
 meowInspect :: Evaluator Prim
@@ -461,72 +507,3 @@ meowInspect = lookUp "path" >>= \case
     x -> throwError =<< badArgs "peek_directory" [x]
  -}
 
-
-
--- Reference:
-{-
- -
-baseLibrary :: IO ObjectMap
-{-# INLINE baseLibrary #-}
-baseLibrary = createObject
-    [ ("meow"    , MeowIFunc  ["x"] meow      )
-    , ("purr"    , MeowIFunc  ["x"] purr      )
-    , ("listen"  , MeowIFunc  [   ] listen    )
-    , ("snoop"   , MeowIFunc  [   ] snoop     )
-    , ("search"  , MeowIFunc  ["x"] search    )
-    , ("angry"   , MeowIFunc  ["x"] angry     )
-    , ("reverse" , MeowIFunc  ["x"] reverseFn )
-    , ("sort"    , MeowIFunc  ["x"] sortFn    )
-    , ("int"     , MeowIFunc  ["x"] toInt     )
-    , ("float"   , MeowIFunc  ["x"] toDouble  )
-    , ("string"  , MeowIFunc  ["x"] toString  )
-    , ("nuzzle"  , MeowIFunc  ["x"] toBool    )
-    , ("bap"     , MeowIFunc  ["x"] toChar    )
-    , ("bop"     , MeowIFunc  ["x"] fromChar  )
-    , ("keys"    , MeowIFunc  ["x"] getKeys   )
-    , ("values"  , MeowIFunc  ["x"] getValues )
-    , ("copy"    , MeowIFunc  ["x"] meowCopy  )
-    , ("hash"    , MeowIFunc  ["x"] meowHash  )
-    , ("exists"  , MeowIFunc  ["x"] meowExist )
-    , ("typeof"  , MeowIFunc  ["x"] typeOf    )
-    , ("throw"   , MeowIFunc  ["x"] throwEx   )
-    , ("pi"      , MeowIFunc  [   ] meowPi    )
-    , ("exp"     , MeowIFunc  ["x"] meowExp   )
-    , ("sqrt"    , MeowIFunc  ["x"] meowSqrt  )
-    , ("log"     , MeowIFunc  ["x"] meowLog   )
-    , ("sin"     , MeowIFunc  ["x"] meowSin   )
-    , ("cos"     , MeowIFunc  ["x"] meowCos   )
-    , ("tan"     , MeowIFunc  ["x"] meowTan   )
-    , ("asin"    , MeowIFunc  ["x"] meowAsin  )
-    , ("acos"    , MeowIFunc  ["x"] meowAcos  )
-    , ("atan"    , MeowIFunc  ["x"] meowAtan  )
-    , ("round"   , MeowIFunc  ["x"] meowRound )
-    , ("ceiling" , MeowIFunc  ["x"] meowCeil  )
-    , ("floor"   , MeowIFunc  ["x"] meowFloor )
-    , ("random"  , MeowIFunc  [   ] meowRand  )
-    , ("time"    , MeowIFunc  [   ] meowTime  )
-        -- Boxes --
-    , ("lookup"             , MeowIFunc  ["box", "key"]          meowLookup     )
-    , ("haskey"             , MeowIFunc  ["box", "key"]          meowHasKey     )
-        -- File IO --
-    , ("read_file"          , MeowIFunc  ["path"]                meowRead       )
-    , ("write_file"         , MeowIFunc  ["path", "contents"]    meowWrite      )
-    , ("append_file"        , MeowIFunc  ["path", "contents"]    meowAppend     )
-    , ("move_file"          , MeowIFunc  ["a", "b"]              meowMvFile     )
-    , ("remove_file"        , MeowIFunc  ["path"]                meowRmFile     )
-    , ("rename_file"        , MeowIFunc  ["path", "name"]        meowRenFile    )
-    , ("file_exists"        , MeowIFunc  ["path"]                meowHasFile    )
-    , ("make_directory"     , MeowIFunc  ["path"]                meowMkDir      )
-    , ("move_directory"     , MeowIFunc  ["a", "b"]              meowMvDir      )
-    , ("remove_directory"   , MeowIFunc  ["path"]                meowRmDir      )
-    , ("rename_directory"   , MeowIFunc  ["path", "name"]        meowRenDir     )
-    , ("directory_exists"   , MeowIFunc  ["path"]                meowHasDir     )
-    , ("peek_directory"     , MeowIFunc  ["path"]                meowInspect    )
-        -- Text --
-    , ("upper"              , MeowIFunc  ["x"]                   meowUpper      )
-    , ("lower"              , MeowIFunc  ["x"]                   meowLower      )
-    , ("trim"               , MeowIFunc  ["x"]                   meowTrim       )
-    , ("split"              , MeowIFunc  ["str", "token"]        meowSplit      )
-    , ("substring"          , MeowIFunc  ["str", "start", "len"] meowSubstr     )
-    , ("replace"            , MeowIFunc  ["str", "token", "rep"] meowReplace    )]
--}
