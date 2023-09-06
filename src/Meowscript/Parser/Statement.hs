@@ -88,9 +88,9 @@ parseWhile nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
 
 {- If Else -}
 ----------------------------------------------------------------
-data MeowIf = MeowIf Expr Block deriving (Show)
+type IfCallback = Block -> Statement
 
-parseIf :: Nesting -> Parser (Block -> Statement)
+parseIf :: Nesting -> Parser IfCallback
 parseIf nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . tryKeyword) meowIf
     condition <- parensExpression
@@ -108,9 +108,9 @@ parseIfElse :: Nesting -> Parser Statement
 parseIfElse nesting = do
     ifs         <- Mega.some (parseIf nesting)
     elseBlock   <- Mega.try (parseElse nesting) <|> return Stack.empty
-    let f :: (Block -> Statement) -> (Block -> Statement) -> (Block -> Statement)
-        f x acc = x . Stack.singleton . acc
-    let foldedIf = foldr1 f ifs
+    let compose :: IfCallback -> IfCallback -> IfCallback
+        compose x acc = x . Stack.singleton . acc
+    let foldedIf = foldr1 compose ifs
     parseEnd
     return $ foldedIf elseBlock
 
@@ -192,30 +192,31 @@ parseImport nesting = lexeme $ do
 
 {- Watch/Catch -}
 ----------------------------------------------------------------
+type CatchCallback = Block -> Statement
+
 parseTry :: Nesting -> Parser Block
 parseTry nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . tryKeyword) meowTry
     let nest = max nesting Nested
     return $ Lexer.IndentMany Nothing (return . Stack.fromList) (statements nest)
 
-parseCatch :: Nesting -> Parser CatchBlock
+parseCatch :: Nesting -> Parser CatchCallback
 parseCatch nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
     (void . tryKeyword) meowCatch
     expr <- Mega.optional $ (lexeme . parens) parseExpr
-    let makeBody = return . (expr,) . Stack.fromList
+    let makeBody = return . flip StmtTryCatch . (expr,) . Stack.fromList
     let nest = max nesting Nested
     return $ Lexer.IndentMany Nothing makeBody (statements nest)
-
-manyCatch :: Nesting -> Block -> Parser Statement
-manyCatch nesting tryblock = do
-    catchblock <- parseCatch nesting
-    let expr = StmtTryCatch tryblock catchblock
-    manyCatch nesting (Stack.singleton expr) <|> (expr <$ parseEnd)
 
 parseTryCatch :: Nesting -> Parser Statement
 parseTryCatch nesting = lexeme $ do
     tryBlock <- parseTry nesting
-    Mega.try (manyCatch nesting tryBlock) <|> return (StmtTryCatch tryBlock (Nothing, Stack.empty))
+    catches  <- Mega.some (parseCatch nesting)
+    let compose :: CatchCallback -> CatchCallback -> CatchCallback
+        compose x acc = acc . Stack.singleton . x
+    let foldedCatch = foldr1 compose catches
+    parseEnd
+    return $ foldedCatch tryBlock
 
 
 ----------------------------------------------------------------

@@ -55,7 +55,7 @@ meow meow
             hiss!
                 meow(bad_input)
             meow meow
-        catch (MeowException.InvalidValue)
+        catch (MeowException.Type)
             meow(bad_input)
         meow meow
     meow meow
@@ -72,7 +72,7 @@ mew? (not args)
 hiss!
     watch
         board_size = int(peek args)
-    catch (MeowException.InvalidValue) 
+    catch (MeowException.Type) 
         meow("Invalid board size: "..(peek args))
         board_size = 3
         meow("Defaulting board size to: "..board_size)

@@ -44,7 +44,7 @@ The 'a' and 'b' are inclusive.
 
 =^.x.^= range(a, b)
     =^.x.^= next()
-        bring home.state >= b ? lonely : paw at home.state
+        bring home.state >= b ? nothing : paw at home.state
     meow meow
     bring cat_tree(a, a, next)
 meow meow

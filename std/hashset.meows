@@ -43,7 +43,7 @@ takes "exception.meows"
     =^.x.^= safe_comp(a, b)
         watch
             bring a == b
-        catch (MeowException.InvalidOperation)
+        catch (MeowException.Type)
             bring sad
         meow meow
     meow meow
@@ -75,7 +75,7 @@ takes "exception.meows"
             meow meow
             knock over list
         meow meow
-        bring lonely
+        bring nothing
     meow meow
 
     =^.x.^= remove_value(value)

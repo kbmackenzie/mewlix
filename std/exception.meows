@@ -2,24 +2,16 @@
 Exception constants.
 ---------------- <(^.x.^ )~
 
-mew __exc = ( ^.x.^)> (a) => (a.."Exception")
-
 mew MeowException = =^.x.^= [
-    InvalidVariable:        __exc("InvalidVariable"),
-    Syntax:                 __exc("Syntax"),
-    InvalidOperation:       __exc("InvalidOperation"),
-    InvalidBox:             __exc("InvalidBox"),
-    DivisionByZero:         __exc("DivisionByZero"),
-    Argument:               __exc("Argument"),
-    InvalidToken:           __exc("InvalidToken"),
-    InvalidFunction:        __exc("InvalidFunction"),
-    InvalidImport:          __exc("InvalidImport"),
-    InvalidInnerFunction:   __exc("InvalidInnerFunction"),
-    InvalidValue:           __exc("InvalidValue"),
-    CatOnComputer:          __exc("CatOnComputer"),
-    KeywordException:       __exc("KeywordException"),
-    File:                   __exc("File"),
-    FunctionDefinition:     __exc("FunctionDefinition"),
-    Hashing:                __exc("Hashing"),
-    Unexpected:             __exc("Unexpected")
+    Unexpected:         0,
+    Arity:              1,
+    Type:               2,
+    Unbound:            3,
+    DivisionByZero:     4,
+    InvalidBox:         5,
+    UnboundProperty:    6,
+    InvalidIdentifier:  7,
+    CatOnComputer:      8,
+    IO:                 9,
+    Import:             10
 ]

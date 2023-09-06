@@ -38,7 +38,7 @@ baseLibrary :: (MonadIO m) => m (Environment MeowPrim)
 baseLibrary = createEnvironment
     [ makeIFunc "meow"      ["x"]   meow
     , makeIFunc "purr"      ["x"]   purr
-    , makeIFunc "listen"    ["x"]   listen
+    , makeIFunc "listen"    [   ]   listen
     , makeIFunc "snoop"     [   ]   snoop
     , makeIFunc "search"    ["x"]   search
     , makeIFunc "angry"     ["x"]   angry

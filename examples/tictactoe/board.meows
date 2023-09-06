@@ -31,6 +31,8 @@ mew GameState = enum ([
     take (mew i = 0) and do (paw at i) while (i < size)
         take (mew j = 0) and do (paw at j) while (j < size)
             board.add([i, j], Tile.empty)
+            meow([i, j])
+            meow(board)
         meow meow
     meow meow
     board.add("size", size)

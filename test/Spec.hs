@@ -13,8 +13,8 @@ import Meowscript.Libraries.Base (baseLibrary)
 
 main :: IO ()
 main = do
-    --let path = "examples/tictactoe/main.meows"
-    let path = "loop.meows"
+    let path = "examples/tictactoe/main.meows"
+    --let path = "loop.meows"
     baseLib <- baseLibrary
     let libs = Libraries { getLibs = Stack.singleton baseLib }
     ma <- runFile path True [] libs

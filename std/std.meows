@@ -75,7 +75,7 @@ Else, it returns the boolean result of the comparison.
 =^.x.^= safe_compare (fn, a, b)
     watch
         bring fn(a, b)
-    catch (MeowException.InvalidOperation)
+    catch (MeowException.Type)
         bring sad
     meow meow
 meow meow
@@ -98,11 +98,11 @@ Inspired by Haksell's Alternative typeclass and the <|>
 function.
 (In special the Maybe instance of that typeclass.)
 
-If the first argument is lonely, this function returns
+If the first argument is nothing, this function returns
 the second argument.
 <(^.x.^ )~
 
-mew either = ( ^.x.^)> (a, b) => (a == lonely ? b : a)
+mew either = ( ^.x.^)> (a, b) => (a == nothing ? b : a)
 
 
 
@@ -328,7 +328,7 @@ It's O(n) and highly discouraged, because shelves!
 Note this function does not throw exceptions when an
 index goes out of bounds, because of how
 knocking over items from shelves works in Meowscript.
-It returns 'lonely' instead.
+It returns 'nothing' instead.
 <(^.x.^ )~
 
 =^.x.^= index (shelf, num)

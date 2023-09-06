@@ -209,7 +209,7 @@ meow meow
 
     =^.x.^= scratch ()
         mew? (not current)
-            bring lonely
+            bring nothing
         meow meow
 
         mew queue_ = queue -- Shallow copy.
@@ -305,7 +305,7 @@ meow meow
     =^.x.^= first()
         mew one = home.pick(1)
         backstep()
-        bring one ? peek one : lonely
+        bring one ? peek one : nothing
     meow meow
 
     ~( ^.x.^)>

@@ -271,15 +271,14 @@ statement ( (StmtWhile condExpr block) ::| rest ) = do
         ReturnVoid -> statement rest
         other      -> return other
 
-statement ( (StmtFor (decl, condExpr, incr) block) ::| rest ) = do
+statement ( (StmtFor (decl, incr, condExpr) block) ::| rest ) = do
     let loop :: Evaluator ReturnValue
         loop = do
             condition <- expression condExpr
             if meowBool condition then do
                 ret <- runLocal (statement block)
-                void (expression incr)
                 case ret of
-                    ReturnVoid  -> loop
+                    ReturnVoid  -> expression incr >> loop
                     ReturnBreak -> return ReturnVoid
                     other       -> return other
             else return ReturnVoid
