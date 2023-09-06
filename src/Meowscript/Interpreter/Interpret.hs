@@ -101,12 +101,12 @@ expression (ExprClaw expr) = asKey expr >>= \case
         writeRef newValue ref
         return newValue
 
-expression (ExprPush exprA exprB) = asKey exprA >>= \case
-    (SingletonAtom a) -> expression exprB >>= meowPush a
+expression (ExprPush left right) = asKey right >>= \case
+    (SingletonAtom b) -> expression left >>= flip meowPush b
     key               -> do
         ref <- asRef key
-        a   <- readRef ref
-        b   <- expression exprB
+        b   <- readRef ref
+        a   <- expression left
         newValue <- meowPush a b
         writeRef newValue ref
         return newValue

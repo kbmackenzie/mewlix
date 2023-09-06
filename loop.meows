@@ -23,6 +23,8 @@ catch (2)
 catch (3)
 meow meow
 
+meow([1, 2] == [2, 1])
+
 --mew? (happy)
     --catnap
 --meow meow
