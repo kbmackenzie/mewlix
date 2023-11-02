@@ -1,6 +1,6 @@
-name:                Meowscript
+name:                Mewlix
 version:             0.1.0.0
-github:              "KBMackenzie/Meowscript"
+github:              "KBMackenzie/Mewlix"
 license:             MIT
 author:              "KBMackenzie"
 maintainer:          "kelly.a.betty@gmail.com"
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/KBMackenzie/Meowscript/#readme>
+description:         Please see the README on GitHub at <https://github.com/KBMackenzie/Mewlix/#readme>
 
 dependencies:
 - base >= 4.7 && < 5
@@ -67,7 +67,7 @@ library:
   source-dirs: src
 
 executables:
-  Meowscript:
+  Mewlix:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -75,10 +75,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-M128m
     dependencies:
-    - Meowscript
+    - Mewlix
 
 tests:
-  Meowscript-test:
+  Mewlix-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -86,4 +86,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-M128m
     dependencies:
-    - Meowscript
+    - Mewlix

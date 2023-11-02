@@ -1,6 +1,6 @@
 module Main (main) where
 
---import Meowscript
+--import Mewlix
 
 main :: IO ()
 main = undefined --runMeowr

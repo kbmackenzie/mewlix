@@ -1,0 +1,163 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.1.
+--
+-- see: https://github.com/sol/hpack
+
+name:           Mewlix
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/KBMackenzie/Mewlix/#readme>
+homepage:       https://github.com/KBMackenzie/Mewlix#readme
+bug-reports:    https://github.com/KBMackenzie/Mewlix/issues
+author:         KBMackenzie
+maintainer:     kelly.a.betty@gmail.com
+copyright:      2023 KBMackenzie
+license:        MIT
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    CHANGELOG.md
+data-files:
+    std/assert.meows
+    std/cat_tree.meows
+    std/exception.meows
+    std/hashmap.meows
+    std/hashset.meows
+    std/io.meows
+    std/numbers.meows
+    std/std.meows
+    std/time.meows
+
+source-repository head
+  type: git
+  location: https://github.com/KBMackenzie/Mewlix
+
+library
+  exposed-modules:
+      Mewlix
+      Mewlix.Abstract.Meow
+      Mewlix.Abstract.Meowable
+      Mewlix.Abstract.Prettify
+      Mewlix.Abstract.PrimLens
+      Mewlix.Abstract.State
+      Mewlix.Data.Key
+      Mewlix.Data.Ref
+      Mewlix.Data.Stack
+      Mewlix.Data.ToString
+      Mewlix.Interpreter.API
+      Mewlix.Interpreter.Boxes
+      Mewlix.Interpreter.Exceptions
+      Mewlix.Interpreter.Import
+      Mewlix.Interpreter.Interpret
+      Mewlix.Interpreter.Module
+      Mewlix.Interpreter.Operations
+      Mewlix.Interpreter.Primitive
+      Mewlix.IO.DataFile
+      Mewlix.IO.Directory
+      Mewlix.IO.File
+      Mewlix.IO.Print
+      Mewlix.IO.SafeIO
+      Mewlix.Libraries.Base
+      Mewlix.Libraries.Utils
+      Mewlix.Parser.AST
+      Mewlix.Parser.Expr
+      Mewlix.Parser.Keywords
+      Mewlix.Parser.Prim
+      Mewlix.Parser.Run
+      Mewlix.Parser.Statement
+      Mewlix.Parser.Utils
+      Mewlix.REPL.Actions
+      Mewlix.REPL.Parse
+      Mewlix.REPL.Read
+      Mewlix.Utils.List
+      Mewlix.Utils.Show
+      Mewlix.Utils.Time
+      Mewlix.Utils.Types
+  other-modules:
+      Paths_Mewlix
+  hs-source-dirs:
+      src
+  ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -optc-O3 -optc-ffast-math -funfolding-use-threshold=16
+  build-depends:
+      ansi-terminal ==1.0.*
+    , base >=4.7 && <5
+    , bytestring >=0.11 && <0.13
+    , clock ==0.8.*
+    , containers ==0.6.*
+    , directory ==1.3.*
+    , filepath ==1.4.*
+    , hashable ==1.4.*
+    , haskeline ==0.8.*
+    , megaparsec ==9.3.*
+    , microlens-platform ==0.4.*
+    , monadlist ==0.0.*
+    , mtl >=2.2 && <2.4
+    , parser-combinators ==1.3.*
+    , random ==1.2.*
+    , text ==2.0.*
+    , unordered-containers ==0.2.*
+    , utf8-string ==1.0.*
+    , vector ==0.13.*
+  default-language: Haskell2010
+
+executable Mewlix
+  main-is: Main.hs
+  other-modules:
+      Paths_Mewlix
+  hs-source-dirs:
+      app
+  ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -optc-O3 -optc-ffast-math -funfolding-use-threshold=16 -threaded -rtsopts -with-rtsopts=-M128m
+  build-depends:
+      Mewlix
+    , ansi-terminal ==1.0.*
+    , base >=4.7 && <5
+    , bytestring >=0.11 && <0.13
+    , clock ==0.8.*
+    , containers ==0.6.*
+    , directory ==1.3.*
+    , filepath ==1.4.*
+    , hashable ==1.4.*
+    , haskeline ==0.8.*
+    , megaparsec ==9.3.*
+    , microlens-platform ==0.4.*
+    , monadlist ==0.0.*
+    , mtl >=2.2 && <2.4
+    , parser-combinators ==1.3.*
+    , random ==1.2.*
+    , text ==2.0.*
+    , unordered-containers ==0.2.*
+    , utf8-string ==1.0.*
+    , vector ==0.13.*
+  default-language: Haskell2010
+
+test-suite Mewlix-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_Mewlix
+  hs-source-dirs:
+      test
+  ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -optc-O3 -optc-ffast-math -funfolding-use-threshold=16 -threaded -rtsopts -with-rtsopts=-M128m
+  build-depends:
+      Mewlix
+    , ansi-terminal ==1.0.*
+    , base >=4.7 && <5
+    , bytestring >=0.11 && <0.13
+    , clock ==0.8.*
+    , containers ==0.6.*
+    , directory ==1.3.*
+    , filepath ==1.4.*
+    , hashable ==1.4.*
+    , haskeline ==0.8.*
+    , megaparsec ==9.3.*
+    , microlens-platform ==0.4.*
+    , monadlist ==0.0.*
+    , mtl >=2.2 && <2.4
+    , parser-combinators ==1.3.*
+    , random ==1.2.*
+    , text ==2.0.*
+    , unordered-containers ==0.2.*
+    , utf8-string ==1.0.*
+    , vector ==0.13.*
+  default-language: Haskell2010
