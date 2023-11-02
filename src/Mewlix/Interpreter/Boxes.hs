@@ -4,7 +4,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Mewlix.Interpreter.Boxes
-( getBox
+( asBox
+, getBox
 , boxPeek
 , boxWrite
 , asIdentifier
@@ -14,32 +15,27 @@ import Mewlix.Abstract.Meow
 import Mewlix.Data.Ref
 import Mewlix.Interpreter.Exceptions
 import Mewlix.Parser.AST
-import qualified Data.HashMap.Strict as HashMap
 import Control.Monad.Except (MonadError)
 import Control.Monad.IO.Class(MonadIO(..))
 
 asBox :: (MonadIO m, MonadError CatException m) => MeowPrim -> m CatBox
-asBox atom = case atom of
+asBox prim = case prim of
     (MeowBox box) -> return box
-    _             -> throwError =<< notABoxException [atom]
+    _             -> throwError =<< notABoxException [prim]
 
-boxPeek :: (MonadIO m, MonadError CatException m) => Identifier -> MeowPrim -> m (Ref MeowPrim)
-boxPeek key atom = do
-    !box <- asBox atom >>= readRef . getBox
-    case HashMap.lookup key box of
-        Nothing       -> throwError =<< notAPropertyException key [atom]
+boxPeek :: (MonadIO m, MonadError CatException m) => Identifier -> CatBox -> m (Ref MeowPrim)
+boxPeek key box = do
+    !valueRef <- catBoxGet key box
+    case valueRef of
+        Nothing        -> throwError =<< notAPropertyException key [MeowBox box]
         (Just !ref)    -> return ref
 
-boxWrite :: (MonadIO m, MonadError CatException m) => Identifier -> MeowPrim -> Ref MeowPrim -> m ()
-boxWrite key value atomRef = do
-    !catbox <- readRef atomRef >>= asBox
-    let !boxRef = getBox catbox
-    !box <- readRef boxRef
-    case HashMap.lookup key box of
-        Nothing       -> do
-            !ref <- newRef value
-            modifyRef (HashMap.insert key ref) boxRef
-        (Just ref)    -> writeRef value ref
+boxWrite :: (MonadIO m) => Identifier -> MeowPrim -> CatBox-> m ()
+boxWrite key value catbox = do
+    !maybeRef <- catBoxGet key catbox
+    case maybeRef of
+        Nothing    -> catBoxPut key value catbox
+        (Just ref) -> writeRef value ref
 
 asIdentifier :: (MonadIO m, MonadError CatException m) => MeowPrim -> m Identifier
 asIdentifier value = case value of

@@ -1,15 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 
-import Meowscript.Abstract.Meow
-import Meowscript.Data.Ref
-import Meowscript.Abstract.State
-import Meowscript.Abstract.Prettify (prettyMeow)
-import Meowscript.Interpreter.API
-import qualified Meowscript.Data.Stack as Stack
-import Meowscript.IO.Print (printException, printTextLn)
+import Mewlix.Abstract.Meow
+import Mewlix.Data.Ref
+import Mewlix.Abstract.State
+import Mewlix.Abstract.Prettify (prettyMeow)
+import Mewlix.Interpreter.API
+import qualified Mewlix.Data.Stack as Stack
+import Mewlix.IO.Print (printException, printTextLn)
 import qualified Data.HashMap.Strict as HashMap
-import Meowscript.Libraries.Base (baseLibrary)
+import Mewlix.Libraries.Base (baseLibrary)
 
 main :: IO ()
 main = do

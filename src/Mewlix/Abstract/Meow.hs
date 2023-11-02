@@ -1,5 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE StrictData #-}
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 
@@ -27,6 +28,8 @@ module Mewlix.Abstract.Meow
 , safeIO
 , (>>|)
 -- Utils:
+, catBoxGet
+, catBoxPut
 , lookUpRef
 , lookUp
 , contextWrite
@@ -163,6 +166,17 @@ newtype CatBox = CatBox { getBox :: Ref BoxMap }
 -- Type alias for convenience:
 type BoxMap = HashMap.HashMap Key PrimRef
 
+catBoxGet :: (MonadIO m) => Key -> CatBox -> m (Maybe PrimRef)
+catBoxGet key box = do
+    boxMap <- (readRef . getBox) box
+    return $ HashMap.lookup key boxMap
+
+catBoxPut :: (MonadIO m) => Key -> MeowPrim -> CatBox -> m ()
+catBoxPut key value box = do
+    let !boxRef = getBox box
+    !valueRef <- newRef value
+    modifyRef (HashMap.insert key valueRef) boxRef
+
 
 ------------------------------------------------------------------------------------
 {- Cat Exception -}
@@ -204,18 +218,21 @@ instance Show MeowException where
 {- Utils -}
 ------------------------------------------------------------------------------------
 --- Environment ---
-lookUpRef :: Key -> Evaluator (Maybe PrimRef)
+lookUpRef :: Key -> Evaluator PrimRef
 {-# INLINE lookUpRef #-}
-lookUpRef key = asks evaluatorEnv >>= readRef <&> HashMap.lookup key . getEnv
+lookUpRef key = do 
+    env <- asks evaluatorEnv >>= readRef
+    let lookupf = HashMap.lookup key . getEnv
+    case lookupf env of
+        Nothing    -> throwError CatException {
+            exceptionType = MeowUnboundKey,
+            exceptionMessage = Text.concat [ "Unbound key: ", key ]
+        }
+        (Just ref) -> return ref
 
 lookUp :: Key -> Evaluator MeowPrim
 {-# INLINE lookUp #-}
-lookUp key = lookUpRef key >>= \case
-    Nothing    -> throwError CatException {
-        exceptionType = MeowUnboundKey,
-        exceptionMessage = Text.concat [ "Unbound key: ", key ]
-    }
-    (Just ref) -> readRef ref
+lookUp key = lookUpRef key >>= readRef
 
 contextWrite :: Key -> MeowPrim -> Evaluator ()
 {-# INLINE contextWrite #-}

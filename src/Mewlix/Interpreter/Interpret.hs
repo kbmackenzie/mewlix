@@ -84,52 +84,41 @@ expression (ExprAssign left right) = do
     return rvalue
 
 expression (ExprPaw expr) = asKey expr >>= \case
-    (SingletonAtom a) -> meowAdd a (MeowInt 1)
-    key               -> do
-        ref      <- asRef key
-        a        <- readRef ref
+    (Singleton a)   -> meowAdd a (MeowInt 1)
+    key             -> do
+        a        <- keyLookup key
         newValue <- meowAdd a (MeowInt 1)
-        writeRef newValue ref
+        keyAssign key newValue
         return newValue
 
 expression (ExprClaw expr) = asKey expr >>= \case
-    (SingletonAtom a) -> meowSub a (MeowInt 1)
-    key               -> do
-        ref      <- asRef key
-        a        <- readRef ref
+    (Singleton a)   -> meowSub a (MeowInt 1)
+    key             -> do
+        a        <- keyLookup key
         newValue <- meowSub a (MeowInt 1)
-        writeRef newValue ref
+        keyAssign key newValue
         return newValue
 
 expression (ExprPush left right) = asKey right >>= \case
-    (SingletonAtom b) -> expression left >>= flip meowPush b
-    key               -> do
-        ref <- asRef key
-        b   <- readRef ref
+    (Singleton b)   -> expression left >>= flip meowPush b
+    key             -> do
+        b   <- keyLookup key
         a   <- expression left
         newValue <- meowPush a b
-        writeRef newValue ref
+        keyAssign key newValue
         return newValue
 
 expression (ExprPop expr) = asKey expr >>= \case
-    (SingletonAtom a) -> meowPop a
-    key               -> do
-        ref      <- asRef key
-        a        <- readRef ref
+    (Singleton a)   -> meowPop a
+    key             -> do
+        a        <- keyLookup key
         newValue <- meowPop a
-        writeRef newValue ref
+        keyAssign key newValue
         return newValue
 
 -- Boxes:
-expression (ExprDotOp boxExpr expr) = do
-    box <- asKey boxExpr >>= asRef >>= readRef
-    key <- identifier expr
-    boxPeek key box >>= readRef
-
-expression (ExprBoxAccess boxExpr expr) = do
-    box <- asKey boxExpr >>= asRef >>= readRef
-    key <- expression expr >>= showMeow
-    boxPeek key box >>= readRef
+expression expr@(ExprDotOp _ _) = asKey expr >>= keyLookup
+expression expr@(ExprBoxAccess _ _) = asKey expr >>= keyLookup
 
 -- Binary/unary operations:
 expression (ExprBinop op exprA exprB) = do
@@ -163,23 +152,20 @@ expression (ExprUnop op exprA) = do
 expression (ExprCall expr args argCount) = do
     key <- asKey expr
     case key of
-        -- Simple keys:
         (SimpleKey name)  -> lookUp name >>= \case
                 (MeowFunc f)  -> callFunction name argCount args f
                 (MeowIFunc f) -> callInnerFunc name argCount args f
-                x             -> throwError =<< notAFuncionException [x]
-
-        -- Box lookup:
-        (RefKey ref name) -> asRef key >>= readRef >>= \case
-                (MeowFunc f)  -> callMethod name argCount args f ref
+                other         -> throwError =<< notAFuncionException [other]
+        (BoxKey box name) -> keyLookup key >>= \case
+                (MeowFunc f)  -> callMethod name argCount args f box
                 (MeowIFunc f) -> callInnerFunc name argCount args f
-                x             -> throwError =<< notAFuncionException [x]
+                other         -> throwError =<< notAFuncionException [other]
 
         -- Singleton calls:
-        (SingletonAtom a) -> case a of
+        (Singleton a)     -> case a of
                 (MeowFunc f)  -> callFunction (funcName f) argCount args f
                 (MeowIFunc f) -> callInnerFunc (ifuncName f) argCount args f
-                x             -> throwError =<< notAFuncionException [x]
+                other         -> throwError =<< notAFuncionException [other]
 
 identifier :: Expr -> Evaluator Identifier
 identifier (ExprKey key) = return key
@@ -188,34 +174,39 @@ identifier other         = expression other >>= asIdentifier
 
 {- References -}
 ---------------------------------------------------------------
-data CatKey =
-      SimpleKey Identifier
-    | RefKey (Ref MeowPrim) Identifier
-    | SingletonAtom MeowPrim
+type Key = Text.Text
 
-asRef :: CatKey -> Evaluator (Ref MeowPrim)
-asRef (SimpleKey key) = lookUpRef key >>= \case
-    Nothing     -> throwError (unboundException key)
-    (Just ref)  -> return ref
-asRef (RefKey ref key) = readRef ref >>= boxPeek key
-asRef (SingletonAtom a) = newRef a
+data CatKey =
+      SimpleKey     Identifier
+    | BoxKey        CatBox Key
+    | Singleton     MeowPrim
+
+keyAsBox :: CatKey -> Evaluator CatBox
+keyAsBox (SimpleKey key)    = lookUp key >>= asBox
+keyAsBox (Singleton x)      = asBox x
+keyAsBox (BoxKey box key)   = boxPeek key box >>= readRef >>= asBox
 
 asKey :: Expr -> Evaluator CatKey
 asKey (ExprKey key) = return (SimpleKey key)
-asKey (ExprDotOp box expr) = do
-    ref <- asKey box >>= asRef
-    key <- identifier expr
-    return (RefKey ref key)
-asKey (ExprBoxAccess box expr) = do
-    ref <- asKey box >>= asRef
-    key <- expression expr >>= showMeow
-    return (RefKey ref key)
-asKey other = SingletonAtom <$> expression other
+asKey (ExprDotOp a b) = do
+    box <- asKey a >>= keyAsBox
+    key <- identifier b
+    return (BoxKey box key)
+asKey (ExprBoxAccess a b) = do
+    box <- asKey a >>= keyAsBox
+    key <- expression b >>= showMeow
+    return (BoxKey box key)
+asKey other = Singleton <$> expression other
+
+keyLookup :: CatKey -> Evaluator MeowPrim
+keyLookup (SimpleKey key)  = lookUp key
+keyLookup (Singleton a)    = return a
+keyLookup (BoxKey box key) = boxPeek key box >>= readRef
 
 keyAssign :: CatKey -> MeowPrim -> Evaluator ()
 keyAssign (SimpleKey key)    rvalue = contextWrite key rvalue
-keyAssign (RefKey ref key)   rvalue = boxWrite key rvalue ref
-keyAssign (SingletonAtom a)  _      = throwError =<< notAnIdentifier [a]
+keyAssign (BoxKey box key)   rvalue = boxWrite key rvalue box
+keyAssign (Singleton a)      _      = throwError =<< notAnIdentifier [a]
 
 
 {- Lifted Expressions -}
@@ -293,9 +284,9 @@ statement ( (StmtFuncDef keyExpr params block) ::| rest ) = do
     closure <- asks evaluatorEnv
     key <- asKey keyExpr
     name <- case key of
-        (SimpleKey x)       -> return x
-        (RefKey _  x)       -> return x
-        (SingletonAtom x)   -> throwError =<< notAFunctionName [x]
+        (SimpleKey x)   -> return x
+        (BoxKey _  x)   -> return x
+        (Singleton x)   -> throwError =<< notAFunctionName [x]
     let function = MeowFunc $ MeowFunction
             { funcArity   = Stack.length params
             , funcName    = name
@@ -369,14 +360,14 @@ callFunction key arity exprs function = stackTrace key $ do
         bindArgs (funcParams function) values
         statement (funcBody function) >>= liftReturn
 
-callMethod :: Identifier -> Int -> Stack Expr -> MeowFunction -> Ref MeowPrim -> Evaluator MeowPrim
-callMethod key arity exprs function ref = stackTrace key $ do
+callMethod :: Identifier -> Int -> Stack Expr -> MeowFunction -> CatBox -> Evaluator MeowPrim
+callMethod key arity exprs function parent = stackTrace key $ do
     paramGuard key arity (funcArity function)
     let closure = funcClosure function
     values <- mapM expression exprs
     runClosure closure $ do
         bindArgs (funcParams function) values
-        contextPush "home" ref
+        contextDefine "home" $ MeowBox parent
         statement (funcBody function) >>= liftReturn
 
 callInnerFunc :: Identifier -> Int -> Stack Expr -> MeowIFunction -> Evaluator MeowPrim
