@@ -14,8 +14,10 @@ import Mewlix.Abstract.Meow
 import Mewlix.Data.Ref
 import Mewlix.Data.Key (Key)
 import Mewlix.Interpreter.Exceptions
+import Mewlix.Parser.Keywords (meowSuper)
 import Control.Monad.Except (MonadError)
-import Control.Monad.IO.Class(MonadIO(..))
+import Control.Monad.IO.Class(MonadIO)
+import Control.Monad ((>=>))
 
 asBox :: (MonadIO m, MonadError CatException m) => MeowPrim -> m CatBox
 asBox prim = case prim of
@@ -26,7 +28,11 @@ boxPeek :: (MonadIO m, MonadError CatException m) => Key -> CatBox -> m (Ref Meo
 boxPeek key box = do
     !valueRef <- catBoxGet key box
     case valueRef of
-        Nothing        -> throwError =<< notAPropertyException key [MeowBox box]
+        Nothing        -> do
+            parent <- catBoxGet meowSuper box
+            case parent of
+                Nothing     -> throwError =<< notAPropertyException key [MeowBox box]
+                (Just !ref) -> (readRef >=> asBox >=> boxPeek key) ref
         (Just !ref)    -> return ref
 
 boxWrite :: (MonadIO m) => Key -> MeowPrim -> CatBox-> m ()

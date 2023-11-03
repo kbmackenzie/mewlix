@@ -14,12 +14,6 @@ import Mewlix.Parser.Keywords (meowSuper)
 -- Class variables are not allowed.
 -- Assume no class variables, only methods.
 
-{-
-instanceMap :: Maybe MeowClass -> FuncMap
-instanceMap Nothing = HashMap.empty
-instanceMap (Just klass) = classFuncs klass <> instanceMap (classParent klass)
--}
-
 instantiate :: (MonadIO m) => MeowClass -> m CatBox
 instantiate klass = do
     maybeParent <- mapM instantiate (classParent klass)
