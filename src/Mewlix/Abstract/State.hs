@@ -152,6 +152,4 @@ joinLibraries = foldr (<>) emptyEnv . getLibs
     where emptyEnv = Environment HashMap.empty
 
 createEnvironment :: (MonadIO m) => [(Text, a)] -> m (Environment a)
-createEnvironment pairs = do
-    let pack (key, ref) = (key,) <$> newRef ref
-    Environment . HashMap.fromList <$> mapM pack pairs
+createEnvironment pairs = Environment . HashMap.fromList <$> mapM (mapM newRef) pairs
