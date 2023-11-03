@@ -47,6 +47,7 @@ library
       Mewlix.Data.ToString
       Mewlix.Interpreter.API
       Mewlix.Interpreter.Boxes
+      Mewlix.Interpreter.Classes
       Mewlix.Interpreter.Exceptions
       Mewlix.Interpreter.Import
       Mewlix.Interpreter.Interpret

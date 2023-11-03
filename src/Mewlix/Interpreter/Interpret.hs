@@ -16,6 +16,7 @@ import Mewlix.Data.Stack (Stack(..))
 import Mewlix.Abstract.Meowable
 import Mewlix.Abstract.Prettify
 import Mewlix.Abstract.State
+import Mewlix.Parser.Keywords (meowHome)
 import qualified Data.Text as Text
 import qualified Mewlix.Data.Stack as Stack
 import Mewlix.Interpreter.Exceptions
@@ -372,7 +373,7 @@ callMethod key arity exprs function parent = stackTrace key $ do
     values <- mapM expression exprs
     runClosure closure $ do
         bindArgs (funcParams function) values
-        contextDefine "home" $ MeowBox parent
+        contextDefine meowHome $ MeowBox parent
         statement (funcBody function) >>= liftReturn
 
 callInnerFunc :: Identifier -> Int -> Stack Expr -> MeowIFunction -> Evaluator MeowPrim

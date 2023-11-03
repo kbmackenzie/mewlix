@@ -16,6 +16,7 @@ module Mewlix.Abstract.Meow
 , MeowFunction(..)
 , MeowIFunction(..)
 , MeowMethod(..)
+, FuncMap
 , MeowClass(..)
 , CatBox(..)
 , BoxMap
@@ -47,7 +48,6 @@ module Mewlix.Abstract.Meow
 , toBoxedString
 , toBoxedStack
 , listToBoxedStack
-, toCatBox
 , boxedStackPop
 , boxedStackPush
 , boxedStringTail
@@ -165,11 +165,8 @@ data MeowIFunction = MeowIFunction
     , ifunc         :: IFunc            }
 
 data MeowMethod = MeowMethod
-    { methodName    :: Identifier
-    , methodArity   :: Int
-    , methodParams  :: Stack Text
-    , methodBody    :: Stack Statement
-    , methodOwner   :: Ref CatBox       }
+    { methodOwner   :: CatBox       
+    , methodFunc    :: MeowFunction     }
 
 
 ------------------------------------------------------------------------------------
@@ -180,21 +177,13 @@ newtype CatBox = CatBox { getBox :: Ref BoxMap }
 -- Type alias for convenience:
 type BoxMap = HashMap.HashMap Key PrimRef
 
-packBox :: (MonadIO m) => [(Key, MeowPrim)] -> m CatBox
+packBox :: (MonadIO m) => HashMap Key MeowPrim -> m CatBox
 packBox xs = do
-    let pack :: (MonadIO m) => (Key, MeowPrim) -> m (Key, PrimRef)
-        pack (key, value) = (key,) <$> newRef value
+    items <- mapM newRef xs
+    (fmap CatBox . newRef) items
 
-    items <- mapM pack xs
-    (fmap CatBox . newRef . HashMap.fromList) items
-
-unpackBox :: (MonadIO m) => CatBox -> m [(Key, MeowPrim)]
-unpackBox box = do
-    let unpack :: (MonadIO m) => (Key, PrimRef) -> m (Key, MeowPrim)
-        unpack (key, ref) = (key,) <$> readRef ref
-
-    boxmap <- (readRef . getBox) box
-    (mapM unpack . HashMap.toList) boxmap
+unpackBox :: (MonadIO m) => CatBox -> m (HashMap Key MeowPrim)
+unpackBox box = readRef (getBox box) >>= mapM readRef
 
 catBoxGet :: (MonadIO m) => Key -> CatBox -> m (Maybe PrimRef)
 catBoxGet key box = do
@@ -211,14 +200,13 @@ catBoxPut key value box = do
 ------------------------------------------------------------------------------------
 {- Mewlix Classes -}
 ------------------------------------------------------------------------------------
+type FuncMap = HashMap Key MeowFunction
+
 data MeowClass = MeowClass
     { className     :: Key
-    , classBox      :: CatBox
-    , classParent   :: Maybe MeowClass  }
-
-instantiate :: (MonadIO m) => MeowClass -> m CatBox
-instantiate klass = do
-    undefined
+    , classFuncs    :: FuncMap
+    , classParent   :: Maybe MeowClass
+    , classConstr   :: Maybe MeowFunction }
 
 
 ------------------------------------------------------------------------------------
@@ -347,9 +335,6 @@ boxedStringTail :: BoxedString -> BoxedString
 boxedStringTail (BoxedString str n) = if Text.null str
     then error "Mewlix.Abstract.Atom.boxedStringTail: Cannot get tail of empty string!"
     else BoxedString { unboxStr = Text.tail str, strLen = n - 1 }
-
-toCatBox :: (MonadIO m) => BoxMap -> m MeowPrim
-toCatBox = fmap (MeowBox . CatBox) . newRef
 
 -- Lifting --
 liftToMeow :: ParserPrim -> MeowPrim

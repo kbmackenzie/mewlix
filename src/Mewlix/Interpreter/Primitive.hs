@@ -26,6 +26,7 @@ import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Except (MonadError(..))
 import Data.Hashable (hash)
 import Data.Bits (xor)
+import Control.Monad ((>=>))
 
 {- Truthy/Falsy -}
 -----------------------------------------------------------------------------
@@ -71,12 +72,14 @@ MeowStack as  `primCompare` MeowStack bs  = mappend (stackLen as `compare` stack
 
 -- Box comparison:
 MeowBox a    `primCompare` MeowBox b    = do
-    let pairs = fmap HashMap.toList . readRef . getBox
-    let unpack (key, ref) = (key,) <$> liftIO (readRef ref)
-    let pairComp (k1, p1) (k2, p2) = mappend (k1 `compare` k2) <$> primCompare p1 p2
-    as <- mapM unpack =<< pairs a
-    bs <- mapM unpack =<< pairs b
+    let pairComp :: (MonadIO m, MonadError CatException m) => (Key, MeowPrim) -> (Key, MeowPrim) -> m Ordering
+        pairComp (k1, p1) (k2, p2) = mappend (k1 `compare` k2) <$> primCompare p1 p2
+
+    as <- HashMap.toList <$> unpackBox a
+    bs <- HashMap.toList <$> unpackBox b
     listCompareM pairComp as bs
+
+-- Invalid comparisons:
 a `primCompare` b = throwError =<< operationException "comparison" [a, b]
 
 
@@ -96,13 +99,9 @@ primCopy (MeowStack stack) = do
     copies <- mapM primCopy (unboxStack stack)
     (return . MeowStack . toBoxedStack) copies
 primCopy (MeowBox box) = do
-    let copyPair (key, ref) = do
-            copied <- readRef ref >>= primCopy >>= newRef
-            return (key, copied)
-    pairs <- HashMap.toList <$> (readRef . getBox) box
-    copies <- mapM copyPair pairs
-    let copyBox = HashMap.fromList copies
-    toCatBox copyBox
+    boxmap <- (readRef . getBox) box
+    copies <- mapM (readRef >=> primCopy) boxmap
+    MeowBox <$> packBox copies
 primCopy other = return other
 
 {- Sorting -}

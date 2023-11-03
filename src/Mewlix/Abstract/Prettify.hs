@@ -38,7 +38,7 @@ showMeow (MeowBox x) = do
     let prettify :: (MonadIO m) => [(Key, MeowPrim)] -> m [Text]
         prettify = mapM showPair . sortBy (compare `on` fst) 
 
-    items <- unpackBox x >>= prettify
+    items <- unpackBox x >>= prettify . HashMap.toList
     (return . Text.concat) [ "[", Text.intercalate ", " items, "]" ]
 showMeow (MeowFunc _) = return "<function>"
 showMeow (MeowIFunc _) = return "<inner-func>"

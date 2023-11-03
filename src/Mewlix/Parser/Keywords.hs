@@ -11,6 +11,8 @@ module Mewlix.Parser.Keywords
 , meowReturn
 , meowContinue
 , meowBreak
+, meowHome
+, meowSuper
 , meowIf
 , meowElse
 , meowWhile
@@ -64,6 +66,12 @@ meowContinue = "catnap"
 
 meowBreak :: Text
 meowBreak = "run off"
+
+meowHome :: Text
+meowHome = "home"
+
+meowSuper :: Text
+meowSuper = "parent"
 
 meowIf :: Text
 meowIf = "mew?"
