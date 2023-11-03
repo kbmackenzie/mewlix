@@ -3,6 +3,7 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TupleSections #-}
 
 module Mewlix.Abstract.Meow
 ( Evaluator(..)
@@ -14,6 +15,8 @@ module Mewlix.Abstract.Meow
 , MeowPairs(..)
 , MeowFunction(..)
 , MeowIFunction(..)
+, MeowMethod(..)
+, MeowClass(..)
 , CatBox(..)
 , BoxMap
 , CatException(..) 
@@ -28,6 +31,8 @@ module Mewlix.Abstract.Meow
 , safeIO
 , (>>|)
 -- Utils:
+, packBox
+, unpackBox
 , catBoxGet
 , catBoxPut
 , lookUpRef
@@ -106,6 +111,8 @@ data MeowPrim =
     | MeowBox CatBox
     | MeowFunc MeowFunction
     | MeowIFunc MeowIFunction
+    | MeowMFunc MeowMethod
+    | MeowClassDef MeowClass
     | MeowNil
 
 ------------------------------------------------------------------------------------
@@ -149,13 +156,20 @@ data MeowFunction = MeowFunction
     , funcArity     :: Int
     , funcParams    :: Stack Text
     , funcBody      :: Stack Statement
-    , funcClosure   :: Closure        }
+    , funcClosure   :: Closure          }
 
 data MeowIFunction = MeowIFunction
     { ifuncName     :: Identifier
     , ifuncArity    :: Int
     , ifuncParams   :: Stack Text
     , ifunc         :: IFunc            }
+
+data MeowMethod = MeowMethod
+    { methodName    :: Identifier
+    , methodArity   :: Int
+    , methodParams  :: Stack Text
+    , methodBody    :: Stack Statement
+    , methodOwner   :: Ref CatBox       }
 
 
 ------------------------------------------------------------------------------------
@@ -165,6 +179,22 @@ newtype CatBox = CatBox { getBox :: Ref BoxMap }
 
 -- Type alias for convenience:
 type BoxMap = HashMap.HashMap Key PrimRef
+
+packBox :: (MonadIO m) => [(Key, MeowPrim)] -> m CatBox
+packBox xs = do
+    let pack :: (MonadIO m) => (Key, MeowPrim) -> m (Key, PrimRef)
+        pack (key, value) = (key,) <$> newRef value
+
+    items <- mapM pack xs
+    (fmap CatBox . newRef . HashMap.fromList) items
+
+unpackBox :: (MonadIO m) => CatBox -> m [(Key, MeowPrim)]
+unpackBox box = do
+    let unpack :: (MonadIO m) => (Key, PrimRef) -> m (Key, MeowPrim)
+        unpack (key, ref) = (key,) <$> readRef ref
+
+    boxmap <- (readRef . getBox) box
+    (mapM unpack . HashMap.toList) boxmap
 
 catBoxGet :: (MonadIO m) => Key -> CatBox -> m (Maybe PrimRef)
 catBoxGet key box = do
@@ -176,6 +206,19 @@ catBoxPut key value box = do
     let !boxRef = getBox box
     !valueRef <- newRef value
     modifyRef (HashMap.insert key valueRef) boxRef
+
+
+------------------------------------------------------------------------------------
+{- Mewlix Classes -}
+------------------------------------------------------------------------------------
+data MeowClass = MeowClass
+    { className     :: Key
+    , classBox      :: CatBox
+    , classParent   :: Maybe MeowClass  }
+
+instantiate :: (MonadIO m) => MeowClass -> m CatBox
+instantiate klass = do
+    undefined
 
 
 ------------------------------------------------------------------------------------

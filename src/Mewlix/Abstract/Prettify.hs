@@ -8,6 +8,7 @@ module Mewlix.Abstract.Prettify
 
 import Mewlix.Abstract.Meow
 import Mewlix.Data.Ref
+import Mewlix.Data.Key (Key)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Mewlix.Data.Stack as Stack
@@ -29,14 +30,20 @@ showMeow (MeowStack xs) = do
     items <- Stack.toList <$> mapM showMeow (unboxStack xs)
     (return . Text.concat) [ "[", Text.intercalate ", " items, "]" ]
 showMeow (MeowBox x) = do
-    let unpack (key, ref) = fmap (key,) $ readRef ref >>= showMeow
-    let pretty (key, prim) = Text.concat [ key, ": ", prim ]
-    pairs <- (fmap HashMap.toList . readRef . getBox) x
-    items <- map pretty . sortBy (compare `on` fst) <$> mapM unpack pairs
+    let showPair :: (MonadIO m) => (Key, MeowPrim) -> m Text
+        showPair (key, prim) = do
+            valueStr <- showMeow prim
+            return $ Text.concat [ key, ": ", valueStr ]
+
+    let prettify :: (MonadIO m) => [(Key, MeowPrim)] -> m [Text]
+        prettify = mapM showPair . sortBy (compare `on` fst) 
+
+    items <- unpackBox x >>= prettify
     (return . Text.concat) [ "[", Text.intercalate ", " items, "]" ]
 showMeow (MeowFunc _) = return "<function>"
 showMeow (MeowIFunc _) = return "<inner-func>"
 showMeow MeowNil = return "<nothing>"
+showMeow _ = undefined
 
 prettyMeow :: (MonadIO m) => MeowPrim -> m Text
 {-# INLINE prettyMeow #-}

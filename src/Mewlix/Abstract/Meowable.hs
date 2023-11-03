@@ -6,6 +6,7 @@ module Mewlix.Abstract.Meowable
 
 import Mewlix.Abstract.Meow
 import Mewlix.Data.Ref
+import Mewlix.Data.Key (Key)
 import Mewlix.Data.Stack (Stack)
 import Data.Text (Text)
 import Data.HashMap.Strict (HashMap)

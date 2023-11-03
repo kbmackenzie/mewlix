@@ -11,6 +11,7 @@ module Mewlix.Interpreter.Interpret
 
 import Mewlix.Abstract.Meow
 import Mewlix.Data.Ref
+import Mewlix.Data.Key (Key)
 import Mewlix.Data.Stack (Stack(..))
 import Mewlix.Abstract.Meowable
 import Mewlix.Abstract.Prettify
@@ -169,13 +170,13 @@ expression (ExprCall expr args argCount) = do
 
 identifier :: Expr -> Evaluator Identifier
 identifier (ExprKey key) = return key
-identifier other         = expression other >>= asIdentifier
+identifier other         = do
+    value <- expression other
+    throwError =<< notAnIdentifier [value]
 
 
 {- References -}
 ---------------------------------------------------------------
-type Key = Text.Text
-
 data CatKey =
       SimpleKey     Identifier
     | BoxKey        CatBox Key
@@ -224,6 +225,7 @@ liftedExpression (LiftDecl key expr) = do
 data ReturnValue =
       ReturnPrim MeowPrim
     | ReturnVoid
+    | ReturnCont
     | ReturnBreak
 
 statement :: Stack Statement -> Evaluator ReturnValue
@@ -254,6 +256,7 @@ statement ( (StmtWhile condExpr block) ::| rest ) = do
                 ret <- runLocal (statement block)
                 case ret of
                     ReturnVoid  -> loop
+                    ReturnCont  -> loop
                     ReturnBreak -> return ReturnVoid
                     other       -> return other
             else return ReturnVoid
@@ -270,6 +273,7 @@ statement ( (StmtFor (decl, incr, condExpr) block) ::| rest ) = do
                 ret <- runLocal (statement block)
                 case ret of
                     ReturnVoid  -> expression incr >> loop
+                    ReturnCont  -> expression incr >> loop
                     ReturnBreak -> return ReturnVoid
                     other       -> return other
             else return ReturnVoid
@@ -303,7 +307,7 @@ statement ( (StmtReturn expr) ::| _ ) = do
     return (ReturnPrim value)
 
 statement ( StmtBreak    ::| _ ) = return ReturnBreak
-statement ( StmtContinue ::| _ ) = return ReturnVoid
+statement ( StmtContinue ::| _ ) = return ReturnCont
 
 statement ( (StmtTryCatch tryBlock (maybeExpr, catchBlock)) ::| rest ) = do
     -- 'Is this exception catchable?'
@@ -337,6 +341,7 @@ liftReturn :: (MonadError CatException m) => ReturnValue -> m MeowPrim
 liftReturn (ReturnPrim a) = return a
 liftReturn ReturnVoid     = return MeowNil
 liftReturn ReturnBreak    = throwError =<< undefined --todo: unexpected break
+liftReturn ReturnCont     = throwError =<< undefined --todo: unexpected continue
 
 bindArgs :: Params -> Stack MeowPrim -> Evaluator ()
 bindArgs params prims = do
