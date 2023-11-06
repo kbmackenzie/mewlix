@@ -42,8 +42,9 @@ showMeow (MeowBox x) = do
     (return . Text.concat) [ "[", Text.intercalate ", " items, "]" ]
 showMeow (MeowFunc _) = return "<function>"
 showMeow (MeowIFunc _) = return "<inner-func>"
+showMeow (MeowMFunc _) = return "<method>"
 showMeow MeowNil = return "<nothing>"
-showMeow _ = undefined
+showMeow (MeowClassDef c) = return $ Text.concat [ "<class ", className c, ">"]
 
 prettyMeow :: (MonadIO m) => MeowPrim -> m Text
 {-# INLINE prettyMeow #-}

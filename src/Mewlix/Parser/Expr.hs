@@ -24,6 +24,7 @@ termR = Mega.choice
     [ parens exprR
     , parseBox
     , parseList
+    , parseSuper
     , ExprPrim <$> parsePrim
     , ExprKey  <$> parseName ]
 
@@ -50,6 +51,13 @@ parseBox = do
 
     keyword meowBox
     ExprBox <$> bracketList parsePair <?> "box"
+
+-- Resolve the 'super' keyword in parser.
+-- Look for it inside of 'home'.
+parseSuper :: Parser Expr
+parseSuper = do
+    keyword meowSuper
+    return (ExprDotOp (ExprKey meowHome) (ExprKey meowSuper))
 
 
 {- Operators -}
