@@ -284,15 +284,9 @@ statement ( (StmtFor (decl, incr, condExpr) block) ::| rest ) = do
         ReturnVoid -> statement rest
         other      -> return other
 
-statement ( (StmtFuncDef (ParserFunc name params block) ) ::| rest ) = do
-    closure <- asks evaluatorEnv
-    let function = MeowFunc $ MeowFunction
-            { funcArity   = Stack.length params
-            , funcName    = name
-            , funcParams  = params
-            , funcBody    = block
-            , funcClosure = closure             }
-    contextDefine name function
+statement ( (StmtFuncDef pFunc) ::| rest ) = do
+    func <- createFunc pFunc
+    contextDefine (pFuncName pFunc) (MeowFunc func)
     statement rest
 
 statement ( (StmtReturn expr) ::| _ ) = do
@@ -337,6 +331,16 @@ liftReturn (ReturnPrim a) = return a
 liftReturn ReturnVoid     = return MeowNil
 liftReturn ReturnBreak    = throwError =<< undefined --todo: unexpected break
 liftReturn ReturnCont     = throwError =<< undefined --todo: unexpected continue
+
+createFunc :: ParserFunc -> Evaluator MeowFunction
+createFunc (ParserFunc name params body) = do
+    closure <- asks evaluatorEnv
+    return MeowFunction
+            { funcArity   = Stack.length params
+            , funcName    = name
+            , funcParams  = params
+            , funcBody    = body
+            , funcClosure = closure             }
 
 bindArgs :: Params -> Stack MeowPrim -> Evaluator ()
 bindArgs params prims = do
