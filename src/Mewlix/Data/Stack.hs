@@ -25,9 +25,10 @@ module Mewlix.Data.Stack
 , compareM
 , select
 , partition
+, filter
 ) where
 
-import Prelude hiding (lookup, concat, concatMap, reverse, length, null, mapM)
+import Prelude hiding (lookup, concat, concatMap, reverse, length, null, mapM, filter, pred)
 import Data.Foldable (foldl')
 import Control.Monad.IO.Class (MonadIO(..))
 
@@ -137,3 +138,9 @@ select f x (as, bs) = if f x
 
 partition :: (a -> Bool) -> Stack a -> (Stack a, Stack a)
 partition f = foldr (select f) (empty, empty)
+
+filter :: (a -> Bool) -> Stack a -> Stack a
+filter _    Bottom      = Bottom
+filter pred (x ::| xs)
+    | pred x    = x ::| filter pred xs
+    | otherwise = filter pred xs
