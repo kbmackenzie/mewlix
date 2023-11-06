@@ -170,5 +170,7 @@ reservedKeywords = fromList
     , "happy"
     , "sad"
     , "nothing"
+    , "clowder"
+    , "from"
     , "when"
     , "meowmeow" ]
