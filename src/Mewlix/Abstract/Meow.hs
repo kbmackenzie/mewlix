@@ -55,7 +55,6 @@ module Mewlix.Abstract.Meow
 ) where
 
 -- Meow:
-import Mewlix.Data.Key (Key)
 import Mewlix.Data.Ref
 import Mewlix.Data.ToString
 import Mewlix.Abstract.State
@@ -152,14 +151,14 @@ newtype MeowPairs = MeowPairs { getPairs :: [(Key, MeowPrim)] }
 {- Functions -}
 ------------------------------------------------------------------------------------
 data MeowFunction = MeowFunction
-    { funcName      :: Identifier
+    { funcName      :: Key
     , funcArity     :: Int
     , funcParams    :: Stack Text
     , funcBody      :: Stack Statement
     , funcClosure   :: Closure          }
 
 data MeowIFunction = MeowIFunction
-    { ifuncName     :: Identifier
+    { ifuncName     :: Key
     , ifuncArity    :: Int
     , ifuncParams   :: Stack Text
     , ifunc         :: IFunc            }
@@ -240,7 +239,7 @@ instance Show MeowException where
         MeowDivByZero       -> "DivisionByZero"
         MeowNotBox          -> "InvalidBox"
         MeowNotProperty     -> "UnboundProperty"
-        MeowNotIdentifier   -> "InvalidIdentifier"
+        MeowNotIdentifier   -> "InvalidKey"
         MeowCatOnComputer   -> "CatOnComputer"
         MeowBadIO           -> "IO"
         MeowBadImport       -> "Import"

@@ -1,0 +1,39 @@
+clowder Name from Example
+    =^.x.^= kitty()
+    meow meow
+meow meow
+
+meowmeow (2)
+    meow("Hello world!")
+    -- Thank god.
+    meow("God is nice sometimes.")
+
+    mew? (2)
+        mew? (3)
+        meow meow
+        meow("Alright, it's the watch/catch.")
+    meow meow
+
+    mew? (2); meow("Yay!"); meow meow
+
+    watch
+        meow("Yay!"); meow("Okay!")
+    catch
+        meow("... > x<;;")
+    catch (3)
+        meow("... > x<;;")
+    meow meow
+
+    watch
+    catch
+    meow meow
+meow meow
+
+mew? (2)
+mao! (2)
+mao! (2)
+hiss!
+meow meow
+
+--( ^.x.^)> () => meow("Hello!")
+--((2 + 2) + 3)() + meow("hello!")

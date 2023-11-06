@@ -168,7 +168,7 @@ expression (ExprCall args argCount expr) = do
                 (MeowIFunc f) -> callInnerFunc (ifuncName f) argCount args f
                 other         -> throwError =<< notAFuncionException [other]
 
-identifier :: Expr -> Evaluator Identifier
+identifier :: Expr -> Evaluator Key
 identifier (ExprKey key) = return key
 identifier other         = do
     value <- expression other
@@ -178,7 +178,7 @@ identifier other         = do
 {- References -}
 ---------------------------------------------------------------
 data CatKey =
-      SimpleKey     Identifier
+      SimpleKey     Key
     | BoxKey        CatBox Key
     | Singleton     MeowPrim
 
@@ -284,7 +284,7 @@ statement ( (StmtFor (decl, incr, condExpr) block) ::| rest ) = do
         ReturnVoid -> statement rest
         other      -> return other
 
-statement ( (StmtFuncDef name params block) ::| rest ) = do
+statement ( (StmtFuncDef (ParserFunc name params block) ) ::| rest ) = do
     closure <- asks evaluatorEnv
     let function = MeowFunc $ MeowFunction
             { funcArity   = Stack.length params
@@ -328,6 +328,8 @@ statement ( (StmtTryCatch tryBlock (maybeExpr, catchBlock)) ::| rest ) = do
 statement ( (StmtImport _ _) ::| _ ) = do
     throwError $ unexpectedException "Nested import should never be parsed."
 
+statement _ = undefined -- todo!
+
 {- Functions -}
 ---------------------------------------------------------------
 liftReturn :: (MonadError CatException m) => ReturnValue -> m MeowPrim
@@ -343,13 +345,13 @@ bindArgs params prims = do
             contextDefine key value
     mapM_ assign zipped
 
-paramGuard :: Identifier -> Int -> Int -> Evaluator ()
+paramGuard :: Key -> Int -> Int -> Evaluator ()
 paramGuard key a b = case a `compare` b of
     EQ -> return ()
     LT -> throwError (arityException "Not enough arguments" key)
     GT -> throwError (arityException "Too many arguments" key)
 
-callFunction :: Identifier -> Int -> Stack Expr -> MeowFunction -> Evaluator MeowPrim
+callFunction :: Key -> Int -> Stack Expr -> MeowFunction -> Evaluator MeowPrim
 callFunction key arity exprs function = stackTrace key $ do
     paramGuard key arity (funcArity function)
     let closure = funcClosure function
@@ -358,7 +360,7 @@ callFunction key arity exprs function = stackTrace key $ do
         bindArgs (funcParams function) values
         statement (funcBody function) >>= liftReturn
 
-callMethod :: Identifier -> Int -> Stack Expr -> MeowFunction -> CatBox -> Evaluator MeowPrim
+callMethod :: Key -> Int -> Stack Expr -> MeowFunction -> CatBox -> Evaluator MeowPrim
 callMethod key arity exprs function parent = stackTrace key $ do
     paramGuard key arity (funcArity function)
     let closure = funcClosure function
@@ -368,7 +370,7 @@ callMethod key arity exprs function parent = stackTrace key $ do
         contextDefine meowHome $ MeowBox parent
         statement (funcBody function) >>= liftReturn
 
-callInnerFunc :: Identifier -> Int -> Stack Expr -> MeowIFunction -> Evaluator MeowPrim
+callInnerFunc :: Key -> Int -> Stack Expr -> MeowIFunction -> Evaluator MeowPrim
 callInnerFunc key arity exprs f = stackTrace key $ do
     paramGuard key arity (ifuncArity f)
     values <- mapM expression exprs
@@ -376,10 +378,10 @@ callInnerFunc key arity exprs f = stackTrace key $ do
         bindArgs (ifuncParams f) values
         ifunc f
 
-stackTrace :: Identifier -> Evaluator a -> Evaluator a
+stackTrace :: Key -> Evaluator a -> Evaluator a
 stackTrace key m = m `catchError` addStackTrace key
 
-addStackTrace :: Identifier -> CatException -> Evaluator a
+addStackTrace :: Key -> CatException -> Evaluator a
 addStackTrace key exc = do
     let message = Text.append (exceptionMessage exc) $ Text.concat
             [ "\n    In function \"", key, "\"" ]

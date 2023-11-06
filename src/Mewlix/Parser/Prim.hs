@@ -8,6 +8,7 @@ module Mewlix.Parser.Prim
 , parseName
 ) where
 
+import Mewlix.Data.Key (Key)
 import Mewlix.Parser.AST
 import Mewlix.Parser.Utils
 import Mewlix.Parser.Keywords

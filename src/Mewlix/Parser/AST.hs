@@ -7,8 +7,10 @@ module Mewlix.Parser.AST
 , Binop(..)
 , Unop(..)
 , LiftedExpr(..)
+, ParserFunc(..)
+, ParserClass(..)
 , Statement(..)
-, Identifier
+, Key
 , Block
 , Params
 , CatchBlock
@@ -18,11 +20,10 @@ module Mewlix.Parser.AST
 ) where
 
 import Mewlix.Data.Stack (Stack)
+import Mewlix.Data.Key (Key)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Mewlix.Utils.Types
-
-type Identifier = Text
 
 data ParserPrim =
       PrimInt Int
@@ -34,14 +35,14 @@ data ParserPrim =
 
 data Expr =
       ExprPrim ParserPrim
-    | ExprKey Identifier
+    | ExprKey Key
     | ExprAnd Expr Expr
     | ExprOr Expr Expr
     | ExprBinop Binop Expr Expr
     | ExprUnop Unop Expr
     | ExprTernary Expr Expr Expr
     | ExprList (Stack Expr)
-    | ExprBox (Stack (Identifier, Expr))
+    | ExprBox (Stack (Key, Expr))
     | ExprAssign Expr Expr
     | ExprPaw Expr
     | ExprClaw Expr
@@ -83,7 +84,20 @@ type CatchBlock = (Maybe Expr, Block)
 -- A 'lifted' expression type that allows declarations.
 data LiftedExpr =
       LiftExpr Expr
-    | LiftDecl Identifier Expr
+    | LiftDecl Key Expr
+    deriving (Show)
+
+data ParserFunc = ParserFunc
+    { pFuncName    :: Key
+    , pFuncParams  :: Params
+    , pFuncBody    :: Block       }
+    deriving (Show)
+
+data ParserClass = ParserClass
+    { pClassName           :: Key
+    , pClassExtends        :: Maybe Key
+    , pClassConstructor    :: Maybe ParserFunc
+    , pClassMethods        :: Stack ParserFunc }
     deriving (Show)
 
 data Statement =
@@ -91,9 +105,10 @@ data Statement =
     | StmtWhile Expr Block
     | StmtFor (LiftedExpr, Expr, Expr) Block
     | StmtIfElse Expr Block Block
-    | StmtFuncDef Identifier Params Block
-    | StmtDeclaration Identifier Expr
-    | StmtImport FilePathT (Maybe Identifier)
+    | StmtFuncDef ParserFunc
+    | StmtDeclaration Key Expr
+    | StmtClassDef ParserClass
+    | StmtImport FilePathT (Maybe Key)
     | StmtReturn Expr
     | StmtBreak
     | StmtContinue
@@ -108,7 +123,7 @@ isImport :: Statement -> Bool
 isImport (StmtImport _ _) = True
 isImport _                = False
 
-fromImport :: Statement -> (FilePath, Maybe Identifier)
+fromImport :: Statement -> (FilePath, Maybe Key)
 {-# INLINE fromImport #-}
 fromImport (StmtImport path key) = (Text.unpack path, key)
 fromImport _ = error "Mewlix.Parser.AST.fromImport: Statement isn't an import!"

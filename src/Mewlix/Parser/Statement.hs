@@ -8,11 +8,13 @@ module Mewlix.Parser.Statement
 , Nesting(..)
 ) where
 
+import Mewlix.Data.Key (Key)
 import Mewlix.Parser.AST
 import Mewlix.Parser.Expr
 import Mewlix.Parser.Utils
 import Mewlix.Parser.Keywords
 import Mewlix.Parser.Prim
+import Mewlix.Data.Stack (Stack)
 import qualified Mewlix.Data.Stack as Stack
 import Text.Megaparsec ((<|>))
 import Data.Text (Text)
@@ -49,11 +51,12 @@ statement nesting = Mega.choice $ map lexemeMultiline
     [ whileLoop     nesting
     , ifelse        nesting
     , declareVar    nesting
-    , func          nesting
+    , funcDef       nesting
     , returnKey     nesting
     , continueKey   nesting
     , breakKey      nesting
     , importKey     nesting
+    , classDef      nesting
     , forLoop       nesting
     , tryCatch      nesting
     , expression    nesting ]
@@ -128,15 +131,42 @@ ifelse nesting = do
 
 {- Functions -}
 ----------------------------------------------------------------
-func :: Nesting -> Parser Statement
-func _ = do
+func :: Parser ParserFunc
+func = do
     keyword meowCatface
     name   <- parseName
     params <- parensList parseName
     whitespaceLn
     body   <- block Nested meowmeow
     meowmeow
-    return (StmtFuncDef name params body)
+    return (ParserFunc name params body)
+
+funcDef :: Nesting -> Parser Statement
+funcDef _ = StmtFuncDef <$> func
+
+
+{- Classes -}
+----------------------------------------------------------------
+classDef :: Nesting -> Parser Statement
+classDef _ = do
+    keyword meowClass
+    name    <- parseName
+    extends <- Mega.optional (keyword meowFrom >> parseName)
+    whitespaceLn
+    funcs   <- (fmap Stack.fromList . Mega.many . lexemeMultiline) func
+    -- Fetch constructor:
+    (constr, methods) <- constructor name funcs
+    (return . StmtClassDef) (ParserClass name extends constr methods)
+
+constructor :: Key -> Stack ParserFunc -> Parser (Maybe ParserFunc, Stack ParserFunc)
+constructor name funcs = do
+    let (constructors, methods) = Stack.partition ((== name) . pFuncName) funcs
+    when (Stack.length constructors > 1)
+        (fail "Class cannot have more than one constructor!")
+    let constr = if Stack.null constructors
+        then Nothing
+        else Just (Stack.peek constructors)
+    return (constr, methods)
 
 
 {- Return -}

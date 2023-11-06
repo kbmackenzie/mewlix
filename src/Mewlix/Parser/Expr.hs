@@ -7,6 +7,7 @@ module Mewlix.Parser.Expr
 , liftedExpr
 ) where
 
+import Mewlix.Data.Key (Key)
 import Mewlix.Parser.AST
 import Mewlix.Parser.Prim
 import Mewlix.Parser.Utils
@@ -41,7 +42,7 @@ parseList = ExprList <$> bracketList exprR <?> "list"
 
 parseBox :: Parser Expr
 parseBox = do
-    let parsePair :: Parser (Identifier, Expr)
+    let parsePair :: Parser (Key, Expr)
         parsePair = do
             key <- parseName
             symbol ':'
@@ -122,7 +123,7 @@ operatorsR =
 
 {- Declaration -}
 ------------------------------------------------------------------------------------
-declaration :: Parser (Identifier, Expr)
+declaration :: Parser (Key, Expr)
 declaration = do
     let getValue :: Parser Expr
         getValue = Mega.choice
@@ -233,7 +234,7 @@ parseBox' :: Parser Expr
 parseBox' = (lexeme . brackets) $ whitespaceLn >>
     ExprBox <$> sepByCommaEnd (bilexemeLn parseKeyValue) <* whitespaceLn
 
-parseKeyValue :: Parser (Identifier, Expr)
+parseKeyValue :: Parser (Key, Expr)
 parseKeyValue = do
     key <- lexeme keyText
     (void . lexeme) (MChar.char ':')
@@ -271,7 +272,7 @@ chainedOperators = foldr1 (flip (.)) <$> Mega.some (parseDotOp <|> parseCall <|>
 
 {- Declaration -}
 ------------------------------------------------------------------------------------
-declaration :: Parser (Identifier, Expr)
+declaration :: Parser (Key, Expr)
 declaration = lexeme $ do
     (void . tryKeyword) meowLocal
     key  <- lexeme keyText
