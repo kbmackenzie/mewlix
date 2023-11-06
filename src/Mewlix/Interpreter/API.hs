@@ -2,7 +2,7 @@
 
 module Mewlix.Interpreter.API
 ( runFile
--- Re-export:
+, runMeow
 , ReturnValue(..)
 ) where
 
@@ -13,13 +13,8 @@ import Mewlix.Abstract.State
 import Mewlix.Interpreter.Import
 import Mewlix.Interpreter.Module
 import Mewlix.Interpreter.Interpret (ReturnValue(..), statement)
-import Data.Text (Text)
-import Data.Set (Set)
-import Data.HashSet (HashSet)
-import Data.HashMap.Strict (HashMap)
-import qualified Data.Text as Text
+import Mewlix.Libraries.Base (baseLibrary)
 import qualified Data.Set as Set
-import qualified Data.HashSet as HashSet
 import qualified Data.HashMap.Strict as HashMap
 import qualified Mewlix.Data.Stack as Stack
 import Mewlix.Parser.AST (isImport, fromImport)
@@ -27,13 +22,16 @@ import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Except (runExceptT)
 import Control.Monad.Reader (runReaderT)
 import Lens.Micro.Platform ((.~))
-import Control.Monad (void, mapM_)
-import Mewlix.IO.Directory (localizePath)
+import Control.Monad (void)
 
 ---------------------------------------------------------------------------------
 interpret :: EvaluatorState MeowPrim -> Evaluator a -> IO (Either CatException a)
 interpret state = runExceptT . flip runReaderT state . runEvaluator
 ---------------------------------------------------------------------------------
+
+{- Initialization: -}
+---------------------------------------------------------------------------------------------------
+
 type MetaTransform = EvaluatorMeta -> EvaluatorMeta
 
 initMeta :: (MonadIO m) => m EvaluatorMeta
@@ -51,18 +49,20 @@ initMeta = do
 
 initState :: (MonadIO m) => EvaluatorMeta -> Libraries MeowPrim -> ModuleInfo -> m (EvaluatorState MeowPrim)
 initState meta libs info = do
-    let !lib = joinLibraries libs
-    !env <- newRef lib
+    let !envLib = joinLibraries libs
+    !environment <- newRef envLib
     return EvaluatorState {
-        evaluatorEnv    = env,
+        evaluatorEnv    = environment,
         moduleInfo      = info,
         evaluatorMeta   = meta,
         evaluatorLibs   = libs
     }
 
+{- Main: -}
+---------------------------------------------------------------------------------------------------
 runFile :: FilePath -> Bool -> [MetaTransform] -> Libraries MeowPrim -> IO (Either CatException ReturnValue)
 runFile path isMain transforms libs = do
-    meta <- (\x -> foldr ($) x transforms) <$> initMeta
+    meta <- (\m -> foldr ($) m transforms) <$> initMeta
     let info = ModuleInfo {
         modulePath   = path,
         moduleIsMain = isMain
@@ -79,6 +79,9 @@ runFile path isMain transforms libs = do
 
     interpret state run
 
+
+{- Imports: -}
+---------------------------------------------------------------------------------------------------
 runAsImport :: FilePath -> Maybe Key -> Evaluator ()
 runAsImport path qualified = do
     (resolvedPath, Module block) <- readModule path False
@@ -99,8 +102,10 @@ runAsImport path qualified = do
     addImport qualified =<< readRef importEnv
 
 
-{- Evaluator Presets -}
+{- Presets: -}
 ---------------------------------------------------------------------------------------------------
-runMain :: Module -> Evaluator MeowPrim
-runMain (Module block) = do
-    undefined
+runMeow :: FilePath -> IO (Either CatException ReturnValue)
+runMeow path = do
+    baseLib <- baseLibrary
+    let libs = Libraries { getLibs = Stack.singleton baseLib }
+    runFile path True [] libs

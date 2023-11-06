@@ -1,3 +1,9 @@
+clowder Example
+    =^.x.^= yay()
+        meow("YayyyyyyYY!")
+    meow meow
+meow meow
+
 clowder Name
     =^.x.^= Name()
         home.a = "Yay!"

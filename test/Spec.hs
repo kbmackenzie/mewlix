@@ -47,9 +47,7 @@ main = do
     --let parsed = parseRoot path contents
     putStrLn parsed
     -}
-    baseLib <- baseLibrary
-    let libs = Libraries { getLibs = Stack.singleton baseLib }
-    ma <- runFile path True [] libs
+    ma <- runMeow path
     case ma of
         (Left e) -> printException (showException e)
         (Right a) -> case a of

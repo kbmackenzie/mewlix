@@ -17,7 +17,7 @@ import qualified Data.HashMap.Strict as HashMap
 filterKeys :: HashMap Key a -> HashMap Key a
 {-# INLINABLE filterKeys #-}
 filterKeys = HashMap.filterWithKey publicKey
-    where publicKey k _ = (not . Text.isPrefixOf "_") k
+    where publicKey key _ = (not . Text.isPrefixOf "_") key
 
 addImport :: Maybe Key -> Environment MeowPrim -> Evaluator ()
 addImport qualified impEnv = do
