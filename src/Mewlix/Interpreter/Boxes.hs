@@ -13,16 +13,12 @@ module Mewlix.Interpreter.Boxes
 import Mewlix.Abstract.Meow
 import Mewlix.Data.Ref
 import Mewlix.Data.Key (Key)
+import Mewlix.Interpreter.Primitive
 import Mewlix.Interpreter.Exceptions
 import Mewlix.Parser.Keywords (meowSuper)
 import Control.Monad.Except (MonadError)
 import Control.Monad.IO.Class(MonadIO)
 import Control.Monad ((>=>))
-
-asBox :: (MonadIO m, MonadError CatException m) => MeowPrim -> m CatBox
-asBox prim = case prim of
-    (MeowBox box) -> return box
-    _             -> throwError =<< notABoxException [prim]
 
 boxPeek :: (MonadIO m, MonadError CatException m) => Key -> CatBox -> m (Ref MeowPrim)
 boxPeek key box = do

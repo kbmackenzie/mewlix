@@ -13,6 +13,8 @@ module Mewlix.Interpreter.Exceptions
 , arityException
 , notAFuncionException
 , notAClassException
+, expectedBox
+, expectedString
 , argumentTypeException
 , conversionException
 , catOnComputer
@@ -66,6 +68,12 @@ notAFuncionException = exceptionBase MeowTypeMismatch "Cannot invoke a non-calla
 
 notAClassException :: (MonadIO m) => [MeowPrim] -> m CatException
 notAClassException = exceptionBase MeowTypeMismatch "Value provided is not a class!"
+
+expectedBox :: (MonadIO m) => [MeowPrim] -> m CatException
+expectedBox = exceptionBase MeowTypeMismatch "Expected box; received a different value!"
+
+expectedString :: (MonadIO m) => [MeowPrim] -> m CatException
+expectedString = exceptionBase MeowTypeMismatch "Expected string; received a different value!"
 
 argumentTypeException :: (MonadIO m) => Text -> [MeowPrim] -> m CatException
 argumentTypeException key = exceptionBase MeowTypeMismatch $ Text.concat

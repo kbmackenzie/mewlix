@@ -4,6 +4,8 @@
 
 module Mewlix.Interpreter.Primitive
 ( meowBool
+, asBox
+, asString
 , primCompare
 , primEq
 , safeEq
@@ -36,8 +38,20 @@ meowBool MeowNil        = False
 meowBool (MeowBool b)   = b
 meowBool (MeowStack xs)  = (not . Stack.null . unboxStack) xs
 meowBool (MeowString b) = (not . Text.null . unboxStr) b
---meowBool (MeowBox x)    = (not . HashMap.null) x
 meowBool _ = True
+
+{- Type Coercion -}
+-----------------------------------------------------------------------------
+asBox :: (MonadIO m, MonadError CatException m) => MeowPrim -> m CatBox
+asBox prim = case prim of
+    (MeowBox box) -> return box
+    _             -> throwError =<< expectedBox [prim]
+
+asString :: (MonadIO m, MonadError CatException m) => MeowPrim -> m Key
+asString prim = case prim of
+    (MeowString str) -> (return . unboxStr) str
+    _                -> throwError =<< expectedString [prim]
+
 
 {- Comparison -}
 -----------------------------------------------------------------------------
@@ -81,7 +95,6 @@ MeowBox a    `primCompare` MeowBox b    = do
 
 -- Invalid comparisons:
 a `primCompare` b = throwError =<< operationException "comparison" [a, b]
-
 
 -- A few more specific functions:
 primEq :: (MonadIO m, MonadError CatException m) => MeowPrim -> MeowPrim -> m Bool

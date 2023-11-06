@@ -10,11 +10,13 @@ import Mewlix.Data.Ref
 import Mewlix.Data.Key (Key)
 import Mewlix.Abstract.State
 import Mewlix.Data.Stack (Stack)
+import Mewlix.Interpreter.Boxes (asBox)
 import qualified Mewlix.Data.Stack as Stack
 import Mewlix.Abstract.Prettify
 import Mewlix.Abstract.Meowable
 import Mewlix.Abstract.PrimLens
 import Mewlix.Parser.AST
+import Mewlix.Parser.Keywords (meowClass, meowSuper)
 import Mewlix.Libraries.Utils
 import Mewlix.Interpreter.Primitive
 import Mewlix.Interpreter.Exceptions
@@ -24,6 +26,7 @@ import qualified Data.Text.Read as Read
 import qualified Data.HashMap.Strict as HashMap
 import Lens.Micro.Platform ((%~), over)
 import Data.Functor ((<&>))
+import Control.Monad ((>=>), when)
 -- IO:
 import Mewlix.IO.Print (printText, printTextLn, printErrorLn)
 import qualified Data.Text.IO as TextIO
@@ -32,6 +35,7 @@ import Control.Monad.IO.Class (MonadIO)
 import System.Random (randomIO)
 import Mewlix.IO.File
 import Mewlix.IO.Directory
+import Data.Maybe (isJust, fromJust)
 
 {- Base -}
 baseLibrary :: (MonadIO m) => m (Environment MeowPrim)
@@ -56,6 +60,7 @@ baseLibrary = createEnvironment
     , makeIFunc "hash"      ["x"]   meowHash
     , makeIFunc "exists"    ["x"]   meowExist
     , makeIFunc "typeof"    ["x"]   meowTypeOf
+    , makeIFunc "friends"   ["x"]   meowInstanceOf
     , makeIFunc "throw"     ["x"]   throwEx
     -- Math:
     , makeIFunc "pi"        [   ]   meowPi
@@ -356,16 +361,33 @@ meowExist = lookUp "x" >>= \case
     x -> throwError =<< argumentTypeException "exists" [x]
 
 meowTypeOf :: IFunc
-meowTypeOf = lookUp "x" >>= \x -> (return . MeowString . toBoxedString) $ case x of
-    (MeowString _)  -> "string"
-    (MeowInt _)     -> "int"
-    (MeowFloat _)   -> "float"
-    (MeowBool _)    -> "bool"
-    (MeowStack _)   -> "stack"
-    (MeowBox _)     -> "box"
-    (MeowFunc _)    -> "function"
-    (MeowIFunc _)   -> "inner-function"
-    MeowNil         -> "nothing"
+meowTypeOf = lookUp "x" >>= \x -> return . MeowString . toBoxedString $ case x of
+    (MeowString _)    -> "string"
+    (MeowInt _)       -> "int"
+    (MeowFloat _)     -> "float"
+    (MeowBool _)      -> "bool"
+    (MeowStack _)     -> "stack"
+    (MeowFunc _)      -> "function"
+    (MeowMFunc _)     -> "function"     -- consider: returning 'method'
+    (MeowIFunc _)     -> "function"     -- consider: returning 'inner-function'
+    (MeowClassDef _)  -> "class"
+    (MeowBox _)       -> "box"          -- detailed return value in 'instanceOf'
+    MeowNil           -> "nothing"
+
+meowInstanceOf :: IFunc
+meowInstanceOf = (,) <$> lookUp "x" <*> lookUp "y" >>= \case
+    (MeowString x, MeowBox y) -> MeowBool <$> instanceOf (unboxStr x) y
+    (x, y) -> throwError =<< argumentTypeException "instanceof" [x, y]
+
+instanceOf :: Key -> CatBox -> Evaluator Bool
+instanceOf key box = do
+    boxmap      <- (readRef . getBox) box
+    className   <- mapM (readRef >=> asString) (HashMap.lookup meowClass boxmap)
+    if className == Just key then return True else do
+        maybeParent <- mapM (readRef >=> asBox) (HashMap.lookup meowSuper boxmap)
+        case maybeParent of
+            Nothing       -> return False
+            (Just parent) -> instanceOf key parent
 
 ----------------------------------------------------------
 {- Exceptions -}
