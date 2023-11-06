@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Mewlix.Interpreter.Classes
-( instantiate
+( asClass
+, instantiate
 ) where
 
 import Mewlix.Abstract.Meow
@@ -9,7 +10,13 @@ import Mewlix.Data.Ref
 import qualified Data.HashMap.Internal.Strict as HashMap
 import Control.Monad.IO.Class (MonadIO)
 import Data.Maybe (maybe)
+import Control.Monad.Except (MonadError)
 import Mewlix.Parser.Keywords (meowSuper)
+
+asClass :: (MonadError CatException m) => MeowPrim -> m MeowClass
+asClass prim = case prim of
+    (MeowClassDef x) -> return x
+    _ -> throwError =<< undefined -- todo!
 
 -- Class variables are not allowed.
 -- Assume no class variables, only methods.

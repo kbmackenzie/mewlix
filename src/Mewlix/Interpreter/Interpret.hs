@@ -21,10 +21,11 @@ import qualified Data.Text as Text
 import qualified Mewlix.Data.Stack as Stack
 import Mewlix.Interpreter.Exceptions
 import Mewlix.Interpreter.Boxes
+import Mewlix.Interpreter.Classes
 import Mewlix.Interpreter.Primitive
 import Mewlix.Interpreter.Operations
 import Mewlix.Parser.AST
-import Control.Monad (void)
+import Control.Monad (void, (>=>))
 import Control.Monad.Except (MonadError)
 import qualified Data.HashMap.Strict as HashMap
 import Mewlix.IO.Print (printTextLn)
@@ -322,7 +323,36 @@ statement ( (StmtTryCatch tryBlock (maybeExpr, catchBlock)) ::| rest ) = do
 statement ( (StmtImport _ _) ::| _ ) = do
     throwError $ unexpectedException "Nested import should never be parsed."
 
-statement _ = undefined -- todo!
+statement ( (StmtClassDef pClass) ::| rest ) = do
+    class_    <- createClass pClass
+    instance_ <- instantiate class_
+
+    -- todo:
+    -- turn constructor into method
+    -- call constructor as a method
+    -- take care of 'home' and 'super' logic in methods
+
+    contextDefine (pClassName pClass) (MeowBox instance_)
+    statement rest
+
+
+{- Classes -}
+---------------------------------------------------------------
+createClass :: ParserClass -> Evaluator MeowClass
+createClass (ParserClass name extends constructor body) = do
+    parent <- mapM (lookUp >=> asClass) extends
+    constr <- mapM createFunc constructor
+    funcs  <- mapM createFunc body
+    let asPair :: MeowFunction -> (Key, MeowFunction)
+        asPair func = (funcName func, func)
+    let funcMap = (HashMap.fromList . map asPair . Stack.toList) funcs
+
+    return MeowClass {
+        className   = name,
+        classParent = parent,
+        classFuncs  = funcMap,
+        classConstr = constr
+    }
 
 {- Functions -}
 ---------------------------------------------------------------
