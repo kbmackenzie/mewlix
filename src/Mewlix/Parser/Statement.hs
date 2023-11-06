@@ -144,23 +144,22 @@ funcDef _ = StmtFuncDef <$> func
 classDef :: Nesting -> Parser Statement
 classDef _ = do
     keyword meowClass
-    name    <- parseName
-    extends <- Mega.optional (keyword meowFrom >> parseName)
+    name        <- parseName
+    extends     <- Mega.optional (keyword meowFrom >> parseName)
     whitespaceLn
-    funcs   <- (fmap Stack.fromList . Mega.many . lexemeLn) func
-    -- Fetch constructor:
-    (constr, methods) <- constructor name funcs
-    (return . StmtClassDef) (ParserClass name extends constr methods)
+    methods     <- (fmap Stack.fromList . Mega.many . lexemeLn) func
+    constructor <- getConstructor methods
+    (return . StmtClassDef) (ParserClass name extends constructor methods)
 
-constructor :: Key -> Stack ParserFunc -> Parser (Maybe ParserFunc, Stack ParserFunc)
-constructor name funcs = do
-    let (constructors, methods) = Stack.partition ((== name) . pFuncName) funcs
+getConstructor :: Stack ParserFunc -> Parser (Maybe ParserFunc)
+getConstructor funcs = do
+    let constructors = Stack.filter ((== meowConstructor) . pFuncName) funcs
     when (Stack.length constructors > 1)
         (fail "Class cannot have more than one constructor!")
-    let constr = if Stack.null constructors
+    let constructor = if Stack.null constructors
         then Nothing
         else Just (Stack.peek constructors)
-    return (constr, methods)
+    return constructor
 
 
 {- Return -}

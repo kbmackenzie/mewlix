@@ -15,6 +15,7 @@ module Mewlix.Parser.Keywords
 , meowFrom
 , meowHome
 , meowSuper
+, meowConstructor
 , meowIf
 , meowElif
 , meowElse
@@ -81,6 +82,9 @@ meowHome = "home"
 
 meowSuper :: Text
 meowSuper = "parent"
+
+meowConstructor :: Text
+meowConstructor = "wake"
 
 meowIf :: Text
 meowIf = "mew?"

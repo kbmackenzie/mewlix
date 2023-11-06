@@ -35,12 +35,12 @@ instantiate classDef = do
             return (HashMap.singleton meowSuper value)
 
     ref <- newRef HashMap.empty
-    let catbox = CatBox ref
+    let classInstance = CatBox ref
     let funcmap = classFuncs classDef
 
     -- Turn all functions into methods!
-    methods <- mapM (newRef . MeowMFunc . MeowMethod catbox) funcmap 
+    methods <- mapM (newRef . MeowMFunc . MeowMethod classInstance) funcmap 
     let instanceMap = methods <> super
 
     modifyRef (const instanceMap) ref
-    return catbox
+    return classInstance

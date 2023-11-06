@@ -1,16 +1,23 @@
 clowder Example
+    =^.x.^= wake()
+        home.b = 3
+    meow meow
+
     =^.x.^= yay()
         meow("YayyyyyyYY!")
     meow meow
 meow meow
 
 clowder Name from Example
-    =^.x.^= Name()
+    =^.x.^= wake()
         home.a = "Yay!"
+        parent.wake()
     meow meow
 
     =^.x.^= haha()
         meow("Home is... "..home.a)
+        meow("Parent's b..."..home.b)
+        meow(parent.b)
         home.yay()
         parent.yay()
     meow meow
