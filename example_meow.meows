@@ -1,8 +1,17 @@
-clowder Name from Example
-    =^.x.^= kitty()
+clowder Name
+    =^.x.^= Name()
+        home.a = "Yay!"
+    meow meow
+
+    =^.x.^= haha()
+        meow("Home is... "..home.a)
     meow meow
 meow meow
 
+mew x = Name()
+x.haha()
+
+~( ^.x.^)>
 meowmeow (2)
     meow("Hello world!")
     -- Thank god.
@@ -34,6 +43,7 @@ mao! (2)
 mao! (2)
 hiss!
 meow meow
+<(^.x.^ )~
 
 --( ^.x.^)> () => meow("Hello!")
 --((2 + 2) + 3)() + meow("hello!")

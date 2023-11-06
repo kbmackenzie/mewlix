@@ -36,7 +36,8 @@ main = do
     let path = "example_meow.meows"
     --let path = "std/hashmap.meows"
     --let path = "std/io.meows" --"std/std.meows"
-    contents <- TextIO.readFile path
+    -- contents <- TextIO.readFile path
+    {-
     let parser = do
             Mega.many (whileLoop Root <|> ifelse Root)
             --Mega.many (exprR <* MChar.newline)
@@ -45,3 +46,12 @@ main = do
             (Right a) -> show a
     --let parsed = parseRoot path contents
     putStrLn parsed
+    -}
+    baseLib <- baseLibrary
+    let libs = Libraries { getLibs = Stack.singleton baseLib }
+    ma <- runFile path True [] libs
+    case ma of
+        (Left e) -> printException (showException e)
+        (Right a) -> case a of
+            (ReturnPrim p) -> prettyMeow p >>= printTextLn
+            _              -> printTextLn "void"

@@ -1,6 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE FlexibleContexts #-}
 
 module Mewlix.Interpreter.Interpret
@@ -162,10 +161,11 @@ expression (ExprCall args expr) = do
             (Singleton _) -> "<lambda>"
     function <- keyLookup key
     case function of
-        (MeowFunc f)    -> callFunction name args f
-        (MeowIFunc f)   -> callInnerFunc name args f
-        (MeowMFunc f)   -> callMethod name args f
-        other           -> throwError =<< notAFuncionException [other]
+        (MeowFunc f)        -> callFunction name args f
+        (MeowIFunc f)       -> callInnerFunc name args f
+        (MeowMFunc f)       -> callMethod name args f
+        (MeowClassDef c)    -> instantiateClass c args
+        other               -> throwError =<< notAFuncionException [other]
 
 identifier :: Expr -> Evaluator Key
 identifier (ExprKey key) = return key
