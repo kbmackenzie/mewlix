@@ -16,6 +16,7 @@ import Mewlix.Data.Stack (Stack(..))
 import Mewlix.Abstract.Meowable
 import Mewlix.Abstract.Prettify
 import Mewlix.Abstract.State
+import Mewlix.Abstract.PrimLens
 import Mewlix.Parser.Keywords (meowHome)
 import qualified Data.Text as Text
 import qualified Mewlix.Data.Stack as Stack
@@ -25,10 +26,12 @@ import Mewlix.Interpreter.Classes
 import Mewlix.Interpreter.Primitive
 import Mewlix.Interpreter.Operations
 import Mewlix.Parser.AST
-import Control.Monad (void, (>=>))
+import Control.Monad (void, (>=>), when)
 import Control.Monad.Except (MonadError)
 import qualified Data.HashMap.Strict as HashMap
 import Mewlix.IO.Print (printTextLn)
+import Lens.Micro.Platform (over)
+import Data.Maybe (isJust, fromJust)
 
 {- Expressions -}
 ---------------------------------------------------------------
@@ -151,23 +154,18 @@ expression (ExprUnop op exprA) = do
             UnopNot             -> return . meowNot
     f a
 
-expression (ExprCall args argCount expr) = do
+expression (ExprCall args expr) = do
     key <- asKey expr
-    case key of
-        (SimpleKey name)  -> lookUp name >>= \case
-                (MeowFunc f)  -> callFunction name argCount args f
-                (MeowIFunc f) -> callInnerFunc name argCount args f
-                other         -> throwError =<< notAFuncionException [other]
-        (BoxKey box name) -> keyLookup key >>= \case
-                (MeowFunc f)  -> callMethod name argCount args f box
-                (MeowIFunc f) -> callInnerFunc name argCount args f
-                other         -> throwError =<< notAFuncionException [other]
-
-        -- Singleton calls:
-        (Singleton a)     -> case a of
-                (MeowFunc f)  -> callFunction (funcName f) argCount args f
-                (MeowIFunc f) -> callInnerFunc (ifuncName f) argCount args f
-                other         -> throwError =<< notAFuncionException [other]
+    let name = case key of
+            (SimpleKey k) -> k
+            (BoxKey _ k)  -> k
+            (Singleton _) -> "<lambda>"
+    function <- keyLookup key
+    case function of
+        (MeowFunc f)    -> callFunction name args f
+        (MeowIFunc f)   -> callInnerFunc name args f
+        (MeowMFunc f)   -> callMethod name args f
+        other           -> throwError =<< notAFuncionException [other]
 
 identifier :: Expr -> Evaluator Key
 identifier (ExprKey key) = return key
@@ -324,15 +322,8 @@ statement ( (StmtImport _ _) ::| _ ) = do
     throwError $ unexpectedException "Nested import should never be parsed."
 
 statement ( (StmtClassDef pClass) ::| rest ) = do
-    class_    <- createClass pClass
-    instance_ <- instantiate class_
-
-    -- todo:
-    -- turn constructor into method
-    -- call constructor as a method
-    -- take care of 'home' and 'super' logic in methods
-
-    contextDefine (pClassName pClass) (MeowBox instance_)
+    classDef    <- createClass pClass
+    contextDefine (pClassName pClass) (MeowClassDef classDef)
     statement rest
 
 
@@ -353,6 +344,18 @@ createClass (ParserClass name extends constructor body) = do
         classFuncs  = funcMap,
         classConstr = constr
     }
+
+instantiateClass :: MeowClass -> Stack Expr -> Evaluator MeowPrim
+instantiateClass classDef args = do
+    classInstance <- instantiate classDef
+    -- Call constructor if it exists:
+    when (isJust (classConstr classDef)) $ do
+        let method = MeowMethod {
+            methodOwner = classInstance,
+            methodFunc  = fromJust (classConstr classDef)
+        }
+        void (callMethod (className classDef) args method)
+    return (MeowBox classInstance)
 
 {- Functions -}
 ---------------------------------------------------------------
@@ -385,28 +388,30 @@ paramGuard key a b = case a `compare` b of
     LT -> throwError (arityException "Not enough arguments" key)
     GT -> throwError (arityException "Too many arguments" key)
 
-callFunction :: Key -> Int -> Stack Expr -> MeowFunction -> Evaluator MeowPrim
-callFunction key arity exprs function = stackTrace key $ do
-    paramGuard key arity (funcArity function)
-    let closure = funcClosure function
-    values <- mapM expression exprs
-    runClosure closure $ do
-        bindArgs (funcParams function) values
+callFunction :: Key -> Stack Expr -> MeowFunction -> Evaluator MeowPrim
+callFunction key exprs function = stackTrace key $ do
+    paramGuard key (Stack.length exprs) (funcArity function)
+    args <- mapM expression exprs
+    runClosure (funcClosure function) $ do
+        bindArgs (funcParams function) args
         statement (funcBody function) >>= liftReturn
 
-callMethod :: Key -> Int -> Stack Expr -> MeowFunction -> CatBox -> Evaluator MeowPrim
-callMethod key arity exprs function parent = stackTrace key $ do
-    paramGuard key arity (funcArity function)
-    let closure = funcClosure function
-    values <- mapM expression exprs
-    runClosure closure $ do
-        bindArgs (funcParams function) values
-        contextDefine meowHome $ MeowBox parent
+callMethod :: Key -> Stack Expr -> MeowMethod -> Evaluator MeowPrim
+callMethod key exprs method = stackTrace key $ do
+    let owner = methodOwner method
+    let function = methodFunc method
+    paramGuard key (Stack.length exprs) (funcArity function)
+
+    let params = Stack.push meowHome (funcParams function)
+    args <- Stack.push (MeowBox owner) <$> mapM expression exprs
+
+    runClosure (funcClosure function) $ do
+        bindArgs params args
         statement (funcBody function) >>= liftReturn
 
-callInnerFunc :: Key -> Int -> Stack Expr -> MeowIFunction -> Evaluator MeowPrim
-callInnerFunc key arity exprs f = stackTrace key $ do
-    paramGuard key arity (ifuncArity f)
+callInnerFunc :: Key -> Stack Expr -> MeowIFunction -> Evaluator MeowPrim
+callInnerFunc key exprs f = stackTrace key $ do
+    paramGuard key (Stack.length exprs) (ifuncArity f)
     values <- mapM expression exprs
     runLocal $ do
         bindArgs (ifuncParams f) values

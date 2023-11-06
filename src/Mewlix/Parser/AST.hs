@@ -49,7 +49,7 @@ data Expr =
     | ExprPush Expr Expr
     | ExprPop Expr
     | ExprLambda Params Expr
-    | ExprCall (Stack Expr) Int Expr
+    | ExprCall (Stack Expr) Expr
     | ExprDotOp Expr Expr
     | ExprBoxAccess Expr Expr
     deriving (Show)

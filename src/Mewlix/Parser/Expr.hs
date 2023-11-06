@@ -67,8 +67,7 @@ boxOp = ExprBoxAccess <$> brackets exprR
 call :: Parser (Expr -> Expr)
 call = do
     args <- parensList exprR
-    let argCount = Stack.length args
-    return (ExprCall args argCount)
+    return (ExprCall args)
 
 postfixes :: Parser (Expr -> Expr)
 postfixes = foldr1 (flip (.)) <$> Mega.some (Mega.choice [ dotOp, boxOp, call ])
