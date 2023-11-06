@@ -7,10 +7,14 @@ module Mewlix.Interpreter.Classes
 
 import Mewlix.Abstract.Meow
 import Mewlix.Data.Ref
+import Mewlix.Data.Key (Key)
+import Mewlix.Abstract.Meowable
+import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Internal.Strict as HashMap
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Except (MonadError)
-import Mewlix.Parser.Keywords (meowSuper)
+import Control.Monad ((>=>))
+import Mewlix.Parser.Keywords (meowSuper, meowClass)
 import Mewlix.Interpreter.Exceptions (notAClassException)
 
 {- Helpers: -}
@@ -26,22 +30,30 @@ asClass prim = case prim of
 {- The constructor is *not* called by this function.
  - It's expected to be called *after* this function! -}
 
+type BoxTransform = HashMap Key PrimRef -> HashMap Key PrimRef
+
 instantiate :: (MonadIO m) => MeowClass -> m CatBox
 instantiate classDef = do
-    maybeParent <- mapM instantiate (classParent classDef)
-    super <- case maybeParent of
-        Nothing -> return HashMap.empty
-        (Just parent) -> do
-            value <- newRef (MeowBox parent)
-            return (HashMap.singleton meowSuper value)
+    parent <- mapM (instantiate >=> newRef . MeowBox) (classParent classDef)
+    let addParent :: BoxTransform
+        addParent = case parent of
+            Nothing     -> id
+            (Just ref)  -> HashMap.insert meowSuper ref
 
-    ref <- newRef HashMap.empty
-    let classInstance = CatBox ref
-    let funcmap = classFuncs classDef
+    name  <- (toMeow . className >=> newRef) classDef
+    let addName :: BoxTransform
+        addName = HashMap.insert meowClass name
+
+    let transforms :: [BoxTransform]
+        transforms = [ addParent, addName ]
+
+    boxReference <- newRef HashMap.empty
+    let funcMap = classFuncs classDef
+    let classInstance = CatBox boxReference
 
     -- Turn all functions into methods!
-    methods <- mapM (newRef . MeowMFunc . MeowMethod classInstance) funcmap 
-    let instanceMap = methods <> super
+    methods <- mapM (newRef . MeowMFunc . MeowMethod classInstance) funcMap 
+    let instanceMap = foldr ($) methods transforms
 
-    modifyRef (const instanceMap) ref
+    modifyRef (const instanceMap) boxReference
     return classInstance
