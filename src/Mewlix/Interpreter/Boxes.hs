@@ -8,6 +8,7 @@ module Mewlix.Interpreter.Boxes
 , getBox
 , boxPeek
 , boxWrite
+, boxFlatten
 ) where
 
 import Mewlix.Abstract.Meow
@@ -15,9 +16,11 @@ import Mewlix.Data.Ref
 import Mewlix.Data.Key (Key)
 import Mewlix.Interpreter.Primitive
 import Mewlix.Interpreter.Exceptions
-import Mewlix.Parser.Keywords (meowSuper)
+import Mewlix.Parser.Keywords (meowClass, meowSuper)
 import Control.Monad.Except (MonadError)
 import Control.Monad.IO.Class(MonadIO)
+import Data.HashMap.Strict (HashMap)
+import qualified Data.HashMap.Strict as HashMap
 import Control.Monad ((>=>))
 
 boxPeek :: (MonadIO m, MonadError CatException m) => Key -> CatBox -> m (Ref MeowPrim)
@@ -32,8 +35,25 @@ boxPeek key box = do
         (Just !ref)    -> return ref
 
 boxWrite :: (MonadIO m) => Key -> MeowPrim -> CatBox-> m ()
-boxWrite key value catbox = do
-    !maybeRef <- catBoxGet key catbox
+boxWrite key value box = do
+    !maybeRef <- catBoxGet key box
     case maybeRef of
-        Nothing    -> catBoxPut key value catbox
+        Nothing    -> catBoxPut key value box
         (Just ref) -> writeRef value ref
+
+boxFlatten :: (MonadIO m, MonadError CatException m) => CatBox -> m (HashMap Key MeowPrim)
+boxFlatten box = do
+    let reserved :: [Key]
+        reserved = [ meowClass, meowSuper ]
+
+    let filterKeys :: HashMap Key MeowPrim -> HashMap Key MeowPrim
+        filterKeys = HashMap.filterWithKey (\key _ -> key `elem` reserved)
+
+    !rawMap <- unpackBox box
+    !parent <- mapM asBox (HashMap.lookup meowSuper rawMap)
+
+    !parentMap <- case parent of
+        (Just xs)   -> boxFlatten xs
+        Nothing     -> return HashMap.empty
+
+    (return . filterKeys) $ rawMap <> parentMap

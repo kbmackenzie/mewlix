@@ -10,7 +10,7 @@ import Mewlix.Data.Ref
 import Mewlix.Data.Key (Key)
 import Mewlix.Abstract.State
 import Mewlix.Data.Stack (Stack)
-import Mewlix.Interpreter.Boxes (asBox)
+import Mewlix.Interpreter.Boxes
 import qualified Mewlix.Data.Stack as Stack
 import Mewlix.Abstract.Prettify
 import Mewlix.Abstract.Meowable
@@ -20,6 +20,7 @@ import Mewlix.Parser.Keywords (meowClass, meowSuper)
 import Mewlix.Libraries.Utils
 import Mewlix.Interpreter.Primitive
 import Mewlix.Interpreter.Exceptions
+import Control.Monad.Except (catchError)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Read as Read
@@ -60,7 +61,7 @@ baseLibrary = createEnvironment
     , makeIFunc "hash"      ["x"]   meowHash
     , makeIFunc "exists"    ["x"]   meowExist
     , makeIFunc "typeof"    ["x"]   meowTypeOf
-    , makeIFunc "friends"   ["x"]   meowInstanceOf
+    , makeIFunc "friends"   ["x"]   meowFriends
     , makeIFunc "throw"     ["x"]   throwEx
     -- Math:
     , makeIFunc "pi"        [   ]   meowPi
@@ -316,15 +317,15 @@ meowReplace = (,,) <$> lookUp "str" <*> lookUp "token" <*> lookUp "rep" >>= \cas
 getKeys :: IFunc
 getKeys = lookUp "x" >>= \case
     (MeowBox x) -> do
-        keys <- (fmap HashMap.keys . readRef . getBox) x
+        keys <- HashMap.keys <$> boxFlatten x
         toMeow keys
     x -> throwError =<< argumentTypeException "keys" [x]
 
 getValues :: IFunc
 getValues = lookUp "x" >>= \case
     (MeowBox x) -> do
-        values <- (readRef . getBox) x >>= mapM readRef . HashMap.elems
-        (return . MeowStack . listToBoxedStack) values
+        values <- HashMap.elems <$> boxFlatten x
+        toMeow values
     x -> throwError =<< argumentTypeException "values" [x]
 
 -- Safe box lookup.
@@ -332,17 +333,17 @@ getValues = lookUp "x" >>= \case
 meowLookup :: IFunc
 meowLookup = (,) <$> lookUp "box" <*> lookUp "key" >>= \case
     (MeowBox box, MeowString key) -> do
-        boxmap <- (readRef . getBox) box
-        case HashMap.lookup (unboxStr key) boxmap of
-            (Just ref) -> readRef ref
-            Nothing    -> return MeowNil
+        let getItem :: Evaluator MeowPrim
+            getItem = boxPeek (unboxStr key) box >>= readRef
+        getItem `catchError` const (return MeowNil)
     (x, y) -> throwError =<< argumentTypeException "lookup" [x, y]
 
 meowHasKey :: IFunc
 meowHasKey = (,) <$> lookUp "box" <*> lookUp "key" >>= \case
     (MeowBox box, MeowString key) -> do
-        boxmap <- (readRef . getBox) box
-        (return . MeowBool) $ HashMap.member (unboxStr key) boxmap
+        let hasKey :: Evaluator MeowPrim
+            hasKey = MeowBool True <$ boxPeek (unboxStr key) box
+        hasKey `catchError` (const . return . MeowBool) False
     (x, y) -> throwError =<< argumentTypeException "haskey" [x, y]
 
 
@@ -371,11 +372,11 @@ meowTypeOf = lookUp "x" >>= \x -> return . MeowString . toBoxedString $ case x o
     (MeowMFunc _)     -> "function"     -- consider: returning 'method'
     (MeowIFunc _)     -> "function"     -- consider: returning 'inner-function'
     (MeowClassDef _)  -> "class"
-    (MeowBox _)       -> "box"          -- detailed return value in 'instanceOf'
+    (MeowBox _)       -> "box"          -- check for class instances with friends()!
     MeowNil           -> "nothing"
 
-meowInstanceOf :: IFunc
-meowInstanceOf = (,) <$> lookUp "x" <*> lookUp "y" >>= \case
+meowFriends :: IFunc
+meowFriends = (,) <$> lookUp "x" <*> lookUp "y" >>= \case
     (MeowString x, MeowBox y) -> MeowBool <$> instanceOf (unboxStr x) y
     (x, y) -> throwError =<< argumentTypeException "instanceof" [x, y]
 
