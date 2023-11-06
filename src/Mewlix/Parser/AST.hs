@@ -17,10 +17,10 @@ module Mewlix.Parser.AST
 , fromImport
 ) where
 
+import Mewlix.Data.Stack (Stack)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Mewlix.Utils.Types
-import Mewlix.Data.Stack (Stack)
 
 type Identifier = Text
 
@@ -40,15 +40,15 @@ data Expr =
     | ExprBinop Binop Expr Expr
     | ExprUnop Unop Expr
     | ExprTernary Expr Expr Expr
-    | ExprList [Expr]
-    | ExprBox [(Identifier, Expr)]
+    | ExprList (Stack Expr)
+    | ExprBox (Stack (Identifier, Expr))
     | ExprAssign Expr Expr
     | ExprPaw Expr
     | ExprClaw Expr
     | ExprPush Expr Expr
     | ExprPop Expr
     | ExprLambda Params Expr
-    | ExprCall Expr (Stack Expr) Int
+    | ExprCall (Stack Expr) Int Expr
     | ExprDotOp Expr Expr
     | ExprBoxAccess Expr Expr
     deriving (Show)
@@ -91,7 +91,7 @@ data Statement =
     | StmtWhile Expr Block
     | StmtFor (LiftedExpr, Expr, Expr) Block
     | StmtIfElse Expr Block Block
-    | StmtFuncDef Expr Params Block
+    | StmtFuncDef Identifier Params Block
     | StmtDeclaration Identifier Expr
     | StmtImport FilePathT (Maybe Identifier)
     | StmtReturn Expr

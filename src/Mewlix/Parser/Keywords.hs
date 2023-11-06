@@ -14,6 +14,7 @@ module Mewlix.Parser.Keywords
 , meowHome
 , meowSuper
 , meowIf
+, meowElif
 , meowElse
 , meowWhile
 , meowFor
@@ -76,6 +77,9 @@ meowSuper = "parent"
 meowIf :: Text
 meowIf = "mew?"
 
+meowElif :: Text
+meowElif = "mao!"
+
 meowElse :: Text
 meowElse = "hiss!"
 
@@ -135,6 +139,8 @@ reservedKeywords = fromList
     , "claw"
     , "mew?"
     , "hiss!"
+    , "mao"
+    , "mao!"
     , "bring"
     , "catnap"
     , "run"

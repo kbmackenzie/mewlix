@@ -58,12 +58,11 @@ expression (ExprTernary condition a b) = do
 -- Atom generators:
 expression (ExprList exprs) = do
     items <- mapM expression exprs
-    (return . MeowStack . listToBoxedStack) items
+    toMeow items
 
 expression (ExprBox pairs) = do
-    let eval (key, expr) = (key,) <$> expression expr
-    items <- mapM eval pairs
-    (toMeow . MeowPairs) items
+    items <- mapM (mapM expression) pairs
+    (toMeow . MeowPairs . Stack.toList) items
 
 expression (ExprLambda params expr) = do
     closure <- asks evaluatorEnv -- >>= freezeLocal -- Freeze local call frame.
@@ -151,7 +150,7 @@ expression (ExprUnop op exprA) = do
             UnopNot             -> return . meowNot
     f a
 
-expression (ExprCall expr args argCount) = do
+expression (ExprCall args argCount expr) = do
     key <- asKey expr
     case key of
         (SimpleKey name)  -> lookUp name >>= \case
@@ -285,22 +284,15 @@ statement ( (StmtFor (decl, incr, condExpr) block) ::| rest ) = do
         ReturnVoid -> statement rest
         other      -> return other
 
-statement ( (StmtFuncDef keyExpr params block) ::| rest ) = do
+statement ( (StmtFuncDef name params block) ::| rest ) = do
     closure <- asks evaluatorEnv
-    key <- asKey keyExpr
-    name <- case key of
-        (SimpleKey x)   -> return x
-        (BoxKey _  x)   -> return x
-        (Singleton x)   -> throwError =<< notAFunctionName [x]
     let function = MeowFunc $ MeowFunction
             { funcArity   = Stack.length params
             , funcName    = name
             , funcParams  = params
             , funcBody    = block
             , funcClosure = closure             }
-    case key of
-        (SimpleKey k) -> contextDefine k function
-        other         -> keyAssign other function
+    contextDefine name function
     statement rest
 
 statement ( (StmtReturn expr) ::| _ ) = do

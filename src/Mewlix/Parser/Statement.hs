@@ -2,6 +2,287 @@
 {-# LANGUAGE TupleSections #-}
 
 module Mewlix.Parser.Statement
+( root
+, ifelse
+, whileLoop
+, Nesting(..)
+) where
+
+import Mewlix.Parser.AST
+import Mewlix.Parser.Expr
+import Mewlix.Parser.Utils
+import Mewlix.Parser.Keywords
+import Mewlix.Parser.Prim
+import qualified Mewlix.Data.Stack as Stack
+import Text.Megaparsec ((<|>))
+import Data.Text (Text)
+import qualified Data.Text as Text
+import qualified Text.Megaparsec as Mega
+import qualified Text.Megaparsec.Char as MChar
+import qualified Text.Megaparsec.Char.Lexer as Lexer
+import Control.Monad (void, when)
+import Data.Maybe (fromMaybe)
+
+root :: Parser Block
+root = do
+    let parser :: Parser Block
+        parser = Stack.fromList <$> Mega.many (statement Root)
+    Mega.between whitespaceLn Mega.eof parser
+
+
+{- Nesting -}
+----------------------------------------------------------------
+data Nesting =
+      Root
+    | Nested
+    | NestedInLoop
+    deriving (Eq, Ord, Show, Enum, Bounded)
+
+-- The maximum nesting should always propagate.
+-- The 'max' function is helpful: Root `max` Nested = Nested
+
+
+{- Parse statements: -}
+----------------------------------------------------------------
+statement :: Nesting -> Parser Statement
+statement nesting = Mega.choice $ map lexemeMultiline
+    [ whileLoop     nesting
+    , ifelse        nesting
+    , declareVar    nesting
+    , func          nesting
+    , returnKey     nesting
+    , continueKey   nesting
+    , breakKey      nesting
+    , importKey     nesting
+    , forLoop       nesting
+    , tryCatch      nesting
+    , expression    nesting ]
+
+block :: Nesting -> Parser a -> Parser Block
+block nesting stop = do
+    let line = do
+            Mega.notFollowedBy stop
+            statement nesting
+    Stack.fromList <$> (Mega.many . lexemeMultiline) line
+
+meowmeow :: Parser ()
+meowmeow = Mega.choice
+    [ keyword meowEnd
+    , fail "Block is unclosed!" ]
+
+{- Expression -}
+----------------------------------------------------------------
+expression :: Nesting -> Parser Statement
+expression _ = StmtExpr <$> exprR
+
+{- Declaration -}
+----------------------------------------------------------------
+declareVar :: Nesting -> Parser Statement
+declareVar _ = uncurry StmtDeclaration <$> declaration
+
+{- While -}
+----------------------------------------------------------------
+whileLoop :: Nesting -> Parser Statement
+whileLoop nesting = do
+    keyword meowWhile
+    condition <- parens exprR
+    whitespaceLn
+    body <- block (max nesting NestedInLoop) meowmeow
+    meowmeow
+    return (StmtWhile condition body)
+
+{- If Else -}
+----------------------------------------------------------------
+ifelse :: Nesting -> Parser Statement
+ifelse nesting = do
+    let nest = max nesting Nested
+
+    let stop :: Parser ()
+        stop = (void . Mega.choice . fmap MChar.string) 
+            [ meowElif
+            , meowElse
+            , meowEnd ]
+
+    let if_ :: Text -> Parser (Block -> Statement)
+        if_ key = do
+            keyword key
+            condition <- parens exprR
+            whitespaceLn
+            body      <- block nest stop
+            return (StmtIfElse condition body)
+
+    let else_ :: Parser Block
+        else_ = do
+            keyword meowElse
+            whitespaceLn
+            block nest meowmeow
+    
+    mainIf      <- if_ meowIf
+    elifs       <- Mega.many (if_ meowElif)
+    mainElse    <- fromMaybe Stack.empty <$> Mega.optional else_
+    let ifs = foldr1 (\x acc -> x . Stack.singleton . acc) (mainIf : elifs)
+
+    meowmeow
+    return (ifs mainElse)
+
+
+{- Functions -}
+----------------------------------------------------------------
+func :: Nesting -> Parser Statement
+func _ = do
+    keyword meowCatface
+    name   <- parseName
+    params <- parensList parseName
+    whitespaceLn
+    body   <- block Nested meowmeow
+    meowmeow
+    return (StmtFuncDef name params body)
+
+
+{- Return -}
+----------------------------------------------------------------
+returnKey :: Nesting -> Parser Statement
+returnKey _ = do
+    keyword meowReturn
+    StmtReturn <$> exprR
+
+
+{- Continue -}
+----------------------------------------------------------------
+continueKey :: Nesting -> Parser Statement
+continueKey nesting = do
+    keyword meowContinue
+    when (nesting < NestedInLoop)
+        (fail "Cannot use loop keyword outside loop!")
+    return StmtContinue
+
+
+{- Break -}
+----------------------------------------------------------------
+breakKey :: Nesting -> Parser Statement
+breakKey nesting = do
+    keyword meowBreak
+    when (nesting < NestedInLoop)
+        (fail "Cannot use loop keyword outside loop!")
+    return StmtBreak
+
+{- For Loop -}
+----------------------------------------------------------------
+forLoop :: Nesting -> Parser Statement
+forLoop nesting = do
+    let (start, middle, end) = meowFor
+    keyword start
+    ini  <- parens liftedExpr
+    keyword middle
+    incr <- parens exprR
+    keyword end
+    cond <- parens exprR
+    whitespaceLn
+    body <- block (max nesting NestedInLoop) meowmeow
+    meowmeow
+    return (StmtFor (ini, incr, cond) body)
+
+
+{- Import -}
+----------------------------------------------------------------
+importKey :: Nesting -> Parser Statement
+importKey nesting = do
+    let (start, end) = meowTakes
+    keyword start
+    path <- parseString
+    name <- Mega.optional (keyword end >> parseName)
+    when (nesting > Root)
+        (fail "Import statements cannot be nested!")
+    return (StmtImport path name)
+
+
+{- Watch/Catch -}
+----------------------------------------------------------------
+tryCatch :: Nesting -> Parser Statement
+tryCatch nesting = do
+    let nest = max nesting Nested
+
+    let stop :: Parser ()
+        stop = (void . Mega.choice . fmap MChar.string) [ meowCatch , meowEnd ]
+
+    let try_ :: Parser Block
+        try_ = do
+            keyword meowTry
+            whitespaceLn
+            block nest stop
+
+    let catch_ :: Parser (Block -> Statement)
+        catch_ = do
+            keyword meowCatch
+            condition <- Mega.optional (parens exprR)
+            whitespaceLn
+            body      <- block nest stop
+            return (`StmtTryCatch` (condition, body))
+
+    mainTry <- try_
+    catches <- Mega.some catch_
+    let catchCompose = foldr1 (\x acc -> acc . Stack.singleton . x) catches
+
+    meowmeow
+    return (catchCompose mainTry)
+
+{-
+{- Watch/Catch -}
+----------------------------------------------------------------
+type CatchCallback = Block -> Statement
+
+parseTry :: Nesting -> Parser Block
+parseTry nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
+    (void . tryKeyword) meowTry
+    let nest = max nesting Nested
+    return $ Lexer.IndentMany Nothing (return . Stack.fromList) (statements nest)
+
+parseCatch :: Nesting -> Parser CatchCallback
+parseCatch nesting = lexeme . Lexer.indentBlock whitespaceLn $ do
+    (void . tryKeyword) meowCatch
+    expr <- Mega.optional $ (lexeme . parens) parseExpr
+    let makeBody = return . flip StmtTryCatch . (expr,) . Stack.fromList
+    let nest = max nesting Nested
+    return $ Lexer.IndentMany Nothing makeBody (statements nest)
+
+parseTryCatch :: Nesting -> Parser Statement
+parseTryCatch nesting = lexeme $ do
+    tryBlock <- parseTry nesting
+    catches  <- Mega.some (parseCatch nesting)
+    let compose :: CatchCallback -> CatchCallback -> CatchCallback
+        compose x acc = acc . Stack.singleton . x
+    let foldedCatch = foldr1 compose catches
+    parseEnd
+    return $ foldedCatch tryBlock
+
+
+----------------------------------------------------------------
+{- Syntatic Sugar -}
+----------------------------------------------------------------
+
+{- When -}
+-- Syntax is: when <expr> do <expr>
+-- Parsed into a simple 'if' statement.
+parseWhen :: Nesting -> Parser Statement
+parseWhen _ = lexeme $ do
+    let (start, end) = meowWhen
+    (void . tryKeyword) start
+    condition <- parensExpression
+    (void . keyword) end
+    body <- Stack.singleton . StmtExpr <$> parseExpr
+    return (StmtIfElse condition body Stack.empty)
+
+
+----------------------------------------------------------------
+{- Utils -}
+----------------------------------------------------------------
+loopKeywordOutsideLoop :: Text -> String
+loopKeywordOutsideLoop k = concat ["Cannot have '", Text.unpack k, "' statement outside of a loop!"]
+-}
+
+
+{-
+module Mewlix.Parser.Statement
 ( statements
 , root
 ) where
@@ -21,7 +302,7 @@ import Control.Monad (void)
 
 root :: Parser Block
 root = do
-    let parser = (Mega.many . lexemeLn) (statements Root)
+    let parser = (Mega.many . lexemeMultiline) (statements Root)
     Stack.fromList <$> Mega.between whitespaceLn Mega.eof parser
 
 {- Nesting -}
@@ -241,3 +522,4 @@ parseWhen _ = lexeme $ do
 ----------------------------------------------------------------
 loopKeywordOutsideLoop :: Text -> String
 loopKeywordOutsideLoop k = concat ["Cannot have '", Text.unpack k, "' statement outside of a loop!"]
+-}
