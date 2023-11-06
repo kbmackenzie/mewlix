@@ -11,13 +11,14 @@ import qualified Data.HashMap.Internal.Strict as HashMap
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Except (MonadError)
 import Mewlix.Parser.Keywords (meowSuper)
+import Mewlix.Interpreter.Exceptions (notAClassException)
 
 {- Helpers: -}
 --------------------------------------------------------------
-asClass :: (MonadError CatException m) => MeowPrim -> m MeowClass
+asClass :: (MonadError CatException m, MonadIO m) => MeowPrim -> m MeowClass
 asClass prim = case prim of
-    (MeowClassDef x) -> return x
-    _ -> throwError =<< undefined -- todo!
+    (MeowClassDef c) -> return c
+    other            -> throwError =<< notAClassException [other]
 
 
 {- Instantiate: -}

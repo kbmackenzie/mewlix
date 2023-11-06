@@ -12,6 +12,7 @@ module Mewlix.Interpreter.Exceptions
 , notAFunctionName
 , arityException
 , notAFuncionException
+, notAClassException
 , argumentTypeException
 , conversionException
 , catOnComputer
@@ -62,6 +63,9 @@ arityException message key = CatException MeowArity $ Text.concat
 
 notAFuncionException :: (MonadIO m) => [MeowPrim] -> m CatException
 notAFuncionException = exceptionBase MeowTypeMismatch "Cannot invoke a non-callable value as a function!"
+
+notAClassException :: (MonadIO m) => [MeowPrim] -> m CatException
+notAClassException = exceptionBase MeowTypeMismatch "Value provided is not a class!"
 
 argumentTypeException :: (MonadIO m) => Text -> [MeowPrim] -> m CatException
 argumentTypeException key = exceptionBase MeowTypeMismatch $ Text.concat

@@ -362,8 +362,10 @@ instantiateClass classDef args = do
 liftReturn :: (MonadError CatException m) => ReturnValue -> m MeowPrim
 liftReturn (ReturnPrim a) = return a
 liftReturn ReturnVoid     = return MeowNil
-liftReturn ReturnBreak    = throwError =<< undefined --todo: unexpected break
-liftReturn ReturnCont     = throwError =<< undefined --todo: unexpected continue
+-- These two cases below are essentially unreachable, since the parser doesn't allow it.
+-- In case they ever happen, though, failing with a descriptive exception is best.
+liftReturn ReturnBreak    = throwError $ unexpectedException "ReturnBreak returned from function!"
+liftReturn ReturnCont     = throwError $ unexpectedException "ReturnContinue returned from function!"
 
 createFunc :: ParserFunc -> Evaluator MeowFunction
 createFunc (ParserFunc name params body) = do
