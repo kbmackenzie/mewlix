@@ -60,8 +60,13 @@ lexeme = Lexer.lexeme whitespace
 isSpaceLn :: Char -> Bool
 isSpaceLn c = isSpace c || c == ';'
 
+spaceCharLn :: Parser ()
+spaceCharLn = (void . Mega.choice)
+    [ void (Mega.satisfy isSpaceLn)
+    , void (MChar.string "\\\n")    ]
+
 manySpacesLn :: Parser ()
-manySpacesLn = void $ Mega.takeWhile1P (Just "space") isSpaceLn
+manySpacesLn = (void . Mega.some) spaceCharLn
 
 whitespaceLn :: Parser ()
 whitespaceLn = Lexer.space manySpacesLn lineComment blockComment

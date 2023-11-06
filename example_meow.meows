@@ -1,3 +1,22 @@
+clowder Animal
+meow meow
+
+clowder Cat from Animal
+    =^.x.^= wake()
+        meow("yawwnnn...")
+        home.awake = happy
+    meow meow
+
+    =^.x.^= eat()
+        paw at food
+        meow("i'm satisfied...")
+    meow meow
+
+    =^.x.^= sleep()
+        home.awake = sad
+    meow meow
+meow meow
+
 clowder Example
     =^.x.^= wake()
         home.b = 3
