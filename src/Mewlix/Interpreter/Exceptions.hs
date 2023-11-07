@@ -19,6 +19,7 @@ module Mewlix.Interpreter.Exceptions
 , conversionException
 , catOnComputer
 , importException
+, meowIOException
 , importSyntaxException
 , unexpectedException
 ) where
@@ -89,6 +90,10 @@ catOnComputer = CatException MeowCatOnComputer
 importException :: FilePath -> CatException
 importException path = CatException MeowBadImport $ Text.concat
     [ "Could not import file \"", Text.pack path, "\": File not found!" ]
+
+meowIOException :: Text -> Text -> CatException
+meowIOException action message = CatException MeowBadIO $ Text.concat
+    [ "Couldn't perform action \"", action, "\":", message ]
 
 importSyntaxException :: FilePath -> Text -> CatException
 importSyntaxException path message = CatException MeowBadImport $ Text.concat

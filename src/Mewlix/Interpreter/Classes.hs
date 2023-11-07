@@ -17,6 +17,16 @@ import Control.Monad ((>=>))
 import Mewlix.Parser.Keywords (meowSuper, meowClass)
 import Mewlix.Interpreter.Exceptions (notAClassException)
 
+{- Notes: Class instances have two special properties:
+ -
+ -      meowSuper -> the superclass property :: MeowBox
+ -      meowClass -> the class name property :: MeowString
+ -
+ - In all valid class instances in Mewlix, at least the
+ - latter will be present.
+ - If their types diverge from the example, that's a huge error. -}
+
+
 {- Helpers: -}
 --------------------------------------------------------------
 asClass :: (MonadError CatException m, MonadIO m) => MeowPrim -> m MeowClass

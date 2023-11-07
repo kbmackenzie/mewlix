@@ -409,7 +409,7 @@ meowRead = lookUp "path" >>= \case
         localize <- localizePath <$> asks (modulePath . moduleInfo)
         let localPath = (localize . Text.unpack . unboxStr) path
         liftIO (safeReadFile localPath) >>= \case
-            (Left exception) -> throwError =<< undefined
+            (Left exception) -> throwError $ meowIOException "read_file" exception
             (Right contents) -> toMeow contents
     x -> throwError =<< argumentTypeException "read_file" [x]
 
@@ -423,7 +423,7 @@ writeFileBase name f = (,) <$> lookUp "path" <*> lookUp "contents" >>= \case
         localize <- localizePath <$> asks (modulePath . moduleInfo)
         let localPath = (localize . Text.unpack . unboxStr) path
         liftIO (f (unboxStr contents) localPath) >>= \case
-            (Left exception) -> throwError =<< undefined
+            (Left exception) -> throwError $ meowIOException name exception
             (Right _)        -> return MeowNil
     (x, y) -> throwError =<< argumentTypeException name [x, y]
 
@@ -444,7 +444,7 @@ pathActionBase name f = lookUp "path" >>= \case
         localize <- localizePath <$> asks (modulePath . moduleInfo)
         let localPath = (localize . Text.unpack . unboxStr) path
         liftIO (f localPath) >>= \case
-            (Left exception) -> throwError =<< undefined
+            (Left exception) -> throwError $ meowIOException name exception
             (Right a)        -> toMeow a
     x -> throwError =<< argumentTypeException name [x]
 
@@ -477,7 +477,7 @@ pathMoveBase name f = (,) <$> lookUp "from" <*> lookUp "to" >>= \case
         let pathFrom = (localize . unpack) a
         let pathTo = (localize . unpack) b
         liftIO (f pathFrom pathTo) >>= \case
-            (Left exception) -> throwError =<< undefined
+            (Left exception) -> throwError $ meowIOException name exception
             (Right _)        -> return MeowNil
     (x, y) ->  throwError =<< argumentTypeException name [x, y]
 
@@ -498,7 +498,7 @@ pathRenameBase name f = (,) <$> lookUp "path" <*> lookUp "name" >>= \case
         let unpack = Text.unpack . unboxStr
         let localPath = (localize . unpack) path
         liftIO (f localPath (unpack n)) >>= \case
-            (Left exception) -> throwError =<< undefined
+            (Left exception) -> throwError $ meowIOException name exception
             (Right _)        -> return MeowNil
     (x, y) -> throwError =<< argumentTypeException name [x, y]
 
