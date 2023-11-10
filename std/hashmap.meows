@@ -22,6 +22,82 @@ not muffle any other unrelated exceptions.
 takes "exception.meows"
 takes "std.meows" as std
 
+mew _HASH_MAX = 769
+
+clowder HashMap
+    =^.x.^= wake()
+        home.pairs = =^.x.^= []
+    meow meow
+
+    =^.x.^= add(key, value)
+        mew hash_key = get_hash(key)
+        mew list = lookup(home.pairs, hash_key)
+        home.pairs[hash_key] = list_add(list, key, value)
+    meow meow
+
+    =^.x.^= get(key)
+    meow meow
+
+    =^.x.^= clear()
+        home.pairs = =^.x.^= []
+    meow meow
+meow meow
+
+=^.x.^= _get_hash(key)
+    bring string(hash(key) % _HASH_MAX)
+meow meow
+
+=^.x.^= _safe_comp(a, b)
+    watch
+        bring a == b
+    catch (MeowException.Type)
+        bring sad
+    meow meow
+meow meow
+
+=^.x.^= _list_add(list, key, value)
+    mew? (not list)
+        list = []
+    meow meow
+
+    mew top = []
+    meowmeow (list)
+        mew pair = peek list
+        knock over list
+        mew? (_safe_comp(pair.key, key))
+            pair.value = value
+            pair push top
+            bring top..list
+        meow meow
+        pair push top
+    meow meow
+
+    mew new_pair = =^.x.^= [ 
+        key: key,
+        value: value
+    ]
+    bring new_pair push top
+meow meow
+
+=^.x.^= _list_remove(list, key)
+    mew? (not list)
+        bring []
+    meow meow
+
+    mew top = []
+    meowmeow (list)
+        mew pair = peek list
+        knock over list
+        mew? (_safe_comp(pair.key, key))
+            bring top..list
+        meow meow
+        pair push top
+    meow meow
+
+    bring top
+meow meow
+
+
 =^.x.^= hashmap()
 
     ~( ^.x.^)>

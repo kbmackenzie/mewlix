@@ -1,23 +1,31 @@
 {-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Mewlix.Interpreter.API
-( runFile
+( interpret
+, initMeta
+, initState
+, runFile
 , runMeow
-, ReturnValue(..)
+, runAsImport
+, runExpression
 ) where
 
 import Mewlix.Abstract.Meow
 import Mewlix.Data.Ref
 import Mewlix.Data.Key (Key)
 import Mewlix.Abstract.State
+import Mewlix.Abstract.Prettify
 import Mewlix.Interpreter.Import
 import Mewlix.Interpreter.Module
-import Mewlix.Interpreter.Interpret (ReturnValue(..), statement)
+import Mewlix.Interpreter.Interpret
 import Mewlix.Libraries.Base (baseLibrary)
 import qualified Data.Set as Set
 import qualified Data.HashMap.Strict as HashMap
 import qualified Mewlix.Data.Stack as Stack
-import Mewlix.Parser.AST (isImport, fromImport)
+import Data.Text (Text)
+import qualified Data.Text as Text
+import Mewlix.Parser.AST (Expr, isImport, fromImport)
 import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Except (runExceptT)
 import Control.Monad.Reader (runReaderT)
@@ -31,7 +39,6 @@ interpret state = runExceptT . flip runReaderT state . runEvaluator
 
 {- Initialization: -}
 ---------------------------------------------------------------------------------------------------
-
 type MetaTransform = EvaluatorMeta -> EvaluatorMeta
 
 initMeta :: (MonadIO m) => m EvaluatorMeta
@@ -109,3 +116,20 @@ runMeow path = do
     baseLib <- baseLibrary
     let libs = Libraries { getLibs = Stack.singleton baseLib }
     runFile path True [] libs
+
+
+{- Expression: -}
+---------------------------------------------------------------------------------------------------
+runExpression :: Expr -> Libraries MeowPrim -> IO (Either CatException Text)
+runExpression expr libs = do
+    meta <- initMeta
+    let info = ModuleInfo {
+        modulePath   = ".",
+        moduleIsMain = True
+    }
+    state <- initState meta libs info
+
+    let run :: Evaluator Text
+        run = expression expr >>= prettyMeow
+
+    interpret state run

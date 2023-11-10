@@ -68,7 +68,9 @@ library
       Mewlix.Parser.Run
       Mewlix.Parser.Statement
       Mewlix.Parser.Utils
-      Mewlix.REPL.Actions
+      Mewlix.REPL.Action
+      Mewlix.REPL.Core
+      Mewlix.REPL.Expr
       Mewlix.REPL.Parse
       Mewlix.REPL.Read
       Mewlix.Utils.List

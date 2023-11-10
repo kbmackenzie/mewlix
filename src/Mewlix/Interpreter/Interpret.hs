@@ -6,6 +6,7 @@ module Mewlix.Interpreter.Interpret
 ( expression
 , statement
 , ReturnValue(..)
+, liftReturn
 ) where
 
 import Mewlix.Abstract.Meow

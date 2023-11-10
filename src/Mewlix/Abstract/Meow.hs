@@ -8,6 +8,7 @@
 module Mewlix.Abstract.Meow
 ( Evaluator(..)
 , MeowPrim(..)
+, MewlixState
 , PrimRef
 , IFunc
 , BoxedString(..)
@@ -93,6 +94,8 @@ instance SafeIO Evaluator where
             exceptionMessage = e
         }
         (Right a) -> return a
+
+type MewlixState = EvaluatorState MeowPrim
 
 ------------------------------------------------------------------------------------
 {- Mewlix Primitives -}

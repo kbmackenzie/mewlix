@@ -15,3 +15,7 @@ mew MeowException = =^.x.^= [
     IO:                 9,
     Import:             10
 ]
+
+=^.x.^= not_implemented(name)
+    throw("Function not implemented: "..name)
+meow meow
