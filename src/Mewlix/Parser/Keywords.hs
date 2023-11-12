@@ -51,10 +51,10 @@ meowComment :: (Text, Text)
 meowComment = ("~( ^.x.^)>", "<(^.x.^ )~")
 
 meowTrue :: Text
-meowTrue = "happy"
+meowTrue = "true"
 
 meowFalse :: Text
-meowFalse = "sad"
+meowFalse = "false"
 
 meowNil :: Text
 meowNil = "nothing"
@@ -108,10 +108,10 @@ meowClaw :: Text
 meowClaw = "claw at"
 
 meowBox :: Text
-meowBox = "=^.x.^="
+meowBox = "=^-x-^="
 
 meowLambda :: Text
-meowLambda = "( ^.x.^)>" --"=^.x.^="
+meowLambda = "=^*x*^="
 
 meowNot :: Text
 meowNot = "not"
