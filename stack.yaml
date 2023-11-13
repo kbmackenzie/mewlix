@@ -1,5 +1,5 @@
 #system-ghc: true
-resolver: ghc-9.2.8
+resolver: ghc-9.4.7
 
 extra-deps:
 - text-2.0.2
