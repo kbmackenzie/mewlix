@@ -5,6 +5,7 @@ module Mewlix.Data.ToString
 ) where
 
 import Data.String (IsString(..))
+import Data.Text (Text)
 import qualified Data.Text as Text
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.UTF8 as UTF8
@@ -39,7 +40,7 @@ class ToString a where
 instance ToString String where
     toString = id
 
-instance ToString Text.Text where
+instance ToString Text where
     toString = Text.unpack
 
 instance ToString ByteString where

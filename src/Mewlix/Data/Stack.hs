@@ -26,9 +26,10 @@ module Mewlix.Data.Stack
 , select
 , partition
 , filter
+, zip
 ) where
 
-import Prelude hiding (lookup, concat, concatMap, reverse, length, null, mapM, filter, pred)
+import Prelude hiding (lookup, concat, concatMap, reverse, length, null, mapM, filter, pred, zip)
 import Data.Foldable (foldl')
 import Control.Monad.IO.Class (MonadIO(..))
 
@@ -144,3 +145,8 @@ filter _    Bottom      = Bottom
 filter pred (x ::| xs)
     | pred x    = x ::| filter pred xs
     | otherwise = filter pred xs
+
+zip :: Stack a -> Stack b -> Stack (a, b)
+zip Bottom     _          = Bottom
+zip _          Bottom     = Bottom
+zip (a ::| as) (b ::| bs) = (a, b) ::| zip as bs
