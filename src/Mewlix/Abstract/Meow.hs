@@ -60,6 +60,7 @@ import Mewlix.Data.Ref
 import Mewlix.Data.ToString
 import Mewlix.Abstract.State
 import Mewlix.Parser.AST
+import Mewlix.Data.ToBool (ToBool(..))
 import Data.Text (Text)
 import Data.HashMap.Strict (HashMap)
 import Mewlix.IO.SafeIO (SafeIO(..))
@@ -116,6 +117,13 @@ data MeowPrim =
     | MeowMFunc MeowMethod
     | MeowClassDef MeowClass
     | MeowNil
+
+instance ToBool MeowPrim where
+    toBool MeowNil          = False
+    toBool (MeowBool b)     = b
+    toBool (MeowString s)   = (not . Text.null . unboxStr) s
+    toBool (MeowStack s)    = (not . Stack.null . unboxStack) s
+    toBool _ = False
 
 ------------------------------------------------------------------------------------
 {- Boxed Types -}
