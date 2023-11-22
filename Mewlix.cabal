@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.35.1.
+-- This file has been generated from package.yaml by hpack version 0.35.2.
 --
 -- see: https://github.com/sol/hpack
 
@@ -38,12 +38,14 @@ library
       Mewlix
       Mewlix.Abstract.Meow
       Mewlix.Abstract.Meowable
+      Mewlix.Abstract.MeowPure
       Mewlix.Abstract.Prettify
       Mewlix.Abstract.PrimLens
       Mewlix.Abstract.State
       Mewlix.Data.Key
       Mewlix.Data.Ref
       Mewlix.Data.Stack
+      Mewlix.Data.ToBool
       Mewlix.Data.ToString
       Mewlix.Interpreter.API
       Mewlix.Interpreter.Boxes
@@ -68,7 +70,6 @@ library
       Mewlix.Parser.Run
       Mewlix.Parser.Statement
       Mewlix.Parser.Utils
-      Mewlix.REPL.Action
       Mewlix.REPL.Core
       Mewlix.REPL.Expr
       Mewlix.REPL.Parse

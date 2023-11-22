@@ -19,6 +19,7 @@ import Mewlix.Data.Ref
 import Mewlix.Data.Key (Key)
 import Mewlix.Interpreter.Exceptions
 import Mewlix.Data.Stack (Stack)
+import Mewlix.Data.ToBool (toBool)
 import qualified Mewlix.Data.Stack as Stack
 import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
@@ -34,11 +35,7 @@ import Control.Monad ((>=>))
 -----------------------------------------------------------------------------
 meowBool :: MeowPrim -> Bool
 {-# INLINABLE meowBool #-}
-meowBool MeowNil        = False
-meowBool (MeowBool b)   = b
-meowBool (MeowStack xs)  = (not . Stack.null . unboxStack) xs
-meowBool (MeowString b) = (not . Text.null . unboxStr) b
-meowBool _ = True
+meowBool = toBool
 
 {- Type Coercion -}
 -----------------------------------------------------------------------------

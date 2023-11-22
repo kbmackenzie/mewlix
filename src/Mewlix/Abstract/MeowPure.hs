@@ -1,7 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Mewlix.Abstract.MeowPure
-(
+( MeowPure(..)
+, prettify
+, compareMeow
+, sortMeow
 ) where
 
 import Mewlix.Data.Stack (Stack)
@@ -13,6 +16,7 @@ import Mewlix.Utils.List (listCompareM)
 import Data.HashMap.Strict (HashMap)
 import Data.Char (toLower)
 import qualified Data.Text as Text
+import qualified Control.Monad.ListM as ListM
 import qualified Data.HashMap.Strict as HashMap
 import qualified Mewlix.Data.Stack as Stack
 
@@ -113,6 +117,7 @@ MeowPureBox a     `compareMeow` MeowPureBox b     = do
 a                 `compareMeow` b                 = (Left . Text.concat)
     [ "Can't compare values: ", prettify a, ", ", prettify b ]
 
-{- Comparison -}
+{- Sorting -}
 ----------------------------------------------------------
-
+sortMeow :: [MeowPure] -> Either Text [MeowPure]
+sortMeow = ListM.sortByM compareMeow

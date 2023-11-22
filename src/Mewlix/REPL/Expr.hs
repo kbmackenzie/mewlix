@@ -15,6 +15,7 @@ import Mewlix.REPL.Core
 import Data.Text (Text)
 import Control.Monad ((>=>))
 
+{-
 type REPLOutput = (Text, EvaluatorState MeowPrim)
 
 replExpression :: Expr -> REPL (Either CatException REPLOutput)
@@ -28,3 +29,4 @@ replImport path state = do
     let run :: Evaluator MewlixState
         run = runAsImport path Nothing >> ask
     interpret state run
+-}
