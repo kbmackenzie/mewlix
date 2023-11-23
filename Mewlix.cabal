@@ -38,6 +38,7 @@ library
       Mewlix
       Mewlix.Abstract.AST
       Mewlix.Abstract.Meowable
+      Mewlix.Abstract.String
       Mewlix.Data.Key
       Mewlix.Data.Ref
       Mewlix.Data.Stack
