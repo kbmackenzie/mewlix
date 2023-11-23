@@ -36,33 +36,16 @@ source-repository head
 library
   exposed-modules:
       Mewlix
-      Mewlix.Abstract.Meow
-      Mewlix.Abstract.Meowable
-      Mewlix.Abstract.MeowPure
-      Mewlix.Abstract.Prettify
-      Mewlix.Abstract.PrimLens
-      Mewlix.Abstract.State
       Mewlix.Data.Key
       Mewlix.Data.Ref
       Mewlix.Data.Stack
       Mewlix.Data.ToBool
       Mewlix.Data.ToString
-      Mewlix.Interpreter.API
-      Mewlix.Interpreter.Boxes
-      Mewlix.Interpreter.Classes
-      Mewlix.Interpreter.Exceptions
-      Mewlix.Interpreter.Import
-      Mewlix.Interpreter.Interpret
-      Mewlix.Interpreter.Module
-      Mewlix.Interpreter.Operations
-      Mewlix.Interpreter.Primitive
       Mewlix.IO.DataFile
       Mewlix.IO.Directory
       Mewlix.IO.File
       Mewlix.IO.Print
       Mewlix.IO.SafeIO
-      Mewlix.Libraries.Base
-      Mewlix.Libraries.Utils
       Mewlix.Parser.AST
       Mewlix.Parser.Expr
       Mewlix.Parser.Keywords
@@ -70,10 +53,6 @@ library
       Mewlix.Parser.Run
       Mewlix.Parser.Statement
       Mewlix.Parser.Utils
-      Mewlix.REPL.Core
-      Mewlix.REPL.Expr
-      Mewlix.REPL.Parse
-      Mewlix.REPL.Read
       Mewlix.Utils.List
       Mewlix.Utils.Show
       Mewlix.Utils.Time
