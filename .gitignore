@@ -12,4 +12,5 @@ dist-newstyle/
 foo/
 *.zip
 std_backup/
+src_backup/
 txt/
