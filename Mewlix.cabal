@@ -36,6 +36,8 @@ source-repository head
 library
   exposed-modules:
       Mewlix
+      Mewlix.Abstract.AST
+      Mewlix.Abstract.Meowable
       Mewlix.Data.Key
       Mewlix.Data.Ref
       Mewlix.Data.Stack

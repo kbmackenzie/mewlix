@@ -1,6 +1,3 @@
-{-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE DeriveFoldable #-}
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE LambdaCase #-}
 
@@ -31,7 +28,6 @@ module Mewlix.Data.Stack
 
 import Prelude hiding (lookup, concat, concatMap, reverse, length, null, mapM, filter, pred, zip)
 import Data.Foldable (foldl')
-import Control.Monad.IO.Class (MonadIO(..))
 
 data Stack a =
       !a ::| !(Stack a)
