@@ -1,16 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TupleSections #-}
 
 module Mewlix.Parser.Statement
 ( root
 , Nesting(..)
 ) where
 
-import Mewlix.Parser.AST
-import Mewlix.Parser.Expr
+import Mewlix.Abstract.AST
 import Mewlix.Parser.Utils
 import Mewlix.Parser.Keywords
-import Mewlix.Parser.Prim
+import Mewlix.Parser.Primitive
+import Mewlix.Parser.Expression
 import Mewlix.Data.Stack (Stack)
 import qualified Mewlix.Data.Stack as Stack
 import Data.Text (Text)
@@ -67,15 +66,18 @@ meowmeow = Mega.choice
     [ keyword meowEnd
     , fail "Block is unclosed!" ]
 
+
 {- Expression -}
 ----------------------------------------------------------------
 expression :: Nesting -> Parser Statement
-expression _ = StmtExpr <$> exprR
+expression _ = ExpressionStatement <$> exprR
+
 
 {- Declaration -}
 ----------------------------------------------------------------
 declareVar :: Nesting -> Parser Statement
-declareVar _ = uncurry StmtDeclaration <$> declaration
+declareVar _ = uncurry Declaration <$> declaration
+
 
 {- While -}
 ----------------------------------------------------------------
@@ -86,7 +88,8 @@ whileLoop nesting = do
     whitespaceLn
     body <- block (max nesting NestedInLoop) meowmeow
     meowmeow
-    return (StmtWhile condition body)
+    return (WhileLoop condition body)
+
 
 {- If Else -}
 ----------------------------------------------------------------
@@ -106,7 +109,7 @@ ifelse nesting = do
             condition <- parens exprR
             whitespaceLn
             body      <- block localNest stopKeys
-            return (StmtIfElse condition body)
+            return (IfElse condition body)
 
     let getElse :: Parser Block
         getElse = do
@@ -125,7 +128,7 @@ ifelse nesting = do
 
 {- Functions -}
 ----------------------------------------------------------------
-func :: Parser ParserFunc
+func :: Parser MewlixFunction
 func = do
     keyword meowCatface
     name   <- parseName
@@ -133,10 +136,10 @@ func = do
     whitespaceLn
     body   <- block Nested meowmeow
     meowmeow
-    return (ParserFunc name params body)
+    return (MewlixFunction name params body)
 
 funcDef :: Nesting -> Parser Statement
-funcDef _ = StmtFuncDef <$> func
+funcDef _ = FunctionDef <$> func
 
 
 {- Classes -}
@@ -149,9 +152,9 @@ classDef _ = do
     whitespaceLn
     methods     <- (fmap Stack.fromList . Mega.many . lexemeLn) func
     constructor <- getConstructor methods
-    (return . StmtClassDef) (ParserClass name extends constructor methods)
+    (return . ClassDef) (MewlixClass name extends constructor methods)
 
-getConstructor :: Stack ParserFunc -> Parser (Maybe ParserFunc)
+getConstructor :: Stack MewlixFunction -> Parser (Maybe MewlixFunction)
 getConstructor funcs = do
     let constructors = Stack.filter ((== meowConstructor) . pFuncName) funcs
     when (Stack.length constructors > 1)
@@ -167,7 +170,7 @@ getConstructor funcs = do
 returnKey :: Nesting -> Parser Statement
 returnKey _ = do
     keyword meowReturn
-    StmtReturn <$> exprR
+    Return <$> exprR
 
 
 {- Continue -}
@@ -177,7 +180,7 @@ continueKey nesting = do
     keyword meowContinue
     when (nesting < NestedInLoop)
         (fail "Cannot use loop keyword outside loop!")
-    return StmtContinue
+    return Continue
 
 
 {- Break -}
@@ -187,7 +190,7 @@ breakKey nesting = do
     keyword meowBreak
     when (nesting < NestedInLoop)
         (fail "Cannot use loop keyword outside loop!")
-    return StmtBreak
+    return Break
 
 {- For Loop -}
 ----------------------------------------------------------------
@@ -203,7 +206,7 @@ forLoop nesting = do
     whitespaceLn
     body <- block (max nesting NestedInLoop) meowmeow
     meowmeow
-    return (StmtFor (ini, incr, cond) body)
+    return (ForLoop (ini, incr, cond) body)
 
 
 {- Import -}
@@ -216,7 +219,7 @@ importKey nesting = do
     name <- Mega.optional (keyword end >> parseName)
     when (nesting > Root)
         (fail "Import statements cannot be nested!")
-    return (StmtImport path name)
+    return (ImportStatement path name)
 
 
 {- Watch/Catch -}
@@ -240,7 +243,7 @@ tryCatch nesting = do
             condition <- Mega.optional (parens exprR)
             whitespaceLn
             body      <- block localNest stopKeys
-            return (`StmtTryCatch` (condition, body))
+            return (`TryCatch` (condition, body))
 
     mainTry <- getTry
     catches <- Mega.some getCatch

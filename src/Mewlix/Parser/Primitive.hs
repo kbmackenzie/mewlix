@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Parser.Prim
+module Mewlix.Parser.Primitive
 ( parsePrim
 , parseString
 , parseStringM
@@ -8,7 +8,7 @@ module Mewlix.Parser.Prim
 , parseName
 ) where
 
-import Mewlix.Parser.AST
+import Mewlix.Abstract.AST
 import Mewlix.Parser.Utils
 import Mewlix.Parser.Keywords
 import Data.Text (Text)
@@ -19,18 +19,20 @@ import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
 import Control.Monad (void, when)
-import Data.Char (isAlphaNum, isAscii)
+import Data.Char (isAlphaNum)
 
 {- Prims: -}
 ----------------------------------------------------------------
-parsePrim :: Parser ParserPrim
+parsePrim :: Parser Primitive
 parsePrim = Mega.choice
-    [ PrimStr   <$> parseString
-    , PrimStr   <$> parseStringM
-    , PrimFloat <$> parseFloat
-    , PrimInt   <$> parseInt
-    , PrimBool  <$> parseBool
-    , PrimNil   <$  parseNil     ]
+    [ MewlixString  <$> parseString
+    , MewlixString  <$> parseStringM
+    , MewlixFloat   <$> parseFloat
+    , MewlixInt     <$> parseInt
+    , MewlixBool    <$> parseBool
+    , MewlixNil     <$  keyword meowNil 
+    , MewlixHome    <$  keyword meowHome
+    , MewlixSuper   <$  keyword meowSuper ]
 
 {- Escape sequences: -}
 ----------------------------------------------------------------
@@ -91,20 +93,10 @@ parseBool = Mega.choice
     [ True  <$ MChar.string meowTrue
     , False <$ MChar.string meowFalse ] <?> "boolean"
 
-parseNil :: Parser ()
-parseNil = (void . MChar.string) meowNil
-
 {- Keys + identifers: -}
 ----------------------------------------------------------------
-{- Allow non-Ascii characters in keys.
- -
- - Language keywords are only gonna use AlphaNumeric characters.
- -
- - Allowing non-Ascii characters lets Unicode characters be identifiers,
- - whilst not conflicting with the language keywords, which only use Ascii characters. -}
-
 isKeyChar :: Char -> Bool
-isKeyChar c = isAlphaNum c || c == '_' || (not . isAscii) c
+isKeyChar c = isAlphaNum c || c == '_'
 
 parseKey :: Parser Text
 parseKey = lexeme (Mega.takeWhile1P (Just "key") isKeyChar)

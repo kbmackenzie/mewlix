@@ -12,6 +12,7 @@ module Mewlix.Abstract.AST
 , UnaryOp(..)
 , MewlixFunction(..)
 , MewlixClass(..)
+, LiftedExpression(..)
 ) where
 
 import Mewlix.Data.Stack (Stack)
@@ -25,6 +26,8 @@ data Primitive =
     | MewlixFloat           Double
     | MewlixBool            Bool
     | MewlixNil
+    | MewlixHome
+    | MewlixSuper
     deriving (Show)
 
 data Expression =

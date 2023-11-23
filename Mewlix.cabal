@@ -48,10 +48,9 @@ library
       Mewlix.IO.File
       Mewlix.IO.Print
       Mewlix.IO.SafeIO
-      Mewlix.Parser.AST
-      Mewlix.Parser.Expr
+      Mewlix.Parser.Expression
       Mewlix.Parser.Keywords
-      Mewlix.Parser.Prim
+      Mewlix.Parser.Primitive
       Mewlix.Parser.Run
       Mewlix.Parser.Statement
       Mewlix.Parser.Utils

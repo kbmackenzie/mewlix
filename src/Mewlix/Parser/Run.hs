@@ -6,10 +6,10 @@ module Mewlix.Parser.Run
 , parseLiftedExpr
 ) where
 
-import Mewlix.Parser.AST
+import Mewlix.Abstract.AST
 import Mewlix.Parser.Utils (Parser)
 import Mewlix.Parser.Statement (root)
-import Mewlix.Parser.Expr (liftedExpr)
+import Mewlix.Parser.Expression (liftedExpr)
 import Text.Megaparsec (parse, errorBundlePretty)
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -22,5 +22,5 @@ runParser parser path contents = case parse parser path contents of
 parseRoot :: FilePath -> Text -> Either Text Block
 parseRoot = runParser root
 
-parseLiftedExpr :: FilePath -> Text -> Either Text LiftedExpr
+parseLiftedExpr :: FilePath -> Text -> Either Text LiftedExpression
 parseLiftedExpr = runParser liftedExpr
