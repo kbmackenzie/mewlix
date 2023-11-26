@@ -72,8 +72,9 @@ instance ToMewlix Bool where
 
 instance (ToMewlix a) => ToMewlix [a] where
     toMewlixStr level items = do
+        let newLevel = level + 1
         let prettify :: (ToMewlix a) => [a] -> Text
-            prettify = flattenLn . map (indent (level + 1) . toMewlixStr level)
+            prettify = flattenLn . map (indent newLevel . toMewlixStr newLevel)
         lineSep [ "[", prettify items, indent level "]" ]
 
 {- Mewlix AST -}
@@ -93,7 +94,8 @@ instance ToMewlix Params where
 
 instance ToMewlix Block where
     toMewlixStr level (Block block) = do
-        (lineSep . map (toMewlixStr level)) block
+        let newLevel = level + 1
+        (lineSep . map (toMewlixStr newLevel)) block
 
 instance ToMewlix Expression where
     toMewlixStr level (PrimitiveExpr prim) = toMewlixStr level prim
@@ -130,14 +132,16 @@ instance ToMewlix Expression where
     toMewlixStr level (ListExpression xs) = toMewlixStr level xs
 
     toMewlixStr level (BoxExpression pairs) = do
+        let newLevel = level + 1
+
         let prettyPair :: (Key, Expression) -> Text
             prettyPair (key, expr) = Text.concat
                 [ key
                 , ": "
-                , toMewlixStr level expr ]
+                , toMewlixStr newLevel expr ]
 
         let prettify :: [(Key, Expression)] -> Text
-            prettify = flattenLn . map (indent level . prettyPair)
+            prettify = flattenLn . map (indent newLevel . prettyPair)
 
         let header = Keywords.box `Text.append` " ["
         lineSep [ header, prettify pairs, indent level "]" ]
