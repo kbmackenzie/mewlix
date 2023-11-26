@@ -41,7 +41,6 @@ library
       Mewlix.Abstract.ToMewlix
       Mewlix.Data.Key
       Mewlix.Data.Ref
-      Mewlix.Data.Stack
       Mewlix.Data.ToBool
       Mewlix.Data.ToString
       Mewlix.IO.DataFile

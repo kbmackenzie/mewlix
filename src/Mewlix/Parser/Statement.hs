@@ -10,9 +10,8 @@ import Mewlix.Parser.Utils
 import Mewlix.Parser.Keywords
 import Mewlix.Parser.Primitive
 import Mewlix.Parser.Expression
-import Mewlix.Data.Stack (Stack)
-import qualified Mewlix.Data.Stack as Stack
 import Data.Text (Text)
+import qualified Data.List as List
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import Control.Monad (void, when)
@@ -21,7 +20,7 @@ import Data.Maybe (fromMaybe)
 root :: Parser Block
 root = do
     let parser :: Parser Block
-        parser = Stack.fromList <$> Mega.many (statement Root)
+        parser = Mega.many (statement Root)
     Mega.between whitespaceLn Mega.eof parser
 
 
@@ -59,7 +58,7 @@ block nesting stop = do
     let line = do
             Mega.notFollowedBy stop
             statement nesting
-    Stack.fromList <$> (Mega.many . lexemeLn) line
+    (Mega.many . lexemeLn) line
 
 meowmeow :: Parser ()
 meowmeow = Mega.choice
@@ -119,8 +118,8 @@ ifelse nesting = do
     
     mainIf      <- getIf meowIf
     elifs       <- Mega.many (getIf meowElif)
-    mainElse    <- fromMaybe Stack.empty <$> Mega.optional getElse
-    let ifs = foldr1 (\x acc -> x . Stack.singleton . acc) (mainIf : elifs)
+    mainElse    <- fromMaybe [] <$> Mega.optional getElse
+    let ifs = foldr1 (\x acc -> x . List.singleton . acc) (mainIf : elifs)
 
     meowmeow
     return (ifs mainElse)
@@ -150,18 +149,18 @@ classDef _ = do
     name        <- parseName
     extends     <- Mega.optional (keyword meowFrom >> parseName)
     whitespaceLn
-    methods     <- (fmap Stack.fromList . Mega.many . lexemeLn) func
+    methods     <- (Mega.many . lexemeLn) func
     constructor <- getConstructor methods
     (return . ClassDef) (MewlixClass name extends constructor methods)
 
-getConstructor :: Stack MewlixFunction -> Parser (Maybe MewlixFunction)
+getConstructor :: [MewlixFunction] -> Parser (Maybe MewlixFunction)
 getConstructor funcs = do
-    let constructors = Stack.filter ((== meowConstructor) . pFuncName) funcs
-    when (Stack.length constructors > 1)
+    let constructors = filter ((== meowConstructor) . pFuncName) funcs
+    when (length constructors > 1)
         (fail "Class cannot have more than one constructor!")
-    let constructor = if Stack.null constructors
-        then Nothing
-        else Just (Stack.peek constructors)
+    let constructor = case constructors of
+            []    -> Nothing
+            (x:_) -> Just x
     return constructor
 
 
@@ -247,7 +246,7 @@ tryCatch nesting = do
 
     mainTry <- getTry
     catches <- Mega.some getCatch
-    let catchCompose = foldr1 (\x acc -> acc . Stack.singleton . x) catches
+    let catchCompose = foldr1 (\x acc -> acc . List.singleton . x) catches
 
     meowmeow
     return (catchCompose mainTry)

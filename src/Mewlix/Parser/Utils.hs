@@ -16,8 +16,6 @@ module Mewlix.Parser.Utils
 ) where
 
 import Mewlix.Parser.Keywords
-import Mewlix.Data.Stack (Stack)
-import qualified Mewlix.Data.Stack as Stack
 import Data.Text (Text)
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
@@ -95,20 +93,20 @@ braces = betweenChars '{' '}'
 brackets :: Parser a -> Parser a
 brackets = betweenChars '[' ']'
 
-commaList :: (Parser (Stack a) -> Parser (Stack a)) -> Parser a -> Parser (Stack a)
+commaList :: (Parser [a] -> Parser [a]) -> Parser a -> Parser [a]
 commaList between token = do
     let comma :: Parser ()
         comma = (lexemeLn . void . MChar.char) ','
 
-    let sepByComma :: Parser a -> Parser (Stack a)
-        sepByComma = fmap Stack.fromList . flip Mega.sepEndBy comma
+    let sepByComma :: Parser a -> Parser [a]
+        sepByComma = flip Mega.sepEndBy comma
 
     (between . sepByComma . lexemeLn) token
 
-parensList :: Parser a -> Parser (Stack a)
+parensList :: Parser a -> Parser [a]
 parensList = commaList parens
 
-bracketList :: Parser a -> Parser (Stack a)
+bracketList :: Parser a -> Parser [a]
 bracketList = commaList brackets
 
 {- Keywords/symbols: -}

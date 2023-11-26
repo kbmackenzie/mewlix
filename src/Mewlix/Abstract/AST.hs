@@ -15,7 +15,6 @@ module Mewlix.Abstract.AST
 , LiftedExpression(..)
 ) where
 
-import Mewlix.Data.Stack (Stack)
 import Mewlix.Data.Key (Key)
 import Data.Text (Text)
 import Mewlix.Utils.Types
@@ -39,15 +38,15 @@ data Expression =
     | BinaryOperation       BinaryOp Expression Expression
     | UnaryOperation        UnaryOp Expression
     | TernaryOperation      Expression Expression Expression
-    | ListExpression        (Stack Expression)
-    | BoxExpression         (Stack (Key, Expression))
+    | ListExpression        [Expression]
+    | BoxExpression         [(Key, Expression)]
     | Assignment            Expression Expression
     | Increment             Expression
     | Decrement             Expression
     | ListPush              Expression Expression
     | ListPop               Expression
     | LambdaExpression      Params Expression
-    | FunctionCall          (Stack Expression) Expression
+    | FunctionCall          [Expression] Expression
     | DotExpression         Expression Expression
     | LookupExpression      Expression Expression
     deriving (Show)
@@ -75,8 +74,8 @@ data UnaryOp =
     | LengthLookup
     deriving (Show)
 
-type Block      = Stack Statement
-type Params     = Stack Text
+type Block      = [Statement]
+type Params     = [Text]
 type CatchBlock = (Maybe Expression, Block)
 
 {- A 'lifted' expression type that allows declarations.
@@ -96,7 +95,7 @@ data MewlixClass = MewlixClass
     { pClassName           :: Key
     , pClassExtends        :: Maybe Key
     , pClassConstructor    :: Maybe MewlixFunction
-    , pClassMethods        :: Stack MewlixFunction }
+    , pClassMethods        :: [MewlixFunction]      }
     deriving (Show)
 
 data Statement =

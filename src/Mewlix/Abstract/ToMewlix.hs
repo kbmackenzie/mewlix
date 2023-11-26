@@ -9,10 +9,8 @@ import Mewlix.Abstract.AST
 import Mewlix.Abstract.String
 import Mewlix.Parser.Keywords
 import Mewlix.Utils.Show (showT)
-import Mewlix.Data.Stack (Stack)
 import Data.Text (Text)
 import qualified Data.Text as Text
-import qualified Mewlix.Data.Stack as Stack
 
 {- A class for types that can be turned to Mewlix code.
  - This can be used for decompilation! -}
@@ -60,9 +58,6 @@ instance (ToMewlix a) => ToMewlix [a] where
             , makeItems xs
             , "\n"
             , indent level "]" ]
-
-instance (ToMewlix a) => ToMewlix (Stack a) where
-    toMewlixStr level = toMewlixStr level . Stack.toList
 
 {- Mewlix AST -}
 ----------------------------------------------------
@@ -116,7 +111,7 @@ instance ToMewlix Expression where
                 , ": "
                 , toMewlixStr level expr ]
 
-        let makeLines :: Stack (Key, Expression) -> Stack Text
+        let makeLines :: [(Key, Expression)] -> [Text]
             makeLines = fmap (indent level . prettyPair)
         undefined
 
