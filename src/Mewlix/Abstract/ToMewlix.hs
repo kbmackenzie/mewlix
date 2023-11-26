@@ -70,13 +70,6 @@ instance ToMewlix Double where
 instance ToMewlix Bool where
     toMewlixStr _ = Text.toLower . showT
 
-instance (ToMewlix a) => ToMewlix [a] where
-    toMewlixStr level items = do
-        let newLevel = level + 1
-        let prettify :: (ToMewlix a) => [a] -> Text
-            prettify = flattenLn . map (indent newLevel . toMewlixStr newLevel)
-        lineSep [ "[", prettify items, indent level "]" ]
-
 {- Mewlix AST -}
 ----------------------------------------------------
 instance ToMewlix Primitive where
@@ -129,7 +122,11 @@ instance ToMewlix Expression where
         , ":"
         , toMewlixStr level b ]
 
-    toMewlixStr level (ListExpression xs) = toMewlixStr level xs
+    toMewlixStr level (ListExpression items) = do
+        let newLevel = level + 1
+        let prettify :: (ToMewlix a) => [a] -> Text
+            prettify = flattenLn . map (indent newLevel . toMewlixStr newLevel)
+        lineSep [ "[", prettify items, indent level "]" ]
 
     toMewlixStr level (BoxExpression pairs) = do
         let newLevel = level + 1
@@ -229,6 +226,22 @@ instance ToMewlix LiftedExpression where
         , "="
         , toMewlixStr level expr ]
 
+instance ToMewlix MewlixClass where
+    toMewlixStr level clowder = do
+        let newLevel = level + 1
+        let parent = case classExtends clowder of
+                Nothing     -> Text.empty
+                (Just key)  -> spaceSep [ Keywords.from, key ]
+        let header = spaceSep
+                [ Keywords.clowder
+                , className clowder
+                , parent ]
+        let methods = Text.intercalate "\n\n" . map (toMewlixStr newLevel) . classMethods
+        lineSep
+            [ indent level header
+            , methods clowder
+            , indent level Keywords.end ]
+
 instance ToMewlix Statement where
     toMewlixStr level   (ExpressionStatement expr) = indent level (toMewlixStr level expr)
 
@@ -276,33 +289,33 @@ instance ToMewlix Statement where
                 , toMewlixStr level expr ]
         indent level statement
 
+    toMewlixStr level   (ClassDef clowder) = toMewlixStr level clowder
+
     toMewlixStr level   (ImportStatement path key) = do
         let (start, end) = Keywords.takes
-        undefined
+        let takes = spaceSep [ start, toMewlix path ]
+        let qualified = case key of
+                Nothing  -> Text.empty
+                (Just x) -> spaceSep [ end, x ]
+        (indent level . spaceSep) [ takes, qualified ]
 
-    toMewlixStr _ _ = undefined
+    toMewlixStr level   (Return expr) = do
+        let statement = spaceSep
+                [ Keywords.ret
+                , toMewlixStr level expr ]
+        indent level statement
 
-{-data MewlixClass = MewlixClass
-    { pClassName           :: Key
-    , pClassExtends        :: Maybe Key
-    , pClassConstructor    :: Maybe MewlixFunction
-    , pClassMethods        :: [MewlixFunction]      }
-    deriving (Show)
- -}
+    toMewlixStr level   (TryCatch tryb (condition, catchb)) = do
+        let catchCondition = case condition of
+                Nothing     -> Text.empty
+                (Just expr) -> toMewlixStr level expr
+        let catchHeader = spaceSep [ Keywords.mewCatch, catchCondition ]
+        lineSep
+            [ indent level Keywords.mewTry
+            , toMewlixStr level tryb
+            , indent level catchHeader
+            , toMewlixStr level catchb
+            , indent level Keywords.mewTry ]
 
-{-data Statement =
-      ExpressionStatement   Expression
-    | WhileLoop             Expression Block
-    | ForLoop               (LiftedExpression, Expression, Expression) Block
-    | IfElse                Expression Block Block
-    | FunctionDef           MewlixFunction
-    | Declaration           Key Expression
-    | ClassDef              MewlixClass
-    | ImportStatement       FilePathT (Maybe Key)
-    | Return                Expression
-    | TryCatch              Block CatchBlock
-    | Break 
-    | Continue
-    deriving (Show)
-
- -}
+    toMewlixStr level   Break = indent level Keywords.run
+    toMewlixStr level   Continue = indent level Keywords.catnap
