@@ -210,6 +210,25 @@ instance ToMewlix UnaryOp where
         BooleanNot      -> Keywords.mewNot
         LengthLookup    -> "?!"
 
+instance ToMewlix MewlixFunction where
+    toMewlixStr level func = do
+        let header = spaceSep
+                [ Keywords.func
+                , pFuncName func
+                , toMewlixStr level (pFuncParams func) ]
+        lineSep
+            [ indent level header
+            , toMewlixStr level (pFuncBody func)
+            , indent level Keywords.end ]
+
+instance ToMewlix LiftedExpression where
+    toMewlixStr level (LiftExpression expr) = toMewlixStr level expr
+    toMewlixStr level (LiftDeclaration key expr) = spaceSep
+        [ Keywords.local
+        , key
+        , "="
+        , toMewlixStr level expr ]
+
 instance ToMewlix Statement where
     toMewlixStr level   (ExpressionStatement expr) = indent level (toMewlixStr level expr)
 
@@ -217,7 +236,10 @@ instance ToMewlix Statement where
         let header = Text.concat
                 [ Keywords.while
                 , (parens . toMewlixStr level) condition ]
-        lineSep [ header, toMewlixStr level block, Keywords.end ]
+        lineSep
+            [ indent level header
+            , toMewlixStr level block
+            , indent level Keywords.end ]
 
     toMewlixStr level   (ForLoop (a, b, c) block) = do
         let (start, middle, end) = Keywords.takeDo
@@ -228,9 +250,45 @@ instance ToMewlix Statement where
                 , parens (toMewlixStr level b)
                 , end
                 , parens (toMewlixStr level c) ]
-        lineSep [ header, toMewlixStr level block, Keywords.end ]
+        lineSep
+            [ indent level header
+            , toMewlixStr level block
+            , indent level Keywords.end ]
 
-instance ToMewlix LiftedExpression where
+    toMewlixStr level   (IfElse condition ifb elseb) = do
+        let header = spaceSep
+                [ Keywords.mewIf
+                , parens (toMewlixStr level condition) ]
+        lineSep
+            [ indent level header
+            , toMewlixStr level ifb
+            , indent level Keywords.mewElse
+            , toMewlixStr level elseb
+            , Keywords.end ]
+
+    toMewlixStr level   (FunctionDef func) = toMewlixStr level func
+
+    toMewlixStr level   (Declaration key expr) = do
+        let statement = spaceSep
+                [ Keywords.local
+                , key
+                , "="
+                , toMewlixStr level expr ]
+        indent level statement
+
+    toMewlixStr level   (ImportStatement path key) = do
+        let (start, end) = Keywords.takes
+        undefined
+
+    toMewlixStr _ _ = undefined
+
+{-data MewlixClass = MewlixClass
+    { pClassName           :: Key
+    , pClassExtends        :: Maybe Key
+    , pClassConstructor    :: Maybe MewlixFunction
+    , pClassMethods        :: [MewlixFunction]      }
+    deriving (Show)
+ -}
 
 {-data Statement =
       ExpressionStatement   Expression
