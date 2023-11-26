@@ -87,16 +87,16 @@ data LiftedExpression =
     deriving (Show)
 
 data MewlixFunction = MewlixFunction
-    { pFuncName    :: Key
-    , pFuncParams  :: Params
-    , pFuncBody    :: Block       }
+    { funcName      :: Key
+    , funcParams    :: Params
+    , funcBody      :: Block       }
     deriving (Show)
 
 data MewlixClass = MewlixClass
-    { pClassName           :: Key
-    , pClassExtends        :: Maybe Key
-    , pClassConstructor    :: Maybe MewlixFunction
-    , pClassMethods        :: [MewlixFunction]      }
+    { className         :: Key
+    , classExtends      :: Maybe Key
+    , classConstructor  :: Maybe MewlixFunction
+    , classMethods      :: [MewlixFunction]      }
     deriving (Show)
 
 data Statement =

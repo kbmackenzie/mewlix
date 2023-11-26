@@ -214,11 +214,11 @@ instance ToMewlix MewlixFunction where
     toMewlixStr level func = do
         let header = spaceSep
                 [ Keywords.func
-                , pFuncName func
-                , toMewlixStr level (pFuncParams func) ]
+                , funcName func
+                , toMewlixStr level (funcParams func) ]
         lineSep
             [ indent level header
-            , toMewlixStr level (pFuncBody func)
+            , toMewlixStr level (funcBody func)
             , indent level Keywords.end ]
 
 instance ToMewlix LiftedExpression where

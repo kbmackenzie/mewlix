@@ -155,7 +155,7 @@ classDef _ = do
 
 getConstructor :: [MewlixFunction] -> Parser (Maybe MewlixFunction)
 getConstructor funcs = do
-    let constructors = filter ((== Keywords.constructor) . pFuncName) funcs
+    let constructors = filter ((== Keywords.constructor) . funcName) funcs
     when (length constructors > 1)
         (fail "Class cannot have more than one constructor!")
     let constructor = case constructors of
