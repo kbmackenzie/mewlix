@@ -35,6 +35,9 @@ indent level = do
     let indentation = Text.pack (replicate level ' ')
     Text.append indentation
 
+flatten :: [Text] -> Text
+flatten = Text.intercalate ",\n"
+
 {- Basic Instances -}
 ------------------------------------------------------
 instance ToMewlix Text where
@@ -50,12 +53,12 @@ instance ToMewlix Bool where
     toMewlixStr _ = Text.toLower . showT
 
 instance (ToMewlix a) => ToMewlix [a] where
-    toMewlixStr level xs = do
-        let makeItems :: (ToMewlix a) => [a] -> Text
-            makeItems = Text.intercalate ",\n" . map (indent (level + 1) . toMewlixStr level)
+    toMewlixStr level items = do
+        let prettify :: (ToMewlix a) => [a] -> Text
+            prettify = flatten . map (indent (level + 1) . toMewlixStr level)
         Text.concat
             [ "[\n"
-            , makeItems xs
+            , prettify items
             , "\n"
             , indent level "]" ]
 
@@ -111,9 +114,15 @@ instance ToMewlix Expression where
                 , ": "
                 , toMewlixStr level expr ]
 
-        let makeLines :: [(Key, Expression)] -> [Text]
-            makeLines = fmap (indent level . prettyPair)
-        undefined
+        let prettify :: [(Key, Expression)] -> Text
+            prettify = flatten . map (indent level . prettyPair)
+
+        Text.concat
+            [ meowBox
+            , " [\n"
+            , prettify pairs
+            , "\n"
+            , indent level "]" ]
 
     toMewlixStr level   (Assignment a b) = spaceSep
         [ toMewlixStr level a
@@ -139,29 +148,24 @@ instance ToMewlix Expression where
     toMewlixStr level   _ = undefined
 
 instance ToMewlix BinaryOp where
+    toMewlixStr _ op = case op of
+        Addition        -> "+"
+        Subtraction     -> "-"
+        Multiplication  -> "*"
+        Division        -> "\\"
+        Modulo          -> "%"
+        Power           -> "^"
+        ListConcat      -> ".."
+        Equal           -> "=="
+        LessThan        -> "<"
+        GreaterThan     -> ">"
+        NotEqual        -> "!="
+        GreaterOrEqual  -> ">="
+        LesserOrEqual   -> "<="
+        
 instance ToMewlix UnaryOp where
-
-{-data Expression =
-      PrimitiveExpr         Primitive
-    | Identifier            Key
-    | ObjectProperty        Key
-    | BooleanAnd            Expression Expression
-    | BooleanOr             Expression Expression
-    | BinaryOperation       BinaryOp Expression Expression
-    | UnaryOperation        UnaryOp Expression
-    | TernaryOperation      Expression Expression Expression
-    | ListExpression        (Stack Expression)
-    | BoxExpression         (Stack (Key, Expression))
-    | Assignment            Expression Expression
-    | Increment             Expression
-    | Decrement             Expression
-    | ListPush              Expression Expression
-    | ListPop               Expression
-    | LambdaExpression      Params Expression
-    | FunctionCall          (Stack Expression) Expression
-    | DotExpression         Expression Expression
-    | LookupExpression      Expression Expression
-    deriving (Show)
-
-
- -}
+    toMewlixStr _ op = case op of
+        Negation        -> "-"
+        ListPeek        -> meowPeek
+        BooleanNot      -> meowNot
+        LengthLookup    -> "?!"
