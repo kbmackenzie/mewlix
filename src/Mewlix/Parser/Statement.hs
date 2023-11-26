@@ -20,7 +20,7 @@ import Data.Maybe (fromMaybe)
 root :: Parser Block
 root = do
     let parser :: Parser Block
-        parser = Mega.many (statement Root)
+        parser = Block <$> Mega.many (statement Root)
     Mega.between whitespaceLn Mega.eof parser
 
 
@@ -58,7 +58,7 @@ block nesting stop = do
     let line = do
             Mega.notFollowedBy stop
             statement nesting
-    (Mega.many . lexemeLn) line
+    (fmap Block . Mega.many . lexemeLn) line
 
 meowmeow :: Parser ()
 meowmeow = Mega.choice
@@ -118,8 +118,8 @@ ifelse nesting = do
     
     mainIf      <- getIf Keywords.mewIf
     elifs       <- Mega.many (getIf Keywords.mewElif)
-    mainElse    <- fromMaybe [] <$> Mega.optional getElse
-    let ifs = foldr1 (\x acc -> x . List.singleton . acc) (mainIf : elifs)
+    mainElse    <- fromMaybe mempty <$> Mega.optional getElse
+    let ifs = foldr1 (\x acc -> x . Block . List.singleton . acc) (mainIf : elifs)
 
     meowmeow
     return (ifs mainElse)
@@ -131,7 +131,7 @@ func :: Parser MewlixFunction
 func = do
     keyword Keywords.func
     name   <- parseName
-    params <- parensList parseName
+    params <- Params <$> parensList parseName
     whitespaceLn
     body   <- block Nested meowmeow
     meowmeow
@@ -248,7 +248,7 @@ tryCatch nesting = do
 
     mainTry <- getTry
     catches <- Mega.some getCatch
-    let catchCompose = foldr1 (\x acc -> acc . List.singleton . x) catches
+    let catchCompose = foldr1 (\x acc -> acc . Block . List.singleton . x) catches
 
     meowmeow
     return (catchCompose mainTry)

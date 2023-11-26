@@ -1,11 +1,11 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE StrictData #-}
 
 module Mewlix.Abstract.AST 
 ( Primitive(..)
 , Key
-, Block
-, Params
+, Block(..)
+, Params(..)
 , Expression(..)
 , Statement(..)
 , BinaryOp(..)
@@ -74,8 +74,9 @@ data UnaryOp =
     | LengthLookup
     deriving (Show)
 
-type Block      = [Statement]
-type Params     = [Text]
+newtype Block  = Block  [Statement] deriving (Show, Semigroup, Monoid)
+newtype Params = Params [Text]      deriving (Show, Semigroup, Monoid)
+
 type CatchBlock = (Maybe Expression, Block)
 
 {- A 'lifted' expression type that allows declarations.

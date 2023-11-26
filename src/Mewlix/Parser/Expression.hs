@@ -77,9 +77,9 @@ postfixes = foldr1 (flip (.)) <$> Mega.some (Mega.choice [ dotOp, boxOp, call ])
 lambda :: Parser (Expression -> Expression)
 lambda = do
     keyword Keywords.lambda
-    args <- parensList parseKey
+    params <- Params <$> parensList parseKey
     longSymbol "=>"
-    return (LambdaExpression args)
+    return (LambdaExpression params)
 
 
 {- Operator Tables -}

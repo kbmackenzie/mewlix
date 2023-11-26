@@ -87,6 +87,13 @@ instance ToMewlix Primitive where
     toMewlixStr _ MewlixHome       = Keywords.home
     toMewlixStr _ MewlixSuper      = Keywords.super
 
+instance ToMewlix Params where
+    toMewlixStr level   (Params params) = do
+        let prettify = flatten . map (toMewlixStr level)
+        (parens . prettify) params
+
+instance ToMewlix Block where
+
 instance ToMewlix Expression where
     toMewlixStr level   (PrimitiveExpr prim) = toMewlixStr level prim
 
@@ -158,7 +165,7 @@ instance ToMewlix Expression where
 
     toMewlixStr level   (LambdaExpression params body) = spaceSep
         [ Keywords.lambda
-        , (parens . flatten) params
+        , toMewlixStr level params
         , "=>"
         , toMewlixStr level body ]
 
@@ -205,8 +212,7 @@ instance ToMewlix Statement where
         let header = Text.concat
                 [ Keywords.while
                 , (parens . toMewlixStr level) condition ]
-        let body = (lineSep . map (toMewlixStr level)) block
-        lineSep [ header, body, Keywords.end ]
+        lineSep [ header, toMewlixStr level block, Keywords.end ]
 
     toMewlixStr level   (ForLoop (a, b, c) block) = do
         let (start, middle, end) = Keywords.takeDo
@@ -217,8 +223,7 @@ instance ToMewlix Statement where
                 , parens (toMewlixStr level b)
                 , end
                 , parens (toMewlixStr level c) ]
-        let body = (lineSep . map (toMewlixStr level)) block
-        lineSep [ header, body, Keywords.end ]
+        lineSep [ header, toMewlixStr level block, Keywords.end ]
 
 instance ToMewlix LiftedExpression where
 
