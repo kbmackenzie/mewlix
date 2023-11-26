@@ -11,11 +11,13 @@ module Mewlix.Parser.Utils
 , brackets
 , parensList
 , bracketList
+, isKeyChar
 , keyword
 , symbol
+, longSymbol
 ) where
 
-import Mewlix.Parser.Keywords
+import qualified Mewlix.Parser.Keywords as Keywords
 import Data.Text (Text)
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
@@ -23,7 +25,7 @@ import qualified Text.Megaparsec.Char.Lexer as Lexer
 import Data.Void (Void)
 import Control.Monad (void)
 import Data.Bifunctor (bimap)
-import Data.Char (isSpace)
+import Data.Char (isSpace, isAlphaNum)
 
 type Parser = Mega.Parsec Void Text
 
@@ -35,7 +37,7 @@ lineComment = Lexer.skipLineComment "--"
 blockComment :: Parser ()
 blockComment = start >> void (Mega.manyTill Mega.anySingle end)
     -- Case-insensitive comment symbols:
-    where (start, end) = bimap MChar.string' MChar.string' meowComment
+    where (start, end) = bimap MChar.string' MChar.string' Keywords.comment
 
 {- Single-line spaces: -}
 ----------------------------------------------------------------
@@ -111,8 +113,16 @@ bracketList = commaList brackets
 
 {- Keywords/symbols: -}
 ----------------------------------------------------------------
+isKeyChar :: Char -> Bool
+isKeyChar c = isAlphaNum c || c == '_'
+
 keyword :: Text -> Parser ()
-keyword = lexeme . void . MChar.string
+keyword key = (lexeme . Mega.try) $ do
+    (void . MChar.string) key
+    Mega.notFollowedBy (Mega.satisfy isKeyChar)
 
 symbol :: Char -> Parser ()
 symbol = lexeme . void . MChar.char
+
+longSymbol :: Text -> Parser ()
+longSymbol = lexeme . void . MChar.string
