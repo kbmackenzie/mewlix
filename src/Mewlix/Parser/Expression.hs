@@ -10,7 +10,7 @@ module Mewlix.Parser.Expression
 import Mewlix.Abstract.AST
 import Mewlix.Parser.Utils
 import Mewlix.Parser.Primitive
-import Mewlix.Parser.Keywords
+import qualified Mewlix.Parser.Keywords as Keywords
 import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec as Mega
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
@@ -47,7 +47,7 @@ parseBox = do
             value <- exprR
             return (key, value)
 
-    keyword meowBox
+    keyword Keywords.box
     BoxExpression <$> bracketList parsePair <?> "box"
 
 
@@ -76,9 +76,9 @@ postfixes = foldr1 (flip (.)) <$> Mega.some (Mega.choice [ dotOp, boxOp, call ])
 
 lambda :: Parser (Expression -> Expression)
 lambda = do
-    keyword meowLambda
+    keyword Keywords.lambda
     args <- parensList parseKey
-    keyword "=>"
+    longSymbol "=>"
     return (LambdaExpression args)
 
 
@@ -92,33 +92,33 @@ operatorsL = [[ Postfix postfixes ]]
 operatorsR :: OperatorTable
 operatorsR =
     [
-        [ Postfix postfixes                                                     ]
-    ,   [ Prefix  (Increment                        <$ keyword meowPaw      )
-        , Prefix  (Decrement                        <$ keyword meowClaw     )   ]
-    ,   [ Postfix (UnaryOperation LengthLookup      <$ keyword "?!"         )   ] 
-    ,   [ Prefix  (UnaryOperation ListPeek          <$ keyword meowPeek     )
-        , InfixL  (ListPush                         <$ keyword meowPush     )
-        , Prefix  (ListPop                          <$ keyword meowKnock    )   ]
-    ,   [ InfixL  (BinaryOperation ListConcat       <$ keyword ".."         )   ]
-    ,   [ InfixL  (BinaryOperation Power            <$ symbol '^'           )   ]
-    ,   [ Prefix  (UnaryOperation Negation          <$ symbol '-'           )
-        , Prefix  (UnaryOperation BooleanNot        <$ keyword meowNot      )   ]
-    ,   [ InfixL  (BinaryOperation Multiplication   <$ symbol '*'           )
-        , InfixL  (BinaryOperation Division         <$ symbol '/'           )
-        , InfixL  (BinaryOperation Modulo           <$ symbol '%'           )   ]
-    ,   [ InfixL  (BinaryOperation Addition         <$ symbol '+'           )
-        , InfixL  (BinaryOperation Subtraction      <$ symbol '-'           )   ]
-    ,   [ InfixL  (BinaryOperation LesserOrEqual    <$ keyword "<="         )
-        , InfixL  (BinaryOperation GreaterOrEqual   <$ keyword ">="         )
-        , InfixL  (BinaryOperation LessThan         <$ symbol '<'           )
-        , InfixL  (BinaryOperation GreaterThan      <$ symbol '>'           )   ]
-    ,   [ InfixL  (BinaryOperation Equal            <$ keyword "=="         )
-        , InfixL  (BinaryOperation NotEqual         <$ keyword "!="         )   ]
-    ,   [ InfixL  (BooleanAnd                       <$ keyword meowAnd      )   ]
-    ,   [ InfixL  (BooleanOr                        <$ keyword meowOr       )   ]
-    ,   [ Prefix  lambda                                                        ]
-    ,   [ TernR   ((TernaryOperation <$ symbol ':') <$ symbol '?'           )   ]
-    ,   [ InfixR  (Assignment                       <$ symbol '='           )   ]
+        [ Postfix postfixes                                                         ]
+    ,   [ Prefix  (Increment                        <$ keyword Keywords.paw     )
+        , Prefix  (Decrement                        <$ keyword Keywords.claw    )   ]
+    ,   [ Postfix (UnaryOperation LengthLookup      <$ longSymbol "?!"          )   ] 
+    ,   [ Prefix  (UnaryOperation ListPeek          <$ keyword Keywords.peek    )
+        , InfixL  (ListPush                         <$ keyword Keywords.push    )
+        , Prefix  (ListPop                          <$ keyword Keywords.pop     )   ]
+    ,   [ InfixL  (BinaryOperation ListConcat       <$ longSymbol ".."          )   ]
+    ,   [ InfixL  (BinaryOperation Power            <$ symbol '^'               )   ]
+    ,   [ Prefix  (UnaryOperation Negation          <$ symbol '-'               )
+        , Prefix  (UnaryOperation BooleanNot        <$ keyword Keywords.mewNot  )   ]
+    ,   [ InfixL  (BinaryOperation Multiplication   <$ symbol '*'               )
+        , InfixL  (BinaryOperation Division         <$ symbol '/'               )
+        , InfixL  (BinaryOperation Modulo           <$ symbol '%'               )   ]
+    ,   [ InfixL  (BinaryOperation Addition         <$ symbol '+'               )
+        , InfixL  (BinaryOperation Subtraction      <$ symbol '-'               )   ]
+    ,   [ InfixL  (BinaryOperation LesserOrEqual    <$ longSymbol "<="          )
+        , InfixL  (BinaryOperation GreaterOrEqual   <$ longSymbol ">="          )
+        , InfixL  (BinaryOperation LessThan         <$ symbol '<'               )
+        , InfixL  (BinaryOperation GreaterThan      <$ symbol '>'               )   ]
+    ,   [ InfixL  (BinaryOperation Equal            <$ longSymbol "=="          )
+        , InfixL  (BinaryOperation NotEqual         <$ longSymbol "!="          )   ]
+    ,   [ InfixL  (BooleanAnd                       <$ keyword Keywords.mewAnd  )   ]
+    ,   [ InfixL  (BooleanOr                        <$ keyword Keywords.mewOr   )   ]
+    ,   [ Prefix  lambda                                                            ]
+    ,   [ TernR   ((TernaryOperation <$ symbol ':') <$ symbol '?'               )   ]
+    ,   [ InfixR  (Assignment                       <$ symbol '='               )   ]
     ]
 
 {- Declaration -}
@@ -130,7 +130,7 @@ declaration = do
             [ symbol '=' >> exprR
             , return (PrimitiveExpr MewlixNil) ]
 
-    keyword meowLocal
+    keyword Keywords.local
     name   <- parseName
     rvalue <- getValue
     return (name, rvalue)

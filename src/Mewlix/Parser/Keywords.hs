@@ -1,151 +1,150 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Mewlix.Parser.Keywords
-( meowCatface
-, meowLocal
-, meowComment
-, meowTrue
-, meowFalse
-, meowNil
-, meowEnd
-, meowReturn
-, meowContinue
-, meowBreak
-, meowClass
-, meowFrom
-, meowHome
-, meowSuper
-, meowConstructor
-, meowIf
-, meowElif
-, meowElse
-, meowWhile
-, meowFor
-, meowPaw
-, meowClaw
-, meowBox
-, meowLambda
-, meowNot
-, meowAnd
-, meowOr
-, meowPeek
-, meowPush
-, meowKnock
-, meowTakes
-, meowTry
-, meowCatch
-, meowWhen
-, reservedKeywords
+( func
+, local
+, comment
+, true
+, false
+, nil
+, end
+, ret
+, catnap
+, run
+, clowder
+, from
+, home
+, super
+, constructor
+, mewIf
+, mewElif
+, mewElse
+, while
+, takeDo
+, paw
+, claw
+, box
+, lambda
+, mewNot
+, mewAnd
+, mewOr
+, push
+, peek
+, pop
+, takes
+, mewTry
+, mewCatch
+, reserved
 ) where
 
 import Data.Text (Text)
 import Data.HashSet (HashSet, fromList)
 
-meowCatface :: Text
-meowCatface = "=^.x.^="
+{- This module should *always* be imported qualified.
+ - It should be imported with the name 'Keywords' for consistency! -}
 
-meowLocal :: Text
-meowLocal = "mew"
+func :: Text
+func = "=^.x.^="
 
-meowComment :: (Text, Text)
-meowComment = ("~( ^.x.^)>", "<(^.x.^ )~")
+local :: Text
+local = "mew"
 
-meowTrue :: Text
-meowTrue = "true"
+comment :: (Text, Text)
+comment = ("~( ^.x.^)>", "<(^.x.^ )~")
 
-meowFalse :: Text
-meowFalse = "false"
+true :: Text
+true = "true"
 
-meowNil :: Text
-meowNil = "nothing"
+false :: Text
+false = "false"
 
-meowEnd :: Text
-meowEnd = "meow meow"
+nil :: Text
+nil = "nothing"
 
-meowReturn :: Text
-meowReturn = "bring"
+end :: Text
+end = "meow meow"
 
-meowContinue :: Text
-meowContinue = "catnap"
+ret :: Text
+ret = "bring"
 
-meowBreak :: Text
-meowBreak = "run off"
+catnap :: Text
+catnap = "catnap"
 
-meowClass :: Text
-meowClass = "clowder"
+run :: Text
+run = "run off"
 
-meowFrom :: Text
-meowFrom = "from"
+clowder :: Text
+clowder = "clowder"
 
-meowHome :: Text
-meowHome = "home"
+from :: Text
+from = "from"
 
-meowSuper :: Text
-meowSuper = "parent"
+home :: Text
+home = "home"
 
-meowConstructor :: Text
-meowConstructor = "wake"
+super :: Text
+super = "parent"
 
-meowIf :: Text
-meowIf = "mew?"
+constructor :: Text
+constructor = "wake"
 
-meowElif :: Text
-meowElif = "mao!"
+mewIf :: Text
+mewIf = "mew?"
 
-meowElse :: Text
-meowElse = "hiss!"
+mewElif :: Text
+mewElif = "mao!"
 
-meowWhile :: Text
-meowWhile = "meowmeow"
+mewElse :: Text
+mewElse = "hiss!"
 
-meowFor :: (Text, Text, Text)
-meowFor = ("take", "and do", "while")
+while :: Text
+while = "meowmeow"
 
-meowPaw :: Text
-meowPaw = "paw at" 
+takeDo :: (Text, Text, Text)
+takeDo = ("take", "and do", "while")
 
-meowClaw :: Text
-meowClaw = "claw at"
+paw :: Text
+paw = "paw at" 
 
-meowBox :: Text
-meowBox = "=^-x-^="
+claw :: Text
+claw = "claw at"
 
-meowLambda :: Text
-meowLambda = "=^*x*^="
+box :: Text
+box = "=^-x-^="
 
-meowNot :: Text
-meowNot = "not"
+lambda :: Text
+lambda = "=^*x*^="
 
-meowAnd :: Text
-meowAnd = "and"
+mewNot :: Text
+mewNot = "not"
 
-meowOr :: Text
-meowOr = "or"
+mewAnd :: Text
+mewAnd = "and"
 
-meowPush :: Text
-meowPush = "push"
+mewOr :: Text
+mewOr = "or"
 
-meowPeek :: Text
-meowPeek = "peek"
+push :: Text
+push = "push"
 
-meowKnock :: Text
-meowKnock = "knock over"
+peek :: Text
+peek = "peek"
 
-meowTakes :: (Text, Text)
-meowTakes = ("takes", "as")
+pop :: Text
+pop = "knock over"
 
-meowTry :: Text
-meowTry = "watch"
+takes :: (Text, Text)
+takes = ("takes", "as")
 
-meowCatch :: Text
-meowCatch = "catch"
+mewTry :: Text
+mewTry = "watch"
 
-meowWhen :: (Text, Text)
-meowWhen = ("when", "do")
+mewCatch :: Text
+mewCatch = "catch"
 
-reservedKeywords :: HashSet Text
-{-# INLINE reservedKeywords #-}
-reservedKeywords = fromList
+reserved :: HashSet Text
+{-# INLINE reserved #-}
+reserved = fromList
     [ "mew"
     , "paw"
     , "claw"

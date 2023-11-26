@@ -7,9 +7,9 @@ module Mewlix.Parser.Statement
 
 import Mewlix.Abstract.AST
 import Mewlix.Parser.Utils
-import Mewlix.Parser.Keywords
 import Mewlix.Parser.Primitive
 import Mewlix.Parser.Expression
+import qualified Mewlix.Parser.Keywords as Keywords
 import Data.Text (Text)
 import qualified Data.List as List
 import qualified Text.Megaparsec as Mega
@@ -62,7 +62,7 @@ block nesting stop = do
 
 meowmeow :: Parser ()
 meowmeow = Mega.choice
-    [ keyword meowEnd
+    [ keyword Keywords.end
     , fail "Block is unclosed!" ]
 
 
@@ -82,7 +82,7 @@ declareVar _ = uncurry Declaration <$> declaration
 ----------------------------------------------------------------
 whileLoop :: Nesting -> Parser Statement
 whileLoop nesting = do
-    keyword meowWhile
+    keyword Keywords.while
     condition <- parens exprR
     whitespaceLn
     body <- block (max nesting NestedInLoop) meowmeow
@@ -98,9 +98,9 @@ ifelse nesting = do
 
     let stopKeys :: Parser ()
         stopKeys = (void . Mega.choice . fmap MChar.string) 
-            [ meowElif
-            , meowElse
-            , meowEnd ]
+            [ Keywords.mewElif
+            , Keywords.mewElse
+            , Keywords.end      ]
 
     let getIf :: Text -> Parser (Block -> Statement)
         getIf key = do
@@ -112,12 +112,12 @@ ifelse nesting = do
 
     let getElse :: Parser Block
         getElse = do
-            keyword meowElse
+            keyword Keywords.mewElse
             whitespaceLn
             block localNest meowmeow
     
-    mainIf      <- getIf meowIf
-    elifs       <- Mega.many (getIf meowElif)
+    mainIf      <- getIf Keywords.mewIf
+    elifs       <- Mega.many (getIf Keywords.mewElif)
     mainElse    <- fromMaybe [] <$> Mega.optional getElse
     let ifs = foldr1 (\x acc -> x . List.singleton . acc) (mainIf : elifs)
 
@@ -129,7 +129,7 @@ ifelse nesting = do
 ----------------------------------------------------------------
 func :: Parser MewlixFunction
 func = do
-    keyword meowCatface
+    keyword Keywords.func
     name   <- parseName
     params <- parensList parseName
     whitespaceLn
@@ -145,9 +145,9 @@ funcDef _ = FunctionDef <$> func
 ----------------------------------------------------------------
 classDef :: Nesting -> Parser Statement
 classDef _ = do
-    keyword meowClass
+    keyword Keywords.clowder
     name        <- parseName
-    extends     <- Mega.optional (keyword meowFrom >> parseName)
+    extends     <- Mega.optional (keyword Keywords.from >> parseName)
     whitespaceLn
     methods     <- (Mega.many . lexemeLn) func
     constructor <- getConstructor methods
@@ -155,7 +155,7 @@ classDef _ = do
 
 getConstructor :: [MewlixFunction] -> Parser (Maybe MewlixFunction)
 getConstructor funcs = do
-    let constructors = filter ((== meowConstructor) . pFuncName) funcs
+    let constructors = filter ((== Keywords.constructor) . pFuncName) funcs
     when (length constructors > 1)
         (fail "Class cannot have more than one constructor!")
     let constructor = case constructors of
@@ -168,7 +168,7 @@ getConstructor funcs = do
 ----------------------------------------------------------------
 returnKey :: Nesting -> Parser Statement
 returnKey _ = do
-    keyword meowReturn
+    keyword Keywords.ret
     Return <$> exprR
 
 
@@ -176,7 +176,7 @@ returnKey _ = do
 ----------------------------------------------------------------
 continueKey :: Nesting -> Parser Statement
 continueKey nesting = do
-    keyword meowContinue
+    keyword Keywords.catnap
     when (nesting < NestedInLoop)
         (fail "Cannot use loop keyword outside loop!")
     return Continue
@@ -186,7 +186,7 @@ continueKey nesting = do
 ----------------------------------------------------------------
 breakKey :: Nesting -> Parser Statement
 breakKey nesting = do
-    keyword meowBreak
+    keyword Keywords.run
     when (nesting < NestedInLoop)
         (fail "Cannot use loop keyword outside loop!")
     return Break
@@ -195,7 +195,7 @@ breakKey nesting = do
 ----------------------------------------------------------------
 forLoop :: Nesting -> Parser Statement
 forLoop nesting = do
-    let (start, middle, end) = meowFor
+    let (start, middle, end) = Keywords.takeDo
     keyword start
     ini  <- parens liftedExpr
     keyword middle
@@ -212,7 +212,7 @@ forLoop nesting = do
 ----------------------------------------------------------------
 importKey :: Nesting -> Parser Statement
 importKey nesting = do
-    let (start, end) = meowTakes
+    let (start, end) = Keywords.takes
     keyword start
     path <- parseString
     name <- Mega.optional (keyword end >> parseName)
@@ -228,17 +228,19 @@ tryCatch nesting = do
     let localNest = max nesting Nested
 
     let stopKeys :: Parser ()
-        stopKeys = (void . Mega.choice . fmap MChar.string) [ meowCatch , meowEnd ]
+        stopKeys = (void . Mega.choice . fmap MChar.string)
+            [ Keywords.mewCatch
+            , Keywords.end      ]
 
     let getTry :: Parser Block
         getTry = do
-            keyword meowTry
+            keyword Keywords.mewTry
             whitespaceLn
             block localNest stopKeys
 
     let getCatch :: Parser (Block -> Statement)
         getCatch = do
-            keyword meowCatch
+            keyword Keywords.mewCatch
             condition <- Mega.optional (parens exprR)
             whitespaceLn
             body      <- block localNest stopKeys

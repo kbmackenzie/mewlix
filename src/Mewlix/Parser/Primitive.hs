@@ -8,9 +8,9 @@ module Mewlix.Parser.Primitive
 , parseName
 ) where
 
-import Mewlix.Abstract.AST
+import Mewlix.Abstract.AST (Primitive(..))
 import Mewlix.Parser.Utils
-import Mewlix.Parser.Keywords
+import qualified Mewlix.Parser.Keywords as Keywords
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Text.Megaparsec ((<?>))
@@ -19,7 +19,6 @@ import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
 import Control.Monad (void, when)
-import Data.Char (isAlphaNum)
 
 {- Prims: -}
 ----------------------------------------------------------------
@@ -30,9 +29,9 @@ parsePrim = Mega.choice
     , MewlixFloat   <$> parseFloat
     , MewlixInt     <$> parseInt
     , MewlixBool    <$> parseBool
-    , MewlixNil     <$  keyword meowNil 
-    , MewlixHome    <$  keyword meowHome
-    , MewlixSuper   <$  keyword meowSuper ]
+    , MewlixNil     <$  keyword Keywords.nil
+    , MewlixHome    <$  keyword Keywords.home
+    , MewlixSuper   <$  keyword Keywords.super ]
 
 {- Escape sequences: -}
 ----------------------------------------------------------------
@@ -90,14 +89,11 @@ parseFloat = Mega.try (lexeme (Lexer.signed whitespace Lexer.float)) <?> "float"
 
 parseBool :: Parser Bool
 parseBool = Mega.choice
-    [ True  <$ MChar.string meowTrue
-    , False <$ MChar.string meowFalse ] <?> "boolean"
+    [ True  <$ keyword Keywords.true
+    , False <$ keyword Keywords.false ] <?> "boolean"
 
 {- Keys + identifers: -}
 ----------------------------------------------------------------
-isKeyChar :: Char -> Bool
-isKeyChar c = isAlphaNum c || c == '_'
-
 parseKey :: Parser Text
 parseKey = lexeme (Mega.takeWhile1P (Just "key") isKeyChar)
 
@@ -106,6 +102,6 @@ parseKey = lexeme (Mega.takeWhile1P (Just "key") isKeyChar)
 parseName :: Parser Text
 parseName = do
     text <- parseKey <?> "identifier"
-    when (HashSet.member text reservedKeywords) 
+    when (HashSet.member text Keywords.reserved) 
         (fail (Text.unpack text ++ " is a reserved keyword!"))
     return text

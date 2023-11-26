@@ -7,7 +7,7 @@ module Mewlix.Abstract.ToMewlix
 
 import Mewlix.Abstract.AST
 import Mewlix.Abstract.String
-import Mewlix.Parser.Keywords
+import qualified Mewlix.Parser.Keywords as Keywords
 import Mewlix.Utils.Show (showT)
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -69,9 +69,9 @@ instance ToMewlix Primitive where
     toMewlixStr _ (MewlixString s) = toMewlix s
     toMewlixStr _ (MewlixFloat f)  = toMewlix f
     toMewlixStr _ (MewlixBool b)   = toMewlix b
-    toMewlixStr _ MewlixNil        = meowNil
-    toMewlixStr _ MewlixHome       = meowHome
-    toMewlixStr _ MewlixSuper      = meowSuper
+    toMewlixStr _ MewlixNil        = Keywords.nil
+    toMewlixStr _ MewlixHome       = Keywords.home
+    toMewlixStr _ MewlixSuper      = Keywords.super
 
 instance ToMewlix Expression where
     toMewlixStr level   (PrimitiveExpr prim) = toMewlixStr level prim
@@ -81,12 +81,12 @@ instance ToMewlix Expression where
 
     toMewlixStr level   (BooleanAnd a b) = spaceSep
         [ toMewlixStr level a
-        , meowAnd
+        , Keywords.mewAnd
         , toMewlixStr level b ]
 
     toMewlixStr level   (BooleanOr a b) = spaceSep
         [ toMewlixStr level a
-        , meowOr
+        , Keywords.mewOr
         , toMewlixStr level b ]
 
     toMewlixStr level    (BinaryOperation op a b) = spaceSep
@@ -118,7 +118,7 @@ instance ToMewlix Expression where
             prettify = flatten . map (indent level . prettyPair)
 
         Text.concat
-            [ meowBox
+            [ Keywords.box
             , " [\n"
             , prettify pairs
             , "\n"
@@ -130,20 +130,21 @@ instance ToMewlix Expression where
         , toMewlixStr level b ]
 
     toMewlixStr level   (Increment a) = spaceSep
-        [ meowPaw
+        [ Keywords.paw
         , toMewlixStr level a ]
 
     toMewlixStr level   (Decrement a) = spaceSep
-        [ meowClaw
+        [ Keywords.claw
         , toMewlixStr level a ]
 
     toMewlixStr level   (ListPush a b) = spaceSep
         [ toMewlixStr level a
-        , meowPush
+        , Keywords.push
         , toMewlixStr level b ]
 
     toMewlixStr level   (ListPop a) = spaceSep
-        [ meowKnock, toMewlixStr level a ]
+        [ Keywords.pop
+        , toMewlixStr level a ]
 
     toMewlixStr level   _ = undefined
 
@@ -166,6 +167,6 @@ instance ToMewlix BinaryOp where
 instance ToMewlix UnaryOp where
     toMewlixStr _ op = case op of
         Negation        -> "-"
-        ListPeek        -> meowPeek
-        BooleanNot      -> meowNot
+        ListPeek        -> Keywords.peek
+        BooleanNot      -> Keywords.mewNot
         LengthLookup    -> "?!"
