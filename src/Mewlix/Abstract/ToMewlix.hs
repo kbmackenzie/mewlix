@@ -30,13 +30,31 @@ class ToMewlix a where
 spaceSep :: [Text] -> Text
 spaceSep = Text.intercalate " "
 
+lineSep :: [Text] -> Text
+lineSep = Text.intercalate "\n"
+
 indent :: IndentLevel -> Text -> Text
 indent level = do
     let indentation = Text.pack (replicate level ' ')
     Text.append indentation
 
 flatten :: [Text] -> Text
-flatten = Text.intercalate ",\n"
+flatten = Text.intercalate ", "
+
+flattenLn :: [Text] -> Text
+flattenLn = Text.intercalate ",\n"
+
+between :: Char -> Char -> Text -> Text
+between open close text = Text.concat
+    [ Text.singleton open
+    , text
+    , Text.singleton close ]
+
+parens :: Text -> Text
+parens = between '(' ')'
+
+brackets :: Text -> Text
+brackets = between '[' ']'
 
 {- Basic Instances -}
 ------------------------------------------------------
@@ -55,12 +73,8 @@ instance ToMewlix Bool where
 instance (ToMewlix a) => ToMewlix [a] where
     toMewlixStr level items = do
         let prettify :: (ToMewlix a) => [a] -> Text
-            prettify = flatten . map (indent (level + 1) . toMewlixStr level)
-        Text.concat
-            [ "[\n"
-            , prettify items
-            , "\n"
-            , indent level "]" ]
+            prettify = flattenLn . map (indent (level + 1) . toMewlixStr level)
+        lineSep [ "[", prettify items, indent level "]" ]
 
 {- Mewlix AST -}
 ----------------------------------------------------
@@ -115,14 +129,10 @@ instance ToMewlix Expression where
                 , toMewlixStr level expr ]
 
         let prettify :: [(Key, Expression)] -> Text
-            prettify = flatten . map (indent level . prettyPair)
+            prettify = flattenLn . map (indent level . prettyPair)
 
-        Text.concat
-            [ Keywords.box
-            , " [\n"
-            , prettify pairs
-            , "\n"
-            , indent level "]" ]
+        let header = Keywords.box `Text.append` " ["
+        lineSep [ header, prettify pairs, indent level "]" ]
 
     toMewlixStr level   (Assignment a b) = spaceSep
         [ toMewlixStr level a
@@ -146,7 +156,24 @@ instance ToMewlix Expression where
         [ Keywords.pop
         , toMewlixStr level a ]
 
-    toMewlixStr level   _ = undefined
+    toMewlixStr level   (LambdaExpression params body) = spaceSep
+        [ Keywords.lambda
+        , (parens . flatten) params
+        , "=>"
+        , toMewlixStr level body ]
+
+    toMewlixStr level   (FunctionCall params func) = Text.concat
+        [ toMewlixStr level func
+        , (parens . flatten . map (toMewlixStr level)) params ]
+
+    toMewlixStr level   (DotExpression a b) = Text.concat
+        [ toMewlixStr level a
+        , "."
+        , toMewlixStr level b ]
+
+    toMewlixStr level   (LookupExpression a b) = Text.concat
+        [ toMewlixStr level a
+        , brackets (toMewlixStr level b) ]
 
 instance ToMewlix BinaryOp where
     toMewlixStr _ op = case op of
@@ -170,3 +197,44 @@ instance ToMewlix UnaryOp where
         ListPeek        -> Keywords.peek
         BooleanNot      -> Keywords.mewNot
         LengthLookup    -> "?!"
+
+instance ToMewlix Statement where
+    toMewlixStr level   (ExpressionStatement expr) = indent level (toMewlixStr level expr)
+
+    toMewlixStr level   (WhileLoop condition block) = do
+        let header = Text.concat
+                [ Keywords.while
+                , (parens . toMewlixStr level) condition ]
+        let body = (lineSep . map (toMewlixStr level)) block
+        lineSep [ header, body, Keywords.end ]
+
+    toMewlixStr level   (ForLoop (a, b, c) block) = do
+        let (start, middle, end) = Keywords.takeDo
+        let header = spaceSep
+                [ start
+                , parens (toMewlixStr level a)
+                , middle
+                , parens (toMewlixStr level b)
+                , end
+                , parens (toMewlixStr level c) ]
+        let body = (lineSep . map (toMewlixStr level)) block
+        lineSep [ header, body, Keywords.end ]
+
+instance ToMewlix LiftedExpression where
+
+{-data Statement =
+      ExpressionStatement   Expression
+    | WhileLoop             Expression Block
+    | ForLoop               (LiftedExpression, Expression, Expression) Block
+    | IfElse                Expression Block Block
+    | FunctionDef           MewlixFunction
+    | Declaration           Key Expression
+    | ClassDef              MewlixClass
+    | ImportStatement       FilePathT (Maybe Key)
+    | Return                Expression
+    | TryCatch              Block CatchBlock
+    | Break 
+    | Continue
+    deriving (Show)
+
+ -}
