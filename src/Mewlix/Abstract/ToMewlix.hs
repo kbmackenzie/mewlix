@@ -88,47 +88,48 @@ instance ToMewlix Primitive where
     toMewlixStr _ MewlixSuper      = Keywords.super
 
 instance ToMewlix Params where
-    toMewlixStr level   (Params params) = do
-        let prettify = flatten . map (toMewlixStr level)
-        (parens . prettify) params
+    toMewlixStr level (Params params) = do
+        (parens . flatten . map (toMewlixStr level)) params
 
 instance ToMewlix Block where
+    toMewlixStr level (Block block) = do
+        (lineSep . map (toMewlixStr level)) block
 
 instance ToMewlix Expression where
-    toMewlixStr level   (PrimitiveExpr prim) = toMewlixStr level prim
+    toMewlixStr level (PrimitiveExpr prim) = toMewlixStr level prim
 
-    toMewlixStr _       (Identifier a) = a
-    toMewlixStr _       (ObjectProperty a) = a
+    toMewlixStr _     (Identifier a) = a
+    toMewlixStr _     (ObjectProperty a) = a
 
-    toMewlixStr level   (BooleanAnd a b) = spaceSep
+    toMewlixStr level (BooleanAnd a b) = spaceSep
         [ toMewlixStr level a
         , Keywords.mewAnd
         , toMewlixStr level b ]
 
-    toMewlixStr level   (BooleanOr a b) = spaceSep
+    toMewlixStr level (BooleanOr a b) = spaceSep
         [ toMewlixStr level a
         , Keywords.mewOr
         , toMewlixStr level b ]
 
-    toMewlixStr level    (BinaryOperation op a b) = spaceSep
+    toMewlixStr level (BinaryOperation op a b) = spaceSep
         [ toMewlixStr level a
         , toMewlixStr level op
         , toMewlixStr level b ]
 
-    toMewlixStr level   (UnaryOperation op a) = spaceSep
+    toMewlixStr level (UnaryOperation op a) = spaceSep
         [ toMewlixStr level op
         , toMewlixStr level a ]
 
-    toMewlixStr level   (TernaryOperation condition a b) = spaceSep
+    toMewlixStr level (TernaryOperation condition a b) = spaceSep
         [ toMewlixStr level condition
         , "?"
         , toMewlixStr level a
         , ":"
         , toMewlixStr level b ]
 
-    toMewlixStr level   (ListExpression xs) = toMewlixStr level xs
+    toMewlixStr level (ListExpression xs) = toMewlixStr level xs
 
-    toMewlixStr level   (BoxExpression pairs) = do
+    toMewlixStr level (BoxExpression pairs) = do
         let prettyPair :: (Key, Expression) -> Text
             prettyPair (key, expr) = Text.concat
                 [ key
@@ -141,44 +142,44 @@ instance ToMewlix Expression where
         let header = Keywords.box `Text.append` " ["
         lineSep [ header, prettify pairs, indent level "]" ]
 
-    toMewlixStr level   (Assignment a b) = spaceSep
+    toMewlixStr level (Assignment a b) = spaceSep
         [ toMewlixStr level a
         , "="
         , toMewlixStr level b ]
 
-    toMewlixStr level   (Increment a) = spaceSep
+    toMewlixStr level (Increment a) = spaceSep
         [ Keywords.paw
         , toMewlixStr level a ]
 
-    toMewlixStr level   (Decrement a) = spaceSep
+    toMewlixStr level (Decrement a) = spaceSep
         [ Keywords.claw
         , toMewlixStr level a ]
 
-    toMewlixStr level   (ListPush a b) = spaceSep
+    toMewlixStr level (ListPush a b) = spaceSep
         [ toMewlixStr level a
         , Keywords.push
         , toMewlixStr level b ]
 
-    toMewlixStr level   (ListPop a) = spaceSep
+    toMewlixStr level (ListPop a) = spaceSep
         [ Keywords.pop
         , toMewlixStr level a ]
 
-    toMewlixStr level   (LambdaExpression params body) = spaceSep
+    toMewlixStr level (LambdaExpression params body) = spaceSep
         [ Keywords.lambda
         , toMewlixStr level params
         , "=>"
         , toMewlixStr level body ]
 
-    toMewlixStr level   (FunctionCall params func) = Text.concat
+    toMewlixStr level (FunctionCall params func) = Text.concat
         [ toMewlixStr level func
         , (parens . flatten . map (toMewlixStr level)) params ]
 
-    toMewlixStr level   (DotExpression a b) = Text.concat
+    toMewlixStr level (DotExpression a b) = Text.concat
         [ toMewlixStr level a
         , "."
         , toMewlixStr level b ]
 
-    toMewlixStr level   (LookupExpression a b) = Text.concat
+    toMewlixStr level (LookupExpression a b) = Text.concat
         [ toMewlixStr level a
         , brackets (toMewlixStr level b) ]
 
