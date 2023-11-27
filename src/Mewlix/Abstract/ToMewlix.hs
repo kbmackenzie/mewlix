@@ -22,7 +22,7 @@ class ToMewlix a where
     toMewlix :: a -> Text
     toMewlix = toMewlixStr 0
 
-{- A class for types that can be turned to Mewlix code.
+{- A class for types that can be turned into Mewlix code.
  - This can be used for decompilation.
  -
  - The output is guaranteed to be valid Mewlix if the input is valid Mewlix.
