@@ -13,11 +13,12 @@ module Mewlix.Abstract.AST
 , MewlixFunction(..)
 , MewlixClass(..)
 , LiftedExpression(..)
+, Module(..)
 ) where
 
 import Mewlix.Data.Key (Key)
 import Data.Text (Text)
-import Mewlix.Utils.Types
+import Mewlix.Utils.Types (FilePathT)
 
 data Primitive =
       MewlixInt             Int
@@ -114,3 +115,7 @@ data Statement =
     | Continue
     deriving (Show)
 
+data Module = Module
+    { modulePath    :: FilePathT
+    , moduleBlock   :: Block   }
+    deriving (Show)
