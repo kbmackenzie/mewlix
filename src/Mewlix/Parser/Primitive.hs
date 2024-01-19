@@ -42,6 +42,7 @@ escapeChar c = case c of
     'b'     -> '\b'
     'r'     -> '\r'
     'f'     -> '\f'
+    'v'     -> '\v'
     other   -> other
 
 {- Single-line strings: -}
