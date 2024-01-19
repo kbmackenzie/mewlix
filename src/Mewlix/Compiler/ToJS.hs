@@ -7,7 +7,7 @@ module Mewlix.Compiler.ToJS
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Mewlix.String.Escape (escapeString)
-import Mewlix.String.Utils ((|++), parens, quotes)
+import Mewlix.String.Utils ((|++), parens, quotes, brackets, sepComma)
 import Mewlix.Abstract.AST
 import Mewlix.Compiler.Transpiler
 import Mewlix.Utils.Show (showT)
@@ -48,7 +48,17 @@ instance ToJS Expression where
             makeItem = fmap ("await " |++) . toJS
 
         items <- mapM makeItem exprs
-        (return . Text.concat) [ "[", Text.intercalate ", " items, "]" ]
+        (return . brackets . sepComma) items
+
+    transpileJS _ (BoxExpression pairs) = do
+        let makeTuple :: (Key, Expression) -> Transpiler Text
+            makeTuple (key, expr) = do
+                value <- ("await " |++) <$> toJS expr
+                (return . brackets . Text.concat) [ key, ", ", value ]
+
+        items <- mapM makeTuple pairs
+        let array = (brackets . sepComma) items
+        return ("new Mewlix.MewlixBox" |++ parens array)
 
 {-
 data Expression =
