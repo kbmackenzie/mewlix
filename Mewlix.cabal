@@ -39,6 +39,8 @@ library
       Mewlix.Abstract.AST
       Mewlix.Abstract.String
       Mewlix.Abstract.ToMewlix
+      Mewlix.Compiler.Primitive
+      Mewlix.Compiler.ToJS
       Mewlix.Compiler.Transpiler
       Mewlix.Data.Key
       Mewlix.Data.Ref
@@ -57,6 +59,7 @@ library
       Mewlix.Parser.Utils
       Mewlix.Utils.List
       Mewlix.Utils.Show
+      Mewlix.Utils.Text
       Mewlix.Utils.Time
       Mewlix.Utils.Types
   other-modules:

@@ -11,11 +11,11 @@ module Mewlix.Compiler.Transpiler
 , catchError
 ) where
 
-import Data.Text (Text);
-import Data.HashSet (HashSet);
-import Data.HashMap.Strict (HashMap);
-import Control.Monad.Reader (MonadReader, ReaderT, ask, asks, local, runReaderT);
-import Control.Monad.Except (MonadError, Except, throwError, catchError, runExcept);
+import Data.Text (Text)
+import Data.HashSet (HashSet)
+import Data.HashMap.Strict (HashMap)
+import Control.Monad.Reader (MonadReader, ReaderT, ask, asks, local, runReaderT)
+import Control.Monad.Except (MonadError, Except, throwError, catchError, runExcept)
 
 data TransContext = TransContext
     { ctxBindings  :: HashSet Text
