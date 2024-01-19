@@ -37,15 +37,13 @@ library
   exposed-modules:
       Mewlix
       Mewlix.Abstract.AST
-      Mewlix.Abstract.String
-      Mewlix.Abstract.ToMewlix
-      Mewlix.Compiler.Primitive
       Mewlix.Compiler.ToJS
       Mewlix.Compiler.Transpiler
       Mewlix.Data.Key
       Mewlix.Data.Ref
       Mewlix.Data.ToBool
       Mewlix.Data.ToString
+      Mewlix.Decompiler.ToMewlix
       Mewlix.IO.DataFile
       Mewlix.IO.Directory
       Mewlix.IO.File
@@ -57,9 +55,10 @@ library
       Mewlix.Parser.Run
       Mewlix.Parser.Statement
       Mewlix.Parser.Utils
+      Mewlix.String.Escape
+      Mewlix.String.Utils
       Mewlix.Utils.List
       Mewlix.Utils.Show
-      Mewlix.Utils.Text
       Mewlix.Utils.Time
       Mewlix.Utils.Types
   other-modules:
