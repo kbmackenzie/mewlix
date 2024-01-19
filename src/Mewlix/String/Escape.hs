@@ -21,7 +21,7 @@ escapeCharacter c = case c of
     '\f'    -> "\\f"
     '\v'    -> "\\v"
     '/'     -> "\\/"
-    '''     -> "\\'"
+    '\''    -> "\\'"
     '"'     -> "\\\""
     '\\'    -> "\\\\"
     other   -> Text.singleton other

@@ -3,6 +3,7 @@
 module Mewlix.String.Utils
 ( (|++)
 , parens
+, quotes
 , surround
 ) where
 
@@ -15,6 +16,9 @@ import qualified Data.Text as Text
 
 parens :: Text -> Text
 parens x = Text.concat [ "(", x, ")" ]
+
+quotes :: Text -> Text
+quotes x = Text.concat [ "\"", x, "\"" ]
 
 surround :: Char -> Text -> Text
 surround c str = Text.concat
