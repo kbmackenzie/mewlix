@@ -95,7 +95,7 @@ operatorsR =
         [ Postfix postfixes                                                         ]
     ,   [ Prefix  (Increment                        <$ keyword Keywords.paw     )
         , Prefix  (Decrement                        <$ keyword Keywords.claw    )   ]
-    ,   [ Postfix (UnaryOperation LengthLookup      <$ longSymbol "?!"          )   ] 
+    ,   [ Postfix (UnaryOperation LengthLookup      <$ longSymbol "...?"        )   ] 
     ,   [ Prefix  (UnaryOperation ListPeek          <$ keyword Keywords.peek    )
         , InfixL  (ListPush                         <$ keyword Keywords.push    )
         , Prefix  (ListPop                          <$ keyword Keywords.pop     )   ]
