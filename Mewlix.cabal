@@ -39,9 +39,7 @@ library
       Mewlix.Abstract.AST
       Mewlix.Abstract.String
       Mewlix.Abstract.ToMewlix
-      Mewlix.Compiler.Analyze
-      Mewlix.Compiler.Context
-      Mewlix.Compiler.Transpile
+      Mewlix.Compiler.Transpiler
       Mewlix.Data.Key
       Mewlix.Data.Ref
       Mewlix.Data.ToBool
