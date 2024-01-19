@@ -1,12 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Abstract.ToMewlix
+module Mewlix.Decompiler.ToMewlix
 ( ToMewlix(..)
 , IndentLevel
 ) where
 
 import Mewlix.Abstract.AST
-import Mewlix.Abstract.String
+import Mewlix.String.Utils (surround)
+import Mewlix.String.Escape (escapeString)
 import qualified Mewlix.Parser.Keywords as Keywords
 import Mewlix.Utils.Show (showT)
 import Data.Text (Text)

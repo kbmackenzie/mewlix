@@ -1,8 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Utils.Text
+module Mewlix.String.Utils
 ( (|++)
 , parens
+, surround
 ) where
 
 import Data.Text (Text)
@@ -15,3 +16,6 @@ import qualified Data.Text as Text
 parens :: Text -> Text
 parens x = Text.concat [ "(", x, ")" ]
 
+surround :: Char -> Text -> Text
+surround c str = Text.concat
+    [ Text.singleton c, str, Text.singleton c ]

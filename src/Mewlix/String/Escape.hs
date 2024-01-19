@@ -1,18 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Abstract.String
-( surround
-, escapeString
+module Mewlix.String.Escape
+( escapeString
 ) where
 
 import Data.Text (Text)
 import qualified Data.Text as Text
-
-{- Utils -}
----------------------------------------------------------------
-surround :: Char -> Text -> Text
-surround c str = Text.concat
-    [ Text.singleton c, str, Text.singleton c ]
 
 {- Transpilation -}
 ---------------------------------------------------------------
