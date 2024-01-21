@@ -36,24 +36,18 @@ instance ToJS Expression where
     transpileJS _ (PrimitiveExpr prim) = toJS prim
 
     -- Names:
-    transpileJS _ (Identifier key) = do
-        isGlobal <- asks (HashSet.member key . globalBindings)
-        if isGlobal then return key else return ("__module__." |++ key)
-
+    transpileJS _ (Identifier key) = return key
     transpileJS _ (ObjectProperty key) = return (".box." |++ key)
 
     -- Lists:
     transpileJS _ (ListExpression exprs) = do
-        let makeItem :: Expression -> Transpiler Text
-            makeItem = fmap ("await " |++) . toJS
-
-        items <- mapM makeItem exprs
+        items <- mapM toJS exprs
         (return . brackets . sepComma) items
 
     transpileJS _ (BoxExpression pairs) = do
         let makeTuple :: (Key, Expression) -> Transpiler Text
             makeTuple (key, expr) = do
-                value <- ("await " |++) <$> toJS expr
+                value <- toJS expr
                 (return . brackets . Text.concat) [ key, ", ", value ]
 
         items <- mapM makeTuple pairs
