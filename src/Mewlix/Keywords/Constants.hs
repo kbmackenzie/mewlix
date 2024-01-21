@@ -17,24 +17,24 @@ module Mewlix.Keywords.Constants
 , home
 , super
 , constructor
-, mewIf
-, mewElif
-, mewElse
+, if_
+, elif
+, else_
 , while
 , takeDo
 , paw
 , claw
 , box
 , lambda
-, mewNot
-, mewAnd
-, mewOr
+, not
+, and
+, or
 , push
 , peek
 , pop
 , takes
-, mewTry
-, mewCatch
+, try
+, catch
 , reserved
 ) where
 
@@ -42,6 +42,7 @@ import Mewlix.Keywords.Types
 import Data.HashSet (HashSet)
 import qualified Data.HashSet as HashSet
 import Mewlix.Utils.Triple (fst3)
+import Prelude hiding (and, or, not)
 
 {- This module should *always* be imported qualified. -}
 
@@ -90,14 +91,14 @@ super = "parent"
 constructor :: Keyword
 constructor = "wake"
 
-mewIf :: Keyword
-mewIf = "mew?"
+if_ :: Keyword
+if_ = "mew?"
 
-mewElif :: Keyword
-mewElif = "mao!"
+elif :: Keyword
+elif = "mao!"
 
-mewElse :: Keyword
-mewElse = "hiss!"
+else_ :: Keyword
+else_ = "hiss!"
 
 while :: Keyword
 while = "meowmeow"
@@ -117,14 +118,14 @@ box = "=^-x-^="
 lambda :: LongSymbol
 lambda = "=^*x*^="
 
-mewNot :: Keyword
-mewNot = "not"
+not :: Keyword
+not = "not"
 
-mewAnd :: Keyword
-mewAnd = "and"
+and :: Keyword
+and = "and"
 
-mewOr :: Keyword
-mewOr = "or"
+or :: Keyword
+or = "or"
 
 push :: Keyword
 push = "push"
@@ -138,11 +139,11 @@ pop = ["knock", "over"]
 takes :: (Keyword, Keyword)
 takes = ("takes", "as")
 
-mewTry :: Keyword
-mewTry = "watch"
+try :: Keyword
+try = "watch"
 
-mewCatch :: Keyword
-mewCatch = "catch"
+catch :: Keyword
+catch = "catch"
 
 reserved :: HashSet Keyword
 {-# INLINE reserved #-}
@@ -160,19 +161,19 @@ reserved = HashSet.fromList
     , fst3 takeDo
     , home
     , super
-    , mewIf
-    , mewElif
-    , mewElse
+    , if_
+    , elif
+    , else_
     , while
     , (head . unwrapWords) paw
     , (head . unwrapWords) claw
-    , mewNot
-    , mewAnd
-    , mewOr
+    , not
+    , and
+    , or
     , push
     , peek
     , (head . unwrapWords) pop
     , fst takes
-    , mewTry
-    , mewCatch
+    , try
+    , catch
     ]

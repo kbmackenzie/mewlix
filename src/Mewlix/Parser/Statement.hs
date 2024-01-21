@@ -97,8 +97,8 @@ ifelse nesting = do
 
     let stopKeys :: Parser ()
         stopKeys = (void . Mega.choice . fmap keyword) 
-            [ Keywords.mewElif
-            , Keywords.mewElse
+            [ Keywords.elif
+            , Keywords.else_
             , Keywords.end      ]
 
     let getIf :: Keyword -> Parser (Block -> Statement)
@@ -111,12 +111,12 @@ ifelse nesting = do
 
     let getElse :: Parser Block
         getElse = do
-            keyword Keywords.mewElse
+            keyword Keywords.else_
             whitespaceLn
             block localNest meowmeow
     
-    mainIf      <- getIf Keywords.mewIf
-    elifs       <- Mega.many (getIf Keywords.mewElif)
+    mainIf      <- getIf Keywords.if_
+    elifs       <- Mega.many (getIf Keywords.elif)
     mainElse    <- fromMaybe mempty <$> Mega.optional getElse
     let ifs = foldr1 (\x acc -> x . Block . List.singleton . acc) (mainIf : elifs)
 
@@ -229,18 +229,18 @@ tryCatch nesting = do
 
     let stopKeys :: Parser ()
         stopKeys = (void . Mega.choice . fmap keyword)
-            [ Keywords.mewCatch
+            [ Keywords.catch
             , Keywords.end      ]
 
     let getTry :: Parser Block
         getTry = do
-            keyword Keywords.mewTry
+            keyword Keywords.try
             whitespaceLn
             block localNest stopKeys
 
     let getCatch :: Parser (Block -> Statement)
         getCatch = do
-            keyword Keywords.mewCatch
+            keyword Keywords.catch
             condition <- Mega.optional (parens exprR)
             whitespaceLn
             body      <- block localNest stopKeys

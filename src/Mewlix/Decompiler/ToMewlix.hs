@@ -106,12 +106,12 @@ instance ToMewlix Expression where
 
     toMewlixStr level (BooleanAnd a b) = spaceSep
         [ toMewlixStr level a
-        , unwrapKeyword Keywords.mewAnd
+        , unwrapKeyword Keywords.and
         , toMewlixStr level b ]
 
     toMewlixStr level (BooleanOr a b) = spaceSep
         [ toMewlixStr level a
-        , unwrapKeyword Keywords.mewOr
+        , unwrapKeyword Keywords.or
         , toMewlixStr level b ]
 
     toMewlixStr level (BinaryOperation op a b) = spaceSep
@@ -212,7 +212,7 @@ instance ToMewlix UnaryOp where
     toMewlixStr _ op = case op of
         Negation        -> "-"
         ListPeek        -> unwrapKeyword Keywords.peek
-        BooleanNot      -> unwrapKeyword Keywords.mewNot
+        BooleanNot      -> unwrapKeyword Keywords.not
         LengthLookup    -> "?!"
 
 instance ToMewlix MewlixFunction where
@@ -278,12 +278,12 @@ instance ToMewlix Statement where
 
     toMewlixStr level   (IfElse condition ifb elseb) = do
         let header = spaceSep
-                [ unwrapKeyword Keywords.mewIf
+                [ unwrapKeyword Keywords.if_
                 , parens (toMewlixStr level condition) ]
         lineSep
             [ indent level header
             , toMewlixStr level ifb
-            , indent level (unwrapKeyword Keywords.mewElse)
+            , indent level (unwrapKeyword Keywords.else_)
             , toMewlixStr level elseb
             , unwrapKeyword Keywords.end ]
 
@@ -317,13 +317,13 @@ instance ToMewlix Statement where
         let catchCondition = case condition of
                 Nothing     -> Text.empty
                 (Just expr) -> toMewlixStr level expr
-        let catchHeader = spaceSep [ unwrapKeyword Keywords.mewCatch, catchCondition ]
+        let catchHeader = spaceSep [ unwrapKeyword Keywords.catch, catchCondition ]
         lineSep
-            [ indent level (unwrapKeyword Keywords.mewTry)
+            [ indent level (unwrapKeyword Keywords.try)
             , toMewlixStr level tryb
             , indent level catchHeader
             , toMewlixStr level catchb
-            , indent level (unwrapKeyword Keywords.mewTry) ]
+            , indent level (unwrapKeyword Keywords.try) ]
 
     toMewlixStr level   Break = indent level (unwrapKeyword Keywords.run)
     toMewlixStr level   Continue = indent level (unwrapKeyword Keywords.catnap)

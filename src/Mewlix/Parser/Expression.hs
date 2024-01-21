@@ -102,7 +102,7 @@ operatorsR =
     ,   [ InfixL  (BinaryOperation ListConcat       <$ longSymbol ".."              )   ]
     ,   [ InfixL  (BinaryOperation Power            <$ symbol '^'                   )   ]
     ,   [ Prefix  (UnaryOperation Negation          <$ symbol '-'                   )
-        , Prefix  (UnaryOperation BooleanNot        <$ keyword Keywords.mewNot      )   ]
+        , Prefix  (UnaryOperation BooleanNot        <$ keyword Keywords.not         )   ]
     ,   [ InfixL  (BinaryOperation Multiplication   <$ symbol '*'                   )
         , InfixL  (BinaryOperation Division         <$ symbol '/'                   )
         , InfixL  (BinaryOperation Modulo           <$ symbol '%'                   )   ]
@@ -114,8 +114,8 @@ operatorsR =
         , InfixL  (BinaryOperation GreaterThan      <$ symbol '>'                   )   ]
     ,   [ InfixL  (BinaryOperation Equal            <$ longSymbol "=="              )
         , InfixL  (BinaryOperation NotEqual         <$ longSymbol "!="              )   ]
-    ,   [ InfixL  (BooleanAnd                       <$ keyword Keywords.mewAnd      )   ]
-    ,   [ InfixL  (BooleanOr                        <$ keyword Keywords.mewOr       )   ]
+    ,   [ InfixL  (BooleanAnd                       <$ keyword Keywords.and         )   ]
+    ,   [ InfixL  (BooleanOr                        <$ keyword Keywords.or          )   ]
     ,   [ Prefix  lambda                                                                ]
     ,   [ TernR   ((TernaryOperation <$ symbol ':') <$ symbol '?'                   )   ]
     ,   [ InfixR  (Assignment                       <$ symbol '='                   )   ]
