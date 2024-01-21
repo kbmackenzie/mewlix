@@ -15,10 +15,12 @@ module Mewlix.Parser.Utils
 , keyword
 , symbol
 , longSymbol
+, wordSequence
 ) where
 
-import qualified Mewlix.Parser.Keywords as Keywords
+import Mewlix.Keywords.Types
 import Data.Text (Text)
+import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
@@ -37,7 +39,8 @@ lineComment = Lexer.skipLineComment "--"
 blockComment :: Parser ()
 blockComment = start >> void (Mega.manyTill Mega.anySingle end)
     -- Case-insensitive comment symbols:
-    where (start, end) = bimap MChar.string' MChar.string' Keywords.comment
+    where (start, end) = bimap commentSymbol commentSymbol Keywords.comment
+          commentSymbol = MChar.string' . unwrapSymbol
 
 {- Single-line spaces: -}
 ----------------------------------------------------------------
@@ -116,13 +119,16 @@ bracketList = commaList brackets
 isKeyChar :: Char -> Bool
 isKeyChar c = isAlphaNum c || c == '_'
 
-keyword :: Text -> Parser ()
+keyword :: Keyword -> Parser ()
 keyword key = (lexeme . Mega.try) $ do
-    (void . MChar.string) key
+    (void . MChar.string . unwrapKeyword) key
     Mega.notFollowedBy (Mega.satisfy isKeyChar)
 
 symbol :: Char -> Parser ()
 symbol = lexeme . void . MChar.char
 
-longSymbol :: Text -> Parser ()
-longSymbol = lexeme . void . MChar.string
+longSymbol :: LongSymbol -> Parser ()
+longSymbol = lexeme . void . MChar.string' . unwrapSymbol
+
+wordSequence :: WordSequence -> Parser ()
+wordSequence = mapM_ keyword . unwrapWords

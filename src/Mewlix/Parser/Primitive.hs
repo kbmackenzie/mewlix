@@ -10,7 +10,8 @@ module Mewlix.Parser.Primitive
 
 import Mewlix.Abstract.AST (Primitive(..))
 import Mewlix.Parser.Utils
-import qualified Mewlix.Parser.Keywords as Keywords
+import Mewlix.Keywords.Types (Keyword(..))
+import qualified Mewlix.Keywords.Constants as Keywords
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Text.Megaparsec ((<?>))
@@ -103,6 +104,6 @@ parseKey = lexeme (Mega.takeWhile1P (Just "key") isKeyChar)
 parseName :: Parser Text
 parseName = do
     text <- parseKey <?> "identifier"
-    when (HashSet.member text Keywords.reserved) 
+    when (HashSet.member (Keyword text) Keywords.reserved) 
         (fail (Text.unpack text ++ " is a reserved keyword!"))
     return text

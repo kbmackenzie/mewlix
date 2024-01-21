@@ -8,7 +8,8 @@ module Mewlix.Decompiler.ToMewlix
 import Mewlix.Abstract.AST
 import Mewlix.String.Utils (surround)
 import Mewlix.String.Escape (escapeString)
-import qualified Mewlix.Parser.Keywords as Keywords
+import Mewlix.Keywords.Types (unwrapKeyword, unwrapSymbol, joinWords)
+import qualified Mewlix.Keywords.Constants as Keywords
 import Mewlix.Utils.Show (showT)
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -84,9 +85,9 @@ instance ToMewlix Primitive where
     toMewlixStr _ (MewlixString s) = toMewlix s
     toMewlixStr _ (MewlixFloat f)  = toMewlix f
     toMewlixStr _ (MewlixBool b)   = toMewlix b
-    toMewlixStr _ MewlixNil        = Keywords.nil
-    toMewlixStr _ MewlixHome       = Keywords.home
-    toMewlixStr _ MewlixSuper      = Keywords.super
+    toMewlixStr _ MewlixNil        = unwrapKeyword Keywords.nil
+    toMewlixStr _ MewlixHome       = unwrapKeyword Keywords.home
+    toMewlixStr _ MewlixSuper      = unwrapKeyword Keywords.super
 
 instance ToMewlix Params where
     toMewlixStr level (Params params) = do
@@ -105,12 +106,12 @@ instance ToMewlix Expression where
 
     toMewlixStr level (BooleanAnd a b) = spaceSep
         [ toMewlixStr level a
-        , Keywords.mewAnd
+        , unwrapKeyword Keywords.mewAnd
         , toMewlixStr level b ]
 
     toMewlixStr level (BooleanOr a b) = spaceSep
         [ toMewlixStr level a
-        , Keywords.mewOr
+        , unwrapKeyword Keywords.mewOr
         , toMewlixStr level b ]
 
     toMewlixStr level (BinaryOperation op a b) = spaceSep
@@ -147,7 +148,7 @@ instance ToMewlix Expression where
         let prettify :: [(Key, Expression)] -> Text
             prettify = flattenLn . map (indent newLevel . prettyPair)
 
-        let header = Keywords.box `Text.append` " ["
+        let header = unwrapSymbol Keywords.box `Text.append` " ["
         lineSep [ header, prettify pairs, indent level "]" ]
 
     toMewlixStr level (Assignment a b) = spaceSep
@@ -156,24 +157,24 @@ instance ToMewlix Expression where
         , toMewlixStr level b ]
 
     toMewlixStr level (Increment a) = spaceSep
-        [ Keywords.paw
+        [ joinWords Keywords.paw
         , toMewlixStr level a ]
 
     toMewlixStr level (Decrement a) = spaceSep
-        [ Keywords.claw
+        [ joinWords Keywords.claw
         , toMewlixStr level a ]
 
     toMewlixStr level (ListPush a b) = spaceSep
         [ toMewlixStr level a
-        , Keywords.push
+        , unwrapKeyword Keywords.push
         , toMewlixStr level b ]
 
     toMewlixStr level (ListPop a) = spaceSep
-        [ Keywords.pop
+        [ joinWords Keywords.pop
         , toMewlixStr level a ]
 
     toMewlixStr level (LambdaExpression params body) = spaceSep
-        [ Keywords.lambda
+        [ unwrapSymbol Keywords.lambda
         , toMewlixStr level params
         , "=>"
         , toMewlixStr level body ]
@@ -210,25 +211,25 @@ instance ToMewlix BinaryOp where
 instance ToMewlix UnaryOp where
     toMewlixStr _ op = case op of
         Negation        -> "-"
-        ListPeek        -> Keywords.peek
-        BooleanNot      -> Keywords.mewNot
+        ListPeek        -> unwrapKeyword Keywords.peek
+        BooleanNot      -> unwrapKeyword Keywords.mewNot
         LengthLookup    -> "?!"
 
 instance ToMewlix MewlixFunction where
     toMewlixStr level func = do
         let header = spaceSep
-                [ Keywords.func
+                [ unwrapSymbol Keywords.function
                 , funcName func
                 , toMewlixStr level (funcParams func) ]
         lineSep
             [ indent level header
             , toMewlixStr level (funcBody func)
-            , indent level Keywords.end ]
+            , indent level (unwrapKeyword Keywords.end) ]
 
 instance ToMewlix LiftedExpression where
     toMewlixStr level (LiftExpression expr) = toMewlixStr level expr
     toMewlixStr level (LiftDeclaration key expr) = spaceSep
-        [ Keywords.local
+        [ unwrapKeyword Keywords.local
         , key
         , "="
         , toMewlixStr level expr ]
@@ -238,59 +239,59 @@ instance ToMewlix MewlixClass where
         let newLevel = level + 1
         let parent = case classExtends clowder of
                 Nothing     -> Text.empty
-                (Just key)  -> spaceSep [ Keywords.from, key ]
+                (Just key)  -> spaceSep [ (unwrapKeyword . snd) Keywords.clowder, key ]
         let header = spaceSep
-                [ Keywords.clowder
+                [ (unwrapKeyword . fst) Keywords.clowder
                 , className clowder
                 , parent ]
         let methods = Text.intercalate "\n\n" . map (toMewlixStr newLevel) . classMethods
         lineSep
             [ indent level header
             , methods clowder
-            , indent level Keywords.end ]
+            , indent level (unwrapKeyword Keywords.end) ]
 
 instance ToMewlix Statement where
     toMewlixStr level   (ExpressionStatement expr) = indent level (toMewlixStr level expr)
 
     toMewlixStr level   (WhileLoop condition block) = do
         let header = Text.concat
-                [ Keywords.while
+                [ unwrapKeyword Keywords.while
                 , (parens . toMewlixStr level) condition ]
         lineSep
             [ indent level header
             , toMewlixStr level block
-            , indent level Keywords.end ]
+            , indent level (unwrapKeyword Keywords.end) ]
 
     toMewlixStr level   (ForLoop (a, b, c) block) = do
         let (start, middle, end) = Keywords.takeDo
         let header = spaceSep
-                [ start
+                [ unwrapKeyword start
                 , parens (toMewlixStr level a)
-                , middle
+                , joinWords middle
                 , parens (toMewlixStr level b)
-                , end
+                , unwrapKeyword end
                 , parens (toMewlixStr level c) ]
         lineSep
             [ indent level header
             , toMewlixStr level block
-            , indent level Keywords.end ]
+            , indent level (unwrapKeyword Keywords.end) ]
 
     toMewlixStr level   (IfElse condition ifb elseb) = do
         let header = spaceSep
-                [ Keywords.mewIf
+                [ unwrapKeyword Keywords.mewIf
                 , parens (toMewlixStr level condition) ]
         lineSep
             [ indent level header
             , toMewlixStr level ifb
-            , indent level Keywords.mewElse
+            , indent level (unwrapKeyword Keywords.mewElse)
             , toMewlixStr level elseb
-            , Keywords.end ]
+            , unwrapKeyword Keywords.end ]
 
     toMewlixStr level   (FunctionDef func) = toMewlixStr level func
 
     toMewlixStr level   (Declaration key expr) = do
         let statement = spaceSep
-                [ Keywords.local
+                [ unwrapKeyword Keywords.local
                 , key
                 , "="
                 , toMewlixStr level expr ]
@@ -300,15 +301,15 @@ instance ToMewlix Statement where
 
     toMewlixStr level   (ImportStatement path key) = do
         let (start, end) = Keywords.takes
-        let takes = spaceSep [ start, toMewlix path ]
+        let takes = spaceSep [ unwrapKeyword start, toMewlix path ]
         let qualified = case key of
                 Nothing  -> Text.empty
-                (Just x) -> spaceSep [ end, x ]
+                (Just x) -> spaceSep [ unwrapKeyword end, x ]
         (indent level . spaceSep) [ takes, qualified ]
 
     toMewlixStr level   (Return expr) = do
         let statement = spaceSep
-                [ Keywords.ret
+                [ unwrapKeyword Keywords.ret
                 , toMewlixStr level expr ]
         indent level statement
 
@@ -316,13 +317,13 @@ instance ToMewlix Statement where
         let catchCondition = case condition of
                 Nothing     -> Text.empty
                 (Just expr) -> toMewlixStr level expr
-        let catchHeader = spaceSep [ Keywords.mewCatch, catchCondition ]
+        let catchHeader = spaceSep [ unwrapKeyword Keywords.mewCatch, catchCondition ]
         lineSep
-            [ indent level Keywords.mewTry
+            [ indent level (unwrapKeyword Keywords.mewTry)
             , toMewlixStr level tryb
             , indent level catchHeader
             , toMewlixStr level catchb
-            , indent level Keywords.mewTry ]
+            , indent level (unwrapKeyword Keywords.mewTry) ]
 
-    toMewlixStr level   Break = indent level Keywords.run
-    toMewlixStr level   Continue = indent level Keywords.catnap
+    toMewlixStr level   Break = indent level (unwrapKeyword Keywords.run)
+    toMewlixStr level   Continue = indent level (unwrapKeyword Keywords.catnap)

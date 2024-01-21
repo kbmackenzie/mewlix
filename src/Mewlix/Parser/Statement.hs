@@ -9,11 +9,10 @@ import Mewlix.Abstract.AST
 import Mewlix.Parser.Utils
 import Mewlix.Parser.Primitive
 import Mewlix.Parser.Expression
-import qualified Mewlix.Parser.Keywords as Keywords
-import Data.Text (Text)
+import Mewlix.Keywords.Types (Keyword, unwrapKeyword)
+import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Data.List as List
 import qualified Text.Megaparsec as Mega
-import qualified Text.Megaparsec.Char as MChar
 import Control.Monad (void, when)
 import Data.Maybe (fromMaybe)
 
@@ -97,12 +96,12 @@ ifelse nesting = do
     let localNest = max nesting Nested
 
     let stopKeys :: Parser ()
-        stopKeys = (void . Mega.choice . fmap MChar.string) 
+        stopKeys = (void . Mega.choice . fmap keyword) 
             [ Keywords.mewElif
             , Keywords.mewElse
             , Keywords.end      ]
 
-    let getIf :: Text -> Parser (Block -> Statement)
+    let getIf :: Keyword -> Parser (Block -> Statement)
         getIf key = do
             keyword key
             condition <- parens exprR
@@ -129,7 +128,7 @@ ifelse nesting = do
 ----------------------------------------------------------------
 func :: Parser MewlixFunction
 func = do
-    keyword Keywords.func
+    longSymbol Keywords.function
     name   <- parseName
     params <- Params <$> parensList parseName
     whitespaceLn
@@ -145,17 +144,18 @@ funcDef _ = FunctionDef <$> func
 ----------------------------------------------------------------
 classDef :: Nesting -> Parser Statement
 classDef _ = do
-    keyword Keywords.clowder
+    let (clowder, extends) = Keywords.clowder
+    keyword clowder
     name        <- parseName
-    extends     <- Mega.optional (keyword Keywords.from >> parseName)
+    parent      <- Mega.optional (keyword extends >> parseName)
     whitespaceLn
     methods     <- (Mega.many . lexemeLn) func
     constructor <- getConstructor methods
-    (return . ClassDef) (MewlixClass name extends constructor methods)
+    (return . ClassDef) (MewlixClass name parent constructor methods)
 
 getConstructor :: [MewlixFunction] -> Parser (Maybe MewlixFunction)
 getConstructor funcs = do
-    let constructors = filter ((== Keywords.constructor) . funcName) funcs
+    let constructors = filter ((== unwrapKeyword Keywords.constructor) . funcName) funcs
     when (length constructors > 1)
         (fail "Class cannot have more than one constructor!")
     let constructor = case constructors of
@@ -198,7 +198,7 @@ forLoop nesting = do
     let (start, middle, end) = Keywords.takeDo
     keyword start
     ini  <- parens liftedExpr
-    keyword middle
+    wordSequence middle
     incr <- parens exprR
     keyword end
     cond <- parens exprR
@@ -228,7 +228,7 @@ tryCatch nesting = do
     let localNest = max nesting Nested
 
     let stopKeys :: Parser ()
-        stopKeys = (void . Mega.choice . fmap MChar.string)
+        stopKeys = (void . Mega.choice . fmap keyword)
             [ Keywords.mewCatch
             , Keywords.end      ]
 

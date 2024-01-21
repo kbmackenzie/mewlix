@@ -49,8 +49,9 @@ library
       Mewlix.IO.File
       Mewlix.IO.Print
       Mewlix.IO.SafeIO
+      Mewlix.Keywords.Constants
+      Mewlix.Keywords.Types
       Mewlix.Parser.Expression
-      Mewlix.Parser.Keywords
       Mewlix.Parser.Primitive
       Mewlix.Parser.Run
       Mewlix.Parser.Statement
@@ -60,6 +61,7 @@ library
       Mewlix.Utils.List
       Mewlix.Utils.Show
       Mewlix.Utils.Time
+      Mewlix.Utils.Triple
       Mewlix.Utils.Types
   other-modules:
       Paths_Mewlix
