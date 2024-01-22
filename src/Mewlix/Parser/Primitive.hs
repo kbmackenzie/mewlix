@@ -6,12 +6,10 @@ module Mewlix.Parser.Primitive
 , parseStringM
 , parseKey
 , parseName
-, parseModuleName
 ) where
 
 import Mewlix.Abstract.AST
 import Mewlix.Parser.Utils
-import Mewlix.Abstract.Module
 import Mewlix.Keywords.Types (Keyword(..))
 import qualified Mewlix.Keywords.Constants as Keywords
 import Data.Text (Text)
@@ -109,10 +107,3 @@ parseName = do
     when (HashSet.member (Keyword text) Keywords.reserved) 
         (fail (Text.unpack text ++ " is a reserved keyword!"))
     return text
-
-{- Parse module name. Name parts can be reserved keywords. -}
-parseModuleName :: Parser ModuleName
-parseModuleName = do
-    let namePart :: Parser Text
-        namePart = Mega.takeWhile1P (Just "module name part") isKeyChar
-    ModuleName <$> lexeme (Mega.sepBy namePart (MChar.char '.')) <?> "module name"

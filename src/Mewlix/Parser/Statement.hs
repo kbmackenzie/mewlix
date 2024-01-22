@@ -6,9 +6,10 @@ module Mewlix.Parser.Statement
 ) where
 
 import Mewlix.Abstract.AST
-import Mewlix.Parser.Utils
+import Mewlix.Parser.Module
 import Mewlix.Parser.Primitive
 import Mewlix.Parser.Expression
+import Mewlix.Parser.Utils
 import Mewlix.Keywords.Types (Keyword, unwrapKeyword)
 import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Data.List as List
