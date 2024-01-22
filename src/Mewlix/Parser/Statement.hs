@@ -99,7 +99,7 @@ ifelse nesting = do
     let localNest = max nesting Nested
 
     let stopKeys :: Parser ()
-        stopKeys = (void . Mega.choice . fmap keyword) 
+        stopKeys = (void . Mega.choice . fmap tryKeyword) 
             [ Keywords.elif
             , Keywords.else_
             , Keywords.end      ]
@@ -121,7 +121,10 @@ ifelse nesting = do
     mainIf      <- getIf Keywords.if_
     elifs       <- Mega.many (getIf Keywords.elif)
     mainElse    <- fromMaybe mempty <$> Mega.optional getElse
-    let ifs = foldr1 (\x acc -> x . Block . List.singleton . acc) (mainIf : elifs)
+
+    let compose :: (Block -> Statement) -> (Block -> Statement) -> (Block -> Statement)
+        compose x acc = x . Block . List.singleton . acc
+    let ifs = foldr1 compose (mainIf : elifs)
 
     meowmeow
     return (ifs mainElse)
@@ -231,7 +234,7 @@ tryCatch nesting = do
     let localNest = max nesting Nested
 
     let stopKeys :: Parser ()
-        stopKeys = (void . Mega.choice . fmap keyword)
+        stopKeys = (void . Mega.choice . fmap tryKeyword)
             [ Keywords.catch
             , Keywords.end      ]
 
@@ -251,7 +254,10 @@ tryCatch nesting = do
 
     mainTry <- getTry
     catches <- Mega.some getCatch
-    let catchCompose = foldr1 (\x acc -> acc . Block . List.singleton . x) catches
+
+    let compose :: (Block -> Statement) -> (Block -> Statement) -> (Block -> Statement)
+        compose x acc = acc . Block . List.singleton . x
+    let catchCompose = foldr1 compose catches
 
     meowmeow
     return (catchCompose mainTry)
