@@ -106,7 +106,8 @@ data Statement =
     | ForLoop               (LiftedExpression, Expression, Expression) Block
     | IfElse                Expression Block Block
     | FunctionDef           MewlixFunction
-    | Declaration           Key Expression
+    | Binding               Key Expression
+    | LocalBinding          Key Expression
     | ClassDef              MewlixClass
     | ImportStatement       FilePathT (Maybe Key)
     | Return                Expression

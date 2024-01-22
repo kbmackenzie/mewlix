@@ -74,7 +74,9 @@ expression _ = ExpressionStatement <$> exprR
 {- Declaration -}
 ----------------------------------------------------------------
 declareVar :: Nesting -> Parser Statement
-declareVar _ = uncurry Declaration <$> declaration
+declareVar nesting = do
+    let bind = if nesting == Root then Binding else LocalBinding
+    uncurry bind <$> declaration
 
 
 {- While -}

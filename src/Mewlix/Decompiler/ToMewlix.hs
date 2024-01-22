@@ -289,7 +289,15 @@ instance ToMewlix Statement where
 
     toMewlixStr level   (FunctionDef func) = toMewlixStr level func
 
-    toMewlixStr level   (Declaration key expr) = do
+    toMewlixStr level   (Binding key expr) = do
+        let statement = spaceSep
+                [ unwrapKeyword Keywords.local
+                , key
+                , "="
+                , toMewlixStr level expr ]
+        indent level statement
+
+    toMewlixStr level   (LocalBinding key expr) = do
         let statement = spaceSep
                 [ unwrapKeyword Keywords.local
                 , key
