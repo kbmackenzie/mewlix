@@ -13,12 +13,11 @@ module Mewlix.Abstract.AST
 , MewlixFunction(..)
 , MewlixClass(..)
 , LiftedExpression(..)
-, Module(..)
 ) where
 
 import Mewlix.Data.Key (Key)
 import Data.Text (Text)
-import Mewlix.Utils.Types (FilePathT)
+import Mewlix.Abstract.Module (ModuleName)
 
 data Primitive =
       MewlixInt             Int
@@ -109,14 +108,9 @@ data Statement =
     | Binding               Key Expression
     | LocalBinding          Key Expression
     | ClassDef              MewlixClass
-    | ImportStatement       FilePathT (Maybe Key)
+    | ImportStatement       ModuleName (Maybe Key)
     | Return                Expression
     | TryCatch              Block CatchBlock
     | Break 
     | Continue
-    deriving (Show)
-
-data Module = Module
-    { modulePath    :: FilePathT
-    , moduleBlock   :: Block   }
     deriving (Show)

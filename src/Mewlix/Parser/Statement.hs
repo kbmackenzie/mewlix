@@ -216,7 +216,7 @@ importKey :: Nesting -> Parser Statement
 importKey nesting = do
     let (start, end) = Keywords.takes
     keyword start
-    path <- parseString
+    path <- parseModuleName
     name <- Mega.optional (keyword end >> parseName)
     when (nesting > Root)
         (fail "Import statements cannot be nested!")

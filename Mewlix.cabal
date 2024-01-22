@@ -37,6 +37,7 @@ library
   exposed-modules:
       Mewlix
       Mewlix.Abstract.AST
+      Mewlix.Abstract.Module
       Mewlix.Compiler.ToJS
       Mewlix.Compiler.Transpiler
       Mewlix.Data.Key

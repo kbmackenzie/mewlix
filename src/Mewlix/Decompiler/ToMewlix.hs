@@ -6,6 +6,7 @@ module Mewlix.Decompiler.ToMewlix
 ) where
 
 import Mewlix.Abstract.AST
+import Mewlix.Abstract.Module
 import Mewlix.String.Utils (surround)
 import Mewlix.String.Escape (escapeString)
 import Mewlix.Keywords.Types (unwrapKeyword, unwrapSymbol, joinWords)
@@ -309,7 +310,7 @@ instance ToMewlix Statement where
 
     toMewlixStr level   (ImportStatement path key) = do
         let (start, end) = Keywords.takes
-        let takes = spaceSep [ unwrapKeyword start, toMewlix path ]
+        let takes = spaceSep [ unwrapKeyword start, joinName path ]
         let qualified = case key of
                 Nothing  -> Text.empty
                 (Just x) -> spaceSep [ unwrapKeyword end, x ]
