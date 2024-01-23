@@ -11,6 +11,8 @@ import Mewlix.String.Utils ((|++), parens, quotes, brackets, sepComma)
 import Mewlix.Abstract.AST
 import Mewlix.Compiler.Transpiler
 import Mewlix.Utils.Show (showT)
+import Mewlix.Compiler.Create (construct, wrap, asFunction, syncCall, operation)
+import qualified Mewlix.Compiler.Constants as Mewlix
 import Lens.Micro.Platform ((.~), view)
 import qualified Data.HashSet as HashSet
 import qualified Data.HashMap.Strict as HashMap
@@ -42,7 +44,8 @@ instance ToJS Expression where
     -- Lists:
     transpileJS _ (ListExpression exprs) = do
         items <- mapM toJS exprs
-        (return . brackets . sepComma) items
+        let array = (brackets . sepComma) items
+        wrap $ construct Mewlix.createStack [ array ]
 
     transpileJS _ (BoxExpression pairs) = do
         let makeTuple :: (Key, Expression) -> Transpiler Text
@@ -52,7 +55,33 @@ instance ToJS Expression where
 
         items <- mapM makeTuple pairs
         let array = (brackets . sepComma) items
-        return ("new Mewlix.MewlixBox" |++ parens array)
+        wrap $ construct Mewlix.mewlixBox [ array ]
+
+    -- Boolean operations:
+    transpileJS _ (BooleanAnd a b) = do
+        fa <- asFunction <$> toJS a
+        fb <- asFunction <$> toJS b
+        wrap $ syncCall (Mewlix.operation "and") [ fa, fb ]
+
+    transpileJS _ (BooleanOr a b) = do
+        fa <- asFunction <$> toJS a
+        fb <- asFunction <$> toJS b
+        wrap $ syncCall (Mewlix.operation "or") [ fa, fb ]
+
+    -- Ternary operator:
+    transpileJS _ (TernaryOperation condition a b) = do
+        predicate <- toJS condition
+        fa <- asFunction <$> toJS a
+        fb <- asFunction <$> toJS b
+        wrap $ syncCall (Mewlix.operation "ternary") [ parens predicate, fa, fb ]
+
+    -- Assignment expression:
+    transpileJS _ (Assignment key expr) = do
+        left  <- toJS key
+        right <- toJS expr
+        wrap $ binaryOp "=" left right
+
+    transpileJS _ _ = undefined
 
 {-
 data Expression =

@@ -38,6 +38,8 @@ library
       Mewlix
       Mewlix.Abstract.AST
       Mewlix.Abstract.Module
+      Mewlix.Compiler.Constants
+      Mewlix.Compiler.Create
       Mewlix.Compiler.ToJS
       Mewlix.Compiler.Transpiler
       Mewlix.Data.Key
