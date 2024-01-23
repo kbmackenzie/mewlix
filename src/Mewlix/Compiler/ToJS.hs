@@ -11,7 +11,7 @@ import Mewlix.String.Utils ((|++), parens, quotes, brackets, sepComma)
 import Mewlix.Abstract.AST
 import Mewlix.Compiler.Transpiler
 import Mewlix.Utils.Show (showT)
-import Mewlix.Compiler.Create (construct, wrap, asFunction, syncCall, operation)
+import Mewlix.Compiler.Create (construct, wrap, asFunction, syncCall, binaryOp)
 import qualified Mewlix.Compiler.Constants as Mewlix
 import Lens.Micro.Platform ((.~), view)
 import qualified Data.HashSet as HashSet
