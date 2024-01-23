@@ -8,8 +8,14 @@ module Mewlix.Parser.Primitive
 , parseName
 ) where
 
-import Mewlix.Abstract.AST
+import Mewlix.Abstract.AST (Primitive(..))
 import Mewlix.Parser.Utils
+    ( Parser
+    , keyword
+    , lexeme
+    , isKeyChar
+    , whitespace
+    )
 import Mewlix.Keywords.Types (Keyword(..))
 import qualified Mewlix.Keywords.Constants as Keywords
 import Data.Text (Text)

@@ -13,6 +13,12 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import System.IO (hFlush, stdout, stderr)
 import System.Console.ANSI.Types
+    ( SGR(..)
+    , Color(..)
+    , ConsoleLayer(..)
+    , ColorIntensity(..)
+    , ConsoleIntensity(..)
+    )
 import qualified System.Console.ANSI as Console
 
 {- IO Utils -}

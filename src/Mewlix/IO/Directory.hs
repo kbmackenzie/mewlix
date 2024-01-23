@@ -14,12 +14,14 @@ module Mewlix.IO.Directory
 
 import qualified Data.Text as Text
 import Control.Exception (try, IOException)
-import System.Directory (getCurrentDirectory
+import System.Directory
+    ( getCurrentDirectory
     , listDirectory
     , doesDirectoryExist
     , createDirectory
     , removeDirectory
-    , renameDirectory)
+    , renameDirectory
+    )
 import System.FilePath (dropFileName, (</>), hasTrailingPathSeparator)
 import Control.Applicative (liftA2)
 

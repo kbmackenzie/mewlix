@@ -39,6 +39,10 @@ module Mewlix.Keywords.Constants
 ) where
 
 import Mewlix.Keywords.Types
+    ( Keyword(..)
+    , LongSymbol(..)
+    , WordSequence(..)
+    )
 import Data.HashSet (HashSet)
 import qualified Data.HashSet as HashSet
 import Mewlix.Utils.Triple (fst3)

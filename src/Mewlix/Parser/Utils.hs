@@ -20,6 +20,10 @@ module Mewlix.Parser.Utils
 ) where
 
 import Mewlix.Keywords.Types
+    ( Keyword(..)
+    , LongSymbol(..)
+    , WordSequence(..)
+    )
 import Data.Text (Text)
 import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Text.Megaparsec as Mega

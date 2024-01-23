@@ -6,10 +6,26 @@ module Mewlix.Parser.Statement
 ) where
 
 import Mewlix.Abstract.AST
-import Mewlix.Parser.Module
-import Mewlix.Parser.Primitive
-import Mewlix.Parser.Expression
+    ( Params(..)
+    , Block(..)
+    , Statement(..)
+    , MewlixFunction(..)
+    , MewlixClass(..)
+    )
+import Mewlix.Parser.Module (parseModuleName)
+import Mewlix.Parser.Primitive (parseName)
+import Mewlix.Parser.Expression (declaration, exprR, liftedExpr)
 import Mewlix.Parser.Utils
+    ( Parser
+    , keyword
+    , longSymbol
+    , wordSequence
+    , whitespaceLn
+    , lexemeLn
+    , parens
+    , parensList
+    , tryKeyword
+    )
 import Mewlix.Keywords.Types (Keyword, unwrapKeyword)
 import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Data.List as List

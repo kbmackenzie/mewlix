@@ -10,7 +10,7 @@ module Mewlix.IO.File
 , safeDoesFileExist
 ) where
 
-import Mewlix.IO.Directory
+import Mewlix.IO.Directory (localizePath)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import Control.Exception (try, IOException)

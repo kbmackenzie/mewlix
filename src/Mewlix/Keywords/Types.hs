@@ -12,7 +12,7 @@ module Mewlix.Keywords.Types
 import Data.Text (Text)
 import Data.String (IsString)
 import Data.Hashable (Hashable)
-import GHC.IsList(IsList(..))
+import GHC.IsList (IsList(..))
 import qualified Data.Text as Text
 
 -- Keywords are case-sensitive.

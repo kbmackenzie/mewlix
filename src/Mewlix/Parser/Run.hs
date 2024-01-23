@@ -7,6 +7,9 @@ module Mewlix.Parser.Run
 ) where
 
 import Mewlix.Abstract.AST
+    ( Block(..)
+    , LiftedExpression(..)
+    )
 import Mewlix.Parser.Utils (Parser)
 import Mewlix.Parser.Statement (root)
 import Mewlix.Parser.Expression (liftedExpr)

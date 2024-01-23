@@ -8,10 +8,28 @@ module Mewlix.Parser.Expression
 ) where
 
 import Mewlix.Abstract.AST
+    ( Key
+    , Primitive(..)
+    , Expression(..)
+    , LiftedExpression(..)
+    , Params(..)
+    , BinaryOp(..)
+    , UnaryOp(..)
+    )
 import Mewlix.Parser.Utils
-import Mewlix.Parser.Primitive
-import qualified Mewlix.Keywords.Constants as Keywords
+    ( Parser
+    , keyword
+    , symbol
+    , longSymbol
+    , parens
+    , brackets
+    , parensList
+    , bracketList
+    , wordSequence
+    )
+import Mewlix.Parser.Primitive (parseKey, parsePrim, parseName)
 import Text.Megaparsec ((<?>))
+import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Text.Megaparsec as Mega
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 
