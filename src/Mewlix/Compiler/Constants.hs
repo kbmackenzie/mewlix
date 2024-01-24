@@ -9,6 +9,9 @@ module Mewlix.Compiler.Constants
 , operation
 , addModule
 , getModule
+, equalTo
+, lessThan
+, greaterThan
 ) where
 
 {- This module should always be imported qualified. -}
@@ -42,3 +45,15 @@ addModule = modules "addModule"
 
 getModule :: Text
 getModule = modules "getModule"
+
+comparison :: Text -> Text
+comparison = mewlix . ("Comparison." |++)
+
+equalTo :: Text
+equalTo = comparison "EqualTo"
+
+lessThan :: Text
+lessThan = comparison "LessThan"
+
+greaterThan :: Text
+greaterThan = comparison "GreaterThan"
