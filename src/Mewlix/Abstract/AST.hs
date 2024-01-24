@@ -65,17 +65,17 @@ data BinaryOp =
     | NotEqual
     | GreaterOrEqual
     | LesserOrEqual
-    deriving (Show)
+    deriving (Eq, Ord, Enum, Bounded, Show)
 
 data UnaryOp =
       Negation
     | ListPeek
     | BooleanNot
     | LengthLookup
-    deriving (Show)
+    deriving (Eq, Ord, Enum, Bounded, Show)
 
-newtype Block  = Block  [Statement] deriving (Show, Semigroup, Monoid)
-newtype Params = Params [Text]      deriving (Show, Semigroup, Monoid)
+newtype Block  = Block  { getBlock  :: [Statement] } deriving (Show, Semigroup, Monoid)
+newtype Params = Params { getParams :: [Text]      } deriving (Show, Semigroup, Monoid)
 
 type CatchBlock = (Maybe Expression, Block)
 
