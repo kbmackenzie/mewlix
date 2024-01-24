@@ -19,9 +19,8 @@ import Mewlix.Compiler.Create
     , asyncCall
     , binaryOp
     , lambdaFunc
-    , binaryOpFunc
-    , unaryOpFunc
     )
+import Mewlix.Compiler.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.Constants as Mewlix
 import Lens.Micro.Platform ((.~), view)
 import qualified Data.HashSet as HashSet
