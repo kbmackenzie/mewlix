@@ -82,7 +82,7 @@ dotOp = do
     flip DotExpression <$> property
 
 boxOp :: Parser (Expression -> Expression)
-boxOp = LookupExpression <$> brackets exprR
+boxOp = flip LookupExpression <$> brackets exprR
 
 call :: Parser (Expression -> Expression)
 call = do
