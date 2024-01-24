@@ -11,11 +11,22 @@ import Mewlix.String.Utils ((|++), parens, quotes, brackets, sepComma)
 import Mewlix.Abstract.AST
 import Mewlix.Compiler.Transpiler
 import Mewlix.Utils.Show (showT)
-import Mewlix.Compiler.Create (construct, wrap, asFunction, syncCall, binaryOp)
+import Mewlix.Compiler.Create
+    ( construct
+    , wrap
+    , asFunction
+    , syncCall
+    , asyncCall
+    , binaryOp
+    , lambdaFunc
+    , binaryOpFunc
+    , unaryOpFunc
+    )
 import qualified Mewlix.Compiler.Constants as Mewlix
 import Lens.Micro.Platform ((.~), view)
 import qualified Data.HashSet as HashSet
 import qualified Data.HashMap.Strict as HashMap
+import qualified Data.List as List
 
 type IndentLevel = Int;
 
@@ -39,7 +50,7 @@ instance ToJS Expression where
 
     -- Names:
     transpileJS _ (Identifier key) = return key
-    transpileJS _ (ObjectProperty key) = return (".box." |++ key)
+    transpileJS _ (ObjectProperty key) = return key
 
     -- Lists:
     transpileJS _ (ListExpression exprs) = do
@@ -69,11 +80,11 @@ instance ToJS Expression where
         wrap $ syncCall (Mewlix.operation "or") [ fa, fb ]
 
     -- Ternary operator:
-    transpileJS _ (TernaryOperation condition a b) = do
-        predicate <- toJS condition
+    transpileJS _ (TernaryOperation conditionExpr a b) = do
+        condition <- toJS conditionExpr
         fa <- asFunction <$> toJS a
         fb <- asFunction <$> toJS b
-        wrap $ syncCall (Mewlix.operation "ternary") [ parens predicate, fa, fb ]
+        wrap $ syncCall (Mewlix.operation "ternary") [ parens condition, fa, fb ]
 
     -- Assignment expression:
     transpileJS _ (Assignment key expr) = do
@@ -81,9 +92,80 @@ instance ToJS Expression where
         right <- toJS expr
         wrap $ binaryOp "=" left right
 
+    -- Lambda function:
+    transpileJS _ (LambdaExpression params expr) = do
+        body <- toJS expr
+        wrap $ lambdaFunc (getParams params) body
+
+    -- List expressions:
+    transpileJS _ (ListPush expr shelfExpr) = do
+        item  <- toJS expr
+        shelf <- toJS shelfExpr
+        wrap $ syncCall (Mewlix.operation "push") [ shelf, item ]
+
+    transpileJS _ (ListPop shelfExpr) = do
+        shelf <- toJS shelfExpr
+        wrap $ syncCall (Mewlix.operation "pop") [ shelf ]
+
+    -- Function calls:
+    transpileJS _ (FunctionCall argExprs expr) = do
+        args <- mapM toJS argExprs
+        func <- toJS expr
+        wrap $ asyncCall func args
+
+    -- Dot expression:
+    transpileJS _ (DotExpression objectExpr propertyExpr) = do
+        object   <- toJS objectExpr
+        property <- toJS propertyExpr
+        (return . Text.concat) [ object, ".box.", property ]
+
+    -- Lookup expression:
+    transpileJS _ (LookupExpression objectExpr propertyExpr) = do
+        let stringify = syncCall (Mewlix.mewlix "purrify") . List.singleton
+        object   <- toJS objectExpr
+        property <- stringify <$> toJS propertyExpr
+        (return . Text.concat) [ object, ".box", brackets property ]
+
+    -- Binary operations:
+    transpileJS _ (BinaryOperation op a b) = do
+        let func = binaryOpFunc op
+        args <- mapM toJS [a, b]
+        wrap $ func args
+
+    -- Unary operations:
+    transpileJS _ (UnaryOperation op a) = do
+        let func = unaryOpFunc op
+        arg  <- toJS a
+        wrap $ func [arg]
+
     transpileJS _ _ = undefined
 
 {-
+ -data BinaryOp =
+      Addition 
+    | Subtraction
+    | Multiplication
+    | Division
+    | Modulo
+    | Power
+    | ListConcat
+    | Equal
+    | LessThan
+    | GreaterThan
+    | NotEqual
+    | GreaterOrEqual
+    | LesserOrEqual
+    deriving (Show)
+
+data UnaryOp =
+      Negation
+    | ListPeek
+    | BooleanNot
+    | LengthLookup
+    deriving (Show)
+
+
+ -
 data Expression =
       PrimitiveExpr         Primitive
     | Identifier            Key
