@@ -68,21 +68,21 @@ instance ToJS Expression where
         wrap $ construct Mewlix.mewlixBox [ array ]
 
     -- Boolean operations:
-    transpileJS _ (BooleanAnd a b) = do
-        fa <- asFunction <$> toJS a
-        fb <- asFunction <$> toJS b
-        wrap $ syncCall (Mewlix.operation "and") [ fa, fb ]
+    transpileJS _ (BooleanAnd left right) = do
+        a  <- toJS left
+        fb <- asFunction <$> toJS right
+        wrap $ syncCall (Mewlix.operation "and") [ a, fb ]
 
-    transpileJS _ (BooleanOr a b) = do
-        fa <- asFunction <$> toJS a
-        fb <- asFunction <$> toJS b
-        wrap $ syncCall (Mewlix.operation "or") [ fa, fb ]
+    transpileJS _ (BooleanOr left right) = do
+        a  <- toJS left
+        fb <- asFunction <$> toJS right
+        wrap $ syncCall (Mewlix.operation "or") [ a, fb ]
 
     -- Ternary operator:
-    transpileJS _ (TernaryOperation conditionExpr a b) = do
+    transpileJS _ (TernaryOperation conditionExpr left right) = do
         condition <- toJS conditionExpr
-        fa <- asFunction <$> toJS a
-        fb <- asFunction <$> toJS b
+        fa <- asFunction <$> toJS left
+        fb <- asFunction <$> toJS right
         wrap $ syncCall (Mewlix.operation "ternary") [ parens condition, fa, fb ]
 
     -- Assignment expression:
@@ -97,8 +97,8 @@ instance ToJS Expression where
         wrap $ lambdaFunc (getParams params) body
 
     -- List expressions:
-    transpileJS _ (ListPush expr shelfExpr) = do
-        item  <- toJS expr
+    transpileJS _ (ListPush itemExpr shelfExpr) = do
+        item  <- toJS itemExpr
         shelf <- toJS shelfExpr
         wrap $ syncCall (Mewlix.operation "push") [ shelf, item ]
 
@@ -126,15 +126,15 @@ instance ToJS Expression where
         (return . Text.concat) [ object, ".box", brackets property ]
 
     -- Binary operations:
-    transpileJS _ (BinaryOperation op a b) = do
+    transpileJS _ (BinaryOperation op left right) = do
         let func = binaryOpFunc op
-        args <- mapM toJS [a, b]
+        args <- mapM toJS [left, right]
         wrap $ func args
 
     -- Unary operations:
-    transpileJS _ (UnaryOperation op a) = do
+    transpileJS _ (UnaryOperation op operand) = do
         let func = unaryOpFunc op
-        arg  <- toJS a
+        arg  <- toJS operand
         wrap $ func [arg]
 
     transpileJS _ _ = undefined
