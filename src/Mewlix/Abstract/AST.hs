@@ -41,8 +41,8 @@ data Expression =
     | ListExpression        [Expression]
     | BoxExpression         [(Key, Expression)]
     | Assignment            Expression Expression
-    | Increment             Expression
-    | Decrement             Expression
+    | PawType               Expression
+    | ClawEntries           Expression
     | ListPush              Expression Expression
     | ListPop               Expression
     | LambdaExpression      Params Expression

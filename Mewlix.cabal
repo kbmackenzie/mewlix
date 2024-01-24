@@ -47,7 +47,6 @@ library
       Mewlix.Data.Ref
       Mewlix.Data.ToBool
       Mewlix.Data.ToString
-      Mewlix.Decompiler.ToMewlix
       Mewlix.IO.DataFile
       Mewlix.IO.Directory
       Mewlix.IO.File

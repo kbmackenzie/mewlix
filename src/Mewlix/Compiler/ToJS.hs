@@ -149,16 +149,14 @@ instance ToJS Expression where
         arg  <- toJS operand
         wrap $ func [arg]
 
-    -- Increment / decrement:
+    -- 'Paw at' / Type of:
     ----------------------------------------------
-    -- Note: This assumes input has already been analyzed.
-    -- The operand should be a valid identifier.
-    transpileJS _ (Increment operand) = do
-        key <- toJS operand
-        let addOne = binaryOpFunc Addition [key, "(1)"]
-        wrap $ assignment key addOne
+    transpileJS _ (PawType operand) = do
+        arg <- toJS operand
+        wrap $ syncCall (Mewlix.operation "typeOf") [arg]
 
-    transpileJS _ (Decrement operand) = do
-        key <- toJS operand
-        let takeOne = binaryOpFunc Subtraction [key, "(1)"]
-        wrap $ assignment key takeOne
+    -- 'Claw at'/ Box entries:
+    ----------------------------------------------
+    transpileJS _ (ClawEntries operand) = do
+        arg <- toJS operand
+        wrap $ syncCall (Mewlix.operation "pairs") [arg]
