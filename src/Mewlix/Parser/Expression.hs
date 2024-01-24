@@ -50,7 +50,6 @@ exprL = makeExprParser termL operatorsL
 exprR :: Parser Expression
 exprR = makeExprParser termR operatorsR
 
-
 {- Data -}
 ------------------------------------------------------------------------------------
 parseList :: Parser Expression
@@ -68,8 +67,7 @@ parseBox = do
     longSymbol Keywords.box
     BoxExpression <$> bracketList parsePair <?> "box"
 
-
-{- Operators -}
+{- Postfixes -}
 ------------------------------------------------------------------------------------
 property :: Parser Expression
 property = ObjectProperty <$> parseKey
@@ -92,13 +90,14 @@ call = do
 postfixes :: Parser (Expression -> Expression)
 postfixes = foldr1 (flip (.)) <$> Mega.some (Mega.choice [ dotOp, boxOp, call ])
 
+{- Lambda -}
+------------------------------------------------------------------------------------
 lambda :: Parser (Expression -> Expression)
 lambda = do
     longSymbol Keywords.lambda
     params <- Params <$> parensList parseKey
     longSymbol "=>"
     return (LambdaExpression params)
-
 
 {- Operator Tables -}
 ------------------------------------------------------------------------------------
