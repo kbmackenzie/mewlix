@@ -51,7 +51,7 @@ data Expression =
     | LambdaExpression      Params Expression
     | FunctionCall          Expression Arguments
     | SuperCall             Arguments
-    | ClowederCreate        Expression Arguments
+    | ClowderCreate         Expression Arguments
     | DotExpression         Expression Expression
     | LookupExpression      Expression Expression
     deriving (Show)
