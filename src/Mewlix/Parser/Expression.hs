@@ -5,6 +5,7 @@ module Mewlix.Parser.Expression
 , exprR
 , declaration
 , liftedExpr
+, prettyExpr
 ) where
 
 import Mewlix.Abstract.AST
@@ -33,6 +34,8 @@ import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Text.Megaparsec as Mega
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 
+{- Left-hand, Right-hand -}
+------------------------------------------------------------------------------------
 termL :: Parser Expression
 termL = Identifier <$> parseKey
 
@@ -158,3 +161,8 @@ liftedExpr :: Parser LiftedExpression
 liftedExpr = Mega.choice
     [ uncurry LiftDeclaration   <$> declaration
     , LiftExpression            <$> exprR        ]
+
+{- Pretty Expressions -}
+------------------------------------------------------------------------------------
+prettyExpr :: Parser Expression
+prettyExpr = termR
