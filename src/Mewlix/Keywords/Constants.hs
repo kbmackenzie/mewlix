@@ -171,6 +171,7 @@ reserved = HashSet.fromList
     , fst clowder
     , snd clowder
     , fst3 takeDo
+    , new
     , home
     , super
     , if_
@@ -188,6 +189,7 @@ reserved = HashSet.fromList
     , fst takes
     , try
     , catch
+    , throw
     -- Internal:
     , "box"
     , "___module_fn___"

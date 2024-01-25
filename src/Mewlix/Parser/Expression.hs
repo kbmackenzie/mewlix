@@ -44,6 +44,9 @@ termR = Mega.choice
     [ parens exprR
     , parseBox
     , parseList
+    , parseSuper
+    , parseMeet
+    , parseThrow
     , PrimitiveExpr <$> parsePrim
     , Identifier    <$> parseName ]
 
@@ -69,6 +72,29 @@ parseBox = do
 
     longSymbol Keywords.box
     BoxExpression <$> bracketList parsePair <?> "box"
+
+{- Clowder -}
+------------------------------------------------------------------------------------
+parseSuper :: Parser Expression
+parseSuper = do
+    args <- Mega.try $ do
+        keyword Keywords.super
+        parensList exprR
+    return (SuperCall args)
+
+parseMeet :: Parser Expression
+parseMeet = do
+    keyword Keywords.new
+    clowder <- termR
+    args    <- parensList exprR
+    return (ClowderCreate clowder args)
+
+{- Clowder -}
+------------------------------------------------------------------------------------
+parseThrow :: Parser Expression
+parseThrow = do
+    keyword Keywords.throw
+    ThrowError <$> exprR
 
 {- Postfixes -}
 ------------------------------------------------------------------------------------
