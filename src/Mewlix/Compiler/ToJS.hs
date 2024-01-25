@@ -130,7 +130,7 @@ instance ToJS Expression where
     -- Lookup expression:
     ----------------------------------------------
     transpileJS _ (LookupExpression objectExpr propertyExpr) = do
-        let stringify = syncCall (Mewlix.mewlix "purrify") . List.singleton
+        let stringify = syncCall Mewlix.purrify . List.singleton
         object   <- toJS objectExpr
         property <- stringify <$> toJS propertyExpr
         (return . Text.concat) [ object, ".box", brackets property ]

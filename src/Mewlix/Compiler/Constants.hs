@@ -2,6 +2,7 @@
 
 module Mewlix.Compiler.Constants
 ( mewlix
+, purrify
 , mewlixBox
 , stackNode
 , stackBottom
@@ -21,6 +22,9 @@ import Mewlix.String.Utils ((|++))
 
 mewlix :: Text -> Text
 mewlix = ("Mewlix." |++)
+
+purrify :: Text
+purrify = mewlix "purrify"
 
 mewlixBox :: Text
 mewlixBox = mewlix "MewlixBox"
