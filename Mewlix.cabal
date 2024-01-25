@@ -18,16 +18,6 @@ build-type:     Simple
 extra-source-files:
     README.md
     CHANGELOG.md
-data-files:
-    std/assert.meows
-    std/cat_tree.meows
-    std/exception.meows
-    std/hashmap.meows
-    std/hashset.meows
-    std/io.meows
-    std/numbers.meows
-    std/std.meows
-    std/time.meows
 
 source-repository head
   type: git
