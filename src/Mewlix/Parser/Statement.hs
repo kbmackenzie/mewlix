@@ -12,7 +12,8 @@ import Mewlix.Abstract.AST
     , MewlixFunction(..)
     , MewlixClass(..)
     )
-import Mewlix.Parser.Module (parseModuleName)
+import Mewlix.Abstract.Module (Module(..))
+import Mewlix.Parser.Module (parseModuleKey)
 import Mewlix.Parser.Primitive (parseName)
 import Mewlix.Parser.Expression (declaration, exprR, liftedExpr)
 import Mewlix.Parser.Utils
@@ -227,7 +228,7 @@ forLoop nesting = do
     whitespaceLn
     body <- block (max nesting NestedInLoop) meowmeow
     meowmeow
-    return (ForLoop (ini, incr, cond) body)
+    return $ ForLoop (ini, incr, cond) body
 
 
 {- Import -}
@@ -236,11 +237,11 @@ importKey :: Nesting -> Parser Statement
 importKey nesting = do
     let (start, end) = Keywords.takes
     keyword start
-    path <- parseModuleName
+    path <- parseModuleKey
     name <- Mega.optional (keyword end >> parseName)
     when (nesting > Root)
         (fail "Import statements cannot be nested!")
-    return (ImportStatement path name)
+    return $ ImportStatement (Module path name)
 
 
 {- Watch/Catch -}

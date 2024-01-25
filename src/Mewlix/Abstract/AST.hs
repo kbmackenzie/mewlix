@@ -17,7 +17,7 @@ module Mewlix.Abstract.AST
 
 import Mewlix.Data.Key (Key)
 import Data.Text (Text)
-import Mewlix.Abstract.Module (ModuleName)
+import Mewlix.Abstract.Module (Module)
 
 data Primitive =
       MewlixInt             Int
@@ -108,7 +108,7 @@ data Statement =
     | Binding               Key Expression
     | LocalBinding          Key Expression
     | ClassDef              MewlixClass
-    | ImportStatement       ModuleName (Maybe Key)
+    | ImportStatement       Module
     | Return                Expression
     | TryCatch              Block CatchBlock
     | Break 

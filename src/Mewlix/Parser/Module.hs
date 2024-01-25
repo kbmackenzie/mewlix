@@ -1,8 +1,8 @@
 module Mewlix.Parser.Module
-( parseModuleName
+( parseModuleKey
 ) where
 
-import Mewlix.Abstract.Module (ModuleName(..))
+import Mewlix.Abstract.Module (ModuleKey(..))
 import Mewlix.Parser.Utils
     ( Parser
     , lexeme
@@ -15,12 +15,12 @@ import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 
 {- Parse module name. Name parts can be reserved keywords. -}
-parseModuleName :: Parser ModuleName
-parseModuleName = do
+parseModuleKey :: Parser ModuleKey
+parseModuleKey = do
     let namePart :: Parser Text
         namePart = Mega.takeWhile1P (Just "module name part") isKeyChar
 
     let parseName :: Parser [Text]
         parseName = Mega.sepBy1 namePart (MChar.char '.')
 
-    ModuleName . NonEmpty.fromList <$> lexeme parseName <?> "module name"
+    ModuleKey . NonEmpty.fromList <$> lexeme parseName <?> "module name"
