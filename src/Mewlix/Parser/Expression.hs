@@ -88,7 +88,7 @@ boxOp = flip LookupExpression <$> brackets exprR
 call :: Parser (Expression -> Expression)
 call = do
     args <- parensList exprR
-    return (FunctionCall args)
+    return (`FunctionCall` args)
 
 postfixes :: Parser (Expression -> Expression)
 postfixes = foldr1 (flip (.)) <$> Mega.some (Mega.choice [ dotOp, boxOp, call ])

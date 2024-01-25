@@ -115,7 +115,7 @@ instance ToJS Expression where
 
     -- Function calls:
     ----------------------------------------------
-    transpileJS _ (FunctionCall argExprs expr) = do
+    transpileJS _ (FunctionCall expr argExprs) = do
         args <- mapM toJS argExprs
         func <- toJS expr
         wrap $ asyncCall func args

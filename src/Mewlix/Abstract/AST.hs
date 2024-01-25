@@ -6,6 +6,7 @@ module Mewlix.Abstract.AST
 , Key
 , Block(..)
 , Params(..)
+, Arguments
 , Expression(..)
 , Statement(..)
 , BinaryOp(..)
@@ -29,6 +30,8 @@ data Primitive =
     | MewlixSuper
     deriving (Show)
 
+type Arguments = [Expression]
+
 data Expression =
       PrimitiveExpr         Primitive
     | Identifier            Key
@@ -46,7 +49,9 @@ data Expression =
     | ListPush              Expression Expression
     | ListPop               Expression
     | LambdaExpression      Params Expression
-    | FunctionCall          [Expression] Expression
+    | FunctionCall          Expression Arguments
+    | SuperCall             Arguments
+    | ClowederCreate        Expression Arguments
     | DotExpression         Expression Expression
     | LookupExpression      Expression Expression
     deriving (Show)
