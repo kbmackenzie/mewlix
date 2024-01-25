@@ -135,6 +135,18 @@ instance ToJS Expression where
         property <- stringify <$> toJS propertyExpr
         (return . Text.concat) [ object, ".box", brackets property ]
 
+    -- Clowder expressions:
+    ----------------------------------------------
+    transpileJS _ (ClowderCreate clowderExpr argExprs) = do
+        clowder <- toJS clowderExpr
+        args    <- mapM toJS argExprs
+        let creation = Text.concat [ "await new ", clowder, "()." ]
+        return $ creation |++ syncCall "wake" args
+
+    transpileJS _ (SuperCall argExprs) = do
+        args    <- mapM toJS argExprs
+        return $ asyncCall "super.wake" args
+
     -- Binary operations:
     ----------------------------------------------
     transpileJS _ (BinaryOperation op left right) = do
@@ -160,3 +172,9 @@ instance ToJS Expression where
     transpileJS _ (ClawEntries operand) = do
         arg <- toJS operand
         wrap $ syncCall (Mewlix.operation "pairs") [arg]
+
+    -- 'Throw' expression:
+    ----------------------------------------------
+    transpileJS _ (ThrowError expr) = do
+        arg <- toJS expr
+        wrap $ syncCall (Mewlix.mewlix "throwError") [arg]
