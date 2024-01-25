@@ -54,6 +54,7 @@ data Expression =
     | ClowderCreate         Expression Arguments
     | DotExpression         Expression Expression
     | LookupExpression      Expression Expression
+    | ThrowError            Expression
     deriving (Show)
 
 data BinaryOp =

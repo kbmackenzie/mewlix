@@ -14,6 +14,7 @@ module Mewlix.Keywords.Constants
 , catnap
 , run
 , clowder
+, new
 , home
 , super
 , constructor
@@ -35,6 +36,7 @@ module Mewlix.Keywords.Constants
 , takes
 , try
 , catch
+, throw
 , reserved
 ) where
 
@@ -86,11 +88,14 @@ run = "run off"
 clowder :: (Keyword, Keyword)
 clowder = ("clowder", "is")
 
+new :: Keyword
+new = "meet"
+
 home :: Keyword
 home = "home"
 
 super :: Keyword
-super = "parent"
+super = "outside"
 
 constructor :: Keyword
 constructor = "wake"
@@ -148,6 +153,9 @@ try = "watch"
 
 catch :: Keyword
 catch = "catch"
+
+throw :: Keyword
+throw = "throw"
 
 reserved :: HashSet Keyword
 {-# INLINE reserved #-}
