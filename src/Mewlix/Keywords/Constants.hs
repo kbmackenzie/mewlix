@@ -180,4 +180,7 @@ reserved = HashSet.fromList
     , fst takes
     , try
     , catch
+    -- Internal:
+    , "box"
+    , "___module_fn___"
     ]
