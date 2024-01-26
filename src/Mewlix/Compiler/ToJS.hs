@@ -18,7 +18,6 @@ import Mewlix.Compiler.Create
     , syncCall
     , asyncCall
     , assignment
-    , lambdaFunc
     )
 import Mewlix.Compiler.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.Constants as Mewlix
@@ -102,9 +101,10 @@ instance ToJS Expression where
 
     -- Lambda function:
     ----------------------------------------------
-    transpileJS _ (LambdaExpression params expr) = do
-        body <- toJS expr
-        wrap $ lambdaFunc (getParams params) body
+    transpileJS _ (LambdaExpression paramExprs bodyExpr) = do
+        body   <- toJS bodyExpr
+        params <- toJS paramExprs
+        wrap $ Text.concat [ params, " => ", body ]
 
     -- List expressions:
     ----------------------------------------------
@@ -181,6 +181,11 @@ instance ToJS Expression where
     transpileJS _ (ThrowError expr) = do
         arg <- toJS expr
         wrap $ syncCall (Mewlix.mewlix "throwError") [arg]
+
+{- Params -}
+-----------------------------------------------------------------
+instance ToJS Params where
+    transpileJS _ (Params params) = wrap $ sepComma params
 
 {- Arguments -}
 -----------------------------------------------------------------

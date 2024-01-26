@@ -7,7 +7,6 @@ module Mewlix.Compiler.Create
 , syncCall
 , asyncCall
 , assignment
-, lambdaFunc
 ) where
 
 import Data.Text (Text)
@@ -33,6 +32,3 @@ asyncCall name args = Text.concat [ "await ", name, "(", sepComma args, ")" ]
 
 assignment :: Text -> Text -> Text
 assignment a b = Text.concat [ a, " = ", b ]
-
-lambdaFunc :: [Text] -> Text -> Text
-lambdaFunc params body = Text.concat [ "(", sepComma params, ") => ", body ]
