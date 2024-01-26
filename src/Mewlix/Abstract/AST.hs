@@ -6,7 +6,7 @@ module Mewlix.Abstract.AST
 , Key
 , Block(..)
 , Params(..)
-, Arguments
+, Arguments(..)
 , Expression(..)
 , Statement(..)
 , BinaryOp(..)
@@ -29,8 +29,6 @@ data Primitive =
     | MewlixHome
     | MewlixSuper
     deriving (Show)
-
-type Arguments = [Expression]
 
 data Expression =
       PrimitiveExpr         Primitive
@@ -80,8 +78,9 @@ data UnaryOp =
     | LengthLookup
     deriving (Eq, Ord, Enum, Bounded, Show)
 
-newtype Block  = Block  { getBlock  :: [Statement] } deriving (Show, Semigroup, Monoid)
-newtype Params = Params { getParams :: [Text]      } deriving (Show, Semigroup, Monoid)
+newtype Block     = Block     { getBlock      :: [Statement]  } deriving (Show, Semigroup, Monoid)
+newtype Params    = Params    { getParams     :: [Text]       } deriving (Show, Semigroup, Monoid)
+newtype Arguments = Arguments { getArguments  :: [Expression] } deriving (Show, Semigroup, Monoid)
 
 type CatchBlock = (Maybe Expression, Block)
 

@@ -12,6 +12,7 @@ import Mewlix.Abstract.AST
     ( Key
     , Primitive(..)
     , Expression(..)
+    , Arguments(..)
     , LiftedExpression(..)
     , Params(..)
     , BinaryOp(..)
@@ -73,21 +74,22 @@ parseBox = do
     longSymbol Keywords.box
     BoxExpression <$> bracketList parsePair <?> "box"
 
+parseArguments :: Parser Arguments
+parseArguments = Arguments <$> parensList exprR
+
 {- Clowder -}
 ------------------------------------------------------------------------------------
 parseSuper :: Parser Expression
 parseSuper = do
     args <- Mega.try $ do
         keyword Keywords.super
-        parensList exprR
+        parseArguments
     return (SuperCall args)
 
 parseMeet :: Parser Expression
 parseMeet = do
     keyword Keywords.new
-    clowder <- termR
-    args    <- parensList exprR
-    return (ClowderCreate clowder args)
+    ClowderCreate <$> termR <*> parseArguments
 
 {- Clowder -}
 ------------------------------------------------------------------------------------
@@ -113,7 +115,7 @@ boxOp = flip LookupExpression <$> brackets exprR
 
 call :: Parser (Expression -> Expression)
 call = do
-    args <- parensList exprR
+    args <- parseArguments
     return (`FunctionCall` args)
 
 postfixes :: Parser (Expression -> Expression)

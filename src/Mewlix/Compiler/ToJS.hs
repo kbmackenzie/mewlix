@@ -35,6 +35,8 @@ class ToJS a where
     toJS :: a -> Transpiler Text
     toJS = transpileJS 0
 
+{- Primitives -}
+-----------------------------------------------------------------
 instance ToJS Primitive where
     transpileJS _ (MewlixInt i)     = (return . parens . showT) i
     transpileJS _ (MewlixBool b)    = (return . parens . showT) b
@@ -44,6 +46,8 @@ instance ToJS Primitive where
     transpileJS _ MewlixHome        = return "this"
     transpileJS _ MewlixSuper       = return "super"
 
+{- Expression -}
+-----------------------------------------------------------------
 instance ToJS Expression where
     transpileJS _ (PrimitiveExpr prim) = toJS prim
 
@@ -116,9 +120,9 @@ instance ToJS Expression where
     -- Function calls:
     ----------------------------------------------
     transpileJS _ (FunctionCall expr argExprs) = do
-        args <- mapM toJS argExprs
+        args <- toJS argExprs
         func <- toJS expr
-        wrap $ asyncCall func args
+        (return . Text.concat) [ "await ", func, args ]
 
     -- Dot expression:
     ----------------------------------------------
@@ -139,13 +143,12 @@ instance ToJS Expression where
     ----------------------------------------------
     transpileJS _ (ClowderCreate clowderExpr argExprs) = do
         clowder <- toJS clowderExpr
-        args    <- mapM toJS argExprs
-        let creation = Text.concat [ "await new ", clowder, "()." ]
-        return $ creation |++ syncCall "wake" args
+        args    <- toJS argExprs
+        (return . Text.concat) [ "await new ", clowder, "().wake", args ]
 
     transpileJS _ (SuperCall argExprs) = do
-        args    <- mapM toJS argExprs
-        return $ asyncCall "super.wake" args
+        args    <- toJS argExprs
+        return $ "super.wake" |++ args
 
     -- Binary operations:
     ----------------------------------------------
@@ -178,3 +181,10 @@ instance ToJS Expression where
     transpileJS _ (ThrowError expr) = do
         arg <- toJS expr
         wrap $ syncCall (Mewlix.mewlix "throwError") [arg]
+
+{- Arguments -}
+-----------------------------------------------------------------
+instance ToJS Arguments where
+    transpileJS _ (Arguments argExprs) = do
+        args <- mapM toJS argExprs
+        wrap $ sepComma args
