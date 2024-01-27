@@ -82,8 +82,6 @@ newtype Block     = Block     { getBlock      :: [Statement]  } deriving (Show, 
 newtype Params    = Params    { getParams     :: [Text]       } deriving (Show, Semigroup, Monoid)
 newtype Arguments = Arguments { getArguments  :: [Expression] } deriving (Show, Semigroup, Monoid)
 
-type CatchBlock = (Maybe Expression, Block)
-
 {- A 'lifted' expression type that allows declarations.
  - It's compiled into an IIFE if needed.                -}
 data LiftedExpression =
@@ -115,7 +113,7 @@ data Statement =
     | ClassDef              MewlixClass
     | ImportStatement       Module
     | Return                Expression
-    | TryCatch              Block CatchBlock
+    | TryCatch              Block (Maybe Key) Block
     | Break 
     | Continue
     deriving (Show)

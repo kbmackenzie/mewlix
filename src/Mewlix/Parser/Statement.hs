@@ -253,28 +253,16 @@ tryCatch nesting = do
     let stopKeys :: Parser ()
         stopKeys = (void . Mega.choice . fmap tryKeyword)
             [ Keywords.catch
-            , Keywords.end      ]
+            , Keywords.end   ]
 
-    let getTry :: Parser Block
-        getTry = do
-            keyword Keywords.try
-            whitespaceLn
-            block localNest stopKeys
+    keyword Keywords.try
+    whitespaceLn
+    try_    <- block localNest stopKeys
 
-    let getCatch :: Parser (Block -> Statement)
-        getCatch = do
-            keyword Keywords.catch
-            condition <- Mega.optional (parens exprR)
-            whitespaceLn
-            body      <- block localNest stopKeys
-            return (`TryCatch` (condition, body))
-
-    mainTry <- getTry
-    catches <- Mega.some getCatch
-
-    let compose :: (Block -> Statement) -> (Block -> Statement) -> (Block -> Statement)
-        compose x acc = acc . Block . List.singleton . x
-    let catchCompose = foldr1 compose catches
+    keyword Keywords.catch
+    key_    <- Mega.optional parseName
+    whitespaceLn
+    catch_  <- block localNest meowmeow
 
     meowmeow
-    return (catchCompose mainTry)
+    return (TryCatch try_ key_ catch_)
