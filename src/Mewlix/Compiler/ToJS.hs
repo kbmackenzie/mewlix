@@ -5,7 +5,6 @@ module Mewlix.Compiler.ToJS
 ) where
 
 import Data.Text (Text)
-import qualified Data.Text as Text
 import Mewlix.String.Escape (escapeString)
 import Mewlix.String.Utils (parens, quotes, brackets, sepComma)
 import Mewlix.Abstract.AST
@@ -20,9 +19,6 @@ import Mewlix.Compiler.Create
     )
 import Mewlix.Compiler.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.Constants as Mewlix
-import Lens.Micro.Platform ((.~), view)
-import qualified Data.HashSet as HashSet
-import qualified Data.HashMap.Strict as HashMap
 import qualified Data.List as List
 
 type IndentLevel = Int;
