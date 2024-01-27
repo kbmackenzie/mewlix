@@ -1,33 +1,35 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Mewlix.String.Utils
-( (|++)
+( surround
 , parens
 , quotes
 , brackets
-, surround
 , sepComma
+, newline
+, sepLines
 ) where
 
 import Data.Text (Text)
 import qualified Data.Text as Text
 
--- Util operator for joining text together.
-(|++) :: Text -> Text -> Text
-(|++) = Text.append
+surround :: Char -> Char -> Text -> Text
+surround a b = Text.cons a . flip Text.snoc b
 
 parens :: Text -> Text
-parens x = Text.concat [ "(", x, ")" ]
+parens = surround '(' ')'
 
 quotes :: Text -> Text
-quotes x = Text.concat [ "\"", x, "\"" ]
+quotes = surround '"' '"'
 
 brackets :: Text -> Text
-brackets x = Text.concat [ "[", x, "]" ]
-
-surround :: Char -> Text -> Text
-surround c str = Text.concat
-    [ Text.singleton c, str, Text.singleton c ]
+brackets = surround '[' ']'
 
 sepComma :: [Text] -> Text
 sepComma = Text.intercalate ", "
+
+newline :: Text
+newline = "\n"
+
+sepLines :: [Text] -> Text
+sepLines = Text.concat . map (<> newline)

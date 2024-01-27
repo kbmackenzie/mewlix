@@ -7,17 +7,16 @@ module Mewlix.Compiler.ToJS
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Mewlix.String.Escape (escapeString)
-import Mewlix.String.Utils ((|++), parens, quotes, brackets, sepComma)
+import Mewlix.String.Utils (parens, quotes, brackets, sepComma)
 import Mewlix.Abstract.AST
 import Mewlix.Compiler.Transpiler
 import Mewlix.Utils.Show (showT)
 import Mewlix.Compiler.Create
     ( construct
     , wrap
-    , asFunction
+    , funcWrap
     , syncCall
     , asyncCall
-    , assignment
     )
 import Mewlix.Compiler.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.Constants as Mewlix
@@ -66,7 +65,7 @@ instance ToJS Expression where
         let makeTuple :: (Key, Expression) -> Transpiler Text
             makeTuple (key, expr) = do
                 value <- toJS expr
-                (return . brackets . Text.concat) [ key, ", ", value ]
+                (return . brackets) (key <> ", " <> value)
 
         items <- mapM makeTuple pairs
         let array = (brackets . sepComma) items
@@ -76,20 +75,20 @@ instance ToJS Expression where
     ----------------------------------------------
     transpileJS _ (BooleanAnd left right) = do
         a  <- toJS left
-        fb <- asFunction <$> toJS right
+        fb <- funcWrap <$> toJS right
         wrap $ syncCall (Mewlix.operation "and") [ a, fb ]
 
     transpileJS _ (BooleanOr left right) = do
         a  <- toJS left
-        fb <- asFunction <$> toJS right
+        fb <- funcWrap <$> toJS right
         wrap $ syncCall (Mewlix.operation "or") [ a, fb ]
 
     -- Ternary operator:
     ----------------------------------------------
     transpileJS _ (TernaryOperation conditionExpr left right) = do
         condition <- toJS conditionExpr
-        fa <- asFunction <$> toJS left
-        fb <- asFunction <$> toJS right
+        fa <- funcWrap <$> toJS left
+        fb <- funcWrap <$> toJS right
         wrap $ syncCall (Mewlix.operation "ternary") [ parens condition, fa, fb ]
 
     -- Assignment expression:
@@ -97,14 +96,14 @@ instance ToJS Expression where
     transpileJS _ (Assignment key expr) = do
         left  <- toJS key
         right <- toJS expr
-        wrap $ assignment left right
+        wrap (left <> " = " <> right)
 
     -- Lambda function:
     ----------------------------------------------
     transpileJS _ (LambdaExpression paramExprs bodyExpr) = do
         body   <- toJS bodyExpr
         params <- toJS paramExprs
-        wrap $ Text.concat [ params, " => ", body ]
+        wrap (params <> " => " <> body)
 
     -- List expressions:
     ----------------------------------------------
@@ -122,14 +121,14 @@ instance ToJS Expression where
     transpileJS _ (FunctionCall expr argExprs) = do
         args <- toJS argExprs
         func <- toJS expr
-        (return . Text.concat) [ "await ", func, args ]
+        return ("await " <> func <> args)
 
     -- Dot expression:
     ----------------------------------------------
     transpileJS _ (DotExpression objectExpr propertyExpr) = do
         object   <- toJS objectExpr
         property <- toJS propertyExpr
-        (return . Text.concat) [ object, ".box.", property ]
+        return (object <> ".box." <> property)
 
     -- Lookup expression:
     ----------------------------------------------
@@ -137,18 +136,18 @@ instance ToJS Expression where
         let stringify = syncCall Mewlix.purrify . List.singleton
         object   <- toJS objectExpr
         property <- stringify <$> toJS propertyExpr
-        (return . Text.concat) [ object, ".box", brackets property ]
+        return (object <> ".box" <> brackets property)
 
     -- Clowder expressions:
     ----------------------------------------------
     transpileJS _ (ClowderCreate clowderExpr argExprs) = do
         clowder <- toJS clowderExpr
         args    <- toJS argExprs
-        (return . Text.concat) [ "await new ", clowder, "().wake", args ]
+        return ("await new " <> clowder <> "().wake" <> args)
 
     transpileJS _ (SuperCall argExprs) = do
         args    <- toJS argExprs
-        return $ "super.wake" |++ args
+        return ("super.wake" <> args)
 
     -- Binary operations:
     ----------------------------------------------

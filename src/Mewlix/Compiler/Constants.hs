@@ -18,10 +18,9 @@ module Mewlix.Compiler.Constants
 {- This module should always be imported qualified. -}
 
 import Data.Text (Text)
-import Mewlix.String.Utils ((|++))
 
 mewlix :: Text -> Text
-mewlix = ("Mewlix." |++)
+mewlix = ("Mewlix." <>)
 
 purrify :: Text
 purrify = mewlix "purrify"
@@ -39,10 +38,10 @@ createStack :: Text
 createStack = mewlix "MewlixStack.fromArray"
 
 operation :: Text -> Text
-operation = mewlix . ("Op." |++)
+operation = mewlix . ("Op." <>)
 
 modules :: Text -> Text
-modules = mewlix . ("Modules." |++)
+modules = mewlix . ("Modules." <>)
 
 addModule :: Text
 addModule = modules "addModule"
@@ -51,7 +50,7 @@ getModule :: Text
 getModule = modules "getModule"
 
 comparison :: Text -> Text
-comparison = mewlix . ("Comparison." |++)
+comparison = mewlix . ("Comparison." <>)
 
 equalTo :: Text
 equalTo = comparison "EqualTo"

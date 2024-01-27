@@ -9,7 +9,7 @@ module Mewlix.Compiler.Operations
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Mewlix.Compiler.Create (syncCall)
-import Mewlix.String.Utils ((|++), sepComma)
+import Mewlix.String.Utils (sepComma)
 import qualified Mewlix.Compiler.Constants as Mewlix
 import Mewlix.Abstract.AST (BinaryOp(..), UnaryOp(..))
 
@@ -18,8 +18,8 @@ type OperationBuilder = ([Text] -> Text)
 compareTo :: [Text] -> OperationBuilder
 compareTo comparisons = do
     let call = syncCall (Mewlix.operation "compare")
-    let isOneOf = Text.concat [ ".isOneOf(", sepComma comparisons, ")" ]
-    \args -> call args |++ isOneOf
+    let isOneOf = ".isOneOf(" <> sepComma comparisons <> ")"
+    \args -> call args <> isOneOf
 
 binaryOpFunc :: BinaryOp -> OperationBuilder
 binaryOpFunc op = case op of 
@@ -31,7 +31,7 @@ binaryOpFunc op = case op of
     Power           -> syncCall (Mewlix.operation "pow")
     ListConcat      -> syncCall (Mewlix.operation "concat")
     Equal           -> syncCall (Mewlix.operation "isEqual")
-    NotEqual        -> ("!" |++) . syncCall (Mewlix.operation "isEqual")
+    NotEqual        -> ("!" <>) . syncCall (Mewlix.operation "isEqual")
     LessThan        -> compareTo [Mewlix.lessThan] 
     GreaterThan     -> compareTo [Mewlix.greaterThan] 
     LesserOrEqual   -> compareTo [Mewlix.lessThan, Mewlix.equalTo] 

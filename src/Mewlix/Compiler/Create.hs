@@ -3,32 +3,25 @@
 module Mewlix.Compiler.Create
 ( construct
 , wrap
-, asFunction
+, funcWrap
 , syncCall
 , asyncCall
-, assignment
 ) where
 
 import Data.Text (Text)
-import qualified Data.Text as Text
-import Mewlix.String.Utils ((|++), sepComma, parens)
-import qualified Mewlix.Compiler.Constants as Mewlix
-import Mewlix.Abstract.AST (BinaryOp(..), UnaryOp(..))
+import Mewlix.String.Utils (sepComma, parens)
 
 construct :: Text -> [Text] -> Text
-construct name args = Text.concat [ "new ", name, "(", sepComma args, ")" ]
+construct name args = "new " <> name <> parens (sepComma args)
 
 wrap :: (Monad m) => Text -> m Text
 wrap = return . parens
 
-asFunction :: Text -> Text
-asFunction body = Text.concat [ "(() => ", body, ")" ]
+funcWrap :: Text -> Text
+funcWrap body = "(() => " <> body <> ")"
 
 syncCall :: Text -> [Text] -> Text
-syncCall name args = Text.concat [ name, "(", sepComma args, ")" ]
+syncCall name args = name <> parens (sepComma args)
 
 asyncCall :: Text -> [Text] -> Text
-asyncCall name args = Text.concat [ "await ", name, "(", sepComma args, ")" ]
-
-assignment :: Text -> Text -> Text
-assignment a b = Text.concat [ a, " = ", b ]
+asyncCall name args = "await " <> name <> parens (sepComma args)
