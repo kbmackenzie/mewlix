@@ -30,6 +30,7 @@ library
       Mewlix.Abstract.Module
       Mewlix.Compiler.Constants
       Mewlix.Compiler.Create
+      Mewlix.Compiler.Indentation
       Mewlix.Compiler.Operations
       Mewlix.Compiler.ToJS
       Mewlix.Compiler.Transpiler

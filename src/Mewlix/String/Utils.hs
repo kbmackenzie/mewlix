@@ -8,6 +8,8 @@ module Mewlix.String.Utils
 , sepComma
 , newline
 , sepLines
+, semicolon
+, terminate
 ) where
 
 import Data.Text (Text)
@@ -33,3 +35,9 @@ newline = "\n"
 
 sepLines :: [Text] -> Text
 sepLines = Text.concat . map (<> newline)
+
+semicolon :: Text
+semicolon = ";"
+
+terminate :: Text -> Text
+terminate = (<> semicolon)
