@@ -60,8 +60,8 @@ ghc-options:
 - -funfolding-use-threshold=16
 #- -fllvm
 
-data-files:
-- std/*.meows
+#data-files:
+#- std/*.meows
 
 library:
   source-dirs: src

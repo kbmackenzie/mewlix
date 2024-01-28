@@ -13,6 +13,7 @@ module Mewlix.Abstract.AST
 , UnaryOp(..)
 , MewlixFunction(..)
 , MewlixClass(..)
+, LineNumber(..)
 , LiftedExpression(..)
 ) where
 
@@ -101,6 +102,9 @@ data MewlixClass = MewlixClass
     , classConstructor  :: Maybe MewlixFunction
     , classMethods      :: [MewlixFunction]      }
     deriving (Show)
+
+newtype LineNumber = LineNumber { getLineNumber :: Int }
+    deriving (Eq, Ord, Show, Enum, Num)
 
 data Statement =
       ExpressionStatement   Expression
