@@ -15,7 +15,7 @@ import Mewlix.Abstract.AST
 import Mewlix.Abstract.Module (Module(..))
 import Mewlix.Parser.Module (parseModuleKey)
 import Mewlix.Parser.Primitive (parseName)
-import Mewlix.Parser.Expression (declaration, exprR, liftedExpr)
+import Mewlix.Parser.Expression (declaration, exprR, prettyExpr)
 import Mewlix.Parser.Utils
     ( Parser
     , keyword
@@ -25,9 +25,12 @@ import Mewlix.Parser.Utils
     , lexemeLn
     , parens
     , parensList
-    , tryKeyword
+    , repeatChar
     )
-import Mewlix.Keywords.Types (Keyword, unwrapKeyword)
+import Mewlix.Keywords.Types
+    ( Keyword(..)
+    , WordSequence(..)
+    )
 import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Data.List as List
 import qualified Text.Megaparsec as Mega
@@ -65,8 +68,8 @@ statement nesting = Mega.choice $ map lexemeLn
     , continueKey   nesting
     , breakKey      nesting
     , importKey     nesting
+    , forEach       nesting
     , classDef      nesting
-    , forLoop       nesting
     , tryCatch      nesting
     , expression    nesting ]
 
@@ -101,7 +104,7 @@ declareVar nesting = do
 ----------------------------------------------------------------
 whileLoop :: Nesting -> Parser Statement
 whileLoop nesting = do
-    keyword Keywords.while
+    wordSequence Keywords.while
     condition <- parens exprR
     whitespaceLn
     body <- block (max nesting NestedInLoop) meowmeow
@@ -116,14 +119,14 @@ ifelse nesting = do
     let localNest = max nesting Nested
 
     let stopKeys :: Parser ()
-        stopKeys = (void . Mega.choice . fmap tryKeyword) 
-            [ Keywords.elif
-            , Keywords.else_
-            , Keywords.end      ]
+        stopKeys = (void . Mega.choice . fmap Mega.try) 
+            [ wordSequence  Keywords.elif
+            , wordSequence  Keywords.else_
+            , keyword       Keywords.end      ]
 
-    let getIf :: Keyword -> Parser (Block -> Statement)
+    let getIf :: WordSequence -> Parser (Block -> Statement)
         getIf key = do
-            keyword key
+            wordSequence key
             condition <- parens exprR
             whitespaceLn
             body      <- block localNest stopKeys
@@ -131,7 +134,7 @@ ifelse nesting = do
 
     let getElse :: Parser Block
         getElse = do
-            keyword Keywords.else_
+            wordSequence Keywords.else_
             whitespaceLn
             block localNest meowmeow
     
@@ -209,36 +212,34 @@ continueKey nesting = do
 ----------------------------------------------------------------
 breakKey :: Nesting -> Parser Statement
 breakKey nesting = do
-    keyword Keywords.run
+    keyword Keywords.break
     when (nesting < NestedInLoop)
         (fail "Cannot use loop keyword outside loop!")
     return Break
 
 {- For Loop -}
 ----------------------------------------------------------------
-forLoop :: Nesting -> Parser Statement
-forLoop nesting = do
-    let (start, middle, end) = Keywords.takeDo
-    keyword start
-    ini  <- parens liftedExpr
-    wordSequence middle
-    incr <- parens exprR
-    keyword end
-    cond <- parens exprR
+forEach :: Nesting -> Parser Statement
+forEach nesting = do
+    wordSequence Keywords.forEach
+    iter <- prettyExpr
+    repeatChar '!'
+    wordSequence Keywords.thenDo
+    repeatChar '!'
+    key  <- parseName
     whitespaceLn
     body <- block (max nesting NestedInLoop) meowmeow
     meowmeow
-    return $ ForLoop (ini, incr, cond) body
+    return (ForEachLoop iter key body)
 
 
 {- Import -}
 ----------------------------------------------------------------
 importKey :: Nesting -> Parser Statement
 importKey nesting = do
-    let (start, end) = Keywords.takes
-    keyword start
+    keyword Keywords.takes
     path <- parseModuleKey
-    name <- Mega.optional (keyword end >> parseName)
+    name <- Mega.optional (keyword Keywords.alias >> parseName)
     when (nesting > Root)
         (fail "Import statements cannot be nested!")
     return $ ImportStatement (Module path name)
@@ -250,19 +251,14 @@ tryCatch :: Nesting -> Parser Statement
 tryCatch nesting = do
     let localNest = max nesting Nested
 
-    let stopKeys :: Parser ()
-        stopKeys = (void . Mega.choice . fmap tryKeyword)
-            [ Keywords.catch
-            , Keywords.end   ]
-
-    keyword Keywords.try
+    wordSequence Keywords.try
     whitespaceLn
-    try_    <- block localNest stopKeys
+    try_    <- block localNest (wordSequence Keywords.catch)
 
-    keyword Keywords.catch
+    wordSequence Keywords.catch
     key_    <- Mega.optional parseName
     whitespaceLn
-    catch_  <- block localNest meowmeow
+    catch_  <- block localNest (keyword Keywords.end)
 
     meowmeow
     return (TryCatch try_ key_ catch_)

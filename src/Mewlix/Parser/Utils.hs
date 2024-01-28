@@ -16,7 +16,7 @@ module Mewlix.Parser.Utils
 , symbol
 , longSymbol
 , wordSequence
-, tryKeyword
+, repeatChar
 ) where
 
 import Mewlix.Keywords.Types
@@ -138,5 +138,5 @@ longSymbol = lexeme . void . MChar.string' . unwrapSymbol
 wordSequence :: WordSequence -> Parser ()
 wordSequence = mapM_ keyword . unwrapWords
 
-tryKeyword :: Keyword -> Parser ()
-tryKeyword = Mega.try . keyword
+repeatChar :: Char -> Parser ()
+repeatChar = Mega.skipSome . symbol

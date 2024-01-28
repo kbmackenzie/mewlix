@@ -109,7 +109,7 @@ newtype LineNumber = LineNumber { getLineNumber :: Int }
 data Statement =
       ExpressionStatement   Expression
     | WhileLoop             Expression Block
-    | ForLoop               (LiftedExpression, Expression, Expression) Block
+    | ForEachLoop           Expression Key Block
     | IfElse                Expression Block Block
     | FunctionDef           MewlixFunction
     | Binding               Key Expression

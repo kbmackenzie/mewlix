@@ -12,7 +12,7 @@ module Mewlix.Keywords.Constants
 , end
 , ret
 , catnap
-, run
+, break
 , clowder
 , new
 , home
@@ -22,7 +22,8 @@ module Mewlix.Keywords.Constants
 , elif
 , else_
 , while
-, takeDo
+, forEach
+, thenDo
 , paw
 , claw
 , box
@@ -34,6 +35,7 @@ module Mewlix.Keywords.Constants
 , peek
 , pop
 , takes
+, alias
 , try
 , catch
 , throw
@@ -44,23 +46,27 @@ import Mewlix.Keywords.Types
     ( Keyword(..)
     , LongSymbol(..)
     , WordSequence(..)
+    , firstWord
     )
 import Data.HashSet (HashSet)
 import qualified Data.HashSet as HashSet
-import Mewlix.Utils.Triple (fst3)
-import Prelude hiding (and, or, not)
+import Prelude hiding (and, or, not, break)
 
 {- This module should *always* be imported qualified. -}
 
+-- Functions:
 function :: LongSymbol
 function = "=^.x.^="
 
+-- Variables:
 local :: Keyword
 local = "mew"
 
+-- Block Comments:
 comment :: (LongSymbol, LongSymbol)
 comment = ("~( ^.x.^)>", "<(^.x.^ )~")
 
+-- Primitives:
 true :: Keyword
 true = "true"
 
@@ -70,21 +76,7 @@ false = "false"
 nil :: Keyword
 nil = "nothing"
 
-meow :: Keyword
-meow = "meow"
-
-end :: Keyword
-end = "meow meow"
-
-ret :: Keyword
-ret = "bring"
-
-catnap :: Keyword
-catnap = "catnap"
-
-run :: Keyword
-run = "run off"
-
+-- Clowders:
 clowder :: (Keyword, Keyword)
 clowder = ("clowder", "is")
 
@@ -100,21 +92,7 @@ super = "outside"
 constructor :: Keyword
 constructor = "wake"
 
-if_ :: Keyword
-if_ = "mew?"
-
-elif :: Keyword
-elif = "mao!"
-
-else_ :: Keyword
-else_ = "hiss!"
-
-while :: Keyword
-while = "meowmeow"
-
-takeDo :: (Keyword, WordSequence, Keyword)
-takeDo = ("take", ["and", "do"], "while")
-
+-- Expressions:
 paw :: WordSequence
 paw = ["paw", "at"]
 
@@ -145,14 +123,51 @@ peek = "peek"
 pop :: WordSequence
 pop = ["knock", "over"]
 
-takes :: (Keyword, Keyword)
-takes = ("takes", "as")
+-- Statements:
+meow :: Keyword
+meow = "meow"
 
-try :: Keyword
-try = "watch"
+end :: Keyword
+end = "meowmeow"
 
-catch :: Keyword
-catch = "catch"
+ret :: Keyword
+ret = "bring"
+
+catnap :: Keyword
+catnap = "catnap"
+
+break :: Keyword
+break = "escape"
+
+if_ :: WordSequence
+if_ = ["peek", "and", "see", "if"]
+
+elif :: WordSequence
+elif = ["or", "if", "maybe"]
+
+else_ :: WordSequence
+else_ = ["otherwise", "just"]
+
+while :: WordSequence
+while = ["stare", "until"]
+
+forEach :: WordSequence
+forEach = ["it's", "raining"]
+
+thenDo :: WordSequence
+thenDo = ["catch", "a"]
+
+takes :: Keyword
+takes = "takes"
+
+alias :: Keyword
+alias = "as"
+
+try :: WordSequence
+try = ["watch", "attentively"]
+
+catch :: WordSequence
+catch = ["pounce", "on"]
 
 throw :: Keyword
 throw = "throw"
@@ -167,28 +182,21 @@ reserved = HashSet.fromList
     , meow
     , ret
     , catnap
-    , run
+    , break
     , fst clowder
     , snd clowder
-    , fst3 takeDo
     , new
     , home
     , super
-    , if_
-    , elif
-    , else_
-    , while
-    , (head . unwrapWords) paw
-    , (head . unwrapWords) claw
+    , firstWord paw
+    , firstWord claw
     , not
     , and
     , or
     , push
     , peek
-    , (head . unwrapWords) pop
-    , fst takes
-    , try
-    , catch
+    , firstWord pop
+    , takes
     , throw
     -- Internal:
     , "box"
