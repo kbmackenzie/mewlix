@@ -4,7 +4,6 @@ module Mewlix.Parser.Expression
 ( exprL
 , exprR
 , declaration
-, liftedExpr
 , prettyExpr
 ) where
 
@@ -13,7 +12,6 @@ import Mewlix.Abstract.AST
     , Primitive(..)
     , Expression(..)
     , Arguments(..)
-    , LiftedExpression(..)
     , Params(..)
     , BinaryOp(..)
     , UnaryOp(..)
@@ -182,13 +180,6 @@ declaration = do
     name   <- parseName
     rvalue <- getValue
     return (name, rvalue)
-
-{- Lifted Expr -}
-------------------------------------------------------------------------------------
-liftedExpr :: Parser LiftedExpression
-liftedExpr = Mega.choice
-    [ uncurry LiftDeclaration   <$> declaration
-    , LiftExpression            <$> exprR        ]
 
 {- Pretty Expressions -}
 ------------------------------------------------------------------------------------

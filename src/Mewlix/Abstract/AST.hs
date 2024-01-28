@@ -14,7 +14,6 @@ module Mewlix.Abstract.AST
 , MewlixFunction(..)
 , MewlixClass(..)
 , LineNumber(..)
-, LiftedExpression(..)
 ) where
 
 import Mewlix.Data.Key (Key)
@@ -82,13 +81,6 @@ data UnaryOp =
 newtype Block     = Block     { getBlock      :: [Statement]  } deriving (Show, Semigroup, Monoid)
 newtype Params    = Params    { getParams     :: [Text]       } deriving (Show, Semigroup, Monoid)
 newtype Arguments = Arguments { getArguments  :: [Expression] } deriving (Show, Semigroup, Monoid)
-
-{- A 'lifted' expression type that allows declarations.
- - It's compiled into an IIFE if needed.                -}
-data LiftedExpression =
-      LiftExpression  Expression
-    | LiftDeclaration Key Expression
-    deriving (Show)
 
 data MewlixFunction = MewlixFunction
     { funcName      :: Key
