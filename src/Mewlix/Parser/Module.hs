@@ -20,7 +20,7 @@ parseModuleKey = do
     let namePart :: Parser Text
         namePart = Mega.takeWhile1P (Just "module name part") isKeyChar
 
-    let parseName :: Parser [Text]
-        parseName = Mega.sepBy1 namePart (MChar.char '.')
+    let parseKey :: Parser [Text]
+        parseKey = Mega.sepBy1 namePart (MChar.char '.')
 
-    ModuleKey . NonEmpty.fromList <$> lexeme parseName <?> "module name"
+    ModuleKey . NonEmpty.fromList <$> lexeme parseKey <?> "module name"

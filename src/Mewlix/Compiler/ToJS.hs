@@ -6,6 +6,7 @@ module Mewlix.Compiler.ToJS
 
 import Mewlix.Abstract.AST
 import Data.Text (Text)
+import Mewlix.Data.Key (Key(..))
 import Mewlix.String.Escape (escapeString)
 import Mewlix.String.Utils (parens, quotes, brackets, sepComma)
 import Mewlix.Compiler.Transpiler
@@ -15,7 +16,6 @@ import Mewlix.Compiler.Create
     , wrap
     , funcWrap
     , syncCall
-    , asyncCall
     )
 import Mewlix.Compiler.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.Constants as Mewlix
@@ -47,8 +47,8 @@ instance ToJS Expression where
 
     -- Names:
     ----------------------------------------------
-    transpileJS _ (Identifier key) = return key
-    transpileJS _ (ObjectProperty key) = return key
+    transpileJS _ (Identifier key) = (return . getKey) key
+    transpileJS _ (ObjectProperty key) = (return . getKey) key
 
     -- Lists + boxes:
     ----------------------------------------------
@@ -61,7 +61,7 @@ instance ToJS Expression where
         let makeTuple :: (Key, Expression) -> Transpiler Text
             makeTuple (key, expr) = do
                 value <- toJS expr
-                (return . brackets) (key <> ", " <> value)
+                (return . brackets) (getKey key <> ", " <> value)
 
         items <- mapM makeTuple pairs
         let array = (brackets . sepComma) items
@@ -180,7 +180,7 @@ instance ToJS Expression where
 {- Params -}
 -----------------------------------------------------------------
 instance ToJS Params where
-    transpileJS _ (Params params) = wrap $ sepComma params
+    transpileJS _ (Params params) = (wrap . sepComma . map getKey) params
 
 {- Arguments -}
 -----------------------------------------------------------------

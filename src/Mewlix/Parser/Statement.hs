@@ -12,9 +12,10 @@ import Mewlix.Abstract.AST
     , MewlixFunction(..)
     , MewlixClass(..)
     )
+import Mewlix.Data.Key (Key(..))
 import Mewlix.Abstract.Module (Module(..))
 import Mewlix.Parser.Module (parseModuleKey)
-import Mewlix.Parser.Primitive (parseName)
+import Mewlix.Parser.Primitive (parseKey)
 import Mewlix.Parser.Expression (declaration, exprR, prettyExpr)
 import Mewlix.Parser.Utils
     ( Parser
@@ -155,8 +156,8 @@ ifelse nesting = do
 func :: Parser MewlixFunction
 func = do
     longSymbol Keywords.function
-    name   <- parseName
-    params <- Params <$> parensList parseName
+    name   <- parseKey
+    params <- Params <$> parensList parseKey
     whitespaceLn
     body   <- block Nested meowmeow
     meowmeow
@@ -172,8 +173,8 @@ classDef :: Nesting -> Parser Statement
 classDef _ = do
     let (clowder, extends) = Keywords.clowder
     keyword clowder
-    name        <- parseName
-    parent      <- Mega.optional (keyword extends >> parseName)
+    name        <- parseKey
+    parent      <- Mega.optional (keyword extends >> parseKey)
     whitespaceLn
     methods     <- (Mega.many . lexemeLn) func
     constructor <- getConstructor methods
@@ -181,7 +182,8 @@ classDef _ = do
 
 getConstructor :: [MewlixFunction] -> Parser (Maybe MewlixFunction)
 getConstructor funcs = do
-    let constructors = filter ((== unwrapKeyword Keywords.constructor) . funcName) funcs
+    let wake = Key (unwrapKeyword Keywords.constructor)
+    let constructors = filter ((== wake) . funcName) funcs
     when (length constructors > 1)
         (fail "Class cannot have more than one constructor!")
     let constructor = case constructors of
@@ -226,7 +228,7 @@ forEach nesting = do
     repeatChar '!'
     wordSequence Keywords.thenDo
     repeatChar '!'
-    key  <- parseName
+    key  <- parseKey
     whitespaceLn
     body <- block (max nesting NestedInLoop) meowmeow
     meowmeow
@@ -239,7 +241,7 @@ importKey :: Nesting -> Parser Statement
 importKey nesting = do
     keyword Keywords.takes
     path <- parseModuleKey
-    name <- Mega.optional (keyword Keywords.alias >> parseName)
+    name <- Mega.optional (keyword Keywords.alias >> parseKey)
     when (nesting > Root)
         (fail "Import statements cannot be nested!")
     return $ ImportStatement (Module path name)
@@ -256,7 +258,7 @@ tryCatch nesting = do
     try_    <- block localNest (wordSequence Keywords.catch)
 
     wordSequence Keywords.catch
-    key_    <- Mega.optional parseName
+    key_    <- Mega.optional parseKey
     whitespaceLn
     catch_  <- block localNest (keyword Keywords.end)
 

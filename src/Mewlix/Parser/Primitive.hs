@@ -4,8 +4,8 @@ module Mewlix.Parser.Primitive
 ( parsePrim
 , parseString
 , parseStringM
+, parseKeyText
 , parseKey
-, parseName
 ) where
 
 import Mewlix.Abstract.AST (Primitive(..))
@@ -16,6 +16,7 @@ import Mewlix.Parser.Utils
     , isKeyChar
     , whitespace
     )
+import Mewlix.Data.Key (Key(..))
 import Mewlix.Keywords.Types (Keyword(..))
 import qualified Mewlix.Keywords.Constants as Keywords
 import Data.Text (Text)
@@ -102,14 +103,14 @@ parseBool = Mega.choice
 
 {- Keys + identifers: -}
 ----------------------------------------------------------------
-parseKey :: Parser Text
-parseKey = lexeme (Mega.takeWhile1P (Just "key") isKeyChar)
+parseKeyText :: Parser Text
+parseKeyText = lexeme (Mega.takeWhile1P (Just "key") isKeyChar)
 
 {- Parse identifiers (variable names, function names, et cetera).
  - These cannot be reserved keywords. -}
-parseName :: Parser Text
-parseName = do
-    text <- parseKey <?> "identifier"
+parseKey :: Parser Key
+parseKey = do
+    text <- parseKeyText <?> "identifier"
     when (HashSet.member (Keyword text) Keywords.reserved) 
         (fail (Text.unpack text ++ " is a reserved keyword!"))
-    return text
+    return (Key text)

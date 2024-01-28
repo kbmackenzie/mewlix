@@ -13,7 +13,7 @@ import Data.Text (Text)
 import qualified Data.Text as Text
 import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NonEmpty
-import Mewlix.Data.Key (Key)
+import Mewlix.Data.Key (Key(..))
 import Data.Maybe (isJust)
 
 data Module = Module

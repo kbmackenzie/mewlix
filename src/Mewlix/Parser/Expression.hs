@@ -8,8 +8,7 @@ module Mewlix.Parser.Expression
 ) where
 
 import Mewlix.Abstract.AST
-    ( Key
-    , Primitive(..)
+    ( Primitive(..)
     , Expression(..)
     , Arguments(..)
     , Params(..)
@@ -27,7 +26,8 @@ import Mewlix.Parser.Utils
     , bracketList
     , wordSequence
     )
-import Mewlix.Parser.Primitive (parseKey, parsePrim, parseName)
+import Mewlix.Data.Key (Key(..))
+import Mewlix.Parser.Primitive (parseKey, parsePrim, parseKey)
 import Text.Megaparsec ((<?>))
 import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Text.Megaparsec as Mega
@@ -47,7 +47,7 @@ termR = Mega.choice
     , parseMeet
     , parseThrow
     , PrimitiveExpr <$> parsePrim
-    , Identifier    <$> parseName ]
+    , Identifier    <$> parseKey  ]
 
 exprL :: Parser Expression
 exprL = makeExprParser termL operatorsL
@@ -64,7 +64,7 @@ parseBox :: Parser Expression
 parseBox = do
     let parsePair :: Parser (Key, Expression)
         parsePair = do
-            key <- parseName
+            key <- parseKey
             symbol ':'
             value <- exprR
             return (key, value)
@@ -177,7 +177,7 @@ declaration = do
             , return (PrimitiveExpr MewlixNil) ]
 
     keyword Keywords.local
-    name   <- parseName
+    name   <- parseKey
     rvalue <- getValue
     return (name, rvalue)
 

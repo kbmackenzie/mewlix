@@ -3,7 +3,6 @@
 
 module Mewlix.Abstract.AST 
 ( Primitive(..)
-, Key
 , Block(..)
 , Params(..)
 , Arguments(..)
@@ -79,7 +78,7 @@ data UnaryOp =
     deriving (Eq, Ord, Enum, Bounded, Show)
 
 newtype Block     = Block     { getBlock      :: [Statement]  } deriving (Show, Semigroup, Monoid)
-newtype Params    = Params    { getParams     :: [Text]       } deriving (Show, Semigroup, Monoid)
+newtype Params    = Params    { getParams     :: [Key]        } deriving (Show, Semigroup, Monoid)
 newtype Arguments = Arguments { getArguments  :: [Expression] } deriving (Show, Semigroup, Monoid)
 
 data MewlixFunction = MewlixFunction
