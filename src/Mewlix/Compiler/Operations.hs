@@ -7,7 +7,6 @@ module Mewlix.Compiler.Operations
 ) where
 
 import Data.Text (Text)
-import qualified Data.Text as Text
 import Mewlix.Compiler.Create (syncCall)
 import Mewlix.String.Utils (sepComma)
 import qualified Mewlix.Compiler.Constants as Mewlix

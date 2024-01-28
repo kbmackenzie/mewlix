@@ -4,10 +4,10 @@ module Mewlix.Compiler.ToJS
 ( ToJS(..)
 ) where
 
+import Mewlix.Abstract.AST
 import Data.Text (Text)
 import Mewlix.String.Escape (escapeString)
 import Mewlix.String.Utils (parens, quotes, brackets, sepComma)
-import Mewlix.Abstract.AST
 import Mewlix.Compiler.Transpiler
 import Mewlix.Utils.Show (showT)
 import Mewlix.Compiler.Create
