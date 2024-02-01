@@ -12,12 +12,12 @@ module Mewlix.Abstract.AST
 , UnaryOp(..)
 , MewlixFunction(..)
 , MewlixClass(..)
-, LineNumber(..)
 ) where
 
 import Mewlix.Abstract.Key (Key)
 import Data.Text (Text)
 import Mewlix.Abstract.Module (Module)
+import Text.Megaparsec (SourcePos)
 
 data Primitive =
       MewlixInt             Int
@@ -53,7 +53,7 @@ data Expression =
     | LookupExpression      Expression Expression
     | MeowExpression        Expression
     | ListenExpression      Expression
-    | ThrowError            Expression
+    | ThrowError            Expression SourcePos
     deriving (Show)
 
 data BinaryOp =
@@ -95,9 +95,6 @@ data MewlixClass = MewlixClass
     , classConstructor  :: Maybe MewlixFunction
     , classMethods      :: [MewlixFunction]      }
     deriving (Show)
-
-newtype LineNumber = LineNumber { getLineNumber :: Int }
-    deriving (Eq, Ord, Show, Enum, Num)
 
 data Statement =
       ExpressionStatement   Expression
