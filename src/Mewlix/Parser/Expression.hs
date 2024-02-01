@@ -118,7 +118,9 @@ parseMeet = do
 parseThrow :: Parser Expression
 parseThrow = do
     keyword Keywords.throw
-    ThrowError <$> expression
+    pos     <- Mega.getSourcePos
+    expr    <- expression
+    return (ThrowError expr pos)
 
 {- Postfixes -}
 ------------------------------------------------------------------------------------
