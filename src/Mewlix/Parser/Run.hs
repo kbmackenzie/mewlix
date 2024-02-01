@@ -12,7 +12,7 @@ import Mewlix.Abstract.AST
     )
 import Mewlix.Parser.Utils (Parser)
 import Mewlix.Parser.Statement (root)
-import Mewlix.Parser.Expression (exprR)
+import Mewlix.Parser.Expression (exprR, expression)
 import Text.Megaparsec (parse, errorBundlePretty)
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -26,4 +26,4 @@ parseRoot :: FilePath -> Text -> Either Text Block
 parseRoot = runParser root
 
 parseExpr :: FilePath -> Text -> Either Text Expression
-parseExpr = runParser exprR
+parseExpr = runParser expression

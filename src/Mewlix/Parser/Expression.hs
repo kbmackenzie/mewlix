@@ -3,6 +3,7 @@
 module Mewlix.Parser.Expression
 ( exprL
 , exprR
+, expression
 , declaration
 , prettyExpr
 ) where
@@ -44,12 +45,10 @@ termL = Identifier <$> parseKey
 
 termR :: Parser Expression
 termR = Mega.choice
-    [ parens exprR
+    [ parens expression
     , parseBox
     , parseList
     , parseSuper
-    , parseMeet
-    , parseThrow
     , PrimitiveExpr <$> parsePrim
     , Identifier    <$> parseKey  ]
 
@@ -59,10 +58,19 @@ exprL = makeExprParser termL operatorsL
 exprR :: Parser Expression
 exprR = makeExprParser termR operatorsR
 
+expression :: Parser Expression
+expression = Mega.choice
+    [ parens expression
+    , assignment
+    , parseLambda
+    --, parseMeet
+    --, parseThrow
+    , exprR             ]
+
 {- Data -}
 ------------------------------------------------------------------------------------
 parseList :: Parser Expression
-parseList = ListExpression <$> bracketList exprR <?> "list"
+parseList = ListExpression <$> bracketList expression <?> "list"
 
 parseBox :: Parser Expression
 parseBox = do
@@ -70,14 +78,14 @@ parseBox = do
         parsePair = do
             key <- parseKey
             symbol ':'
-            value <- exprR
+            value <- expression
             return (key, value)
 
     longSymbol Keywords.box
     BoxExpression <$> bracketList parsePair <?> "box"
 
 parseArguments :: Parser Arguments
-parseArguments = Arguments <$> parensList exprR
+parseArguments = Arguments <$> parensList expression
 
 {- Clowder -}
 ------------------------------------------------------------------------------------
@@ -98,7 +106,7 @@ parseMeet = do
 parseThrow :: Parser Expression
 parseThrow = do
     keyword Keywords.throw
-    ThrowError <$> exprR
+    ThrowError <$> expression
 
 {- Postfixes -}
 ------------------------------------------------------------------------------------
@@ -113,7 +121,7 @@ dotOp = do
     flip DotExpression <$> property
 
 boxOp :: Parser (Expression -> Expression)
-boxOp = flip LookupExpression <$> brackets exprR
+boxOp = flip LookupExpression <$> brackets expression
 
 call :: Parser (Expression -> Expression)
 call = do
@@ -131,6 +139,23 @@ lambda = do
     params <- parseParams
     longSymbol "=>"
     return (LambdaExpression params)
+
+parseLambda :: Parser Expression
+parseLambda = do
+    longSymbol Keywords.lambda
+    params <- parseParams
+    longSymbol "=>"
+    LambdaExpression params <$> exprR
+
+{- Assignment -}
+------------------------------------------------------------------------------------
+assignment :: Parser Expression
+assignment = do
+    key <- Mega.try $ do
+        key <- exprL
+        symbol '='
+        return key
+    Assignment key <$> expression
 
 {- Operator Tables -}
 ------------------------------------------------------------------------------------
@@ -166,9 +191,9 @@ operatorsR =
         , InfixL  (BinaryOperation NotEqual         <$ longSymbol "!="              )   ]
     ,   [ InfixL  (BooleanAnd                       <$ keyword Keywords.and         )   ]
     ,   [ InfixL  (BooleanOr                        <$ keyword Keywords.or          )   ]
-    ,   [ Prefix  lambda                                                                ]
+    --,   [ Prefix  lambda                                                                ]
     ,   [ TernR   ((TernaryOperation <$ symbol ':') <$ symbol '?'                   )   ]
-    ,   [ InfixR  (Assignment                       <$ symbol '='                   )   ]
+    --,   [ InfixR  (Assignment                       <$ symbol '='                   )   ]
     ]
 
 {- Declaration -}
@@ -177,7 +202,7 @@ declaration :: Parser (Key, Expression)
 declaration = do
     let getValue :: Parser Expression
         getValue = Mega.choice
-            [ symbol '=' >> exprR
+            [ symbol '=' >> expression
             , return (PrimitiveExpr MewlixNil) ]
 
     keyword Keywords.local
