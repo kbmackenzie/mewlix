@@ -31,7 +31,8 @@ library
       Mewlix.Abstract.Module
       Mewlix.Compiler.Indentation
       Mewlix.Compiler.Javascript.Constants
-      Mewlix.Compiler.Javascript.Create
+      Mewlix.Compiler.Javascript.Error
+      Mewlix.Compiler.Javascript.Expression
       Mewlix.Compiler.Javascript.Operations
       Mewlix.Compiler.Javascript.ToJS
       Mewlix.Compiler.Javascript.Transpiler

@@ -11,7 +11,7 @@ import Mewlix.String.Escape (escapeString)
 import Mewlix.String.Utils (parens, quotes, brackets, sepComma)
 import Mewlix.Compiler.Javascript.Transpiler
 import Mewlix.Utils.Show (showT)
-import Mewlix.Compiler.Javascript.Create
+import Mewlix.Compiler.Javascript.Expression
     ( instantiate
     , wrap
     , funcWrap

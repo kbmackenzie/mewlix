@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Compiler.Javascript.Create
+module Mewlix.Compiler.Javascript.Expression
 ( instantiate
 , wrap
 , funcWrap
