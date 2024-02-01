@@ -1,9 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Mewlix.Parser.Expression
-( exprL
-, exprR
-, expression
+( expression
 , declaration
 , prettyExpr
 ) where
@@ -49,6 +47,7 @@ termR = Mega.choice
     , parseBox
     , parseList
     , parseSuper
+    , parseMeet
     , PrimitiveExpr <$> parsePrim
     , Identifier    <$> parseKey  ]
 
@@ -63,8 +62,7 @@ expression = Mega.choice
     [ parens expression
     , assignment
     , parseLambda
-    --, parseMeet
-    --, parseThrow
+    , parseThrow
     , exprR             ]
 
 {- Data -}
@@ -101,7 +99,7 @@ parseMeet = do
     keyword Keywords.new
     ClowderCreate <$> termR <*> parseArguments
 
-{- Clowder -}
+{- Throw -}
 ------------------------------------------------------------------------------------
 parseThrow :: Parser Expression
 parseThrow = do
@@ -133,13 +131,6 @@ postfixes = foldr1 (flip (.)) <$> Mega.some (Mega.choice [ dotOp, boxOp, call ])
 
 {- Lambda -}
 ------------------------------------------------------------------------------------
-lambda :: Parser (Expression -> Expression)
-lambda = do
-    longSymbol Keywords.lambda
-    params <- parseParams
-    longSymbol "=>"
-    return (LambdaExpression params)
-
 parseLambda :: Parser Expression
 parseLambda = do
     longSymbol Keywords.lambda
@@ -191,9 +182,7 @@ operatorsR =
         , InfixL  (BinaryOperation NotEqual         <$ longSymbol "!="              )   ]
     ,   [ InfixL  (BooleanAnd                       <$ keyword Keywords.and         )   ]
     ,   [ InfixL  (BooleanOr                        <$ keyword Keywords.or          )   ]
-    --,   [ Prefix  lambda                                                                ]
     ,   [ TernR   ((TernaryOperation <$ symbol ':') <$ symbol '?'                   )   ]
-    --,   [ InfixR  (Assignment                       <$ symbol '='                   )   ]
     ]
 
 {- Declaration -}

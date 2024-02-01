@@ -15,7 +15,7 @@ import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (Module(..))
 import Mewlix.Parser.Module (parseModuleKey)
 import Mewlix.Parser.Primitive (parseKey, parseParams)
-import Mewlix.Parser.Expression (declaration, exprR, prettyExpr)
+import Mewlix.Parser.Expression (declaration, expression, prettyExpr)
 import Mewlix.Parser.Utils
     ( Parser
     , keyword
@@ -70,7 +70,7 @@ statement nesting = Mega.choice $ map lexemeLn
     , forEach       nesting
     , classDef      nesting
     , tryCatch      nesting
-    , expression    nesting ]
+    , expressionStm nesting ]
 
 block :: Nesting -> Parser a -> Parser Block
 block nesting stop = do
@@ -87,8 +87,8 @@ meowmeow = Mega.choice
 
 {- Expression -}
 ----------------------------------------------------------------
-expression :: Nesting -> Parser Statement
-expression _ = ExpressionStatement <$> exprR
+expressionStm :: Nesting -> Parser Statement
+expressionStm  _ = ExpressionStatement <$> expression
 
 
 {- Declaration -}
@@ -104,7 +104,7 @@ declareVar nesting = do
 whileLoop :: Nesting -> Parser Statement
 whileLoop nesting = do
     wordSequence Keywords.while
-    condition <- parens exprR
+    condition <- parens expression
     whitespaceLn
     body <- block (max nesting NestedInLoop) meowmeow
     meowmeow
@@ -126,7 +126,7 @@ ifelse nesting = do
     let getIf :: WordSequence -> Parser (Block -> Statement)
         getIf key = do
             wordSequence key
-            condition <- parens exprR
+            condition <- parens expression
             whitespaceLn
             body      <- block localNest stopKeys
             return (IfElse condition body)
@@ -195,8 +195,7 @@ getConstructor funcs = do
 returnKey :: Nesting -> Parser Statement
 returnKey _ = do
     keyword Keywords.ret
-    Return <$> exprR
-
+    Return <$> expression
 
 {- Continue -}
 ----------------------------------------------------------------

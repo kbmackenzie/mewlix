@@ -12,7 +12,7 @@ import Mewlix.Abstract.AST
     )
 import Mewlix.Parser.Utils (Parser)
 import Mewlix.Parser.Statement (root)
-import Mewlix.Parser.Expression (exprR, expression)
+import Mewlix.Parser.Expression (expression)
 import Text.Megaparsec (parse, errorBundlePretty)
 import Data.Text (Text)
 import qualified Data.Text as Text
