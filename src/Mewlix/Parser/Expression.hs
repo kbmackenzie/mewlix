@@ -11,7 +11,6 @@ import Mewlix.Abstract.AST
     ( Primitive(..)
     , Expression(..)
     , Arguments(..)
-    , Params(..)
     , BinaryOp(..)
     , UnaryOp(..)
     )
@@ -27,7 +26,12 @@ import Mewlix.Parser.Utils
     , wordSequence
     )
 import Mewlix.Abstract.Key (Key(..))
-import Mewlix.Parser.Primitive (parseKey, parsePrim, parseKey)
+import Mewlix.Parser.Primitive
+    ( parseKey
+    , parsePrim
+    , parseKey
+    , parseParams
+    )
 import Text.Megaparsec ((<?>))
 import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Text.Megaparsec as Mega
@@ -124,7 +128,7 @@ postfixes = foldr1 (flip (.)) <$> Mega.some (Mega.choice [ dotOp, boxOp, call ])
 lambda :: Parser (Expression -> Expression)
 lambda = do
     longSymbol Keywords.lambda
-    params <- Params <$> parensList parseKey
+    params <- parseParams
     longSymbol "=>"
     return (LambdaExpression params)
 

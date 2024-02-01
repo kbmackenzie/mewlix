@@ -6,8 +6,7 @@ module Mewlix.Parser.Statement
 ) where
 
 import Mewlix.Abstract.AST
-    ( Params(..)
-    , Block(..)
+    ( Block(..)
     , Statement(..)
     , MewlixFunction(..)
     , MewlixClass(..)
@@ -15,7 +14,7 @@ import Mewlix.Abstract.AST
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (Module(..))
 import Mewlix.Parser.Module (parseModuleKey)
-import Mewlix.Parser.Primitive (parseKey)
+import Mewlix.Parser.Primitive (parseKey, parseParams)
 import Mewlix.Parser.Expression (declaration, exprR, prettyExpr)
 import Mewlix.Parser.Utils
     ( Parser
@@ -25,7 +24,6 @@ import Mewlix.Parser.Utils
     , whitespaceLn
     , lexemeLn
     , parens
-    , parensList
     , repeatChar
     )
 import Mewlix.Keywords.Types
@@ -157,7 +155,7 @@ func :: Parser MewlixFunction
 func = do
     longSymbol Keywords.function
     name   <- parseKey
-    params <- Params <$> parensList parseKey
+    params <- parseParams
     whitespaceLn
     body   <- block Nested meowmeow
     meowmeow

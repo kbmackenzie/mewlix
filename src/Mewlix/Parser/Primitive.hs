@@ -6,15 +6,17 @@ module Mewlix.Parser.Primitive
 , parseStringM
 , parseKeyText
 , parseKey
+, parseParams
 ) where
 
-import Mewlix.Abstract.AST (Primitive(..))
+import Mewlix.Abstract.AST (Primitive(..), Params(..))
 import Mewlix.Parser.Utils
     ( Parser
     , keyword
     , lexeme
     , isKeyChar
     , whitespace
+    , parensList
     )
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Keywords.Types (Keyword(..))
@@ -114,3 +116,6 @@ parseKey = do
     when (HashSet.member (Keyword text) Keywords.reserved) 
         (fail (Text.unpack text ++ " is a reserved keyword!"))
     return (Key text)
+
+parseParams :: Parser Params
+parseParams = Params <$> parensList parseKey
