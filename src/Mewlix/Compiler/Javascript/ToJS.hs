@@ -6,7 +6,7 @@ module Mewlix.Compiler.Javascript.ToJS
 
 import Mewlix.Abstract.AST
 import Data.Text (Text)
-import Mewlix.Data.Key (Key(..))
+import Mewlix.Abstract.Key (Key(..))
 import Mewlix.String.Escape (escapeString)
 import Mewlix.String.Utils (parens, quotes, brackets, sepComma)
 import Mewlix.Compiler.Javascript.Transpiler

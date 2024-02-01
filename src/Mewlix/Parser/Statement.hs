@@ -12,7 +12,7 @@ import Mewlix.Abstract.AST
     , MewlixFunction(..)
     , MewlixClass(..)
     )
-import Mewlix.Data.Key (Key(..))
+import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (Module(..))
 import Mewlix.Parser.Module (parseModuleKey)
 import Mewlix.Parser.Primitive (parseKey)

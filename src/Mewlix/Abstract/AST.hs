@@ -15,7 +15,7 @@ module Mewlix.Abstract.AST
 , LineNumber(..)
 ) where
 
-import Mewlix.Data.Key (Key)
+import Mewlix.Abstract.Key (Key)
 import Data.Text (Text)
 import Mewlix.Abstract.Module (Module)
 

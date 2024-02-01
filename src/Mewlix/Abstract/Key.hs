@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Mewlix.Data.Key
+module Mewlix.Abstract.Key
 ( Key(..)
 ) where
 

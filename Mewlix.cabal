@@ -27,6 +27,7 @@ library
   exposed-modules:
       Mewlix
       Mewlix.Abstract.AST
+      Mewlix.Abstract.Key
       Mewlix.Abstract.Module
       Mewlix.Compiler.Indentation
       Mewlix.Compiler.Javascript.Constants
@@ -34,7 +35,6 @@ library
       Mewlix.Compiler.Javascript.Operations
       Mewlix.Compiler.Javascript.ToJS
       Mewlix.Compiler.Javascript.Transpiler
-      Mewlix.Data.Key
       Mewlix.Data.Ref
       Mewlix.Data.ToBool
       Mewlix.Data.ToString

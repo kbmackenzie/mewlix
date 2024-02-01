@@ -16,7 +16,7 @@ import Mewlix.Parser.Utils
     , isKeyChar
     , whitespace
     )
-import Mewlix.Data.Key (Key(..))
+import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Keywords.Types (Keyword(..))
 import qualified Mewlix.Keywords.Constants as Keywords
 import Data.Text (Text)

@@ -26,7 +26,7 @@ import Mewlix.Parser.Utils
     , bracketList
     , wordSequence
     )
-import Mewlix.Data.Key (Key(..))
+import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Parser.Primitive (parseKey, parsePrim, parseKey)
 import Text.Megaparsec ((<?>))
 import qualified Mewlix.Keywords.Constants as Keywords
