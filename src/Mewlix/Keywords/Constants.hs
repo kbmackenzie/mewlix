@@ -9,6 +9,7 @@ module Mewlix.Keywords.Constants
 , false
 , nil
 , meow
+, listen
 , end
 , ret
 , catnap
@@ -123,10 +124,13 @@ peek = "peek"
 pop :: WordSequence
 pop = ["knock", "over"]
 
--- Statements:
 meow :: Keyword
 meow = "meow"
 
+listen :: Keyword
+listen = "listen"
+
+-- Statements:
 end :: Keyword
 end = "meowmeow"
 
@@ -180,6 +184,7 @@ reserved = HashSet.fromList
     , false
     , nil
     , meow
+    , listen
     , ret
     , catnap
     , break

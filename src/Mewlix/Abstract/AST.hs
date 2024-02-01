@@ -51,6 +51,8 @@ data Expression =
     | ClowderCreate         Expression Arguments
     | DotExpression         Expression Expression
     | LookupExpression      Expression Expression
+    | MeowExpression        Expression
+    | ListenExpression      Expression
     | ThrowError            Expression
     deriving (Show)
 

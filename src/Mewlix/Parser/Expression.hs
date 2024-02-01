@@ -61,6 +61,8 @@ expression :: Parser Expression
 expression = Mega.choice
     [ parens expression
     , assignment
+    , parseMeow
+    , parseListen
     , parseLambda
     , parseThrow
     , exprR             ]
@@ -84,6 +86,18 @@ parseBox = do
 
 parseArguments :: Parser Arguments
 parseArguments = Arguments <$> parensList expression
+
+{- IO -}
+------------------------------------------------------------------------------------
+parseMeow :: Parser Expression
+parseMeow = do
+    keyword Keywords.meow
+    MeowExpression <$> expression
+
+parseListen :: Parser Expression
+parseListen = do
+    keyword Keywords.listen
+    ListenExpression <$> expression
 
 {- Clowder -}
 ------------------------------------------------------------------------------------
