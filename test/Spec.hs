@@ -1,12 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+import Data.Text (Text)
 import Mewlix.Parser.Run (parseExpr)
 import System.Environment (getArgs)
 import qualified Data.Text.IO as TextIO
 import Mewlix.Utils.Show (showT)
 
-textPrint :: (Show a) => a -> IO ()
-textPrint = TextIO.putStrLn . showT
+textPrint :: (Show a) => Either Text a -> IO ()
+textPrint x = case x of
+    (Left e) -> TextIO.putStrLn e
+    (Right a) -> (TextIO.putStrLn . showT) a
 
 expression :: IO ()
 expression = do
