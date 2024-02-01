@@ -173,9 +173,11 @@ instance ToJS Expression where
 
     -- 'Throw' expression:
     ----------------------------------------------
+    {-
     transpileJS _ (ThrowError expr) = do
         arg <- toJS expr
         wrap $ syncCall (Mewlix.mewlix "throwError") [arg]
+    -}
 
 {- Params -}
 -----------------------------------------------------------------
