@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Mewlix.Compiler.Javascript.Create
-( construct
+( instantiate
 , wrap
 , funcWrap
 , syncCall
@@ -11,8 +11,8 @@ module Mewlix.Compiler.Javascript.Create
 import Data.Text (Text)
 import Mewlix.String.Utils (sepComma, parens)
 
-construct :: Text -> [Text] -> Text
-construct name args = "new " <> name <> parens (sepComma args)
+instantiate :: Text -> [Text] -> Text
+instantiate name args = "new " <> name <> parens (sepComma args)
 
 wrap :: (Monad m) => Text -> m Text
 wrap = return . parens

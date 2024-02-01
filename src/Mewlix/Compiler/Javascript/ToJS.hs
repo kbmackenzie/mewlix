@@ -12,7 +12,7 @@ import Mewlix.String.Utils (parens, quotes, brackets, sepComma)
 import Mewlix.Compiler.Javascript.Transpiler
 import Mewlix.Utils.Show (showT)
 import Mewlix.Compiler.Javascript.Create
-    ( construct
+    ( instantiate
     , wrap
     , funcWrap
     , syncCall
@@ -55,7 +55,7 @@ instance ToJS Expression where
     transpileJS _ (ListExpression exprs) = do
         items <- mapM toJS exprs
         let array = (brackets . sepComma) items
-        wrap $ construct Mewlix.createStack [ array ]
+        wrap $ instantiate Mewlix.createStack [ array ]
 
     transpileJS _ (BoxExpression pairs) = do
         let makeTuple :: (Key, Expression) -> Transpiler Text
@@ -65,7 +65,7 @@ instance ToJS Expression where
 
         items <- mapM makeTuple pairs
         let array = (brackets . sepComma) items
-        wrap $ construct Mewlix.mewlixBox [ array ]
+        wrap $ instantiate Mewlix.mewlixBox [ array ]
 
     -- Boolean operations:
     ----------------------------------------------
