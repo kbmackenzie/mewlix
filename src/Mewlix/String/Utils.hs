@@ -7,7 +7,7 @@ module Mewlix.String.Utils
 , brackets
 , sepComma
 , newline
-, sepLines
+, doubleLn
 , semicolon
 , terminate
 ) where
@@ -33,8 +33,8 @@ sepComma = Text.intercalate ", "
 newline :: Text
 newline = "\n"
 
-sepLines :: [Text] -> Text
-sepLines = Text.concat . map (<> newline)
+doubleLn :: Text
+doubleLn = "\n\n"
 
 semicolon :: Text
 semicolon = ";"
