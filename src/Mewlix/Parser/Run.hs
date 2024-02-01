@@ -3,13 +3,16 @@
 module Mewlix.Parser.Run
 ( runParser
 , parseRoot
+, parseExpr
 ) where
 
 import Mewlix.Abstract.AST
-    ( Block(..)
+    ( Block
+    , Expression
     )
 import Mewlix.Parser.Utils (Parser)
 import Mewlix.Parser.Statement (root)
+import Mewlix.Parser.Expression (exprR)
 import Text.Megaparsec (parse, errorBundlePretty)
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -21,3 +24,6 @@ runParser parser path contents = case parse parser path contents of
 
 parseRoot :: FilePath -> Text -> Either Text Block
 parseRoot = runParser root
+
+parseExpr :: FilePath -> Text -> Either Text Expression
+parseExpr = runParser exprR
