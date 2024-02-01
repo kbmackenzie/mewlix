@@ -81,7 +81,7 @@ clowder :: (Keyword, Keyword)
 clowder = ("clowder", "is")
 
 new :: Keyword
-new = "meet"
+new = "new"
 
 home :: Keyword
 home = "home"
