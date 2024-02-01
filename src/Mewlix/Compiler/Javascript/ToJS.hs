@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Compiler.ToJS
+module Mewlix.Compiler.Javascript.ToJS
 ( ToJS(..)
 ) where
 
@@ -9,16 +9,16 @@ import Data.Text (Text)
 import Mewlix.Data.Key (Key(..))
 import Mewlix.String.Escape (escapeString)
 import Mewlix.String.Utils (parens, quotes, brackets, sepComma)
-import Mewlix.Compiler.Transpiler
+import Mewlix.Compiler.Javascript.Transpiler
 import Mewlix.Utils.Show (showT)
-import Mewlix.Compiler.Create
+import Mewlix.Compiler.Javascript.Create
     ( construct
     , wrap
     , funcWrap
     , syncCall
     )
-import Mewlix.Compiler.Operations (binaryOpFunc, unaryOpFunc)
-import qualified Mewlix.Compiler.Constants as Mewlix
+import Mewlix.Compiler.Javascript.Operations (binaryOpFunc, unaryOpFunc)
+import qualified Mewlix.Compiler.Javascript.Constants as Mewlix
 import qualified Data.List as List
 
 type IndentLevel = Int;

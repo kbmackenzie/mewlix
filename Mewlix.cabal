@@ -28,12 +28,12 @@ library
       Mewlix
       Mewlix.Abstract.AST
       Mewlix.Abstract.Module
-      Mewlix.Compiler.Constants
-      Mewlix.Compiler.Create
       Mewlix.Compiler.Indentation
-      Mewlix.Compiler.Operations
-      Mewlix.Compiler.ToJS
-      Mewlix.Compiler.Transpiler
+      Mewlix.Compiler.Javascript.Constants
+      Mewlix.Compiler.Javascript.Create
+      Mewlix.Compiler.Javascript.Operations
+      Mewlix.Compiler.Javascript.ToJS
+      Mewlix.Compiler.Javascript.Transpiler
       Mewlix.Data.Key
       Mewlix.Data.Ref
       Mewlix.Data.ToBool
