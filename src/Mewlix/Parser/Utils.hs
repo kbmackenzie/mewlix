@@ -12,18 +12,11 @@ module Mewlix.Parser.Utils
 , parensList
 , bracketList
 , isKeyChar
-, keyword
 , symbol
-, longSymbol
-, wordSequence
 , repeatChar
 ) where
 
-import Mewlix.Keywords.Types
-    ( SimpleKeyword(..)
-    , LongSymbol(..)
-    , WordSequence(..)
-    )
+import Mewlix.Keywords.Types (LongSymbol(..))
 import Data.Text (Text)
 import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Text.Megaparsec as Mega
@@ -124,19 +117,8 @@ bracketList = commaList brackets
 isKeyChar :: Char -> Bool
 isKeyChar c = isAlphaNum c || c == '_'
 
-keyword :: SimpleKeyword -> Parser ()
-keyword key = (lexeme . Mega.try) $ do
-    (void . MChar.string . unwrapKeyword) key
-    Mega.notFollowedBy (Mega.satisfy isKeyChar)
-
 symbol :: Char -> Parser ()
 symbol = lexeme . void . MChar.char
-
-longSymbol :: LongSymbol -> Parser ()
-longSymbol = lexeme . void . MChar.string' . unwrapSymbol
-
-wordSequence :: WordSequence -> Parser ()
-wordSequence = Mega.try . mapM_ keyword . unwrapWords
 
 repeatChar :: Char -> Parser ()
 repeatChar = Mega.skipSome . symbol

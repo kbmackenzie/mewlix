@@ -47,6 +47,7 @@ library
       Mewlix.Keywords.Constants
       Mewlix.Keywords.Types
       Mewlix.Parser.Expression
+      Mewlix.Parser.Keyword
       Mewlix.Parser.Module
       Mewlix.Parser.Primitive
       Mewlix.Parser.Run

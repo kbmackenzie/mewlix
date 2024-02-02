@@ -19,16 +19,14 @@ import Mewlix.Parser.Primitive (parseKey, parseParams)
 import Mewlix.Parser.Expression (declaration, expression, prettyExpr)
 import Mewlix.Parser.Utils
     ( Parser
-    , keyword
-    , longSymbol
-    , wordSequence
     , whitespaceLn
     , lexemeLn
     , parens
     , repeatChar
     )
+import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Keywords.Types (SimpleKeyword(..))
-import Data.List.NonEmpty(NonEmpty((:|)))
+import Data.List.NonEmpty (NonEmpty((:|)))
 import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Text.Megaparsec as Mega
 import Control.Monad (when)
@@ -100,7 +98,7 @@ declareVar nesting = do
 ----------------------------------------------------------------
 whileLoop :: Nesting -> Parser Statement
 whileLoop nesting = do
-    wordSequence Keywords.while
+    keyword Keywords.while
     condition <- parens expression
     whitespaceLn
     body <- block (max nesting NestedInLoop) meowmeow
@@ -114,26 +112,26 @@ ifelse :: Nesting -> Parser Statement
 ifelse nesting = do
     let nest = max nesting Nested
     let stop = Mega.choice
-            [ wordSequence Keywords.elif
-            , wordSequence Keywords.else_
+            [ keyword Keywords.elif
+            , keyword Keywords.else_
             , meowmeow                   ]
 
     initialConditional <- do
-        wordSequence Keywords.if_
+        keyword Keywords.if_
         condition   <- parens expression
         whitespaceLn
         body        <- block nest stop
         return (Conditional condition body)
 
     additonalConditionals <- Mega.many $ do
-        wordSequence Keywords.elif
+        keyword Keywords.elif
         condition   <- parens expression
         whitespaceLn
         body        <- block nest stop
         return (Conditional condition body)
 
     elseBlock <- Mega.optional $ do
-        wordSequence Keywords.else_
+        keyword Keywords.else_
         whitespaceLn
         block nest meowmeow
 
@@ -145,7 +143,7 @@ ifelse nesting = do
 ----------------------------------------------------------------
 func :: Parser MewlixFunction
 func = do
-    longSymbol Keywords.function
+    keyword Keywords.function
     name   <- parseKey
     params <- parseParams
     whitespaceLn
@@ -212,10 +210,10 @@ breakKey nesting = do
 ----------------------------------------------------------------
 forEach :: Nesting -> Parser Statement
 forEach nesting = do
-    wordSequence Keywords.forEach
+    keyword Keywords.forEach
     iter <- prettyExpr
     repeatChar '!'
-    wordSequence Keywords.thenDo
+    keyword Keywords.thenDo
     repeatChar '!'
     key  <- parseKey
     whitespaceLn
@@ -242,11 +240,11 @@ tryCatch :: Nesting -> Parser Statement
 tryCatch nesting = do
     let localNest = max nesting Nested
 
-    wordSequence Keywords.try
+    keyword Keywords.try
     whitespaceLn
-    try_    <- block localNest (wordSequence Keywords.catch)
+    try_    <- block localNest (keyword Keywords.catch)
 
-    wordSequence Keywords.catch
+    keyword Keywords.catch
     key_    <- Mega.optional parseKey
     whitespaceLn
     catch_  <- block localNest (keyword Keywords.end)

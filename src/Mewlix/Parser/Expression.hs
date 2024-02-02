@@ -15,15 +15,13 @@ import Mewlix.Abstract.AST
     )
 import Mewlix.Parser.Utils
     ( Parser
-    , keyword
     , symbol
-    , longSymbol
     , parens
     , brackets
     , parensList
     , bracketList
-    , wordSequence
     )
+import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Parser.Primitive
     ( parseKey
@@ -32,6 +30,7 @@ import Mewlix.Parser.Primitive
     , parseParams
     )
 import Text.Megaparsec ((<?>))
+import Mewlix.Keywords.Types (LongSymbol(..))
 import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Text.Megaparsec as Mega
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
@@ -81,7 +80,7 @@ parseBox = do
             value <- expression
             return (key, value)
 
-    longSymbol Keywords.box
+    keyword Keywords.box
     BoxExpression <$> bracketList parsePair <?> "box"
 
 parseArguments :: Parser Arguments
@@ -149,9 +148,9 @@ postfixes = foldr1 (flip (.)) <$> Mega.some (Mega.choice [ dotOp, boxOp, call ])
 ------------------------------------------------------------------------------------
 parseLambda :: Parser Expression
 parseLambda = do
-    longSymbol Keywords.lambda
+    keyword Keywords.lambda
     params <- parseParams
-    longSymbol "=>"
+    keyword $ LongSymbol "=>"
     LambdaExpression params <$> exprR
 
 {- Assignment -}
@@ -175,13 +174,13 @@ operatorsR :: OperatorTable
 operatorsR =
     [
         [ Postfix postfixes                                                             ]
-    ,   [ Prefix  (PawType                          <$ wordSequence Keywords.paw    )
-        , Prefix  (ClawEntries                      <$ wordSequence Keywords.claw   )   ]
-    ,   [ Postfix (UnaryOperation LengthLookup      <$ longSymbol "...?"            )   ] 
+    ,   [ Prefix  (PawType                          <$ keyword Keywords.paw             )
+        , Prefix  (ClawEntries                      <$ keyword Keywords.claw        )   ]
+    ,   [ Postfix (UnaryOperation LengthLookup      <$ keyword (LongSymbol "...?")  )   ] 
     ,   [ Prefix  (UnaryOperation ListPeek          <$ keyword Keywords.peek        )
         , InfixL  (ListPush                         <$ keyword Keywords.push        )
-        , Prefix  (ListPop                          <$ wordSequence Keywords.pop    )   ]
-    ,   [ InfixL  (BinaryOperation ListConcat       <$ longSymbol ".."              )   ]
+        , Prefix  (ListPop                          <$ keyword Keywords.pop         )   ]
+    ,   [ InfixL  (BinaryOperation ListConcat       <$ keyword (LongSymbol "..")    )   ]
     ,   [ InfixL  (BinaryOperation Power            <$ symbol '^'                   )   ]
     ,   [ Prefix  (UnaryOperation Negation          <$ symbol '-'                   )
         , Prefix  (UnaryOperation BooleanNot        <$ keyword Keywords.not         )   ]
@@ -190,12 +189,12 @@ operatorsR =
         , InfixL  (BinaryOperation Modulo           <$ symbol '%'                   )   ]
     ,   [ InfixL  (BinaryOperation Addition         <$ symbol '+'                   )
         , InfixL  (BinaryOperation Subtraction      <$ symbol '-'                   )   ]
-    ,   [ InfixL  (BinaryOperation LesserOrEqual    <$ longSymbol "<="              )
-        , InfixL  (BinaryOperation GreaterOrEqual   <$ longSymbol ">="              )
+    ,   [ InfixL  (BinaryOperation LesserOrEqual    <$ keyword (LongSymbol "<=")    )
+        , InfixL  (BinaryOperation GreaterOrEqual   <$ keyword (LongSymbol ">=")    )
         , InfixL  (BinaryOperation LessThan         <$ symbol '<'                   )
         , InfixL  (BinaryOperation GreaterThan      <$ symbol '>'                   )   ]
-    ,   [ InfixL  (BinaryOperation Equal            <$ longSymbol "=="              )
-        , InfixL  (BinaryOperation NotEqual         <$ longSymbol "!="              )   ]
+    ,   [ InfixL  (BinaryOperation Equal            <$ keyword (LongSymbol "==")    )
+        , InfixL  (BinaryOperation NotEqual         <$ keyword (LongSymbol "!=")    )   ]
     ,   [ InfixL  (BooleanAnd                       <$ keyword Keywords.and         )   ]
     ,   [ InfixL  (BooleanOr                        <$ keyword Keywords.or          )   ]
     ,   [ TernR   ((TernaryOperation <$ symbol ':') <$ symbol '?'                   )   ]

@@ -12,12 +12,12 @@ module Mewlix.Parser.Primitive
 import Mewlix.Abstract.AST (Primitive(..), Params(..))
 import Mewlix.Parser.Utils
     ( Parser
-    , keyword
     , lexeme
     , isKeyChar
     , whitespace
     , parensList
     )
+import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Keywords.Types (SimpleKeyword(..))
 import qualified Mewlix.Keywords.Constants as Keywords
