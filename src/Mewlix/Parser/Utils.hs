@@ -136,7 +136,7 @@ longSymbol :: LongSymbol -> Parser ()
 longSymbol = lexeme . void . MChar.string' . unwrapSymbol
 
 wordSequence :: WordSequence -> Parser ()
-wordSequence = mapM_ keyword . unwrapWords
+wordSequence = Mega.try . mapM_ keyword . unwrapWords
 
 repeatChar :: Char -> Parser ()
 repeatChar = Mega.skipSome . symbol
