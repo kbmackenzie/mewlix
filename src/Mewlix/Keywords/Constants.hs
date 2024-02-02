@@ -44,7 +44,7 @@ module Mewlix.Keywords.Constants
 ) where
 
 import Mewlix.Keywords.Types
-    ( Keyword(..)
+    ( SimpleKeyword(..)
     , LongSymbol(..)
     , WordSequence(..)
     , firstWord
@@ -60,7 +60,7 @@ function :: LongSymbol
 function = "=^.x.^="
 
 -- Variables:
-local :: Keyword
+local :: SimpleKeyword
 local = "mew"
 
 -- Block Comments:
@@ -68,29 +68,29 @@ comment :: (LongSymbol, LongSymbol)
 comment = ("~( ^.x.^)>", "<(^.x.^ )~")
 
 -- Primitives:
-true :: Keyword
+true :: SimpleKeyword
 true = "true"
 
-false :: Keyword
+false :: SimpleKeyword
 false = "false"
 
-nil :: Keyword
+nil :: SimpleKeyword
 nil = "nothing"
 
 -- Clowders:
-clowder :: (Keyword, Keyword)
+clowder :: (SimpleKeyword, SimpleKeyword)
 clowder = ("clowder", "is")
 
-new :: Keyword
+new :: SimpleKeyword
 new = "new"
 
-home :: Keyword
+home :: SimpleKeyword
 home = "home"
 
-super :: Keyword
+super :: SimpleKeyword
 super = "outside"
 
-constructor :: Keyword
+constructor :: SimpleKeyword
 constructor = "wake"
 
 -- Expressions:
@@ -106,41 +106,41 @@ box = "=^-x-^="
 lambda :: LongSymbol
 lambda = "=^*x*^="
 
-not :: Keyword
+not :: SimpleKeyword
 not = "not"
 
-and :: Keyword
+and :: SimpleKeyword
 and = "and"
 
-or :: Keyword
+or :: SimpleKeyword
 or = "or"
 
-push :: Keyword
+push :: SimpleKeyword
 push = "push"
 
-peek :: Keyword
+peek :: SimpleKeyword
 peek = "peek"
 
 pop :: WordSequence
 pop = ["knock", "over"]
 
-meow :: Keyword
+meow :: SimpleKeyword
 meow = "meow"
 
-listen :: Keyword
+listen :: SimpleKeyword
 listen = "listen"
 
 -- Statements:
-end :: Keyword
+end :: SimpleKeyword
 end = "meowmeow"
 
-ret :: Keyword
+ret :: SimpleKeyword
 ret = "bring"
 
-catnap :: Keyword
+catnap :: SimpleKeyword
 catnap = "catnap"
 
-break :: Keyword
+break :: SimpleKeyword
 break = "escape"
 
 if_ :: WordSequence
@@ -161,10 +161,10 @@ forEach = ["it's", "raining"]
 thenDo :: WordSequence
 thenDo = ["catch", "a"]
 
-takes :: Keyword
+takes :: SimpleKeyword
 takes = "takes"
 
-alias :: Keyword
+alias :: SimpleKeyword
 alias = "as"
 
 try :: WordSequence
@@ -173,10 +173,10 @@ try = ["watch", "attentively"]
 catch :: WordSequence
 catch = ["pounce", "on"]
 
-throw :: Keyword
+throw :: SimpleKeyword
 throw = "throw"
 
-reserved :: HashSet Keyword
+reserved :: HashSet SimpleKeyword
 {-# INLINE reserved #-}
 reserved = HashSet.fromList
     [ local

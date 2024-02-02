@@ -20,7 +20,7 @@ module Mewlix.Parser.Utils
 ) where
 
 import Mewlix.Keywords.Types
-    ( Keyword(..)
+    ( SimpleKeyword(..)
     , LongSymbol(..)
     , WordSequence(..)
     )
@@ -124,7 +124,7 @@ bracketList = commaList brackets
 isKeyChar :: Char -> Bool
 isKeyChar c = isAlphaNum c || c == '_'
 
-keyword :: Keyword -> Parser ()
+keyword :: SimpleKeyword -> Parser ()
 keyword key = (lexeme . Mega.try) $ do
     (void . MChar.string . unwrapKeyword) key
     Mega.notFollowedBy (Mega.satisfy isKeyChar)

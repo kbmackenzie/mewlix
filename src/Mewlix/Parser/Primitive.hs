@@ -19,7 +19,7 @@ import Mewlix.Parser.Utils
     , parensList
     )
 import Mewlix.Abstract.Key (Key(..))
-import Mewlix.Keywords.Types (Keyword(..))
+import Mewlix.Keywords.Types (SimpleKeyword(..))
 import qualified Mewlix.Keywords.Constants as Keywords
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -113,7 +113,7 @@ parseKeyText = lexeme (Mega.takeWhile1P (Just "key") isKeyChar)
 parseKey :: Parser Key
 parseKey = do
     text <- parseKeyText <?> "identifier"
-    when (HashSet.member (Keyword text) Keywords.reserved) 
+    when (HashSet.member (SimpleKeyword text) Keywords.reserved) 
         (fail (Text.unpack text ++ " is a reserved keyword!"))
     return (Key text)
 

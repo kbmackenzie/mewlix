@@ -27,7 +27,7 @@ import Mewlix.Parser.Utils
     , parens
     , repeatChar
     )
-import Mewlix.Keywords.Types (Keyword(..))
+import Mewlix.Keywords.Types (SimpleKeyword(..))
 import Data.List.NonEmpty(NonEmpty((:|)))
 import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Text.Megaparsec as Mega
