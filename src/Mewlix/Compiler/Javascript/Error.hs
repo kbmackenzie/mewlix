@@ -30,15 +30,21 @@ errorCode :: ErrorCode -> Text
 errorCode = (mewlix "ErrorCode." <>) . showT
 
 errorMessage :: SourcePos -> Text -> Text
-errorMessage pos message = mconcat
-    [ message
+errorMessage pos info = mconcat
+    [ info
     , "\n -> In module "
     , (quotes . escapeString . Text.pack . sourceName) pos
     , ", at line "
     , (showT . unPos . sourceLine) pos
     ]
 
-createError :: SourcePos -> Text -> Text
-createError pos message = do
-    let arguments = mconcat [ "(" , errorCode CatOnComputer , "," , errorMessage pos message , ")" ]
-    "throw new " <> mewlixError <> arguments
+errorArgs :: ErrorCode -> SourcePos -> Text -> Text
+errorArgs code pos info = mconcat
+    [ "(" 
+    , errorCode code 
+    , ","
+    , errorMessage pos info
+    , ")" ]
+
+createError :: ErrorCode -> SourcePos -> Text -> Text
+createError code pos info = "throw new " <> mewlixError <> errorArgs code pos info
