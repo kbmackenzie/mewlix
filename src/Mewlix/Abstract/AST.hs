@@ -12,11 +12,13 @@ module Mewlix.Abstract.AST
 , UnaryOp(..)
 , MewlixFunction(..)
 , MewlixClass(..)
+, Conditional(..)
 ) where
 
 import Mewlix.Abstract.Key (Key)
 import Data.Text (Text)
 import Mewlix.Abstract.Module (Module)
+import Data.List.NonEmpty (NonEmpty)
 import Text.Megaparsec (SourcePos)
 
 data Primitive =
@@ -96,11 +98,16 @@ data MewlixClass = MewlixClass
     , classMethods      :: [MewlixFunction]      }
     deriving (Show)
 
+data Conditional = Conditional
+    { conditionalExpression :: Expression
+    , conditionalBlock      :: Block             }
+    deriving (Show)
+
 data Statement =
       ExpressionStatement   Expression
     | WhileLoop             Expression Block
     | ForEachLoop           Expression Key Block
-    | IfElse                Expression Block Block
+    | IfElse                (NonEmpty Conditional) (Maybe Block)
     | FunctionDef           MewlixFunction
     | Binding               Key Expression
     | LocalBinding          Key Expression

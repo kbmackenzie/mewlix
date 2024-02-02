@@ -10,6 +10,7 @@ import Mewlix.Abstract.AST
     , Statement(..)
     , MewlixFunction(..)
     , MewlixClass(..)
+    , Conditional(..)
     )
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (Module(..))
@@ -26,15 +27,11 @@ import Mewlix.Parser.Utils
     , parens
     , repeatChar
     )
-import Mewlix.Keywords.Types
-    ( Keyword(..)
-    , WordSequence(..)
-    )
+import Mewlix.Keywords.Types (Keyword(..))
+import Data.List.NonEmpty(NonEmpty((:|)))
 import qualified Mewlix.Keywords.Constants as Keywords
-import qualified Data.List as List
 import qualified Text.Megaparsec as Mega
-import Control.Monad (void, when)
-import Data.Maybe (fromMaybe)
+import Control.Monad (when)
 
 root :: Parser Block
 root = do
@@ -115,38 +112,33 @@ whileLoop nesting = do
 ----------------------------------------------------------------
 ifelse :: Nesting -> Parser Statement
 ifelse nesting = do
-    let localNest = max nesting Nested
+    let nest = max nesting Nested
+    let stop = Mega.choice
+            [ wordSequence Keywords.elif
+            , wordSequence Keywords.else_
+            , meowmeow                   ]
 
-    let stopKeys :: Parser ()
-        stopKeys = (void . Mega.choice . fmap Mega.try) 
-            [ wordSequence  Keywords.elif
-            , wordSequence  Keywords.else_
-            , keyword       Keywords.end      ]
+    initialConditional <- do
+        wordSequence Keywords.if_
+        condition   <- parens expression
+        whitespaceLn
+        body        <- block nest stop
+        return (Conditional condition body)
 
-    let getIf :: WordSequence -> Parser (Block -> Statement)
-        getIf key = do
-            wordSequence key
-            condition <- parens expression
-            whitespaceLn
-            body      <- block localNest stopKeys
-            return (IfElse condition body)
+    additonalConditionals <- Mega.many $ do
+        wordSequence Keywords.elif
+        condition   <- parens expression
+        whitespaceLn
+        body        <- block nest stop
+        return (Conditional condition body)
 
-    let getElse :: Parser Block
-        getElse = do
-            wordSequence Keywords.else_
-            whitespaceLn
-            block localNest meowmeow
-    
-    mainIf      <- getIf Keywords.if_
-    elifs       <- Mega.many (getIf Keywords.elif)
-    mainElse    <- fromMaybe mempty <$> Mega.optional getElse
+    elseBlock <- Mega.optional $ do
+        wordSequence Keywords.else_
+        whitespaceLn
+        block nest meowmeow
 
-    let compose :: (Block -> Statement) -> (Block -> Statement) -> (Block -> Statement)
-        compose x acc = x . Block . List.singleton . acc
-    let ifs = foldr1 compose (mainIf : elifs)
-
-    meowmeow
-    return (ifs mainElse)
+    let conditionals = initialConditional :| additonalConditionals
+    return (IfElse conditionals elseBlock)
 
 
 {- Functions -}
