@@ -30,6 +30,7 @@ import Data.List.NonEmpty (NonEmpty((:|)))
 import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Text.Megaparsec as Mega
 import Control.Monad (when)
+import Data.Maybe (fromMaybe)
 
 root :: Parser Block
 root = do
@@ -67,10 +68,11 @@ statement nesting = Mega.choice $ map lexemeLn
     , tryCatch      nesting
     , expressionStm nesting ]
 
-block :: Nesting -> Parser a -> Parser Block
-block nesting stop = do
+block :: Nesting -> Maybe (Parser ()) -> Parser Block
+block nesting customStop = do
+    let stopPoint = fromMaybe (keyword Keywords.end) customStop
     let line = do
-            Mega.notFollowedBy stop
+            Mega.notFollowedBy stopPoint
             statement nesting
     (fmap Block . Mega.many . lexemeLn) line
 
@@ -101,7 +103,7 @@ whileLoop nesting = do
     keyword Keywords.while
     condition <- parens expression
     whitespaceLn
-    body <- block (max nesting NestedInLoop) meowmeow
+    body <- block (max nesting NestedInLoop) Nothing
     meowmeow
     return (WhileLoop condition body)
 
@@ -111,29 +113,29 @@ whileLoop nesting = do
 ifelse :: Nesting -> Parser Statement
 ifelse nesting = do
     let nest = max nesting Nested
-    let stop = Mega.choice
+    let stopPoint = Mega.choice
             [ keyword Keywords.elif
             , keyword Keywords.else_
-            , meowmeow                   ]
+            , keyword Keywords.end  ]
 
     initialConditional <- do
         keyword Keywords.if_
         condition   <- parens expression
         whitespaceLn
-        body        <- block nest stop
+        body        <- block nest (Just stopPoint)
         return (Conditional condition body)
 
     additonalConditionals <- Mega.many $ do
         keyword Keywords.elif
         condition   <- parens expression
         whitespaceLn
-        body        <- block nest stop
+        body        <- block nest (Just stopPoint)
         return (Conditional condition body)
 
     elseBlock <- Mega.optional $ do
         keyword Keywords.else_
         whitespaceLn
-        block nest meowmeow
+        block nest Nothing
 
     let conditionals = initialConditional :| additonalConditionals
     return (IfElse conditionals elseBlock)
@@ -147,7 +149,7 @@ func = do
     name   <- parseKey
     params <- parseParams
     whitespaceLn
-    body   <- block Nested meowmeow
+    body   <- block Nested Nothing
     meowmeow
     return (MewlixFunction name params body)
 
@@ -217,7 +219,7 @@ forEach nesting = do
     repeatChar '!'
     key  <- parseKey
     whitespaceLn
-    body <- block (max nesting NestedInLoop) meowmeow
+    body <- block (max nesting NestedInLoop) Nothing
     meowmeow
     return (ForEachLoop iter key body)
 
@@ -242,12 +244,12 @@ tryCatch nesting = do
 
     keyword Keywords.try
     whitespaceLn
-    try_    <- block localNest (keyword Keywords.catch)
+    try_    <- block localNest (Just $ keyword Keywords.catch)
 
     keyword Keywords.catch
     key_    <- Mega.optional parseKey
     whitespaceLn
-    catch_  <- block localNest (keyword Keywords.end)
+    catch_  <- block localNest Nothing
 
     meowmeow
     return (TryCatch try_ key_ catch_)
