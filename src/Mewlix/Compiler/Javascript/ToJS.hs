@@ -16,6 +16,11 @@ import Mewlix.Compiler.Javascript.Expression
     , wrap
     , funcWrap
     , syncCall
+    , asyncCall
+    )
+import Mewlix.Compiler.Javascript.Error
+    ( ErrorCode(..)
+    , createErrorIIFE
     )
 import Mewlix.Compiler.Javascript.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.Javascript.Constants as Mewlix
@@ -173,11 +178,19 @@ instance ToJS Expression where
 
     -- 'Throw' expression:
     ----------------------------------------------
-    {-
-    transpileJS _ (ThrowError expr) = do
+    transpileJS _ (ThrowError expr pos) = do
         arg <- toJS expr
-        wrap $ syncCall (Mewlix.mewlix "throwError") [arg]
-    -}
+        return $ createErrorIIFE CatOnComputer pos arg
+
+    -- IO:
+    ----------------------------------------------
+    transpileJS _ (MeowExpression expr) = do
+        arg <- toJS expr
+        wrap $ asyncCall Mewlix.meow [arg]
+
+    transpileJS _ (ListenExpression expr) = do
+        arg <- toJS expr
+        wrap $ asyncCall Mewlix.listen [arg]
 
 {- Params -}
 -----------------------------------------------------------------
