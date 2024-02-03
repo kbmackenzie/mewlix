@@ -4,6 +4,7 @@ module Mewlix.Compiler.Javascript.Expression
 ( instantiate
 , wrap
 , funcWrap
+, iifeWrap
 , syncCall
 , asyncCall
 ) where
@@ -19,6 +20,9 @@ wrap = return . parens
 
 funcWrap :: Text -> Text
 funcWrap body = "(() => " <> body <> ")"
+
+iifeWrap :: Text -> Text
+iifeWrap body = funcWrap body <> "()"
 
 syncCall :: Text -> [Text] -> Text
 syncCall name args = name <> parens (sepComma args)
