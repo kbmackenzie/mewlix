@@ -6,10 +6,6 @@ module Mewlix.String.Utils
 , quotes
 , brackets
 , sepComma
-, newline
-, doubleLn
-, semicolon
-, terminate
 ) where
 
 import Data.Text (Text)
@@ -29,15 +25,3 @@ brackets = surround '[' ']'
 
 sepComma :: [Text] -> Text
 sepComma = Text.intercalate ", "
-
-newline :: Text
-newline = "\n"
-
-doubleLn :: Text
-doubleLn = "\n\n"
-
-semicolon :: Text
-semicolon = ";"
-
-terminate :: Text -> Text
-terminate = (<> semicolon)
