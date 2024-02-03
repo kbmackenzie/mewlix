@@ -4,7 +4,8 @@
 module Mewlix.Keywords.Constants
 ( function
 , local
-, comment
+, commentOpen
+, commentClose
 , true
 , false
 , nil
@@ -64,8 +65,11 @@ local :: SimpleKeyword
 local = "mew"
 
 -- Block Comments:
-comment :: (LongSymbol, LongSymbol)
-comment = ("~( ^.x.^)>", "<(^.x.^ )~")
+commentOpen :: LongSymbol
+commentOpen = "~( ^.x.^)>"
+
+commentClose :: LongSymbol
+commentClose = "<(^.x.^ )~"
 
 -- Primitives:
 true :: SimpleKeyword
