@@ -24,7 +24,6 @@ import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
 import Data.Void (Void)
 import Control.Monad (void)
-import Data.Bifunctor (bimap)
 import Data.Char (isSpace, isAlphaNum)
 
 type Parser = Mega.Parsec Void Text
@@ -35,10 +34,12 @@ lineComment :: Parser ()
 lineComment = Lexer.skipLineComment "--"
 
 blockComment :: Parser ()
-blockComment = start >> void (Mega.manyTill Mega.anySingle end)
+blockComment = open >> Mega.skipManyTill Mega.anySingle close
     -- Case-insensitive comment symbols:
-    where (start, end) = bimap commentSymbol commentSymbol Keywords.comment
-          commentSymbol = MChar.string' . unwrapSymbol
+    where 
+        commentSymbol = void . MChar.string' . unwrapSymbol
+        open = commentSymbol Keywords.commentClose
+        close = commentSymbol Keywords.commentClose
 
 {- Single-line spaces: -}
 ----------------------------------------------------------------
