@@ -1,5 +1,6 @@
 module Mewlix.Parser.Keyword
 ( ParseKeyword(..)
+, anyKeyword
 ) where
 
 import Mewlix.Keywords.Types
@@ -29,3 +30,6 @@ instance ParseKeyword LongSymbol where
 
 instance ParseKeyword WordSequence where
     keyword = Mega.try . mapM_ keyword . unwrapWords
+
+anyKeyword :: (ParseKeyword a) => [a] -> Parser ()
+anyKeyword = Mega.choice . map keyword
