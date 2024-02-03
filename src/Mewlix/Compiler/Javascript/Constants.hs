@@ -7,6 +7,8 @@ module Mewlix.Compiler.Javascript.Constants
 , stackNode
 , stackBottom
 , createStack
+, meow
+, listen
 , operation
 , addModule
 , getModule
@@ -36,6 +38,12 @@ stackBottom = mewlix "StackBottom"
 
 createStack :: Text
 createStack = mewlix "MewlixStack.fromArray"
+
+meow :: Text
+meow = mewlix "meow"
+
+listen :: Text
+listen = mewlix "listen"
 
 operation :: Text -> Text
 operation = mewlix . ("Op." <>)
