@@ -1,7 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Mewlix.Compiler.Javascript.Error
-( createError
+( ErrorCode(..)
+, createError
+, createErrorIIFE
 ) where
 
 import Data.Text (Text)
@@ -48,3 +50,6 @@ errorArgs code pos info = mconcat
 
 createError :: ErrorCode -> SourcePos -> Text -> Text
 createError code pos info = "throw new " <> mewlixError <> errorArgs code pos info
+
+createErrorIIFE :: ErrorCode -> SourcePos -> Text -> Text
+createErrorIIFE code pos info = "(() => { " <> createError code pos info <> " })()"
