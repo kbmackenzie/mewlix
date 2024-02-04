@@ -16,6 +16,7 @@ module Mewlix.Keywords.Constants
 , catnap
 , break
 , clowder
+, extends
 , new
 , home
 , super
@@ -83,8 +84,11 @@ nil :: SimpleKeyword
 nil = "nothing"
 
 -- Clowders:
-clowder :: (SimpleKeyword, SimpleKeyword)
-clowder = ("clowder", "is")
+clowder :: SimpleKeyword
+clowder = "clowder"
+
+extends :: SimpleKeyword
+extends = "is"
 
 new :: SimpleKeyword
 new = "new"
@@ -197,8 +201,8 @@ reserved = HashSet.fromList
     , ret
     , catnap
     , break
-    , fst clowder
-    , snd clowder
+    , clowder
+    , extends
     , new
     , home
     , super

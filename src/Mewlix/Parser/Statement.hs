@@ -166,10 +166,9 @@ funcDef _ = FunctionDef <$> func
 ----------------------------------------------------------------
 classDef :: Nesting -> Parser Statement
 classDef _ = do
-    let (clowder, extends) = Keywords.clowder
-    keyword clowder
+    keyword Keywords.clowder
     name        <- parseKey
-    parent      <- Mega.optional (keyword extends >> parseKey)
+    parent      <- Mega.optional (keyword Keywords.extends >> parseKey)
     whitespaceLn
     methods     <- (Mega.many . lexemeLn) func
     constructor <- getConstructor methods
