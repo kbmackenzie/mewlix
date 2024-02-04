@@ -39,7 +39,7 @@ yarnBall :: Parser YarnBall
 yarnBall = do
     key <- Mega.optional $ do
         keyword Keywords.yarnball
-        parseModuleKey
+        parseModuleKey <* whitespaceLn
     body <- Block <$> Mega.many (statement Root)
     return (YarnBall key body)
 
