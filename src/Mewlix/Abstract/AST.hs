@@ -13,11 +13,12 @@ module Mewlix.Abstract.AST
 , MewlixFunction(..)
 , MewlixClass(..)
 , Conditional(..)
+, YarnBall(..)
 ) where
 
 import Mewlix.Abstract.Key (Key)
 import Data.Text (Text)
-import Mewlix.Abstract.Module (ModuleData)
+import Mewlix.Abstract.Module (ModuleKey, ModuleData)
 import Data.List.NonEmpty (NonEmpty)
 import Text.Megaparsec (SourcePos)
 
@@ -117,4 +118,9 @@ data Statement =
     | TryCatch              Block (Maybe Key) Block
     | Break 
     | Continue
+    deriving (Show)
+
+data YarnBall = YarnBall
+    { yarnballKey   :: Maybe ModuleKey
+    , yarnballBlock :: Block          }
     deriving (Show)

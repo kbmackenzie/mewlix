@@ -7,8 +7,8 @@ module Mewlix.Parser.Run
 ) where
 
 import Mewlix.Abstract.AST
-    ( Block
-    , Expression
+    ( Expression
+    , YarnBall
     )
 import Mewlix.Parser.Utils (Parser)
 import Mewlix.Parser.Statement (root)
@@ -22,7 +22,7 @@ runParser parser path contents = case parse parser path contents of
     (Left e)  -> (Left . Text.pack . errorBundlePretty) e
     (Right a) -> Right a
 
-parseRoot :: FilePath -> Text -> Either Text Block
+parseRoot :: FilePath -> Text -> Either Text YarnBall
 parseRoot = runParser root
 
 parseExpr :: FilePath -> Text -> Either Text Expression

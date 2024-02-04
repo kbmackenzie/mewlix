@@ -11,6 +11,7 @@ import Mewlix.Abstract.AST
     , MewlixFunction(..)
     , MewlixClass(..)
     , Conditional(..)
+    , YarnBall(..)
     )
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (ModuleData(..))
@@ -31,12 +32,16 @@ import qualified Text.Megaparsec as Mega
 import Control.Monad (when)
 import Data.Maybe (fromMaybe)
 
-root :: Parser Block
-root = do
-    let parser :: Parser Block
-        parser = Block <$> Mega.many (statement Root)
-    Mega.between whitespaceLn Mega.eof parser
+root :: Parser YarnBall
+root = Mega.between whitespaceLn Mega.eof yarnBall
 
+yarnBall :: Parser YarnBall
+yarnBall = do
+    key <- Mega.optional $ do
+        keyword Keywords.yarnball
+        parseModuleKey
+    body <- Block <$> Mega.many (statement Root)
+    return (YarnBall key body)
 
 {- Nesting -}
 ----------------------------------------------------------------
