@@ -38,6 +38,7 @@ module Mewlix.Keywords.Constants
 , pop
 , takes
 , alias
+, yarnball
 , try
 , catch
 , throw
@@ -170,6 +171,9 @@ takes = "takes"
 
 alias :: SimpleKeyword
 alias = "as"
+
+yarnball :: WordSequence
+yarnball = ["yarn", "ball"]
 
 try :: WordSequence
 try = ["watch", "attentively"]
