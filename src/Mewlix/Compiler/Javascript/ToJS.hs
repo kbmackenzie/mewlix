@@ -26,6 +26,7 @@ import Mewlix.Compiler.Javascript.Error
     )
 import Mewlix.Compiler.Javascript.Statement
     ( terminate
+    , findBindings
     )
 import Mewlix.Compiler.Javascript.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.Javascript.Constants as Mewlix
@@ -379,16 +380,30 @@ instance ToJS YarnBall where
 
         moduleFunction <- do
             let moduleLevel = toIndent 1
-            transpiled <- mapM (transpileJS moduleLevel) $ (getBlock . yarnballBlock) yarnball
+            let block = yarnballBlock yarnball
+            transpiled <- mapM (transpileJS moduleLevel) (getBlock block)
 
             -- The standard library import.
             let stdLibrary = indentLine moduleLevel "const std = Mewlix.Base;\n"
 
+            -- The module bindings to be exported:
+            moduleBindings <- do
+                let makeTuple :: Key -> Transpiler Text
+                    makeTuple (Key binding) = do
+                        bindingStr <- toJS (MewlixString binding)
+                        return $ mconcat [ "[", bindingStr, ", ", binding, "]" ]
+
+                bindings <- mapM makeTuple (findBindings block)
+                let array = (brackets . sepComma) bindings
+
+                let returnStatement = "return " <> instantiate Mewlix.mewlixBox [array] <> ";"
+                return $ indentLine moduleLevel returnStatement
+
             return $ separateLines
                 [ "async function yarnball() {"
                 , stdLibrary
-                -- add imports here!
                 , separateLines transpiled
+                , moduleBindings
                 , "}"                           ]
         
         keyString <- toJS (MewlixString key)
