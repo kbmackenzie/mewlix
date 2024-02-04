@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Data.Text (Text)
-import Mewlix.Parser.Run (parseExpr)
+import Mewlix.Parser.Run (parseExpr, parseRoot)
 import System.Environment (getArgs)
 import qualified Data.Text.IO as TextIO
 import Mewlix.Utils.Show (showT)
@@ -18,7 +18,14 @@ expression = do
     let expr = parseExpr path content
     textPrint expr
 
+root :: IO ()
+root = do 
+    path    <- head <$> getArgs
+    content <- TextIO.readFile path
+    let expr = parseRoot path content
+    textPrint expr
+
 main :: IO ()
 main = do
     TextIO.putStrLn "\n\n"
-    expression --putStrLn "todo"
+    root --expression --putStrLn "todo"
