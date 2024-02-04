@@ -160,6 +160,7 @@ assignment = do
     key <- Mega.try $ do
         key <- exprL
         symbol '='
+        Mega.notFollowedBy (symbol '=')
         return key
     Assignment key <$> expression
 
