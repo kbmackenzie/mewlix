@@ -3,7 +3,6 @@
 module Mewlix.Parser.Expression
 ( expression
 , declaration
-, prettyExpr
 ) where
 
 import Mewlix.Abstract.AST
@@ -214,8 +213,3 @@ declaration = do
     name   <- parseKey
     rvalue <- getValue
     return (name, rvalue)
-
-{- Pretty Expressions -}
-------------------------------------------------------------------------------------
-prettyExpr :: Parser Expression
-prettyExpr = termR

@@ -16,12 +16,11 @@ import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (Module(..))
 import Mewlix.Parser.Module (parseModuleKey)
 import Mewlix.Parser.Primitive (parseKey, parseParams)
-import Mewlix.Parser.Expression (declaration, expression, prettyExpr)
+import Mewlix.Parser.Expression (declaration, expression)
 import Mewlix.Parser.Utils
     ( Parser
     , whitespaceLn
     , lexemeLn
-    , parens
     , repeatChar
     )
 import Mewlix.Parser.Keyword (keyword)
@@ -101,7 +100,7 @@ declareVar nesting = do
 whileLoop :: Nesting -> Parser Statement
 whileLoop nesting = do
     keyword Keywords.while
-    condition <- parens expression
+    condition <- expression
     whitespaceLn
     body <- block (max nesting NestedInLoop) Nothing
     meowmeow
@@ -120,14 +119,14 @@ ifelse nesting = do
 
     initialConditional <- do
         keyword Keywords.if_
-        condition   <- parens expression
+        condition   <- expression
         whitespaceLn
         body        <- block nest (Just stopPoint)
         return (Conditional condition body)
 
     additonalConditionals <- Mega.many $ do
         keyword Keywords.elif
-        condition   <- parens expression
+        condition   <- expression
         whitespaceLn
         body        <- block nest (Just stopPoint)
         return (Conditional condition body)
@@ -215,7 +214,7 @@ breakKey nesting = do
 forEach :: Nesting -> Parser Statement
 forEach nesting = do
     keyword Keywords.forEach
-    iter <- prettyExpr
+    iter <- expression
     repeatChar '!'
     keyword Keywords.thenDo
     key  <- parseKey
