@@ -6,7 +6,9 @@ module Mewlix.Compiler.Javascript.ToJS
 
 import Mewlix.Abstract.AST
 import Data.Text (Text)
+import qualified Data.Text as Text
 import Mewlix.Abstract.Key (Key(..))
+import Mewlix.Abstract.Module (Module(..), hasAlias, defaultName)
 import Mewlix.String.Escape (escapeString)
 import Mewlix.String.Utils (parens, quotes, brackets, sepComma)
 import Mewlix.Compiler.Javascript.Transpiler
@@ -22,9 +24,14 @@ import Mewlix.Compiler.Javascript.Error
     ( ErrorCode(..)
     , createErrorIIFE
     )
+import Mewlix.Compiler.Javascript.Statement
+    ( terminate
+    )
 import Mewlix.Compiler.Javascript.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.Javascript.Constants as Mewlix
 import qualified Data.List as List
+import qualified Data.List.NonEmpty as NonEmpty
+import Data.Maybe (fromMaybe)
 
 type IndentLevel = Int;
 
@@ -203,3 +210,80 @@ instance ToJS Arguments where
     transpileJS _ (Arguments argExprs) = do
         args <- mapM toJS argExprs
         wrap $ sepComma args
+
+{- Statements -}
+-----------------------------------------------------------------
+-- Note: Every statement should be transpiled with no trailing linebreaks.
+-- All linebreaks between statements will be added somewhere else.
+
+instance ToJS Statement where
+    -- Expressions:
+    transpileJS _       (ExpressionStatement expr) = terminate <$> toJS expr
+
+    -- Control flow:
+    transpileJS level   (IfElse conditionals else_) = do
+
+        let transpileConditional :: Conditional -> Transpiler Text
+            transpileConditional (Conditional expr block) = do
+                condition <- toJS expr
+                body      <- transpileJS level block
+                let header = mconcat [ "if (", condition, ") " ]
+                return (header <> body)
+
+        initialCondition     <- transpileConditional (NonEmpty.head conditionals)
+        additionalConditions <- mapM transpileConditional (NonEmpty.tail conditionals)
+
+        elseBlock <- case else_ of
+            Nothing      -> return Text.empty
+            (Just block) -> do
+                body <- transpileJS level block
+                return ("else " <> body)
+
+        return $ Text.unlines
+            [ initialCondition
+            , (Text.unlines . map ("else " <>)) additionalConditions
+            , elseBlock                                             ]
+
+    -- While loop:
+    transpileJS level   (WhileLoop expr block) = do
+        condition   <- toJS expr
+        body        <- transpileJS level block
+        let header = mconcat [ "while (", condition, ") " ]
+        return (header <> body)
+
+    -- Foreach loop:
+    transpileJS level   (ForEachLoop expr key block) = do
+        iterable    <- toJS expr
+        body        <- transpileJS level block
+        let header = mconcat [ "for (const ", getKey key, " of ", iterable, ") " ]
+        return (header <> body)
+
+    -- Bindings:
+    transpileJS _       (Binding key expr) = do
+        value       <- toJS expr
+        return $ mconcat [ "let ", getKey key, " = ", value, ";" ]
+
+    transpileJS _       (LocalBinding key expr) = toJS (Binding key expr)
+
+    -- Loop keywords:
+    transpileJS _       Break = return "break;"
+    transpileJS _       Continue = return "continue;"
+
+    -- Return keyword:
+    transpileJS _       (Return expr) = do
+        value <- toJS expr
+        return $ mconcat [ "return ", value, ";" ]
+
+    -- Import statement:
+    transpileJS _       (ImportStatement module_) = do
+        let key = maybe (defaultName module_) getKey (moduleAlias module_)
+        let value = asyncCall Mewlix.getModule [key]
+        return $ mconcat [ "const ", key, " = ", value, ";" ]
+
+{- Block -}
+-----------------------------------------------------------------
+instance ToJS Block where
+    transpileJS level (Block statements) = do
+        let newLevel = succ level
+        transpiledStatements <- mapM (transpileJS newLevel) statements
+        return $ mconcat [ "{\n", Text.unlines transpiledStatements, "\n}" ]

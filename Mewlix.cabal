@@ -34,6 +34,7 @@ library
       Mewlix.Compiler.Javascript.Error
       Mewlix.Compiler.Javascript.Expression
       Mewlix.Compiler.Javascript.Operations
+      Mewlix.Compiler.Javascript.Statement
       Mewlix.Compiler.Javascript.ToJS
       Mewlix.Compiler.Javascript.Transpiler
       Mewlix.Data.Ref
