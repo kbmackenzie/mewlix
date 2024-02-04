@@ -189,6 +189,7 @@ reserved = HashSet.fromList
     , nil
     , meow
     , listen
+    , end
     , ret
     , catnap
     , break
