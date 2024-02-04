@@ -3,12 +3,8 @@
 
 module Mewlix.Compiler.Javascript.Transpiler
 ( TransContext(..)
-, TransError(..)
 , Transpiler(..)
 , transpile
--- Lens:
-, globalBindingsL
-, globalConstantsL
 -- Re-exports:
 , ask
 , asks
@@ -25,27 +21,16 @@ import Control.Monad.Except (MonadError, Except, throwError, catchError, runExce
 import Lens.Micro.Platform (makeLensesFor)
 
 data TransContext = TransContext
-    { globalBindings  :: HashSet Text
-    , globalConstants :: HashMap Text Text }
-    deriving (Show);
-
-newtype TransError = TransError { getMessage :: Text }
     deriving (Show);
 
 newtype Transpiler a = Transpiler 
-    { runTranspiler :: ReaderT TransContext (Except TransError) a }
+    { runTranspiler :: ReaderT TransContext (Except Text) a }
     deriving ( Functor
              , Applicative
              , Monad
              , MonadReader TransContext
-             , MonadError TransError
+             , MonadError Text
              )
 
-transpile :: TransContext -> Transpiler a -> Either TransError a
+transpile :: TransContext -> Transpiler a -> Either Text a
 transpile ctx = runExcept . flip runReaderT ctx . runTranspiler;
-
-{- Lens: -}
---------------------------------------------------------------------
-$(makeLensesFor
-    [ ("globalBindings"  , "globalBindingsL"  )
-    , ("globalConstants" , "globalConstantsL" ) ] ''TransContext)

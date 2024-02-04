@@ -37,8 +37,7 @@ errorMessage pos info = mconcat
     , "\n -> In module "
     , (quotes . escapeString . Text.pack . sourceName) pos
     , ", at line "
-    , (showT . unPos . sourceLine) pos
-    ]
+    , (showT . unPos . sourceLine) pos ]
 
 errorArgs :: ErrorCode -> SourcePos -> Text -> Text
 errorArgs code pos info = mconcat

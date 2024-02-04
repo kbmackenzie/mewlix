@@ -8,9 +8,9 @@ import Mewlix.Abstract.AST
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Mewlix.Abstract.Key (Key(..))
-import Mewlix.Abstract.Module (ModuleData(..), defaultName)
+import Mewlix.Abstract.Module (ModuleData(..), joinKey, defaultName)
 import Mewlix.String.Escape (escapeString)
-import Mewlix.String.Utils (parens, quotes, brackets, sepComma)
+import Mewlix.String.Utils (parens, quotes, brackets, sepComma, separateLines)
 import Mewlix.Compiler.Javascript.Transpiler
 import Mewlix.Utils.Show (showT)
 import Mewlix.Compiler.Javascript.Expression
@@ -29,13 +29,13 @@ import Mewlix.Compiler.Javascript.Statement
     )
 import Mewlix.Compiler.Javascript.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.Javascript.Constants as Mewlix
+import Mewlix.Compiler.Indentation (Indentation, toIndent, indentLine, indentMany)
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
-
-type IndentLevel = Int;
+import Data.Maybe (fromMaybe)
 
 class ToJS a where
-    transpileJS :: IndentLevel -> a -> Transpiler Text
+    transpileJS :: Indentation -> a -> Transpiler Text
 
     toJS :: a -> Transpiler Text
     toJS = transpileJS 0
@@ -43,11 +43,11 @@ class ToJS a where
 {- Primitives -}
 -----------------------------------------------------------------
 instance ToJS Primitive where
-    transpileJS _ (MewlixInt i)     = (return . parens . showT) i
-    transpileJS _ (MewlixBool b)    = (return . parens . showT) b
-    transpileJS _ (MewlixFloat f)   = (return . parens . showT) f
-    transpileJS _ (MewlixString s)  = (return . parens . quotes . escapeString) s
-    transpileJS _ MewlixNil         = return "(null)"
+    transpileJS _ (MewlixInt i)     = (return . showT) i
+    transpileJS _ (MewlixBool b)    = (return . showT) b
+    transpileJS _ (MewlixFloat f)   = (return . showT) f
+    transpileJS _ (MewlixString s)  = (return . quotes . escapeString) s
+    transpileJS _ MewlixNil         = return "null"
     transpileJS _ MewlixHome        = return "this"
     transpileJS _ MewlixSuper       = return "super"
 
@@ -128,7 +128,7 @@ instance ToJS Expression where
     transpileJS _ (FunctionCall expr argExprs) = do
         args <- toJS argExprs
         func <- toJS expr
-        return ("await " <> func <> args)
+        wrap ("await " <> func <> args)
 
     -- Dot expression:
     ----------------------------------------------
@@ -150,11 +150,11 @@ instance ToJS Expression where
     transpileJS _ (ClowderCreate clowderExpr argExprs) = do
         clowder <- toJS clowderExpr
         args    <- toJS argExprs
-        return ("await new " <> clowder <> "().wake" <> args)
+        wrap ("await new " <> clowder <> "().wake" <> args)
 
     transpileJS _ (SuperCall argExprs) = do
         args    <- toJS argExprs
-        return ("super.wake" <> args)
+        wrap ("await super.wake" <> args)
 
     -- Binary operations:
     ----------------------------------------------
@@ -217,9 +217,12 @@ instance ToJS Arguments where
 
 instance ToJS Statement where
     -- Expressions:
-    transpileJS _       (ExpressionStatement expr) = terminate <$> toJS expr
+    ----------------------------------------------
+    transpileJS level       (ExpressionStatement expr) = do
+        indentLine level . terminate <$> toJS expr
 
     -- Control flow:
+    ----------------------------------------------
     transpileJS level   (IfElse conditionals else_) = do
 
         let transpileConditional :: Conditional -> Transpiler Text
@@ -229,8 +232,8 @@ instance ToJS Statement where
                 let header = mconcat [ "if (", condition, ") " ]
                 return (header <> body)
 
-        initialCondition     <- transpileConditional (NonEmpty.head conditionals)
-        additionalConditions <- mapM transpileConditional (NonEmpty.tail conditionals)
+        initialConditional  <- transpileConditional (NonEmpty.head conditionals)
+        moreConditionals    <- mapM transpileConditional (NonEmpty.tail conditionals)
 
         elseBlock <- case else_ of
             Nothing      -> return Text.empty
@@ -238,51 +241,165 @@ instance ToJS Statement where
                 body <- transpileJS level block
                 return ("else " <> body)
 
-        return $ Text.unlines
-            [ initialCondition
-            , (Text.unlines . map ("else " <>)) additionalConditions
-            , elseBlock                                             ]
+        return $ separateLines
+            [ indentLine level initialConditional
+            , (separateLines . indentMany level . map ("else " <>)) moreConditionals
+            , indentLine level elseBlock                                            ]
 
     -- While loop:
+    ----------------------------------------------
     transpileJS level   (WhileLoop expr block) = do
         condition   <- toJS expr
         body        <- transpileJS level block
-        let header = mconcat [ "while (", condition, ") " ]
+        let header = indentLine level $ mconcat [ "while (", condition, ") " ]
         return (header <> body)
 
     -- Foreach loop:
+    ----------------------------------------------
     transpileJS level   (ForEachLoop expr key block) = do
         iterable    <- toJS expr
         body        <- transpileJS level block
-        let header = mconcat [ "for (const ", getKey key, " of ", iterable, ") " ]
+        let header = indentLine level $ mconcat [ "for (const ", getKey key, " of ", iterable, ") " ]
         return (header <> body)
 
     -- Bindings:
-    transpileJS _       (Binding key expr) = do
-        value       <- toJS expr
-        return $ mconcat [ "let ", getKey key, " = ", value, ";" ]
+    ----------------------------------------------
+    transpileJS level    (Binding key expr) = do
+        value <- toJS expr
+        let declaration = mconcat [ "let ", getKey key, " = ", value, ";" ]
+        return (indentLine level declaration)
+    transpileJS level    (LocalBinding key expr) = transpileJS level (Binding key expr)
 
-    transpileJS _       (LocalBinding key expr) = toJS (Binding key expr)
+    -- Functions:
+    ----------------------------------------------
+    transpileJS level   (FunctionDef func) = do
+        funcExpr <- transpileJS level func
+        let boundFunc = parens funcExpr <> ".bind(null)"
+        let declaration = mconcat [ "const ", (getKey . funcName) func, " = ", boundFunc, ";" ]
+        return (indentLine level declaration)
 
     -- Loop keywords:
-    transpileJS _       Break = return "break;"
-    transpileJS _       Continue = return "continue;"
+    ----------------------------------------------
+    transpileJS level   Break = return (indentLine level "break;")
+    transpileJS level   Continue = return (indentLine level "continue;")
 
     -- Return keyword:
-    transpileJS _       (Return expr) = do
+    ----------------------------------------------
+    transpileJS level   (Return expr) = do
         value <- toJS expr
-        return $ mconcat [ "return ", value, ";" ]
+        let ret = mconcat [ "return ", value, ";" ]
+        return (indentLine level ret)
 
     -- Import statement:
-    transpileJS _       (ImportStatement module_) = do
-        let key = maybe (defaultName module_) getKey (moduleAlias module_)
+    ----------------------------------------------
+    transpileJS level   (ImportStatement moduleData) = do
+        let key = maybe (defaultName moduleData) getKey (moduleAlias moduleData)
         let value = asyncCall Mewlix.getModule [key]
-        return $ mconcat [ "const ", key, " = ", value, ";" ]
+        let declaration = mconcat [ "const ", key, " = ", value, ";" ]
+        return (indentLine level declaration)
+
+    -- Class statement:
+    ----------------------------------------------
+    transpileJS level   (ClassDef clowder) = do
+        let extends = maybe Mewlix.mewlixBox getKey (classExtends clowder)
+        let header = mconcat [ "class ", (getKey . className) clowder, " extends ", extends ]
+
+        let classLevel  = succ level
+        let methodLevel = succ classLevel
+
+        let transpileMethod :: MewlixFunction -> Transpiler Text
+            transpileMethod func = do
+                funcExpr <- transpileJS methodLevel func
+                let boundFunc = parens funcExpr <> ".bind(this)"
+                return $ mconcat [ "this.", (getKey . funcName) func, " = ", boundFunc, ";" ]
+
+        methods <- mapM transpileMethod (classMethods clowder)
+        let constructor = separateLines
+                [ indentLine classLevel "constructor() {"
+                , indentLine methodLevel "super();"
+                , separateLines (indentMany methodLevel methods)
+                , indentLine classLevel "}"                     ]
+
+        return $ separateLines
+            [ indentLine level header <> " {"
+            , constructor
+            , indentLine level "}"           ]
+
+    -- Try/Catch:
+    ----------------------------------------------
+    transpileJS level   (TryCatch watch customKey pounce) = do
+        let key = fromMaybe (Key "error") customKey
+        let callLevel = succ level
+
+        watchFunc   <- transpileJS callLevel $ MewlixFunction
+                { funcName = mempty
+                , funcBody = watch
+                , funcParams = mempty  }
+
+        pounceFunc  <- transpileJS callLevel $ MewlixFunction
+                { funcName = mempty
+                , funcBody = pounce
+                , funcParams = Params [key] }
+
+        return $ separateLines
+                [ indentLine level ("await " <> Mewlix.watchPounce <> "(")
+                , indentLine callLevel (parens watchFunc  <> ".bind(null),")
+                , indentLine callLevel (parens pounceFunc <> ".bind(null)" )
+                , indentLine level ");"                                      ]
+
+{- Function -}
+-----------------------------------------------------------------
+instance ToJS MewlixFunction where
+    transpileJS level func = do
+        let name = (getKey . funcName) func
+        params  <- toJS (funcParams func)
+        body    <- transpileJS level (funcBody func)
+        let header = mconcat [ "async function ", name, params, " " ]
+        return (header <> body)
 
 {- Block -}
 -----------------------------------------------------------------
 instance ToJS Block where
-    transpileJS level (Block statements) = do
-        let newLevel = succ level
-        transpiledStatements <- mapM (transpileJS newLevel) statements
-        return $ mconcat [ "{\n", Text.unlines transpiledStatements, "\n}" ]
+    transpileJS level block = do
+        let blockLevel = succ level
+        transpiled <- mapM (transpileJS blockLevel) (getBlock block)
+        return $ separateLines
+            [ "{"
+            , separateLines transpiled
+            , indentLine level "}"              ]
+
+
+{- Yarn Ball -}
+-----------------------------------------------------------------
+instance ToJS YarnBall where
+    transpileJS _ yarnball = do
+        let key = maybe mempty joinKey (yarnballKey yarnball)
+        let strictPragma = "'use strict';"
+        let metadataComment = "-- todo"
+
+        moduleFunction <- do
+            let moduleLevel = toIndent 1
+            transpiled <- mapM (transpileJS moduleLevel) $ (getBlock . yarnballBlock) yarnball
+
+            -- The standard library import.
+            let stdLibrary = indentLine moduleLevel "const std = Mewlix.Base;\n"
+
+            return $ separateLines
+                [ "async function yarnball() {"
+                , stdLibrary
+                -- add imports here!
+                , separateLines transpiled
+                , "}"                           ]
+        
+        keyString <- toJS (MewlixString key)
+        let footer = syncCall Mewlix.addModule [keyString, "yarnball"]
+
+        -- Separate with two line breaks instead of one.
+        let separate :: [Text] -> Text
+            separate = Text.intercalate "\n\n"
+
+        return $ separate
+                [ metadataComment
+                , strictPragma
+                , moduleFunction
+                , footer        ]
