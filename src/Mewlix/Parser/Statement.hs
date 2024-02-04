@@ -169,6 +169,7 @@ classDef _ = do
     whitespaceLn
     methods     <- (Mega.many . lexemeLn) func
     constructor <- getConstructor methods
+    meowmeow
     (return . ClassDef) (MewlixClass name parent constructor methods)
 
 getConstructor :: [MewlixFunction] -> Parser (Maybe MewlixFunction)
@@ -176,7 +177,7 @@ getConstructor funcs = do
     let wake = Key (unwrapKeyword Keywords.constructor)
     let constructors = filter ((== wake) . funcName) funcs
     when (length constructors > 1)
-        (fail "Class cannot have more than one constructor!")
+        (fail "Clowder cannot have more than one constructor!")
     let constructor = case constructors of
             []    -> Nothing
             (x:_) -> Just x
@@ -217,8 +218,8 @@ forEach nesting = do
     iter <- prettyExpr
     repeatChar '!'
     keyword Keywords.thenDo
-    repeatChar '!'
     key  <- parseKey
+    repeatChar '!'
     whitespaceLn
     body <- block (max nesting NestedInLoop) Nothing
     meowmeow
