@@ -17,7 +17,7 @@ module Mewlix.Abstract.AST
 
 import Mewlix.Abstract.Key (Key)
 import Data.Text (Text)
-import Mewlix.Abstract.Module (Module)
+import Mewlix.Abstract.Module (ModuleData)
 import Data.List.NonEmpty (NonEmpty)
 import Text.Megaparsec (SourcePos)
 
@@ -112,7 +112,7 @@ data Statement =
     | Binding               Key Expression
     | LocalBinding          Key Expression
     | ClassDef              MewlixClass
-    | ImportStatement       Module
+    | ImportStatement       ModuleData
     | Return                Expression
     | TryCatch              Block (Maybe Key) Block
     | Break 

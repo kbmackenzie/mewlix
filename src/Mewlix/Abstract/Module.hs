@@ -2,7 +2,7 @@
 {-# LANGUAGE StrictData #-}
 
 module Mewlix.Abstract.Module
-( Module(..)
+( ModuleData(..)
 , ModuleKey(..)
 , joinKey
 , hasAlias
@@ -16,7 +16,7 @@ import qualified Data.List.NonEmpty as NonEmpty
 import Mewlix.Abstract.Key (Key(..))
 import Data.Maybe (isJust)
 
-data Module = Module
+data ModuleData = ModuleData
     { moduleKey   :: ModuleKey
     , moduleAlias :: Maybe Key  }
     deriving (Show)
@@ -30,8 +30,8 @@ instance Show ModuleKey where
 joinKey :: ModuleKey -> Text
 joinKey = Text.intercalate "." . NonEmpty.toList . getModuleKey
 
-hasAlias :: Module -> Bool
+hasAlias :: ModuleData -> Bool
 hasAlias = isJust . moduleAlias
 
-defaultName :: Module -> Text
+defaultName :: ModuleData -> Text
 defaultName = NonEmpty.last . getModuleKey . moduleKey

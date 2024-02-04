@@ -13,7 +13,7 @@ import Mewlix.Abstract.AST
     , Conditional(..)
     )
 import Mewlix.Abstract.Key (Key(..))
-import Mewlix.Abstract.Module (Module(..))
+import Mewlix.Abstract.Module (ModuleData(..))
 import Mewlix.Parser.Module (parseModuleKey)
 import Mewlix.Parser.Primitive (parseKey, parseParams)
 import Mewlix.Parser.Expression (declaration, expression)
@@ -234,7 +234,7 @@ importKey nesting = do
     name <- Mega.optional (keyword Keywords.alias >> parseKey)
     when (nesting > Root)
         (fail "Import statements cannot be nested!")
-    return $ ImportStatement (Module path name)
+    return $ ImportStatement (ModuleData path name)
 
 
 {- Watch/Catch -}

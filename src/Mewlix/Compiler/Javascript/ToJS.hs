@@ -8,7 +8,7 @@ import Mewlix.Abstract.AST
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Mewlix.Abstract.Key (Key(..))
-import Mewlix.Abstract.Module (Module(..), hasAlias, defaultName)
+import Mewlix.Abstract.Module (ModuleData(..), defaultName)
 import Mewlix.String.Escape (escapeString)
 import Mewlix.String.Utils (parens, quotes, brackets, sepComma)
 import Mewlix.Compiler.Javascript.Transpiler
@@ -31,7 +31,6 @@ import Mewlix.Compiler.Javascript.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.Javascript.Constants as Mewlix
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
-import Data.Maybe (fromMaybe)
 
 type IndentLevel = Int;
 
