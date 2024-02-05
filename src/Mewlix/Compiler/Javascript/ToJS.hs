@@ -22,7 +22,7 @@ import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (ModuleData(..), joinKey, defaultName)
 import Mewlix.String.Escape (escapeString)
 import Mewlix.String.Utils (parens, quotes, brackets, sepComma, separateLines)
-import Mewlix.Compiler.Javascript.Transpiler
+import Mewlix.Compiler.Javascript.Transpiler (Transpiler, asks)
 import Mewlix.Utils.Show (showT)
 import Mewlix.Compiler.Javascript.Expression
     ( instantiate
@@ -364,9 +364,11 @@ instance ToJS Statement where
     -- Assert:
     ----------------------------------------------
     transpileJS level   (Assert expr pos) = do
-        value <- toJS expr
-        let message = showT expr <> errorInfo pos
-        (wrap . indentLine level) (syncCall Mewlix.assert [ value, message ])
+        value       <- toJS expr
+        bytecode    <- toJS (MewlixString (showT expr))
+        let message = mconcat [ bytecode, " + ", errorInfo pos ]
+        let call = parens (syncCall Mewlix.assert [ value, message ]) <> ";"
+        return (indentLine level call)
 
 {- Function -}
 -----------------------------------------------------------------
