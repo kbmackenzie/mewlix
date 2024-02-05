@@ -21,8 +21,18 @@ import qualified Data.Text as Text
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (ModuleData(..), joinKey, defaultName)
 import Mewlix.String.Escape (escapeString)
-import Mewlix.String.Utils (parens, quotes, brackets, sepComma, separateLines)
-import Mewlix.Compiler.Javascript.Transpiler (Transpiler, asks)
+import Mewlix.String.Utils
+    ( parens
+    , quotes
+    , brackets
+    , sepComma
+    , separateLines
+    )
+import Mewlix.Compiler.Javascript.Transpiler
+    ( TranspilerContext(..)
+    , Transpiler
+    , asks
+    )
 import Mewlix.Utils.Show (showT)
 import Mewlix.Compiler.Javascript.Expression
     ( instantiate
@@ -39,6 +49,7 @@ import qualified Mewlix.Compiler.Javascript.Constants as Mewlix
 import Mewlix.Compiler.Indentation (Indentation, toIndent, indentLine, indentMany)
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
+import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe (fromMaybe)
 
 class ToJS a where
@@ -309,8 +320,12 @@ instance ToJS Statement where
     ----------------------------------------------
     transpileJS level   (ImportStatement moduleData) = do
         let key = maybe (defaultName moduleData) getKey (moduleAlias moduleData)
-        let value = asyncCall Mewlix.getModule [key]
-        let declaration = mconcat [ "const ", key, " = ", value, ";" ]
+        importValue <- do
+            special <- asks specialImports
+            case HashMap.lookup (Key key) special of
+                Nothing      -> return $ asyncCall Mewlix.getModule [key]
+                (Just value) -> return value
+        let declaration = mconcat [ "const ", key, " = ", importValue, ";" ]
         return (indentLine level declaration)
 
     -- Class statement:
