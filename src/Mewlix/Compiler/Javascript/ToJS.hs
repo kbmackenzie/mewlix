@@ -368,7 +368,7 @@ instance ToJS MewlixFunction where
         let name = (getKey . funcName) func
         params  <- toJS (funcParams func)
         body    <- transpileJS level (funcBody func)
-        return $ mconcat [ "(async function ", name, params, " ", body, ".bind(this)" ]
+        return $ mconcat [ "(async function ", name, params, " ", body, ").bind(this)" ]
 
 {- Block -}
 -----------------------------------------------------------------
