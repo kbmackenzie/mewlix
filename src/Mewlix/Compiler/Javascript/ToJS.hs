@@ -281,8 +281,7 @@ instance ToJS Statement where
     ----------------------------------------------
     transpileJS level   (FunctionDef func) = do
         funcExpr <- transpileJS level func
-        let boundFunc = parens funcExpr <> ".bind(this)"
-        let declaration = mconcat [ "const ", (getKey . funcName) func, " = ", boundFunc, ";" ]
+        let declaration = mconcat [ "const ", (getKey . funcName) func, " = ", funcExpr, ";" ]
         return (indentLine level declaration)
 
     -- Loop keywords:
@@ -317,8 +316,7 @@ instance ToJS Statement where
         let transpileMethod :: MewlixFunction -> Transpiler Text
             transpileMethod func = do
                 funcExpr <- transpileJS methodLevel func
-                let boundFunc = parens funcExpr <> ".bind(this)"
-                return $ mconcat [ "this.", (getKey . funcName) func, " = ", boundFunc, ";" ]
+                return $ mconcat [ "this.", (getKey . funcName) func, " = ", funcExpr, ";" ]
 
         methods <- mapM transpileMethod (classMethods clowder)
         let constructor = separateLines
@@ -350,8 +348,8 @@ instance ToJS Statement where
 
         return $ separateLines
                 [ indentLine level ("await " <> Mewlix.watchPounce <> "(")
-                , indentLine callLevel (parens watchFunc  <> ".bind(this),")
-                , indentLine callLevel (parens pounceFunc <> ".bind(this)" )
+                , indentLine callLevel watchFunc
+                , indentLine callLevel pounceFunc
                 , indentLine level ");"                                      ]
 
 {- Function -}
@@ -361,8 +359,7 @@ instance ToJS MewlixFunction where
         let name = (getKey . funcName) func
         params  <- toJS (funcParams func)
         body    <- transpileJS level (funcBody func)
-        let header = mconcat [ "async function ", name, params, " " ]
-        return (header <> body)
+        return $ mconcat [ "(async function ", name, params, " ", body, ".bind(this)" ]
 
 {- Block -}
 -----------------------------------------------------------------
