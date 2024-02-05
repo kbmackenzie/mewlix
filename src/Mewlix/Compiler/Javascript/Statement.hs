@@ -6,10 +6,15 @@ module Mewlix.Compiler.Javascript.Statement
 , findBindings
 ) where
 
+import Mewlix.Abstract.AST
+    ( Block(..)
+    , Statement(..)
+    , MewlixFunction(..)
+    , MewlixClass(..)
+    )
 import Data.Text (Text)
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (ModuleData(..))
-import Mewlix.Abstract.AST (Block(..) , Statement(..))
 
 semicolon :: Text
 semicolon = ";"
@@ -27,6 +32,8 @@ findImports block = do
 findBindings :: Block -> [Key]
 findBindings block = do
     let collectBindings :: Statement -> [Key] -> [Key]
-        collectBindings (Binding key _) acc = key : acc
-        collectBindings _               acc = acc
+        collectBindings (Binding key _)     acc = key : acc
+        collectBindings (FunctionDef func)  acc = funcName func : acc
+        collectBindings (ClassDef clowder)  acc = className clowder : acc
+        collectBindings _                   acc = acc
     foldr collectBindings [] (getBlock block)
