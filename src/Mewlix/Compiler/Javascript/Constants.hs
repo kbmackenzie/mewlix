@@ -16,6 +16,7 @@ module Mewlix.Compiler.Javascript.Constants
 , lessThan
 , greaterThan
 , watchPounce
+, mewlixClowder
 ) where
 
 {- This module should always be imported qualified. -}
@@ -72,3 +73,6 @@ greaterThan = comparison "GreaterThan"
 
 watchPounce :: Text
 watchPounce = mewlix "watchPounce"
+
+mewlixClowder :: Text
+mewlixClowder = mewlix "MewlixCloder"
