@@ -357,7 +357,7 @@ instance ToJS Statement where
 
         return $ separateLines
                 [ indentLine level ("await " <> Mewlix.watchPounce <> "(")
-                , indentLine callLevel watchFunc
+                , indentLine callLevel watchFunc <> ","
                 , indentLine callLevel pounceFunc
                 , indentLine level ");"                                      ]
 
