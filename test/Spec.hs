@@ -35,10 +35,9 @@ compileRoot :: Either Text YarnBall -> IO ()
 compileRoot (Left _) = undefined
 compileRoot (Right yarnball) = do
     let js = toJS yarnball
-    let compilationOutput = transpile TransContext js
-    case compilationOutput of
-        (Left e) -> print e
-        (Right x) -> TextIO.putStrLn x
+    let context = TranspilerContext mempty mempty
+    let compilationOutput = transpile context js
+    TextIO.putStrLn compilationOutput
 
 main :: IO ()
 main = do
