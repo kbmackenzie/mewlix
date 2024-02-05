@@ -37,14 +37,17 @@ import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 {- Left-hand, Right-hand -}
 ------------------------------------------------------------------------------------
 termL :: Parser Expression
-termL = Identifier <$> parseKey
+termL = Mega.choice
+    [ parseHome
+    , parseSuper
+    , Identifier <$> parseKey ]
 
 termR :: Parser Expression
 termR = Mega.choice
     [ parens expression
     , parseBox
     , parseList
-    , parseSuper
+    , parseSuperCall
     , parseMeet
     , PrimitiveExpr <$> parsePrim
     , Identifier    <$> parseKey  ]
@@ -99,8 +102,14 @@ parseListen = do
 
 {- Clowder -}
 ------------------------------------------------------------------------------------
+parseHome :: Parser Expression
+parseHome = PrimitiveExpr MewlixHome <$ keyword Keywords.home
+
 parseSuper :: Parser Expression
-parseSuper = do
+parseSuper = PrimitiveExpr MewlixSuper <$ keyword Keywords.super
+
+parseSuperCall :: Parser Expression
+parseSuperCall = do
     args <- Mega.try $ do
         keyword Keywords.super
         parseArguments
