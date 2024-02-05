@@ -8,8 +8,10 @@ import Mewlix.Utils.Show (showT)
 import Control.Monad (void)
 
 import Mewlix.Abstract.AST
+import Mewlix.Abstract.Module
 import Mewlix.Compiler.Javascript.ToJS
 import Mewlix.Compiler.Javascript.Transpiler
+import qualified Data.List.NonEmpty as NonEmpty
 
 textPrint :: (Show a) => Either Text a -> IO ()
 textPrint x = case x of
@@ -35,7 +37,8 @@ compileRoot :: Either Text YarnBall -> IO ()
 compileRoot (Left _) = undefined
 compileRoot (Right yarnball) = do
     let js = toJS yarnball
-    let context = TranspilerContext mempty mempty
+    let moduleKey = NonEmpty.fromList [ "test", "module" ]
+    let context = TranspilerContext mempty (ModuleKey moduleKey)
     let compilationOutput = transpile context js
     TextIO.putStrLn compilationOutput
 
