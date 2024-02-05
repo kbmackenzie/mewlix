@@ -50,6 +50,7 @@ import Mewlix.Compiler.Indentation (Indentation, toIndent, indentLine, indentMan
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.HashMap.Strict as HashMap
+import Data.Char (isSpace)
 import Data.Maybe (fromMaybe)
 
 class ToJS a where
@@ -259,7 +260,7 @@ instance ToJS Statement where
                 body <- transpileJS level block
                 return ("else " <> body)
 
-        return $ separateLines
+        return . separateLines . filter (Text.any (not . isSpace)) $
             [ indentLine level initialConditional
             , (separateLines . indentMany level . map ("else " <>)) moreConditionals
             , indentLine level elseBlock                                            ]
