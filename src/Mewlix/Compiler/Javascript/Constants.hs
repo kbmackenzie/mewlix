@@ -12,11 +12,12 @@ module Mewlix.Compiler.Javascript.Constants
 , operation
 , addModule
 , getModule
+, mewlixClowder
 , equalTo
 , lessThan
 , greaterThan
 , watchPounce
-, mewlixClowder
+, itsRaining
 ) where
 
 {- This module should always be imported qualified. -}
@@ -59,6 +60,9 @@ addModule = modules "addModule"
 getModule :: Text
 getModule = modules "getModule"
 
+mewlixClowder :: Text
+mewlixClowder = mewlix "MewlixCloder"
+
 comparison :: Text -> Text
 comparison = mewlix . ("Comparison." <>)
 
@@ -74,5 +78,5 @@ greaterThan = comparison "GreaterThan"
 watchPounce :: Text
 watchPounce = mewlix "watchPounce"
 
-mewlixClowder :: Text
-mewlixClowder = mewlix "MewlixCloder"
+itsRaining :: Text
+itsRaining = mewlix "itsRaining"
