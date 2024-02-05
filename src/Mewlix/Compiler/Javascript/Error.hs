@@ -2,6 +2,7 @@
 
 module Mewlix.Compiler.Javascript.Error
 ( ErrorCode(..)
+, errorInfo
 , createError
 , createErrorIIFE
 ) where
@@ -31,6 +32,7 @@ mewlixError = mewlix "MewlixError"
 errorCode :: ErrorCode -> Text
 errorCode = (mewlix "ErrorCode." <>) . showT
 
+-- This returns a valid Javascript string.
 errorInfo :: SourcePos -> Text
 errorInfo pos = (quotes . escapeString . mconcat)
     [ "\n -> In module \""

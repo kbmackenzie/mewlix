@@ -18,6 +18,7 @@ module Mewlix.Compiler.Javascript.Constants
 , greaterThan
 , watchPounce
 , itsRaining
+, assert
 ) where
 
 {- This module should always be imported qualified. -}
@@ -80,3 +81,6 @@ watchPounce = mewlix "watchPounce"
 
 itsRaining :: Text
 itsRaining = mewlix "itsRaining"
+
+assert :: Text
+assert = mewlix "assert"

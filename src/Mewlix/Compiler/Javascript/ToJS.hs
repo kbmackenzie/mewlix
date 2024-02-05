@@ -32,7 +32,7 @@ import Mewlix.Compiler.Javascript.Expression
     , asyncCall
     , asBoolean
     )
-import Mewlix.Compiler.Javascript.Error (ErrorCode(..), createErrorIIFE)
+import Mewlix.Compiler.Javascript.Error (ErrorCode(..), errorInfo, createErrorIIFE)
 import Mewlix.Compiler.Javascript.Statement (terminate, findBindings)
 import Mewlix.Compiler.Javascript.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.Javascript.Constants as Mewlix
@@ -360,6 +360,13 @@ instance ToJS Statement where
                 , indentLine callLevel watchFunc <> ","
                 , indentLine callLevel pounceFunc
                 , indentLine level ");"                                      ]
+
+    -- Assert:
+    ----------------------------------------------
+    transpileJS level   (Assert expr pos) = do
+        value <- toJS expr
+        let message = showT expr <> errorInfo pos
+        (wrap . indentLine level) (syncCall Mewlix.assert [ value, message ])
 
 {- Function -}
 -----------------------------------------------------------------
