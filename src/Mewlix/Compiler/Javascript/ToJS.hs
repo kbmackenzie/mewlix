@@ -19,6 +19,7 @@ import Mewlix.Compiler.Javascript.Expression
     , funcWrap
     , syncCall
     , asyncCall
+    , asBoolean
     )
 import Mewlix.Compiler.Javascript.Error
     ( ErrorCode(..)
@@ -228,7 +229,7 @@ instance ToJS Statement where
 
         let transpileConditional :: Conditional -> Transpiler Text
             transpileConditional (Conditional expr block) = do
-                condition <- toJS expr
+                condition <- asBoolean <$> toJS expr
                 body      <- transpileJS level block
                 let header = mconcat [ "if (", condition, ") " ]
                 return (header <> body)
@@ -250,7 +251,7 @@ instance ToJS Statement where
     -- While loop:
     ----------------------------------------------
     transpileJS level   (WhileLoop expr block) = do
-        condition   <- toJS expr
+        condition   <- asBoolean <$> toJS expr
         body        <- transpileJS level block
         let header = indentLine level $ mconcat [ "while (", condition, ") " ]
         return (header <> body)
