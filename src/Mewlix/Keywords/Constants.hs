@@ -218,5 +218,5 @@ reserved = HashSet.fromList
     , throw
     -- Internal:
     , "box"
-    , "___module_fn___"
+    , "yarnball"
     ]
