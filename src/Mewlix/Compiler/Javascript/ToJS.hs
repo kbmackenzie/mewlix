@@ -276,7 +276,7 @@ instance ToJS Statement where
     ----------------------------------------------
     transpileJS level   (FunctionDef func) = do
         funcExpr <- transpileJS level func
-        let boundFunc = parens funcExpr <> ".bind(null)"
+        let boundFunc = parens funcExpr <> ".bind(this)"
         let declaration = mconcat [ "const ", (getKey . funcName) func, " = ", boundFunc, ";" ]
         return (indentLine level declaration)
 
@@ -345,8 +345,8 @@ instance ToJS Statement where
 
         return $ separateLines
                 [ indentLine level ("await " <> Mewlix.watchPounce <> "(")
-                , indentLine callLevel (parens watchFunc  <> ".bind(null),")
-                , indentLine callLevel (parens pounceFunc <> ".bind(null)" )
+                , indentLine callLevel (parens watchFunc  <> ".bind(this),")
+                , indentLine callLevel (parens pounceFunc <> ".bind(this)" )
                 , indentLine level ");"                                      ]
 
 {- Function -}
