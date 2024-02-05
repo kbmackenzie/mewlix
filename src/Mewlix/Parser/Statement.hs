@@ -232,12 +232,10 @@ forEach nesting = do
 {- Import -}
 ----------------------------------------------------------------
 importKey :: Nesting -> Parser Statement
-importKey nesting = do
+importKey _ = do
     keyword Keywords.takes
     path <- parseModuleKey
     name <- Mega.optional (keyword Keywords.alias >> parseKey)
-    when (nesting > Root)
-        (fail "Import statements cannot be nested!")
     return $ ImportStatement (ModuleData path name)
 
 
