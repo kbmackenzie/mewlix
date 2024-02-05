@@ -7,11 +7,13 @@ module Mewlix.Parser.Statement
 
 import Mewlix.Abstract.AST
     ( Block(..)
+    , Primitive(..)
+    , Expression(..)
     , Statement(..)
     , MewlixFunction(..)
     , MewlixClass(..)
     , Conditional(..)
-    , YarnBall(..)
+    , YarnBall(..),
     )
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (ModuleData(..))
@@ -31,6 +33,7 @@ import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Text.Megaparsec as Mega
 import Control.Monad (when)
 import Data.Maybe (fromMaybe)
+import qualified Data.List as List
 
 root :: Parser YarnBall
 root = Mega.between whitespaceLn Mega.eof yarnBall
@@ -165,27 +168,38 @@ funcDef _ = FunctionDef <$> func
 
 {- Classes -}
 ----------------------------------------------------------------
+type Constructor = MewlixFunction
+type Methods     = [MewlixFunction]
+
 classDef :: Nesting -> Parser Statement
 classDef _ = do
     keyword Keywords.clowder
     name        <- parseKey
     parent      <- Mega.optional (keyword Keywords.extends >> parseKey)
     whitespaceLn
-    methods     <- (Mega.many . lexemeLn) func
-    constructor <- getConstructor methods
+    (constructor, methods) <- (Mega.many . lexemeLn) func >>= sortConstructor
     meowmeow
-    (return . ClassDef) (MewlixClass name parent constructor methods)
 
-getConstructor :: [MewlixFunction] -> Parser (Maybe MewlixFunction)
-getConstructor funcs = do
+    let patchedConstructor = fmap patchConstructor constructor
+    let patchedMethods = case patchedConstructor of
+            Nothing         -> methods
+            (Just method)   -> method : methods
+    (return . ClassDef) (MewlixClass name parent patchedConstructor patchedMethods)
+
+sortConstructor :: Methods -> Parser (Maybe Constructor, Methods) 
+sortConstructor xs = do
     let wake = Key (unwrapKeyword Keywords.constructor)
-    let constructors = filter ((== wake) . funcName) funcs
-    when (length constructors > 1)
-        (fail "Clowder cannot have more than one constructor!")
-    let constructor = case constructors of
-            []    -> Nothing
-            (x:_) -> Just x
-    return constructor
+    let predicate = (== wake) . funcName
+    case List.partition predicate xs of
+        ([] , methods) -> return (Nothing, methods)
+        ([x], methods) -> return (Just x, methods)
+        _              -> fail "Clowder cannot have more than one constructor!"
+
+patchConstructor :: Constructor -> Constructor
+patchConstructor constructor = do
+    let returnHome = Return (PrimitiveExpr MewlixHome)
+    let patch = (<> Block [returnHome])
+    constructor { funcBody = patch (funcBody constructor) }
 
 
 {- Return -}
