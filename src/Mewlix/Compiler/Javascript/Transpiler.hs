@@ -1,5 +1,4 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 module Mewlix.Compiler.Javascript.Transpiler
 ( TranspilerContext(..)
