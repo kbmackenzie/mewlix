@@ -31,21 +31,16 @@ mewlixError = mewlix "MewlixError"
 errorCode :: ErrorCode -> Text
 errorCode = (mewlix "ErrorCode." <>) . showT
 
-errorMessage :: SourcePos -> Text -> Text
-errorMessage pos info = mconcat
-    [ info
-    , "\n -> In module "
-    , (quotes . escapeString . Text.pack . sourceName) pos
-    , ", at line "
+errorInfo :: SourcePos -> Text
+errorInfo pos = (quotes . escapeString . mconcat)
+    [ "\n -> In module \""
+    , (Text.pack . sourceName) pos
+    , "\", at line "
     , (showT . unPos . sourceLine) pos ]
 
 errorArgs :: ErrorCode -> SourcePos -> Text -> Text
-errorArgs code pos info = mconcat
-    [ "(" 
-    , errorCode code 
-    , ","
-    , errorMessage pos info
-    , ")" ]
+errorArgs code pos message = mconcat
+    [ "(" , errorCode code , "," , message, " + ", errorInfo pos, ")" ]
 
 createError :: ErrorCode -> SourcePos -> Text -> Text
 createError code pos info = "throw new " <> mewlixError <> errorArgs code pos info
