@@ -43,6 +43,7 @@ module Mewlix.Keywords.Constants
 , try
 , catch
 , throw
+, assert
 , reserved
 ) where
 
@@ -145,6 +146,9 @@ end = "meowmeow"
 
 ret :: SimpleKeyword
 ret = "bring"
+
+assert :: SimpleKeyword
+assert = "assert"
 
 catnap :: SimpleKeyword
 catnap = "catnap"

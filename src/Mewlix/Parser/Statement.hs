@@ -64,6 +64,7 @@ statement nesting = Mega.choice $ map lexemeLn
     , declareVar    nesting
     , funcDef       nesting
     , returnKey     nesting
+    , assert        nesting
     , continueKey   nesting
     , breakKey      nesting
     , importKey     nesting
@@ -193,6 +194,13 @@ returnKey :: Nesting -> Parser Statement
 returnKey _ = do
     keyword Keywords.ret
     Return <$> expression
+
+{- Assert -}
+----------------------------------------------------------------
+assert :: Nesting -> Parser Statement
+assert _ = do
+    keyword Keywords.assert
+    Assert <$> expression <*> Mega.getSourcePos
 
 {- Continue -}
 ----------------------------------------------------------------

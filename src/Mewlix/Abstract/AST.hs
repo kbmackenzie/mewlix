@@ -115,6 +115,7 @@ data Statement =
     | ClassDef              MewlixClass
     | ImportStatement       ModuleData
     | Return                Expression
+    | Assert                Expression SourcePos
     | TryCatch              Block (Maybe Key) Block
     | Break 
     | Continue
