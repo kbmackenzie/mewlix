@@ -5,6 +5,17 @@ module Mewlix.Compiler.Javascript.ToJS
 ) where
 
 import Mewlix.Abstract.AST
+    ( Primitive(..)
+    , Block(..)
+    , Params(..)
+    , Arguments(..)
+    , Expression(..)
+    , Statement(..)
+    , MewlixFunction(..)
+    , MewlixClass(..)
+    , Conditional(..)
+    , YarnBall(..)
+    ) 
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Mewlix.Abstract.Key (Key(..))
@@ -21,14 +32,8 @@ import Mewlix.Compiler.Javascript.Expression
     , asyncCall
     , asBoolean
     )
-import Mewlix.Compiler.Javascript.Error
-    ( ErrorCode(..)
-    , createErrorIIFE
-    )
-import Mewlix.Compiler.Javascript.Statement
-    ( terminate
-    , findBindings
-    )
+import Mewlix.Compiler.Javascript.Error (ErrorCode(..), createErrorIIFE)
+import Mewlix.Compiler.Javascript.Statement (terminate, findBindings)
 import Mewlix.Compiler.Javascript.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.Javascript.Constants as Mewlix
 import Mewlix.Compiler.Indentation (Indentation, toIndent, indentLine, indentMany)
