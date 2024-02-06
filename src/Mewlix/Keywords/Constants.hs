@@ -40,6 +40,7 @@ module Mewlix.Keywords.Constants
 , takes
 , alias
 , yarnball
+, yarnball'
 , try
 , catch
 , throw
@@ -183,6 +184,9 @@ alias = "as"
 yarnball :: WordSequence
 yarnball = ["yarn", "ball"]
 
+yarnball' :: SimpleKeyword
+yarnball' = "yarnball"
+
 try :: WordSequence
 try = ["watch", "attentively"]
 
@@ -217,10 +221,11 @@ reserved = HashSet.fromList
     , or
     , push
     , peek
+    , firstWord yarnball
+    , yarnball'
     , firstWord pop
     , takes
     , throw
     -- Internal:
     , "box"
-    , "yarnball"
     ]

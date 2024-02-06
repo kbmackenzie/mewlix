@@ -30,6 +30,7 @@ import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Keywords.Types (SimpleKeyword(..))
 import Data.List.NonEmpty (NonEmpty((:|)))
 import qualified Mewlix.Keywords.Constants as Keywords
+import Text.Megaparsec ((<|>))
 import qualified Text.Megaparsec as Mega
 import Control.Monad (when)
 import Data.Maybe (fromMaybe)
@@ -41,7 +42,7 @@ root = Mega.between whitespaceLn Mega.eof yarnBall
 yarnBall :: Parser YarnBall
 yarnBall = do
     key <- Mega.optional $ do
-        keyword Keywords.yarnball
+        keyword Keywords.yarnball <|> keyword Keywords.yarnball'
         parseModuleKey <* whitespaceLn
     body <- Block <$> Mega.many (statement Root)
     return (YarnBall key body)
