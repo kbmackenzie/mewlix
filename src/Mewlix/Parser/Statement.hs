@@ -174,17 +174,20 @@ type Methods     = [MewlixFunction]
 classDef :: Nesting -> Parser Statement
 classDef _ = do
     keyword Keywords.clowder
-    name        <- parseKey
-    parent      <- Mega.optional (keyword Keywords.extends >> parseKey)
+    name    <- parseKey
+    parent  <- Mega.optional (keyword Keywords.extends >> parseKey)
     whitespaceLn
     (constructor, methods) <- (Mega.many . lexemeLn) func >>= sortConstructor
     meowmeow
 
     let patchedConstructor = fmap patchConstructor constructor
-    let patchedMethods = case patchedConstructor of
-            Nothing         -> methods
-            (Just method)   -> method : methods
-    (return . ClassDef) (MewlixClass name parent patchedConstructor patchedMethods)
+    let patchedMethods = maybe methods (: methods) patchedConstructor
+
+    (return . ClassDef) MewlixClass
+        { className         = name
+        , classExtends      = parent
+        , classMethods      = patchedMethods
+        , classConstructor  = patchedConstructor }
 
 sortConstructor :: Methods -> Parser (Maybe Constructor, Methods) 
 sortConstructor xs = do
