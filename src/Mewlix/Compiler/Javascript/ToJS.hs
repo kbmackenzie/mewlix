@@ -21,32 +21,15 @@ import qualified Data.Text as Text
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (ModuleData(..), joinKey, defaultName)
 import Mewlix.String.Escape (escapeString)
-import Mewlix.String.Utils
-    ( parens
-    , quotes
-    , brackets
-    , sepComma
-    , separateLines
-    )
-import Mewlix.Compiler.Transpiler
-    ( TranspilerContext(..)
-    , Transpiler
-    , asks
-    )
+import Mewlix.String.Utils (parens, quotes, brackets, sepComma, separateLines)
+import Mewlix.Compiler.Transpiler (TranspilerContext(..), Transpiler , asks)
 import Mewlix.Utils.Show (showT)
-import Mewlix.Compiler.Javascript.Expression
-    ( instantiate
-    , wrap
-    , funcWrap
-    , syncCall
-    , asyncCall
-    , asBoolean
-    )
+import Mewlix.Compiler.Indentation (Indentation, zeroIndent, toIndent, indentLine, indentMany)
+import Mewlix.Compiler.Javascript.Expression (instantiate, wrap, funcWrap, syncCall, asyncCall, asBoolean)
 import Mewlix.Compiler.Javascript.Error (ErrorCode(..), errorInfo, createErrorIIFE)
 import Mewlix.Compiler.Javascript.Statement (terminate, findBindings)
 import Mewlix.Compiler.Javascript.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.Javascript.Constants as Mewlix
-import Mewlix.Compiler.Indentation (Indentation, toIndent, indentLine, indentMany)
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.HashMap.Strict as HashMap
@@ -57,7 +40,7 @@ class ToJS a where
     transpileJS :: Indentation -> a -> Transpiler Text
 
     toJS :: a -> Transpiler Text
-    toJS = transpileJS 0
+    toJS = transpileJS zeroIndent
 
 {- Primitives -}
 -----------------------------------------------------------------

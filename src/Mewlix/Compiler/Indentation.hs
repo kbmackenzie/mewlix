@@ -3,6 +3,7 @@
 module Mewlix.Compiler.Indentation
 ( Indentation
 , toIndent
+, zeroIndent
 , createIndent
 , indentLine
 , indentMany
@@ -13,7 +14,7 @@ import qualified Data.Text as Text
 import qualified Data.List as List
 
 newtype Indentation = Indentation { getIndent :: Int }
-    deriving (Eq, Ord, Show, Enum, Num)
+    deriving (Eq, Ord, Show, Enum)
 
 -- Indentation is opaque. This is the only way to make a new Indentation value.
 -- This function is intentionally a partial function.
@@ -22,6 +23,9 @@ toIndent :: Int -> Indentation
 toIndent n
     | n > 0     = Indentation n
     | otherwise = error "Mewlix.Compiler.Indentation.toIndent: Indentation cannot be a negative number!"
+
+zeroIndent :: Indentation
+zeroIndent = Indentation 0
 
 indentSize :: Int
 indentSize = 4
