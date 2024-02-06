@@ -190,13 +190,13 @@ classDef _ = do
         , classConstructor  = patchedConstructor }
 
 sortConstructor :: Methods -> Parser (Maybe Constructor, Methods) 
-sortConstructor xs = do
+sortConstructor methods = do
     let wake = Key (unwrapKeyword Keywords.constructor)
     let predicate = (== wake) . funcName
-    case List.partition predicate xs of
-        ([] , methods) -> return (Nothing, methods)
-        ([x], methods) -> return (Just x, methods)
-        _              -> fail "Clowder cannot have more than one constructor!"
+    case List.partition predicate methods of
+        ([] , xs)   -> return (Nothing, xs)
+        ([x], xs)   -> return (Just x, xs)
+        _           -> fail "Clowder cannot have more than one constructor!"
 
 patchConstructor :: Constructor -> Constructor
 patchConstructor constructor = do
