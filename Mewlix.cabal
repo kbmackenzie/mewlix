@@ -37,7 +37,7 @@ library
       Mewlix.Compiler.Javascript.Operations
       Mewlix.Compiler.Javascript.Statement
       Mewlix.Compiler.Javascript.ToJS
-      Mewlix.Compiler.Javascript.Transpiler
+      Mewlix.Compiler.Transpiler
       Mewlix.Data.Ref
       Mewlix.Data.ToBool
       Mewlix.Data.ToString

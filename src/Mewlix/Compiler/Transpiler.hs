@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Mewlix.Compiler.Javascript.Transpiler
+module Mewlix.Compiler.Transpiler
 ( TranspilerContext(..)
 , Transpiler(..)
 , transpile

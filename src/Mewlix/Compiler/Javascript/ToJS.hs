@@ -28,7 +28,7 @@ import Mewlix.String.Utils
     , sepComma
     , separateLines
     )
-import Mewlix.Compiler.Javascript.Transpiler
+import Mewlix.Compiler.Transpiler
     ( TranspilerContext(..)
     , Transpiler
     , asks
