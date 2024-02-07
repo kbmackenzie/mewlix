@@ -29,7 +29,6 @@ library
       Mewlix.Abstract.AST
       Mewlix.Abstract.Key
       Mewlix.Abstract.Module
-      Mewlix.Analysis.Analyzer
       Mewlix.Compiler.Indentation
       Mewlix.Compiler.Javascript
       Mewlix.Compiler.Javascript.Constants
