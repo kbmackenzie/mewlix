@@ -10,7 +10,7 @@ import Control.Monad (void)
 import Mewlix.Abstract.AST
 import Mewlix.Abstract.Module
 import Mewlix.Compiler.Javascript.ToJS
-import Mewlix.Compiler.Javascript.Transpiler
+import Mewlix.Compiler.Transpiler
 import qualified Data.List.NonEmpty as NonEmpty
 
 textPrint :: (Show a) => Either Text a -> IO ()
