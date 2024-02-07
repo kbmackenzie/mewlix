@@ -48,11 +48,8 @@ spaceChar = (void . Mega.choice)
     [ (void . Mega.choice . map MChar.char) [ ' ', '\t' ]
     , (void . MChar.string) "\\\n"                      ]
 
-manySpaces :: Parser ()
-manySpaces = (void . Mega.some) spaceChar
-
 whitespace :: Parser ()
-whitespace = Lexer.space manySpaces lineComment blockComment
+whitespace = Lexer.space (Mega.skipSome spaceChar) lineComment blockComment
 
 lexeme :: Parser a -> Parser a
 lexeme = Lexer.lexeme whitespace
@@ -67,11 +64,8 @@ spaceCharLn = (void . Mega.choice)
     [ void (Mega.satisfy isSpaceLn)
     , void (MChar.string "\\\n")    ]
 
-manySpacesLn :: Parser ()
-manySpacesLn = (void . Mega.some) spaceCharLn
-
 whitespaceLn :: Parser ()
-whitespaceLn = Lexer.space manySpacesLn lineComment blockComment
+whitespaceLn = Lexer.space (Mega.skipSome spaceCharLn) lineComment blockComment
 
 lexemeLn :: Parser a -> Parser a
 lexemeLn = Lexer.lexeme whitespaceLn
