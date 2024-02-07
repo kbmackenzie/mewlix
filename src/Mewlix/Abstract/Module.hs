@@ -1,3 +1,4 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
 
@@ -15,6 +16,7 @@ import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NonEmpty
 import Mewlix.Abstract.Key (Key(..))
 import Data.Maybe (isJust)
+import Data.Hashable (Hashable)
 
 data ModuleData = ModuleData
     { moduleKey   :: ModuleKey
@@ -22,7 +24,7 @@ data ModuleData = ModuleData
     deriving (Show)
 
 newtype ModuleKey = ModuleKey { getModuleKey :: NonEmpty Text }
-    deriving (Eq, Ord)
+    deriving (Eq, Ord, Hashable)
 
 instance Show ModuleKey where
     show = Text.unpack . joinKey
