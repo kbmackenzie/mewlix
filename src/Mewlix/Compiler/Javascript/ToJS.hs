@@ -21,7 +21,7 @@ import qualified Data.Text as Text
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (ModuleData(..), joinKey, defaultName)
 import Mewlix.String.Escape (escapeString)
-import Mewlix.String.Utils (parens, quotes, brackets, sepComma, separateLines)
+import Mewlix.String.Utils (quotes, brackets, sepComma, separateLines)
 import Mewlix.Compiler.Transpiler (TranspilerContext(..), Transpiler , asks)
 import Mewlix.Utils.Show (showT)
 import Mewlix.Compiler.Indentation (Indentation, zeroIndent, toIndent, indentLine, indentMany)
@@ -68,7 +68,7 @@ instance ToJS Expression where
     transpileJS _ (ListExpression exprs) = do
         items <- mapM toJS exprs
         let array = (brackets . sepComma) items
-        wrap $ instantiate Mewlix.createStack [ array ]
+        return $ instantiate Mewlix.createStack [ array ]
 
     transpileJS _ (BoxExpression pairs) = do
         let makeTuple :: (Key, Expression) -> Transpiler Text
@@ -78,19 +78,19 @@ instance ToJS Expression where
 
         items <- mapM makeTuple pairs
         let array = (brackets . sepComma) items
-        wrap $ instantiate Mewlix.mewlixBox [ array ]
+        return $ instantiate Mewlix.mewlixBox [ array ]
 
     -- Boolean operations:
     ----------------------------------------------
     transpileJS _ (BooleanAnd left right) = do
         a  <- toJS left
         fb <- funcWrap <$> toJS right
-        wrap $ syncCall (Mewlix.operation "and") [ a, fb ]
+        return $ syncCall (Mewlix.operation "and") [ a, fb ]
 
     transpileJS _ (BooleanOr left right) = do
         a  <- toJS left
         fb <- funcWrap <$> toJS right
-        wrap $ syncCall (Mewlix.operation "or") [ a, fb ]
+        return $ syncCall (Mewlix.operation "or") [ a, fb ]
 
     -- Ternary operator:
     ----------------------------------------------
@@ -98,7 +98,7 @@ instance ToJS Expression where
         condition <- toJS conditionExpr
         fa <- funcWrap <$> toJS left
         fb <- funcWrap <$> toJS right
-        wrap $ syncCall (Mewlix.operation "ternary") [ parens condition, fa, fb ]
+        return $ syncCall (Mewlix.operation "ternary") [ condition, fa, fb ]
 
     -- Assignment expression:
     ----------------------------------------------
@@ -119,11 +119,11 @@ instance ToJS Expression where
     transpileJS _ (ListPush itemExpr shelfExpr) = do
         item  <- toJS itemExpr
         shelf <- toJS shelfExpr
-        wrap $ syncCall (Mewlix.operation "push") [ shelf, item ]
+        return $ syncCall (Mewlix.operation "push") [ shelf, item ]
 
     transpileJS _ (ListPop shelfExpr) = do
         shelf <- toJS shelfExpr
-        wrap $ syncCall (Mewlix.operation "pop") [ shelf ]
+        return $ syncCall (Mewlix.operation "pop") [ shelf ]
 
     -- Function calls:
     ----------------------------------------------
@@ -163,26 +163,26 @@ instance ToJS Expression where
     transpileJS _ (BinaryOperation op left right) = do
         let func = binaryOpFunc op
         args <- mapM toJS [left, right]
-        wrap $ func args
+        return $ func args
 
     -- Unary operations:
     ----------------------------------------------
     transpileJS _ (UnaryOperation op operand) = do
         let func = unaryOpFunc op
         arg  <- toJS operand
-        wrap $ func [arg]
+        return $ func [arg]
 
     -- 'Paw at' / Type of:
     ----------------------------------------------
     transpileJS _ (PawType operand) = do
         arg <- toJS operand
-        wrap $ syncCall (Mewlix.operation "typeOf") [arg]
+        return $ syncCall (Mewlix.operation "typeOf") [arg]
 
     -- 'Claw at'/ Box entries:
     ----------------------------------------------
     transpileJS _ (ClawEntries operand) = do
         arg <- toJS operand
-        wrap $ syncCall (Mewlix.operation "pairs") [arg]
+        return $ syncCall (Mewlix.operation "pairs") [arg]
 
     -- 'Throw' expression:
     ----------------------------------------------
@@ -194,11 +194,11 @@ instance ToJS Expression where
     ----------------------------------------------
     transpileJS _ (MeowExpression expr) = do
         arg <- toJS expr
-        wrap $ asyncCall Mewlix.meow [arg]
+        return $ asyncCall Mewlix.meow [arg]
 
     transpileJS _ (ListenExpression expr) = do
         arg <- toJS expr
-        wrap $ asyncCall Mewlix.listen [arg]
+        return $ asyncCall Mewlix.listen [arg]
 
 {- Params -}
 -----------------------------------------------------------------
@@ -364,9 +364,7 @@ instance ToJS Statement where
     ----------------------------------------------
     transpileJS level   (Assert expr pos) = do
         value       <- toJS expr
-        bytecode    <- toJS (MewlixString (showT expr))
-        let message = mconcat [ bytecode, " + ", errorInfo pos ]
-        let call = parens (syncCall Mewlix.assert [ value, message ]) <> ";"
+        let call = syncCall Mewlix.assert [ value, errorInfo pos ] <> ";"
         return (indentLine level call)
 
 {- Function -}
