@@ -55,6 +55,7 @@ library
       Mewlix.Parser.Run
       Mewlix.Parser.Statement
       Mewlix.Parser.Utils
+      Mewlix.Project.Data
       Mewlix.String.Escape
       Mewlix.String.Utils
       Mewlix.Utils.List
