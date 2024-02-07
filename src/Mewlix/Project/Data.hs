@@ -16,5 +16,5 @@ data ProjectData = ProjectData
     { projectName           :: Text
     , projectDescription    :: Text
     , projectMode           :: ProjectMode
-    , projectDirectories    :: HashSet FilePath }
+    , projectDirectories    :: [FilePath] }
     deriving (Show)
