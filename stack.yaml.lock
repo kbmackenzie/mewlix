@@ -194,6 +194,55 @@ packages:
   original:
     hackage: splitmix-0.1.0.4
 - completed:
+    hackage: conduit-1.3.5@sha256:22665df25c9c158d5fcfb299e46b0b642868add42a6bb13b79d457dc7ff7be1a,5092
+    pantry-tree:
+      sha256: 83226d1b9e0e68609811f2533fe264a47e5054a99ec2d1d368cb446fd314ca39
+      size: 1957
+  original:
+    hackage: conduit-1.3.5
+- completed:
+    hackage: resourcet-1.3.0@sha256:faa760fb28fb5c98fbe4867e375a775495cabc00926da81fa102dc991017d2c5,1739
+    pantry-tree:
+      sha256: 7d8da7c8bcbab08f5de8a1d7964d5224aeb160ac0843757539d81f07d4315886
+      size: 648
+  original:
+    hackage: resourcet-1.3.0
+- completed:
+    hackage: mono-traversable-1.0.15.3@sha256:059bf3c05cdbef2d06b765333fe41c2168ced2503a23de674e2a59ceb2548c48,2060
+    pantry-tree:
+      sha256: 20193844369b5e6e0ed2c0df9946db5bd65a6206e3cc9f7cf059523e27a818b8
+      size: 710
+  original:
+    hackage: mono-traversable-1.0.15.3
+- completed:
+    hackage: unliftio-core-0.2.1.0@sha256:28800633b20e0f7bfbdda1248c28022749aa0935aea10b1e3fc9c88cbebb06de,1004
+    pantry-tree:
+      sha256: ca046ab9d03eb5ae73f3414cbd9ae3ed61d3c59df88c944a7105832aff30431d
+      size: 328
+  original:
+    hackage: unliftio-core-0.2.1.0
+- completed:
+    hackage: split-0.2.5@sha256:5bc1ae848bfded3087ea3e568908f1b75f56ecde6f02df3fad1a138dd5c783d5,2625
+    pantry-tree:
+      sha256: 5d28c851a2c98e3d8ac0f01adc58303d775afe39dce23ec953be64ae65d11166
+      size: 443
+  original:
+    hackage: split-0.2.5
+- completed:
+    hackage: vector-algorithms-0.9.0.1@sha256:222b01a4c0b9e13d73d04fba7c65930df16d1647acc07d84c47ef0356fa33dba,3880
+    pantry-tree:
+      sha256: f2442ae23235b332dcd8b593bb20bfae02890ec891330c060ac4a410a5f1d64d
+      size: 1510
+  original:
+    hackage: vector-algorithms-0.9.0.1
+- completed:
+    hackage: bitvec-1.1.5.0@sha256:7c5639f95c8ce9d5be810152bfcaf701aac3b7d7f08685a869c7eda63dc2cd76,4734
+    pantry-tree:
+      sha256: c7fae53663e417bbb21ce80662bc3ebe8c49ed9a27f95ffdd340813515b3f29f
+      size: 2507
+  original:
+    hackage: bitvec-1.1.5.0
+- completed:
     hackage: aeson-2.2.1.0@sha256:a23a61aada8233e10573e1612c0b2efe5a1aba0d59b05dbe2f63301822f136cb,6582
     pantry-tree:
       sha256: 8a50c54b9ecba80ecc3df3ea67faa4d155d6f6a6b3e342c74f3e6b0dcdc87e13
