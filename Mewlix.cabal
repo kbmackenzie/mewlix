@@ -56,6 +56,8 @@ library
       Mewlix.Parser.Statement
       Mewlix.Parser.Utils
       Mewlix.Project.Data
+      Mewlix.Project.Maker
+      Mewlix.Project.Write
       Mewlix.String.Escape
       Mewlix.String.Utils
       Mewlix.Utils.List
@@ -69,7 +71,8 @@ library
       src
   ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -optc-O3 -optc-ffast-math -funfolding-use-threshold=16
   build-depends:
-      ansi-terminal ==1.0.*
+      aeson ==2.2.*
+    , ansi-terminal ==1.0.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
     , clock ==0.8.*
@@ -99,6 +102,7 @@ executable Mewlix
   ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -optc-O3 -optc-ffast-math -funfolding-use-threshold=16 -threaded -rtsopts -with-rtsopts=-M128m
   build-depends:
       Mewlix
+    , aeson ==2.2.*
     , ansi-terminal ==1.0.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
@@ -130,6 +134,7 @@ test-suite Mewlix-test
   ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -optc-O3 -optc-ffast-math -funfolding-use-threshold=16 -threaded -rtsopts -with-rtsopts=-M128m
   build-depends:
       Mewlix
+    , aeson ==2.2.*
     , ansi-terminal ==1.0.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
