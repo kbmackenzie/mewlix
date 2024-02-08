@@ -4,7 +4,6 @@ module Mewlix.Project.Data
 ) where
 
 import Data.Text (Text)
-import Data.HashSet (HashSet)
 
 data ProjectMode =
       Console
