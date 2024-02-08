@@ -22,6 +22,8 @@ data ErrorCode =
     | InvalidImport
     | BadConversion
     | CatOnComputer
+    | Console
+    | Graphic
     | CriticalError
     | ExternalError
     deriving (Eq, Ord, Show, Read, Enum, Bounded)
