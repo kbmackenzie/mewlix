@@ -1,6 +1,4 @@
-{-# LANGUAGE LambdaCase #-}
-
-module Mewlix.Parser.Run
+module Mewlix.Parser
 ( runParser
 , parseRoot
 , parseExpr

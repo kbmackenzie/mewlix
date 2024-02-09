@@ -29,8 +29,8 @@ library
       Mewlix.Abstract.AST
       Mewlix.Abstract.Key
       Mewlix.Abstract.Module
+      Mewlix.Compiler
       Mewlix.Compiler.Indentation
-      Mewlix.Compiler.Javascript
       Mewlix.Compiler.Javascript.Constants
       Mewlix.Compiler.Javascript.Error
       Mewlix.Compiler.Javascript.Expression
@@ -40,18 +40,17 @@ library
       Mewlix.Compiler.Transpiler
       Mewlix.Keywords.Constants
       Mewlix.Keywords.Types
+      Mewlix.Parser
       Mewlix.Parser.Expression
       Mewlix.Parser.Keyword
       Mewlix.Parser.Module
       Mewlix.Parser.Primitive
-      Mewlix.Parser.Run
       Mewlix.Parser.Statement
       Mewlix.Parser.Utils
       Mewlix.Project.Data
       Mewlix.Project.IO.FileSearch
       Mewlix.Project.Maker
       Mewlix.Project.Mode
-      Mewlix.Project.Write
       Mewlix.String.Escape
       Mewlix.String.Utils
       Mewlix.Utils.List
