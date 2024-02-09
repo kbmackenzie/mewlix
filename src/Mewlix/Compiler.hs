@@ -5,9 +5,9 @@ module Mewlix.Compiler
 , toJS
 ) where
 
-import Mewlix.Compiler.Javascript.ToJS (ToJS(toJS))
 import Mewlix.Compiler.Transpiler
-    ( transpile
-    , Transpiler
+    ( Transpiler
+    , transpile
     , TranspilerContext(..)
     )
+import Mewlix.Compiler.Javascript.ToJS (ToJS(toJS))
