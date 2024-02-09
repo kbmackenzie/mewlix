@@ -38,9 +38,6 @@ library
       Mewlix.Compiler.Javascript.Statement
       Mewlix.Compiler.Javascript.ToJS
       Mewlix.Compiler.Transpiler
-      Mewlix.Data.Ref
-      Mewlix.Data.ToBool
-      Mewlix.Data.ToString
       Mewlix.Keywords.Constants
       Mewlix.Keywords.Types
       Mewlix.Parser.Expression
@@ -51,6 +48,7 @@ library
       Mewlix.Parser.Statement
       Mewlix.Parser.Utils
       Mewlix.Project.Data
+      Mewlix.Project.IO.FileSearch
       Mewlix.Project.Maker
       Mewlix.Project.Mode
       Mewlix.Project.Write
