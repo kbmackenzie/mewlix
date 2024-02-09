@@ -41,11 +41,6 @@ library
       Mewlix.Data.Ref
       Mewlix.Data.ToBool
       Mewlix.Data.ToString
-      Mewlix.IO.DataFile
-      Mewlix.IO.Directory
-      Mewlix.IO.File
-      Mewlix.IO.Print
-      Mewlix.IO.SafeIO
       Mewlix.Keywords.Constants
       Mewlix.Keywords.Types
       Mewlix.Parser.Expression
