@@ -57,6 +57,7 @@ library
       Mewlix.Parser.Utils
       Mewlix.Project.Data
       Mewlix.Project.Maker
+      Mewlix.Project.Mode
       Mewlix.Project.Write
       Mewlix.String.Escape
       Mewlix.String.Utils
