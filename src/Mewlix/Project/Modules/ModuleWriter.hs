@@ -5,52 +5,22 @@ module Mewlix.Project.Modules.ModuleWriter
 , writeModules
 ) where
 
-import Conduit
-    ( runConduitRes
-    , (.|)
-    , sourceFile
-    , sinkFile
-    , decodeUtf8C
-    , encodeUtf8C
-    , ConduitT
-    , ResourceT
-    , yield
-    , await
-    )
 import Mewlix.Project.Make
     ( ProjectContext(..)
     , ProjectMaker
-    , liftIO
     , asks
     , throwError
     )
+import qualified Mewlix.Utils.IO as FileIO
 import Mewlix.Compiler (TranspilerContext, CompilerFunc, CompilerOutput)
-import Mewlix.Parser (FileContent)
 import Mewlix.Project.Modules.ProjectFolder (toOutputPath, preparePath)
-import Data.Typeable (Typeable)
-import Control.Exception (throwIO, try, Exception)
 
-{- MewlixException newtype, for throwing IO exceptions on a syntax error.
- -
- - These exceptions are *always* caught and wrapped in an Either
- - inside the ProjectMaker monad.
- -
- - This exception type exists for convenience and should *never* propagate. -}
-newtype MewlixException = MewlixException { unwrapMewlixException :: String }
-    deriving (Show, Typeable)
-
-instance Exception MewlixException where
-
-------------------------------------------------------------------------------------
-
-type CompilationConduit = ConduitT FileContent CompilerOutput (ResourceT IO) ()
-
-compileModule :: CompilerFunc -> TranspilerContext -> FilePath -> CompilationConduit
-compileModule compile context path = await >>= \case
-    Nothing         -> return ()
-    (Just contents) -> case compile context path contents of
-        (Left err)       -> (liftIO . throwIO) (MewlixException err)
-        (Right yarnball) -> yield yarnball
+compileModule :: CompilerFunc -> TranspilerContext -> FilePath -> ProjectMaker CompilerOutput
+compileModule compile context path = FileIO.readFile path >>= \case
+    (Left err)       -> throwError ("Couldn't read file:" ++ show err)
+    (Right contents) -> case compile context path contents of
+        (Left err)       -> throwError ("Mewlix syntax error:\n" ++ err)
+        (Right yarnball) -> return yarnball
 
 -- Compile a Mewlix module and write the output to a new file in the project folder.
 -- The function returns the path to the new file.
@@ -60,21 +30,10 @@ writeModule context inputPath = do
     preparePath outputPath
 
     compiler <- asks projectCompiler
+    yarnball <- compileModule compiler context inputPath
 
-    let write :: IO ()
-        write = runConduitRes
-             $ sourceFile inputPath
-            .| decodeUtf8C
-            .| compileModule compiler context inputPath
-            .| encodeUtf8C
-            .| sinkFile outputPath
-
-    let handleException :: MewlixException -> ProjectMaker FilePath
-        handleException e = do
-            let message = "[Mewlix] Syntax error:\n" ++ unwrapMewlixException e
-            throwError message
-
-    liftIO (try write) >>= either handleException (return . const outputPath)
+    FileIO.writeFile outputPath yarnball
+    return outputPath
 
 writeModules :: TranspilerContext -> [FilePath] -> ProjectMaker [FilePath]
 writeModules context = mapM (writeModule context)
