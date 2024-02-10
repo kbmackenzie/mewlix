@@ -10,15 +10,16 @@ module Mewlix.Compiler.Transpiler
 , local
 ) where
 
-import Data.Text (Text)
 import Mewlix.Abstract.Key (Key)
-import Mewlix.Abstract.Module (ModuleKey)
+import Data.Text (Text)
+import Data.HashSet (HashSet)
 import Data.HashMap.Strict (HashMap)
+import Mewlix.Abstract.Module (ModuleKey)
 import Control.Monad.Reader (MonadReader, Reader, ask, asks, local, runReader)
 
 data TranspilerContext = TranspilerContext
-    { specialImports :: HashMap Key Text
-    , transModuleKey :: ModuleKey          }
+    { specialImports    :: HashMap Key Text
+    , transpilerFlags   :: HashSet Text     }
     deriving (Show);
 
 newtype Transpiler a = Transpiler 
