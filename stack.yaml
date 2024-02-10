@@ -67,3 +67,7 @@ extra-deps:
 - contravariant-1.5.5
 - distributive-0.6.2.1
 - StateVar-1.2.2
+# YAML
+- yaml-0.11.11.2
+- attoparsec-0.14.4
+- libyaml-0.1.2

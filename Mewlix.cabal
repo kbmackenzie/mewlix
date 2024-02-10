@@ -50,6 +50,7 @@ library
       Mewlix.Parser.Statement
       Mewlix.Parser.Utils
       Mewlix.Project.Data
+      Mewlix.Project.Init
       Mewlix.Project.Make
       Mewlix.Project.Mode
       Mewlix.Project.Modules.FileSearch
@@ -88,6 +89,7 @@ library
     , unordered-containers ==0.2.*
     , utf8-string ==1.0.*
     , vector ==0.13.*
+    , yaml ==0.11.*
   default-language: Haskell2010
 
 executable Mewlix
@@ -120,6 +122,7 @@ executable Mewlix
     , unordered-containers ==0.2.*
     , utf8-string ==1.0.*
     , vector ==0.13.*
+    , yaml ==0.11.*
   default-language: Haskell2010
 
 test-suite Mewlix-test
@@ -153,4 +156,5 @@ test-suite Mewlix-test
     , unordered-containers ==0.2.*
     , utf8-string ==1.0.*
     , vector ==0.13.*
+    , yaml ==0.11.*
   default-language: Haskell2010

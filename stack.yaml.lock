@@ -445,4 +445,25 @@ packages:
       size: 314
   original:
     hackage: StateVar-1.2.2
+- completed:
+    hackage: yaml-0.11.11.2@sha256:6f0a1859e0fb3068e50dbc7fe9bf9a26847741bc24344e35e16a03711a18f88d,5178
+    pantry-tree:
+      sha256: 799f6815fe2c823561c3935bdf0cabe5f4f4a55462dc9c0d2a9838f963c97ea0
+      size: 2044
+  original:
+    hackage: yaml-0.11.11.2
+- completed:
+    hackage: attoparsec-0.14.4@sha256:ec709539b881d6431620bd7c40fbfa680aaf4a98c6f35b51536d8f455682b1ae,5703
+    pantry-tree:
+      sha256: 859a99c7b716d7288a4d8ada61c036e5715485bca5ea4e379f113ccbf06d8a5c
+      size: 5039
+  original:
+    hackage: attoparsec-0.14.4
+- completed:
+    hackage: libyaml-0.1.2@sha256:7fb663b11fcdb86503c14aa81763106ea79b1048fc29a1fe44ec346d9ecac101,2222
+    pantry-tree:
+      sha256: 52fb43b19dc4e0224a9efe79ec90e5ce45f38ad317c3d751ee62f2cdcd461d49
+      size: 1096
+  original:
+    hackage: libyaml-0.1.2
 snapshots: []
