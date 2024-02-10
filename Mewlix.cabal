@@ -50,11 +50,11 @@ library
       Mewlix.Parser.Statement
       Mewlix.Parser.Utils
       Mewlix.Project.Data
-      Mewlix.Project.IO.FileSearch
-      Mewlix.Project.IO.ModuleWriter
-      Mewlix.Project.IO.ProjectFolder
       Mewlix.Project.Make
       Mewlix.Project.Mode
+      Mewlix.Project.Modules.FileSearch
+      Mewlix.Project.Modules.ModuleWriter
+      Mewlix.Project.Modules.ProjectFolder
       Mewlix.String.Escape
       Mewlix.String.Utils
       Mewlix.Utils.List

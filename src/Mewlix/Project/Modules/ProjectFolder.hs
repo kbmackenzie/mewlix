@@ -1,4 +1,4 @@
-module Mewlix.Project.IO.ProjectFolder
+module Mewlix.Project.Modules.ProjectFolder
 ( projectFolder
 , toOutputPath
 , makeProjectFolder

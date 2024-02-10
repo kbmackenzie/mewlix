@@ -1,4 +1,4 @@
-module Mewlix.Project.IO.FileSearch
+module Mewlix.Project.Modules.FileSearch
 ( processSources
 , processSource
 , validateSource

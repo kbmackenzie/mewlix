@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Mewlix.Project.IO.ModuleWriter
+module Mewlix.Project.Modules.ModuleWriter
 ( writeModule
 , writeModules
 ) where
@@ -26,7 +26,7 @@ import Mewlix.Project.Make
     )
 import Mewlix.Compiler (TranspilerContext, CompilerFunc, CompilerOutput)
 import Mewlix.Parser (FileContent)
-import Mewlix.Project.IO.ProjectFolder (toOutputPath, preparePath)
+import Mewlix.Project.Modules.ProjectFolder (toOutputPath, preparePath)
 import Data.Typeable (Typeable)
 import Control.Exception (throwIO, try, Exception)
 
