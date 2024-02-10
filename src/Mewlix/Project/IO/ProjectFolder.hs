@@ -12,7 +12,7 @@ projectFolder :: IO FilePath
 projectFolder = (</> "mewlix/user/") <$> getCurrentDirectory 
 
 toOutputPath :: FilePath -> IO FilePath
-toOutputPath = (<$> getCurrentDirectory) . flip (</>)
+toOutputPath = (<$> projectFolder) . flip (</>)
 
 preparePath :: FilePath -> IO ()
 preparePath = createDirectoryIfMissing True . takeDirectory
