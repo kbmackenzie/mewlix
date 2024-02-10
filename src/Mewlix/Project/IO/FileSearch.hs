@@ -19,7 +19,7 @@ import System.Directory
     , doesDirectoryExist
     , doesFileExist
     )
-import Mewlix.Project.Maker (ProjectMaker, throwError, liftIO)
+import Mewlix.Project.Make (ProjectMaker, throwError, liftIO)
 
 localRelative :: FilePath -> IO FilePath
 localRelative = canonicalizePath >=> makeRelativeToCurrentDirectory

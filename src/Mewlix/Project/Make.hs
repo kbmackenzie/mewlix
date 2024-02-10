@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Mewlix.Project.Maker
+module Mewlix.Project.Make
 ( ProjectMaker(..)
 , makeProject
 -- Re-exports:

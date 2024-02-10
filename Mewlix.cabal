@@ -53,7 +53,7 @@ library
       Mewlix.Project.IO.FileSearch
       Mewlix.Project.IO.ModuleWriter
       Mewlix.Project.IO.ProjectFolder
-      Mewlix.Project.Maker
+      Mewlix.Project.Make
       Mewlix.Project.Mode
       Mewlix.String.Escape
       Mewlix.String.Utils

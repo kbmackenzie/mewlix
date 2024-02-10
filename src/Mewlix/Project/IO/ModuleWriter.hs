@@ -16,7 +16,7 @@ import Conduit
     , yield
     , await
     )
-import Mewlix.Project.Maker (ProjectMaker, liftIO, throwError)
+import Mewlix.Project.Make (ProjectMaker, liftIO, throwError)
 import Mewlix.Compiler (TranspilerContext, CompilerFunc, CompilerOutput)
 import Mewlix.Parser (FileContent)
 import Mewlix.Project.IO.ProjectFolder (toOutputPath, preparePath)
