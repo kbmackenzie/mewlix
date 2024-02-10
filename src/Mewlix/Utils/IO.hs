@@ -1,11 +1,18 @@
 module Mewlix.Utils.IO
-( readFileUTF8
+( readFile
+, writeFile
 ) where
 
+-- This module should always be imported qualified!
+
+import Prelude hiding (readFile, writeFile)
 import Data.Text (Text)
 import qualified Data.ByteString as ByteString
 import qualified Data.Text.Encoding as Encoding
 import Data.Text.Encoding.Error (UnicodeException)
 
-readFileUTF8 :: FilePath -> IO (Either UnicodeException Text)
-readFileUTF8 = fmap Encoding.decodeUtf8' . ByteString.readFile
+readFile :: FilePath -> IO (Either UnicodeException Text)
+readFile = fmap Encoding.decodeUtf8' . ByteString.readFile
+
+writeFile :: FilePath -> Text -> IO ()
+writeFile path = ByteString.writeFile path . Encoding.encodeUtf8
