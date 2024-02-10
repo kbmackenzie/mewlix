@@ -10,9 +10,10 @@ import Data.Text (Text)
 import qualified Data.ByteString as ByteString
 import qualified Data.Text.Encoding as Encoding
 import Data.Text.Encoding.Error (UnicodeException)
+import Control.Monad.IO.Class (MonadIO, liftIO)
 
-readFile :: FilePath -> IO (Either UnicodeException Text)
-readFile = fmap Encoding.decodeUtf8' . ByteString.readFile
+readFile :: (MonadIO m) => FilePath -> m (Either UnicodeException Text)
+readFile = liftIO . fmap Encoding.decodeUtf8' . ByteString.readFile
 
-writeFile :: FilePath -> Text -> IO ()
-writeFile path = ByteString.writeFile path . Encoding.encodeUtf8
+writeFile :: (MonadIO m) => FilePath -> Text -> m ()
+writeFile path = liftIO . ByteString.writeFile path . Encoding.encodeUtf8
