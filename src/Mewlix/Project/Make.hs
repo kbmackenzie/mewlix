@@ -2,14 +2,14 @@
 
 module Mewlix.Project.Make
 ( ProjectMaker(..)
-, makeProject
+, make
 -- Re-exports:
 , liftIO
 , throwError
 , catchError
 ) where
 
-import Control.Monad.Except (ExceptT, MonadError(..), runExceptT)
+import Control.Monad.Except (ExceptT, MonadError(throwError, catchError), runExceptT)
 import Control.Monad.IO.Class (MonadIO(liftIO))
 
 newtype ProjectMaker a = ProjectMaker { runProjectMaker :: ExceptT String IO a }
@@ -20,5 +20,5 @@ newtype ProjectMaker a = ProjectMaker { runProjectMaker :: ExceptT String IO a }
              , MonadError String
              )
 
-makeProject :: ProjectMaker a -> IO (Either String a)
-makeProject = runExceptT . runProjectMaker
+make :: ProjectMaker a -> IO (Either String a)
+make = runExceptT . runProjectMaker
