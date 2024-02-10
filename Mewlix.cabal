@@ -60,6 +60,7 @@ library
       Mewlix.String.Utils
       Mewlix.Utils.IO
       Mewlix.Utils.Show
+      Mewlix.Utils.Yaml
   other-modules:
       Paths_Mewlix
   hs-source-dirs:
