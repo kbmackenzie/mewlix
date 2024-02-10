@@ -1,6 +1,10 @@
 module Mewlix.Compiler.Run
-( TranspilerContext(..)
-, Transpiler
+( Transpiler
+, transpile
+, TranspilerContext(..)
+, runCompiler
+, CompilerFunc
+, CompilerOutput
 , compileJS
 ) where
 
@@ -11,14 +15,16 @@ import Mewlix.Compiler.Transpiler
     , TranspilerContext(..)
     )
 import Mewlix.Compiler.Javascript.ToJS (ToJS(toJS))
-import Mewlix.Parser (parseMewlix)
+import Mewlix.Parser (parseMewlix, FileContent, ParserError)
 import Data.Text (Text)
 
-type CompilationFunction = YarnBall -> Transpiler Text
+type CompilerFunc = TranspilerContext -> FilePath -> FileContent -> Either ParserError CompilerOutput
+type CompilerOutput = Text
+type CompilerCallback = YarnBall -> Transpiler Text
 
-compileBase :: CompilationFunction -> TranspilerContext -> FilePath -> Text -> Either Text Text
-compileBase callback context = (fmap compile .) . parseMewlix
+runCompiler :: CompilerCallback -> CompilerFunc
+runCompiler callback context = (fmap compile .) . parseMewlix
     where compile = transpile context . callback
 
-compileJS :: TranspilerContext -> FilePath -> Text -> Either Text Text
-compileJS = compileBase toJS
+compileJS :: CompilerFunc
+compileJS = runCompiler toJS
