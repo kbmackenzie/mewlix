@@ -2,6 +2,7 @@
 
 module Mewlix.Project.IO.ModuleWriter
 ( writeModule
+, writeModules
 ) where
 
 import Conduit
@@ -16,7 +17,13 @@ import Conduit
     , yield
     , await
     )
-import Mewlix.Project.Make (ProjectMaker, liftIO, throwError)
+import Mewlix.Project.Make
+    ( ProjectContext(..)
+    , ProjectMaker
+    , liftIO
+    , asks
+    , throwError
+    )
 import Mewlix.Compiler (TranspilerContext, CompilerFunc, CompilerOutput)
 import Mewlix.Parser (FileContent)
 import Mewlix.Project.IO.ProjectFolder (toOutputPath, preparePath)
@@ -45,10 +52,14 @@ compileModule compile context path = await >>= \case
         (Left err)       -> (liftIO . throwIO) (MewlixException err)
         (Right yarnball) -> yield yarnball
 
-writeModule :: CompilerFunc -> TranspilerContext -> FilePath -> ProjectMaker ()
-writeModule compiler context inputPath = do
-    outputPath <- liftIO (toOutputPath inputPath)
-    liftIO (preparePath outputPath)
+-- Compile a Mewlix module and write the output to a new file in the project folder.
+-- The function returns the path to the new file.
+writeModule :: TranspilerContext -> FilePath -> ProjectMaker FilePath
+writeModule context inputPath = do
+    outputPath <- toOutputPath inputPath
+    preparePath outputPath
+
+    compiler <- asks projectCompiler
 
     let write :: IO ()
         write = runConduitRes
@@ -58,9 +69,12 @@ writeModule compiler context inputPath = do
             .| encodeUtf8C
             .| sinkFile outputPath
 
-    let handleException :: MewlixException -> ProjectMaker ()
+    let handleException :: MewlixException -> ProjectMaker FilePath
         handleException e = do
             let message = "[Mewlix] Syntax error:\n" ++ unwrapMewlixException e
             throwError message
 
-    liftIO (try write) >>= either handleException return
+    liftIO (try write) >>= either handleException (return . const outputPath)
+
+writeModules :: TranspilerContext -> [FilePath] -> ProjectMaker [FilePath]
+writeModules context = mapM (writeModule context)

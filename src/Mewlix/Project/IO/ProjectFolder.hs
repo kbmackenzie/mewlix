@@ -5,24 +5,29 @@ module Mewlix.Project.IO.ProjectFolder
 , preparePath
 ) where
 
+import Mewlix.Project.Make (ProjectMaker, ProjectContext(..), asks, liftIO)
+import Control.Monad.IO.Class (MonadIO)
 import System.FilePath ((</>), takeDirectory, isAbsolute, dropDrive, replaceExtension)
 import System.Directory (getCurrentDirectory, createDirectoryIfMissing)
 
-projectFolder :: IO FilePath
-projectFolder = (</> "mewlix/user/") <$> getCurrentDirectory 
+projectFolder :: (MonadIO m) => m FilePath
+projectFolder = (</> "mewlix/user/") <$> liftIO getCurrentDirectory 
 
-toOutputPath :: FilePath -> IO FilePath
-toOutputPath = do
+toOutputPath :: FilePath -> ProjectMaker FilePath
+toOutputPath inputPath = do
+    extension <- asks projectExtension
+
     let handleAbsolute :: FilePath -> FilePath
         handleAbsolute path = if isAbsolute path then dropDrive path else path
     
     let handleExtension :: FilePath -> FilePath
-        handleExtension = replaceExtension "js"
+        handleExtension = replaceExtension extension
 
-    (<$> projectFolder) . flip (</>) . handleExtension . handleAbsolute
+    let appendPath = flip (</>) . handleExtension . handleAbsolute
+    appendPath inputPath <$> projectFolder
 
-preparePath :: FilePath -> IO ()
-preparePath = createDirectoryIfMissing True . takeDirectory
+preparePath :: (MonadIO m) => FilePath -> m ()
+preparePath = liftIO . createDirectoryIfMissing True . takeDirectory
 
-makeProjectFolder :: IO ()
-makeProjectFolder = createDirectoryIfMissing True =<< projectFolder
+makeProjectFolder :: (MonadIO m) => m ()
+makeProjectFolder = liftIO . createDirectoryIfMissing True =<< projectFolder

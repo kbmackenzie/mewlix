@@ -1,6 +1,8 @@
 module Mewlix.Project.IO.FileSearch
 ( processSources
-, validateFile
+, processSource
+, validateSource
+, validateSources
 ) where
 
 import Data.Containers.ListUtils (nubOrd)
@@ -13,16 +15,8 @@ import Conduit
     , sourceDirectoryDeep
     )
 import System.FilePath (isExtensionOf)
-import System.Directory
-    ( canonicalizePath
-    , makeRelativeToCurrentDirectory
-    , doesDirectoryExist
-    , doesFileExist
-    )
+import System.Directory (doesDirectoryExist, doesFileExist, canonicalizePath)
 import Mewlix.Project.Make (ProjectMaker, throwError, liftIO)
-
-localRelative :: FilePath -> IO FilePath
-localRelative = canonicalizePath >=> makeRelativeToCurrentDirectory
 
 findSources :: FilePath -> IO [FilePath]
 findSources dir = runConduitRes
@@ -30,20 +24,23 @@ findSources dir = runConduitRes
     .| filterC (isExtensionOf "mews")
     .| sinkList
 
-processSource :: FilePath -> IO [FilePath]
-processSource path = do
-    isDirectory <- (localRelative >=> doesDirectoryExist) path
+processSource :: FilePath -> ProjectMaker [FilePath]
+processSource = liftIO . canonicalizePath >=> \path -> do
+    isDirectory <- liftIO (doesDirectoryExist path)
     if isDirectory
-        then findSources path
+        then liftIO (findSources path)
         else return [path]
 
-processSources :: [FilePath] -> IO [FilePath]
+processSources :: [FilePath] -> ProjectMaker [FilePath]
 processSources paths = do
     sourceFiles <- mapM processSource paths
     (return . nubOrd . concat) sourceFiles
 
-validateFile :: FilePath -> ProjectMaker ()
-validateFile path = do
+validateSource :: FilePath -> ProjectMaker ()
+validateSource path = do
     fileExists <- liftIO (doesFileExist path)
     unless fileExists $
-        throwError $ mconcat [ "Couldn't find file \"", path, "\"!" ]
+        throwError (concat [ "Couldn't find file \"", path, "\"!" ])
+
+validateSources :: [FilePath] -> ProjectMaker ()
+validateSources = mapM_ validateSource
