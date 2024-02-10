@@ -58,10 +58,8 @@ library
       Mewlix.Project.Modules.ProjectFolder
       Mewlix.String.Escape
       Mewlix.String.Utils
-      Mewlix.Utils.List
+      Mewlix.Utils.IO
       Mewlix.Utils.Show
-      Mewlix.Utils.Time
-      Mewlix.Utils.Triple
   other-modules:
       Paths_Mewlix
   hs-source-dirs:
@@ -72,7 +70,6 @@ library
     , ansi-terminal ==1.0.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
-    , clock ==0.8.*
     , conduit ==1.3.*
     , containers ==0.6.*
     , directory ==1.3.*
@@ -81,14 +78,12 @@ library
     , haskeline ==0.8.*
     , megaparsec ==9.3.*
     , microlens-platform ==0.4.*
-    , monadlist ==0.0.*
     , mtl >=2.2 && <2.4
     , parser-combinators ==1.3.*
     , random ==1.2.*
     , text ==2.0.*
     , unordered-containers ==0.2.*
     , utf8-string ==1.0.*
-    , vector ==0.13.*
     , yaml ==0.11.*
   default-language: Haskell2010
 
@@ -105,7 +100,6 @@ executable Mewlix
     , ansi-terminal ==1.0.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
-    , clock ==0.8.*
     , conduit ==1.3.*
     , containers ==0.6.*
     , directory ==1.3.*
@@ -114,14 +108,12 @@ executable Mewlix
     , haskeline ==0.8.*
     , megaparsec ==9.3.*
     , microlens-platform ==0.4.*
-    , monadlist ==0.0.*
     , mtl >=2.2 && <2.4
     , parser-combinators ==1.3.*
     , random ==1.2.*
     , text ==2.0.*
     , unordered-containers ==0.2.*
     , utf8-string ==1.0.*
-    , vector ==0.13.*
     , yaml ==0.11.*
   default-language: Haskell2010
 
@@ -139,7 +131,6 @@ test-suite Mewlix-test
     , ansi-terminal ==1.0.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
-    , clock ==0.8.*
     , conduit ==1.3.*
     , containers ==0.6.*
     , directory ==1.3.*
@@ -148,13 +139,11 @@ test-suite Mewlix-test
     , haskeline ==0.8.*
     , megaparsec ==9.3.*
     , microlens-platform ==0.4.*
-    , monadlist ==0.0.*
     , mtl >=2.2 && <2.4
     , parser-combinators ==1.3.*
     , random ==1.2.*
     , text ==2.0.*
     , unordered-containers ==0.2.*
     , utf8-string ==1.0.*
-    , vector ==0.13.*
     , yaml ==0.11.*
   default-language: Haskell2010
