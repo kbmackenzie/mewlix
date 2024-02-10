@@ -2,9 +2,11 @@
 
 module Mewlix.Project.Make
 ( ProjectContext(..)
+, Language(..)
 , ProjectMaker(..)
 , make
 , makeJS
+, langExtension
 -- Re-exports:
 , liftIO
 , asks
@@ -19,7 +21,12 @@ import Control.Monad.IO.Class (MonadIO(liftIO))
 
 data ProjectContext = ProjectContext
     { projectCompiler  :: CompilerFunc
-    , projectExtension :: String       }
+    , projectLanguage  :: Language    }
+
+-- I might add another language option in the future, which is why this data type exists.
+-- If I do, this data type guarantees the process will be much easier.
+data Language = Javascript
+    deriving (Eq, Ord, Show, Enum, Bounded)
 
 newtype ProjectMaker a = ProjectMaker
     { runProjectMaker :: ReaderT ProjectContext (ExceptT String IO) a }
@@ -37,4 +44,7 @@ make ctx = runExceptT . flip runReaderT ctx . runProjectMaker
 makeJS :: ProjectMaker a -> IO (Either String a)
 makeJS = make ProjectContext
     { projectCompiler  = compileJS
-    , projectExtension = "js"      }
+    , projectLanguage  = Javascript }
+
+langExtension :: Language -> String
+langExtension Javascript = "js"

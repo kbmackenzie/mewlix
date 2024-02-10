@@ -4,7 +4,14 @@ module Mewlix.Project.Template
 ( createFromTemplate
 ) where
 
-import Mewlix.Project.Make (ProjectMaker, liftIO, throwError)
+import Mewlix.Project.Make
+    ( ProjectMaker
+    , Language(..)
+    , ProjectContext(..)
+    , liftIO
+    , throwError
+    , asks
+    )
 import qualified Mewlix.Utils.IO as FileIO
 import Mewlix.Project.Mode (ProjectMode(..))
 import System.FilePath ((</>), takeFileName)
@@ -25,8 +32,8 @@ copyDataFile dataPath targetPath = do
 templateFile :: FilePath -> FilePath
 templateFile = ("template/mewlix-base" </>)
 
-modeToTemplate :: ProjectMode -> Template
-modeToTemplate mode = case mode of
+templateJS :: ProjectMode -> Template
+templateJS mode = case mode of
     Console -> Template {
         templateCore = [
             templateFile "mewlix.js",
@@ -54,9 +61,13 @@ modeToTemplate mode = case mode of
         templateBody = []
     }
 
+getTemplate :: Language -> ProjectMode -> Template
+getTemplate Javascript = templateJS
+
 createFromTemplate :: ProjectMode -> ProjectMaker ()
 createFromTemplate mode = do
-    let template = modeToTemplate mode
+    language <- asks projectLanguage
+    let template = getTemplate language mode
 
     liftIO $ mapM_ createDirectory
         [ "mewlix-output"

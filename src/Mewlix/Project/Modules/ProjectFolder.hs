@@ -5,7 +5,7 @@ module Mewlix.Project.Modules.ProjectFolder
 , preparePath
 ) where
 
-import Mewlix.Project.Make (ProjectMaker, ProjectContext(..), asks, liftIO)
+import Mewlix.Project.Make (ProjectMaker, ProjectContext(..), asks, liftIO, langExtension)
 import Control.Monad.IO.Class (MonadIO)
 import System.FilePath ((</>), takeDirectory, isAbsolute, dropDrive, replaceExtension)
 import System.Directory (getCurrentDirectory, createDirectoryIfMissing)
@@ -15,7 +15,7 @@ projectFolder = (</> "mewlix-output/mewlix/user/") <$> liftIO getCurrentDirector
 
 toOutputPath :: FilePath -> ProjectMaker FilePath
 toOutputPath inputPath = do
-    extension <- asks projectExtension
+    extension <- langExtension <$> asks projectLanguage
 
     let handleAbsolute :: FilePath -> FilePath
         handleAbsolute path = if isAbsolute path then dropDrive path else path
