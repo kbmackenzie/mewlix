@@ -4,6 +4,7 @@ module Mewlix.Project.Make
 ( ProjectContext(..)
 , ProjectMaker(..)
 , make
+, makeJS
 -- Re-exports:
 , liftIO
 , asks
@@ -11,7 +12,7 @@ module Mewlix.Project.Make
 , catchError
 ) where
 
-import Mewlix.Compiler (CompilerFunc)
+import Mewlix.Compiler (CompilerFunc, compileJS)
 import Control.Monad.Reader (ReaderT, MonadReader, asks, runReaderT)
 import Control.Monad.Except (ExceptT, MonadError(throwError, catchError), runExceptT)
 import Control.Monad.IO.Class (MonadIO(liftIO))
@@ -32,3 +33,8 @@ newtype ProjectMaker a = ProjectMaker
 
 make :: ProjectContext -> ProjectMaker a -> IO (Either String a)
 make ctx = runExceptT . flip runReaderT ctx . runProjectMaker
+
+makeJS :: ProjectMaker a -> IO (Either String a)
+makeJS = make ProjectContext
+    { projectCompiler  = compileJS
+    , projectExtension = "js"      }
