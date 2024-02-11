@@ -1,7 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Mewlix.Project.Data
 ( ProjectData(..)
+-- Lenses:
+, projectNameL
+, projectDescriptionL
+, projectModeL
+, projectSourceFilesL
+, projectSpecialImportsL
+, projectFlagsL
 ) where
 
 import Mewlix.Project.Mode (ProjectMode, defaultMode)
@@ -18,6 +26,7 @@ import Data.Text (Text)
 import Data.HashSet (HashSet)
 import Data.HashMap.Strict (HashMap)
 import Data.Maybe (fromMaybe)
+import Lens.Micro.Platform (makeLensesFor)
 
 data ProjectData = ProjectData
     { projectName           :: Text
@@ -48,3 +57,13 @@ instance ToJSON ProjectData where
         , "sources"         .= projectSourceFiles project
         , "specialImports"  .= projectSpecialImports project
         , "flags"           .= projectFlags project ]
+
+----------------------------------------------------------------
+
+$(makeLensesFor
+    [ ("projectName"            , "projectNameL"            )
+    , ("projectDescription"     , "projectDescriptionL"     )
+    , ("projectMode"            , "projectModeL"            )
+    , ("projectSourceFiles"     , "projectSourceFilesL"     )
+    , ("projectSpecialImports"  , "projectSpecialImportsL"  )
+    , ("projectFlags"           , "projectFlagsL"           ) ] ''ProjectData)
