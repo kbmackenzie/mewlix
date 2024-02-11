@@ -11,7 +11,7 @@ import Mewlix.Project.Make
     , projectMakeJS
     )
 import Mewlix.Project.Data (ProjectData(..), projectSourceFilesL)
-import Mewlix.Project.Init (project, initProject)
+import Mewlix.Project.Build (project, buildProject)
 import qualified Mewlix.Utils.Logging as Logging
 import Lens.Micro.Platform (over)
 
@@ -26,5 +26,5 @@ make :: Language -> IO ()
 make Javascript = makeRun projectMakeJS project
 
 singletonProject :: Language -> [FilePath] -> ProjectData -> IO ()
-singletonProject Javascript files = makeRun projectMakeJS . initProject . addFiles
+singletonProject Javascript files = makeRun projectMakeJS . buildProject . addFiles
     where addFiles = over projectSourceFilesL (files ++)
