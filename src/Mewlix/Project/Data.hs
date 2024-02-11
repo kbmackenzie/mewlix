@@ -10,9 +10,11 @@ module Mewlix.Project.Data
 , projectSourceFilesL
 , projectSpecialImportsL
 , projectFlagsL
+-- Utils:
+, projectDataEmpty
 ) where
 
-import Mewlix.Project.Mode (ProjectMode, defaultMode)
+import Mewlix.Project.Mode (ProjectMode(..), defaultMode)
 import Data.Aeson
     ( ToJSON(..)
     , FromJSON(..)
@@ -67,3 +69,8 @@ $(makeLensesFor
     , ("projectSourceFiles"     , "projectSourceFilesL"     )
     , ("projectSpecialImports"  , "projectSpecialImportsL"  )
     , ("projectFlags"           , "projectFlagsL"           ) ] ''ProjectData)
+
+----------------------------------------------------------------
+
+projectDataEmpty :: ProjectData
+projectDataEmpty = ProjectData mempty mempty Console mempty mempty mempty
