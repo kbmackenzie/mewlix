@@ -1,4 +1,4 @@
-module Mewlix.Utils.IO
+module Mewlix.Utils.FileIO
 ( readFile
 , writeFile
 , readDataFile

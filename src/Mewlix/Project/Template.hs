@@ -12,7 +12,7 @@ import Mewlix.Project.Make
     , throwError
     , asks
     )
-import qualified Mewlix.Utils.IO as FileIO
+import qualified Mewlix.Utils.FileIO as FileIO
 import Mewlix.Project.Mode (ProjectMode(..))
 import System.FilePath ((</>), takeFileName)
 import System.Directory (createDirectory)
@@ -70,10 +70,10 @@ createFromTemplate mode = do
     let template = getTemplate language mode
 
     liftIO $ mapM_ createDirectory
-        [ "mewlix-output"
-        , "mewlix-output/mewlix"
-        , "mewlix-output/mewlix/core"
-        , "mewlix-output/mewlix/user" ]
+        [ "output"
+        , "output/mewlix"
+        , "output/mewlix/core"
+        , "output/mewlix/user" ]
 
     let copyData :: FilePath -> FilePath -> ProjectMaker ()
         copyData targetFolder dataPath = do
@@ -83,5 +83,5 @@ createFromTemplate mode = do
     let copyAllData :: FilePath -> [FilePath] -> ProjectMaker ()
         copyAllData targetFolder = mapM_ (copyData targetFolder)
 
-    copyAllData "mewlix-output/mewlix/core" (templateCore template)
-    copyAllData "mewlix-output/mewlix"      (templateBody template)
+    copyAllData "output/mewlix/core" (templateCore template)
+    copyAllData "output/mewlix"      (templateBody template)

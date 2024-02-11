@@ -53,13 +53,17 @@ library
       Mewlix.Project.Init
       Mewlix.Project.Make
       Mewlix.Project.Mode
+      Mewlix.Project.Modules
       Mewlix.Project.Modules.FileSearch
       Mewlix.Project.Modules.ModuleWriter
       Mewlix.Project.Modules.ProjectFolder
+      Mewlix.Project.Run
       Mewlix.Project.Template
       Mewlix.String.Escape
       Mewlix.String.Utils
-      Mewlix.Utils.IO
+      Mewlix.Utils.FileIO
+      Mewlix.Utils.Json
+      Mewlix.Utils.Logging
       Mewlix.Utils.Show
       Mewlix.Utils.Yaml
   other-modules:

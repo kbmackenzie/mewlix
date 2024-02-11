@@ -11,7 +11,7 @@ import Mewlix.Project.Make
     , asks
     , throwError
     )
-import qualified Mewlix.Utils.IO as FileIO
+import qualified Mewlix.Utils.FileIO as FileIO
 import Mewlix.Compiler (TranspilerContext, CompilerFunc, CompilerOutput)
 import Mewlix.Project.Modules.ProjectFolder (toOutputPath, preparePath)
 

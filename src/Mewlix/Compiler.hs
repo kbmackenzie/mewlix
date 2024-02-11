@@ -4,6 +4,7 @@ module Mewlix.Compiler
 , CompilerFunc
 , compileJS
 , CompilerOutput
+, emptyContext
 ) where
 
 import Mewlix.Compiler.Run
@@ -13,3 +14,4 @@ import Mewlix.Compiler.Run
     , compileJS
     , CompilerOutput
     )
+import Mewlix.Compiler.Transpiler (emptyContext)

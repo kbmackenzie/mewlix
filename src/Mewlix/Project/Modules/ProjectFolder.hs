@@ -11,7 +11,7 @@ import System.FilePath ((</>), takeDirectory, isAbsolute, dropDrive, replaceExte
 import System.Directory (getCurrentDirectory, createDirectoryIfMissing)
 
 projectFolder :: (MonadIO m) => m FilePath
-projectFolder = (</> "mewlix-output/mewlix/user/") <$> liftIO getCurrentDirectory 
+projectFolder = (</> "output/mewlix/user/") <$> liftIO getCurrentDirectory 
 
 toOutputPath :: FilePath -> ProjectMaker FilePath
 toOutputPath inputPath = do

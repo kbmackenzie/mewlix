@@ -4,6 +4,7 @@ module Mewlix.Compiler.Transpiler
 ( TranspilerContext(..)
 , Transpiler(..)
 , transpile
+, emptyContext
 -- Re-exports:
 , ask
 , asks
@@ -32,3 +33,6 @@ newtype Transpiler a = Transpiler
 
 transpile :: TranspilerContext -> Transpiler a -> a
 transpile ctx = flip runReader ctx . runTranspiler;
+
+emptyContext :: TranspilerContext
+emptyContext = TranspilerContext mempty mempty

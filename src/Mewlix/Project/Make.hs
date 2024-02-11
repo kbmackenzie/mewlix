@@ -4,9 +4,10 @@ module Mewlix.Project.Make
 ( ProjectContext(..)
 , Language(..)
 , ProjectMaker(..)
-, make
-, makeJS
+, projectMake
+, projectMakeJS
 , langExtension
+, emptyProject
 -- Re-exports:
 , liftIO
 , asks
@@ -38,13 +39,18 @@ newtype ProjectMaker a = ProjectMaker
              , MonadReader ProjectContext
              )
 
-make :: ProjectContext -> ProjectMaker a -> IO (Either String a)
-make ctx = runExceptT . flip runReaderT ctx . runProjectMaker
+projectMake :: ProjectContext -> ProjectMaker a -> IO (Either String a)
+projectMake ctx = runExceptT . flip runReaderT ctx . runProjectMaker
 
-makeJS :: ProjectMaker a -> IO (Either String a)
-makeJS = make ProjectContext
+projectMakeJS :: ProjectMaker a -> IO (Either String a)
+projectMakeJS = projectMake ProjectContext
     { projectCompiler  = compileJS
     , projectLanguage  = Javascript }
 
 langExtension :: Language -> String
 langExtension Javascript = "js"
+
+emptyProject :: ProjectContext
+emptyProject = ProjectContext
+    { projectCompiler  = \_ _ _ -> Left "No compilter specified!"
+    , projectLanguage  = Javascript }
