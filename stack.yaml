@@ -68,3 +68,5 @@ extra-deps:
 - yaml-0.11.11.2
 - attoparsec-0.14.4
 - libyaml-0.1.2
+# cmdargs
+- cmdargs-0.10.22

@@ -445,4 +445,11 @@ packages:
       size: 1096
   original:
     hackage: libyaml-0.1.2
+- completed:
+    hackage: cmdargs-0.10.22@sha256:0d1a33c3978fbcdda4f2543e62ac3ed8ad36152e141cdeebeece7e08d6529d63,4248
+    pantry-tree:
+      sha256: 2957554d00a23a204b5367d2070471e21a1e35cf0ddc7bdbfb26a047e754dbf6
+      size: 3122
+  original:
+    hackage: cmdargs-0.10.22
 snapshots: []

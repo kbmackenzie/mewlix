@@ -77,6 +77,7 @@ library
     , ansi-terminal ==1.0.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
+    , cmdargs ==0.10.*
     , conduit ==1.3.*
     , containers ==0.6.*
     , directory ==1.3.*
@@ -107,6 +108,7 @@ executable Mewlix
     , ansi-terminal ==1.0.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
+    , cmdargs ==0.10.*
     , conduit ==1.3.*
     , containers ==0.6.*
     , directory ==1.3.*
@@ -138,6 +140,7 @@ test-suite Mewlix-test
     , ansi-terminal ==1.0.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
+    , cmdargs ==0.10.*
     , conduit ==1.3.*
     , containers ==0.6.*
     , directory ==1.3.*
