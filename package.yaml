@@ -52,9 +52,6 @@ ghc-options:
 - -Wmissing-home-modules
 - -Wpartial-fields
 - -Wredundant-constraints
-- -optc-O3
-- -optc-ffast-math
-- -funfolding-use-threshold=16
 
 #data-files:
 #- std/*.meows
