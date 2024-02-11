@@ -15,7 +15,7 @@ import Mewlix.Project.Make
 import qualified Mewlix.Utils.FileIO as FileIO
 import Mewlix.Project.Mode (ProjectMode(..))
 import System.FilePath ((</>), takeFileName)
-import System.Directory (createDirectory)
+import System.Directory (createDirectoryIfMissing)
 
 data Template = Template
     { templateCore :: [FilePath]
@@ -69,7 +69,7 @@ createFromTemplate mode = do
     language <- asks projectLanguage
     let template = getTemplate language mode
 
-    liftIO $ mapM_ createDirectory
+    liftIO $ mapM_ (createDirectoryIfMissing False)
         [ "output"
         , "output/mewlix"
         , "output/mewlix/core"
