@@ -12,6 +12,7 @@ module Mewlix.Project.Data
 , projectFlagsL
 -- Utils:
 , projectDataEmpty
+, projectFieldOrder
 ) where
 
 import Mewlix.Project.Mode (ProjectMode(..), defaultMode)
@@ -23,12 +24,15 @@ import Data.Aeson
     , (.=)
     , (.:?)
     , object
+    , pairs
     )
 import Data.Text (Text)
 import Data.HashSet (HashSet)
 import Data.HashMap.Strict (HashMap)
+import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe (fromMaybe)
 import Lens.Micro.Platform (makeLensesFor)
+import Data.Function (on)
 
 data ProjectData = ProjectData
     { projectName           :: Text
@@ -60,6 +64,14 @@ instance ToJSON ProjectData where
         , "specialImports"  .= projectSpecialImports project
         , "flags"           .= projectFlags project ]
 
+    toEncoding project = pairs $ mconcat
+        [ "name"            .= projectName project
+        , "description"     .= projectDescription project
+        , "mode"            .= projectMode project
+        , "sources"         .= projectSourceFiles project
+        , "specialImports"  .= projectSpecialImports project
+        , "flags"           .= projectFlags project ]
+
 ----------------------------------------------------------------
 
 $(makeLensesFor
@@ -74,3 +86,16 @@ $(makeLensesFor
 
 projectDataEmpty :: ProjectData
 projectDataEmpty = ProjectData mempty mempty Console mempty mempty mempty
+
+projectFieldOrder :: Text -> Text -> Ordering
+projectFieldOrder = compare `on` (`HashMap.lookup` fieldOrder)
+    where 
+        fieldOrder :: HashMap Text Int
+        fieldOrder = HashMap.fromList
+            [ ("name"           , 1)
+            , ("description"    , 2)
+            , ("mode"           , 3)
+            , ("sources"        , 4)
+            , ("specialImports" , 5)
+            , ("flags"          , 6)
+            ]
