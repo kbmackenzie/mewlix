@@ -2,7 +2,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
 module Mewlix.CLI.Data
-( MewlixCLI(..)
+( MewlixOptions(..)
 , runCLI
 ) where
 
@@ -23,24 +23,24 @@ import System.Console.CmdArgs
     , Typeable
     )
 
-data MewlixCLI =
+data MewlixOptions =
       Clean
     | Build { files     :: [FilePath] }
     deriving (Eq, Show, Data, Typeable)
 
-clean :: MewlixCLI
+clean :: MewlixOptions
 clean = Clean &= help "Clean any project in the current directory."
 
-build :: MewlixCLI
+build :: MewlixOptions
 build = Build { files = def &= args }
     &= help "Build a project"
     &= auto
 
-mode :: Mode (CmdArgs MewlixCLI)
+mode :: Mode (CmdArgs MewlixOptions)
 mode = cmdArgsMode $ modes [clean, build]
     &= help "Mewlix compiler"
     &= program "mewlix"
     &= summary "mewlix 1.0.0\nMewlix compiler"
 
-runCLI :: IO MewlixCLI
+runCLI :: IO MewlixOptions
 runCLI = cmdArgsRun mode
