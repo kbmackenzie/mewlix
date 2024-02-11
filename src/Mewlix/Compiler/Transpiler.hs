@@ -15,7 +15,6 @@ import Mewlix.Abstract.Key (Key)
 import Data.Text (Text)
 import Data.HashSet (HashSet)
 import Data.HashMap.Strict (HashMap)
-import Mewlix.Abstract.Module (ModuleKey)
 import Control.Monad.Reader (MonadReader, Reader, ask, asks, local, runReader)
 
 data TranspilerContext = TranspilerContext
