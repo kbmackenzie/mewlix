@@ -49,6 +49,7 @@ library
       Mewlix.Parser.Run
       Mewlix.Parser.Statement
       Mewlix.Parser.Utils
+      Mewlix.Project
       Mewlix.Project.Data
       Mewlix.Project.Init
       Mewlix.Project.Make

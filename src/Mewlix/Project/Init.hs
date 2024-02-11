@@ -1,7 +1,8 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Mewlix.Project.Init
-( initProject
+( project
+, initProject
 ) where
 
 import Conduit
@@ -44,11 +45,12 @@ readProject = do
             [ "Couldn't parse project file: \"", path, "\":",  show err ]
         (Right dat) -> return dat
 
-initProject :: ProjectMaker ()
-initProject = do
-    projectData <- readProject
+initProject :: ProjectData -> ProjectMaker ()
+initProject projectData = do
+    -- Template:
     createFromTemplate (projectMode projectData)
 
+    -- Modules:
     compiledModules <- compileModules projectData
     scriptList compiledModules
 
@@ -57,3 +59,6 @@ scriptList paths = do
     let targetPath = "output/mewlix/core/script-list"
     let scripts = List.intercalate "\n" paths
     liftIO $ FileIO.writeFileS targetPath scripts
+
+project :: ProjectMaker ()
+project = readProject >>= initProject
