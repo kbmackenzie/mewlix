@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Mewlix.Project.Build
 ( project
 , buildProject
