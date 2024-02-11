@@ -1,6 +1,6 @@
 module Main (main) where
 
---import Mewlix
+import Mewlix.CLI.Main (run)
 
 main :: IO ()
-main = putStrLn "todo"
+main = run
