@@ -11,7 +11,8 @@ import Mewlix.Project.ProjectMaker
     , projectMakeJS
     )
 import Mewlix.Project.Data.Types (ProjectData(..), projectSourceFilesL)
-import Mewlix.Project.Actions.Build (project, buildProject)
+import Mewlix.Project.Actions.Build (buildProject)
+import Mewlix.Project.Data.Read (readProject)
 import qualified Mewlix.Utils.Logging as Logging
 import Lens.Micro.Platform (over)
 
@@ -23,7 +24,7 @@ makeRun callback action = callback action >>= \case
     (Right _ ) -> return ()
 
 make :: Language -> IO ()
-make Javascript = makeRun projectMakeJS project
+make Javascript = makeRun projectMakeJS (readProject >>= buildProject)
 
 singletonProject :: Language -> [FilePath] -> ProjectData -> IO ()
 singletonProject Javascript files = makeRun projectMakeJS . buildProject . addFiles
