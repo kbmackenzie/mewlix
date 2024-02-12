@@ -137,7 +137,7 @@ instance ToJavascript Expression where
     transpileJS _ (DotExpression objectExpr propertyExpr) = do
         object   <- toJS objectExpr
         property <- toJS propertyExpr
-        return (object <> ".box." <> property)
+        return (object <> ".box()." <> property)
 
     -- Lookup expression:
     ----------------------------------------------
@@ -145,7 +145,7 @@ instance ToJavascript Expression where
         let stringify = syncCall Mewlix.purrify . List.singleton
         object   <- toJS objectExpr
         property <- stringify <$> toJS propertyExpr
-        return (object <> ".box" <> brackets property)
+        return (object <> ".box()" <> brackets property)
 
     -- Clowder expressions:
     ----------------------------------------------
