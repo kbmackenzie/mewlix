@@ -1,7 +1,8 @@
 module Mewlix.Utils.FileIO
-( readFile
-, writeFile
+( readFileT
+, writeFileT
 , readDataFile
+, copyDataFile
 , writeFileS
 ) where
 
@@ -9,6 +10,7 @@ module Mewlix.Utils.FileIO
 
 import Prelude hiding (readFile, writeFile)
 import Data.Text (Text)
+import Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.UTF8 as ByteUTF8
 import qualified Data.Text.Encoding as ByteEncoding
@@ -16,15 +18,28 @@ import Data.Text.Encoding.Error (UnicodeException)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad ((>=>))
 import Paths_Mewlix (getDataFileName)
+import Conduit
+    ( runConduitRes
+    , sourceFile
+    , sinkFile
+    , (.|)
+    )
 
-readFile :: (MonadIO m) => FilePath -> m (Either UnicodeException Text)
-readFile = liftIO . fmap ByteEncoding.decodeUtf8' . ByteString.readFile
+readFileT :: (MonadIO m) => FilePath -> m (Either UnicodeException Text)
+readFileT = liftIO . fmap ByteEncoding.decodeUtf8' . ByteString.readFile
 
-writeFile :: (MonadIO m) => FilePath -> Text -> m ()
-writeFile path = liftIO . ByteString.writeFile path . ByteEncoding.encodeUtf8
+writeFileT :: (MonadIO m) => FilePath -> Text -> m ()
+writeFileT path = liftIO . ByteString.writeFile path . ByteEncoding.encodeUtf8
 
-readDataFile :: (MonadIO m) => FilePath -> m (Either UnicodeException Text)
-readDataFile = liftIO . getDataFileName >=> readFile
+readDataFile :: (MonadIO m) => FilePath -> m ByteString
+readDataFile = liftIO . getDataFileName >=> liftIO . ByteString.readFile
+
+copyDataFile :: (MonadIO m) => FilePath -> FilePath -> m ()
+copyDataFile dataFile targetPath = do
+    dataPath <- liftIO (getDataFileName dataFile)
+    liftIO $ runConduitRes
+         $ sourceFile dataPath
+        .| sinkFile targetPath
 
 writeFileS :: (MonadIO m) => FilePath -> String -> m ()
 writeFileS path = liftIO . ByteString.writeFile path . ByteUTF8.fromString
