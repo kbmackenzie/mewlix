@@ -29,7 +29,7 @@ import Mewlix.Parser.Utils
 import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Keywords.Types (SimpleKeyword(..))
 import Data.List.NonEmpty (NonEmpty((:|)))
-import qualified Mewlix.Keywords.Constants as Keywords
+import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import Text.Megaparsec ((<|>))
 import qualified Text.Megaparsec as Mega
 import Control.Monad (when)

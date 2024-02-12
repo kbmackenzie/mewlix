@@ -42,7 +42,7 @@ library
       Mewlix.Compiler.Javascript.ToJavascript
       Mewlix.Compiler.Run
       Mewlix.Compiler.Transpiler
-      Mewlix.Keywords.Constants
+      Mewlix.Keywords.LanguageKeywords
       Mewlix.Keywords.Types
       Mewlix.Parser
       Mewlix.Parser.Expression

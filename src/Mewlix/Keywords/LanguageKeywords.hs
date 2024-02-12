@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE OverloadedLists #-}
 
-module Mewlix.Keywords.Constants
+module Mewlix.Keywords.LanguageKeywords
 ( function
 , local
 , commentOpen

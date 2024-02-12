@@ -18,7 +18,7 @@ module Mewlix.Parser.Utils
 
 import Mewlix.Keywords.Types (LongSymbol(..))
 import Data.Text (Text)
-import qualified Mewlix.Keywords.Constants as Keywords
+import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
