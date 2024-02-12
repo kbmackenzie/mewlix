@@ -1,10 +1,13 @@
 module Mewlix.Utils.FileIO
 ( readFileT
+, readFileB
 , writeFileT
+, writeFileB
 , readDataFile
 , copyDataFile
 , writeFileS
 , extractZip
+, extractDataFile
 ) where
 
 -- This module should always be imported qualified!
@@ -30,8 +33,14 @@ import Codec.Archive.Zip (withArchive, unpackInto)
 readFileT :: (MonadIO m) => FilePath -> m (Either UnicodeException Text)
 readFileT = liftIO . fmap ByteEncoding.decodeUtf8' . ByteString.readFile
 
+readFileB :: (MonadIO m) => FilePath -> m ByteString
+readFileB = liftIO . ByteString.readFile
+
 writeFileT :: (MonadIO m) => FilePath -> Text -> m ()
 writeFileT path = liftIO . ByteString.writeFile path . ByteEncoding.encodeUtf8
+
+writeFileB :: (MonadIO m) => FilePath -> ByteString -> m ()
+writeFileB = (liftIO .) . ByteString.writeFile
 
 readDataFile :: (MonadIO m) => FilePath -> m ByteString
 readDataFile = liftIO . getDataFileName >=> liftIO . ByteString.readFile
@@ -48,3 +57,8 @@ writeFileS path = liftIO . ByteString.writeFile path . ByteUTF8.fromString
 
 extractZip :: (MonadIO m) => FilePath -> FilePath -> m ()
 extractZip zipPath = withArchive zipPath . unpackInto
+
+extractDataFile :: (MonadIO m) => FilePath -> FilePath -> m ()
+extractDataFile dataFile targetPath = do
+    zipPath <- liftIO (getDataFileName dataFile)
+    extractZip zipPath targetPath
