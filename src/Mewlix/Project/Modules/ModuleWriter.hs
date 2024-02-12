@@ -14,12 +14,12 @@ import Mewlix.Project.Maker
     )
 import Mewlix.Project.Folder (moduleFolder)
 import Mewlix.Compiler (TranspilerContext, CompilerFunc, CompilerOutput)
-import qualified Mewlix.Utils.FileIO as FileIO
+import Mewlix.Utils.FileIO (readFileT, writeFileT)
 import System.FilePath ((</>), takeDirectory, isAbsolute, dropDrive)
 import System.Directory (createDirectoryIfMissing, makeRelativeToCurrentDirectory)
 
 compileModule :: CompilerFunc -> TranspilerContext -> FilePath -> ProjectMaker CompilerOutput
-compileModule compile context path = FileIO.readFile path >>= \case
+compileModule compile context path = readFileT path >>= \case
     (Left err)       -> throwError ("Couldn't read file:" ++ show err)
     (Right contents) -> case compile context path contents of
         (Left err)       -> throwError ("Mewlix syntax error:\n" ++ err)
@@ -43,7 +43,7 @@ writeModule context inputPath = do
     compiler <- asks projectCompiler
     yarnball <- compileModule compiler context inputPath
 
-    FileIO.writeFile outputPath yarnball
+    writeFileT outputPath yarnball
     return outputPath
 
 writeModules :: TranspilerContext -> [FilePath] -> ProjectMaker [FilePath]

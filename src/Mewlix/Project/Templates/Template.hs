@@ -12,7 +12,7 @@ import Mewlix.Project.Maker
     , throwError
     , asks
     )
-import qualified Mewlix.Utils.FileIO as FileIO
+import Mewlix.Utils.FileIO (readDataFile, writeFileT)
 import Mewlix.Project.Data.Types (ProjectMode(..))
 import System.FilePath ((</>), takeFileName)
 import System.Directory (createDirectoryIfMissing)
@@ -24,10 +24,10 @@ data Template = Template
 
 copyDataFile :: FilePath -> FilePath -> ProjectMaker ()
 copyDataFile dataPath targetPath = do
-    contents <- FileIO.readDataFile dataPath >>= \case
+    contents <- readDataFile dataPath >>= \case
         (Left err)  -> throwError (show err)
         (Right dat) -> return dat
-    FileIO.writeFile targetPath contents
+    writeFileT targetPath contents
 
 templateFile :: FilePath -> FilePath
 templateFile = ("template/mewlix-base" </>)

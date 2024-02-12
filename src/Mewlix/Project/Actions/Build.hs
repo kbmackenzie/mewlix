@@ -7,7 +7,7 @@ import Mewlix.Project.Data.Types (ProjectData(..))
 import Mewlix.Project.Modules.Compile (compileModules)
 import Mewlix.Project.Templates.Template (createFromTemplate)
 import qualified Data.List as List
-import qualified Mewlix.Utils.FileIO as FileIO
+import Mewlix.Utils.FileIO (writeFileS)
 
 buildProject :: ProjectData -> ProjectMaker ()
 buildProject projectData = do
@@ -22,4 +22,4 @@ scriptList :: [FilePath] -> ProjectMaker ()
 scriptList paths = do
     let targetPath = "output/mewlix/core/script-list"
     let scripts = List.intercalate "\n" paths
-    liftIO $ FileIO.writeFileS targetPath scripts
+    liftIO $ writeFileS targetPath scripts
