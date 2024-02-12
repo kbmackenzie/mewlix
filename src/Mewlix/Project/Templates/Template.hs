@@ -4,7 +4,7 @@ module Mewlix.Project.Templates.Template
 ( createFromTemplate
 ) where
 
-import Mewlix.Project.ProjectMaker
+import Mewlix.Project.Maker
     ( ProjectMaker
     , Language(..)
     , ProjectContext(..)

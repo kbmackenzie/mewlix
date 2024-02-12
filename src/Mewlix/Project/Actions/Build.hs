@@ -2,7 +2,7 @@ module Mewlix.Project.Actions.Build
 ( buildProject
 ) where
 
-import Mewlix.Project.ProjectMaker (ProjectMaker, liftIO)
+import Mewlix.Project.Maker (ProjectMaker, liftIO)
 import Mewlix.Project.Data.Types (ProjectData(..))
 import Mewlix.Project.Modules.Compile (compileModules)
 import Mewlix.Project.Templates.Template (createFromTemplate)

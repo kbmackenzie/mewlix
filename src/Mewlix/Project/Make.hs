@@ -5,7 +5,7 @@ module Mewlix.Project.Make
 , singletonProject
 ) where
 
-import Mewlix.Project.ProjectMaker
+import Mewlix.Project.Maker
     ( ProjectMaker(..)
     , Language(..)
     , projectMakeJS

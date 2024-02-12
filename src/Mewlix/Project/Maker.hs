@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Mewlix.Project.ProjectMaker
+module Mewlix.Project.Maker
 ( ProjectContext(..)
 , Language(..)
 , ProjectMaker(..)

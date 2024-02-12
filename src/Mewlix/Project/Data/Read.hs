@@ -5,7 +5,7 @@ module Mewlix.Project.Data.Read
 ) where
 
 import Conduit (runConduitRes, (.|), sourceDirectory, filterC, headC)
-import Mewlix.Project.ProjectMaker (ProjectMaker, liftIO, throwError)
+import Mewlix.Project.Maker (ProjectMaker, liftIO, throwError)
 import Mewlix.Project.Data.Types (ProjectData(..))
 import Mewlix.Utils.Yaml (readYaml)
 import System.FilePath (isExtensionOf)

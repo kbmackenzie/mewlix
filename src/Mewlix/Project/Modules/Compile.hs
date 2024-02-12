@@ -3,7 +3,7 @@ module Mewlix.Project.Modules.Compile
 ) where
 
 import Mewlix.Compiler (TranspilerContext(..))
-import Mewlix.Project.ProjectMaker (ProjectMaker)
+import Mewlix.Project.Maker (ProjectMaker)
 import Mewlix.Project.Data.Types (ProjectData(..))
 import Mewlix.Project.Modules.ModuleWriter (writeModules)
 import Mewlix.Project.Modules.FileSearch (processSources, validateSources)

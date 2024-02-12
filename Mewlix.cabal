@@ -58,10 +58,11 @@ library
       Mewlix.Project.Data.Types
       Mewlix.Project.Folder
       Mewlix.Project.Make
+      Mewlix.Project.Maker
       Mewlix.Project.Modules.Compile
       Mewlix.Project.Modules.FileSearch
       Mewlix.Project.Modules.ModuleWriter
-      Mewlix.Project.ProjectMaker
+      Mewlix.Project.Templates.Constants
       Mewlix.Project.Templates.Template
       Mewlix.String.Escape
       Mewlix.String.Utils
