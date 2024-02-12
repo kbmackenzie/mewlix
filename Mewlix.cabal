@@ -55,12 +55,12 @@ library
       Mewlix.Project
       Mewlix.Project.Build
       Mewlix.Project.Data
+      Mewlix.Project.Folder
       Mewlix.Project.Make
       Mewlix.Project.Mode
-      Mewlix.Project.Modules
+      Mewlix.Project.Modules.Compile
       Mewlix.Project.Modules.FileSearch
       Mewlix.Project.Modules.ModuleWriter
-      Mewlix.Project.Modules.ProjectFolder
       Mewlix.Project.Read
       Mewlix.Project.Run
       Mewlix.Project.Template
