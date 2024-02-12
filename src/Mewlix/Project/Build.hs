@@ -6,7 +6,7 @@ module Mewlix.Project.Build
 import Mewlix.Project.Make (ProjectMaker, liftIO)
 import Mewlix.Project.Read (readProject)
 import Mewlix.Project.Data (ProjectData(..))
-import Mewlix.Project.Modules (compileModules)
+import Mewlix.Project.Modules.Compile (compileModules)
 import Mewlix.Project.Template (createFromTemplate)
 import qualified Data.List as List
 import qualified Mewlix.Utils.FileIO as FileIO

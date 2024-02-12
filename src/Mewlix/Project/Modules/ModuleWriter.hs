@@ -9,11 +9,14 @@ import Mewlix.Project.Make
     ( ProjectContext(..)
     , ProjectMaker
     , asks
+    , liftIO
     , throwError
     )
-import qualified Mewlix.Utils.FileIO as FileIO
+import Mewlix.Project.Folder (moduleFolder)
 import Mewlix.Compiler (TranspilerContext, CompilerFunc, CompilerOutput)
-import Mewlix.Project.Modules.ProjectFolder (toOutputPath, preparePath)
+import qualified Mewlix.Utils.FileIO as FileIO
+import System.FilePath ((</>), takeDirectory, isAbsolute, dropDrive)
+import System.Directory (createDirectoryIfMissing, makeRelativeToCurrentDirectory)
 
 compileModule :: CompilerFunc -> TranspilerContext -> FilePath -> ProjectMaker CompilerOutput
 compileModule compile context path = FileIO.readFile path >>= \case
@@ -26,9 +29,17 @@ compileModule compile context path = FileIO.readFile path >>= \case
 -- The function returns the path to the new file.
 writeModule :: TranspilerContext -> FilePath -> ProjectMaker FilePath
 writeModule context inputPath = do
-    outputPath <- toOutputPath inputPath
-    preparePath outputPath
+    let prepareDirectory :: FilePath -> ProjectMaker ()
+        prepareDirectory = liftIO . createDirectoryIfMissing True . takeDirectory
 
+    outputPath <- liftIO $ do
+        relative <- makeRelativeToCurrentDirectory inputPath
+        folder   <- moduleFolder
+        return $ if isAbsolute relative
+            then folder </> dropDrive relative
+            else folder </> relative
+
+    prepareDirectory outputPath
     compiler <- asks projectCompiler
     yarnball <- compileModule compiler context inputPath
 

@@ -1,4 +1,4 @@
-module Mewlix.Project.Modules
+module Mewlix.Project.Modules.Compile
 ( compileModules
 ) where
 
