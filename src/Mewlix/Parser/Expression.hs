@@ -183,8 +183,9 @@ operatorsR :: OperatorTable
 operatorsR =
     [
         [ Postfix postfixes                                                             ]
-    ,   [ Prefix  (PawType                          <$ keyword Keywords.paw             )
-        , Prefix  (ClawEntries                      <$ keyword Keywords.claw        )   ]
+    ,   [ Prefix  (PawType                          <$ keyword Keywords.paw         )   ]
+    ,   [ InfixL  (IsInstance                       <$ keyword Keywords.is          )   ]
+    ,   [ Prefix  (ClawEntries                      <$ keyword Keywords.claw        )   ]
     ,   [ Postfix (UnaryOperation LengthLookup      <$ keyword (LongSymbol "...?")  )   ] 
     ,   [ Prefix  (UnaryOperation ListPeek          <$ keyword Keywords.peek        )
         , InfixL  (ListPush                         <$ keyword Keywords.push        )

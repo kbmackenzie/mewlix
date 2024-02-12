@@ -45,6 +45,7 @@ data Expression =
     | BoxExpression         [(Key, Expression)]
     | Assignment            Expression Expression
     | PawType               Expression
+    | IsInstance            Expression Expression
     | ClawEntries           Expression
     | ListPush              Expression Expression
     | ListPop               Expression

@@ -178,6 +178,12 @@ instance ToJavascript Expression where
         arg <- toJS operand
         return $ syncCall (Mewlix.operation "typeOf") [arg]
 
+    -- 'Is' / Instance of:
+    ----------------------------------------------
+    transpileJS _ (IsInstance a b) = do
+        args <- mapM toJS [a, b]
+        return $ syncCall (Mewlix.operation "instanceOf") args
+
     -- 'Claw at'/ Box entries:
     ----------------------------------------------
     transpileJS _ (ClawEntries operand) = do

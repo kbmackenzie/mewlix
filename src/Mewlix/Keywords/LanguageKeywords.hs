@@ -28,6 +28,7 @@ module Mewlix.Keywords.LanguageKeywords
 , forEach
 , thenDo
 , paw
+, is
 , claw
 , box
 , lambda
@@ -110,6 +111,9 @@ paw = ["paw", "at"]
 
 claw :: WordSequence
 claw = ["claw", "at"]
+
+is :: SimpleKeyword
+is = "is"
 
 box :: LongSymbol
 box = "=^-x-^="
@@ -215,6 +219,7 @@ reserved = HashSet.fromList
     , home
     , super
     , firstWord paw
+    , is
     , firstWord claw
     , not
     , and
