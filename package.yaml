@@ -42,6 +42,7 @@ dependencies:
 - cmdargs >= 0.10 && < 0.11
 - wai >= 3.2 && < 3.3
 - warp >= 3.4 && < 3.5
+- zip >= 2.0 && < 2.1
 
 ghc-options:
 - -O2

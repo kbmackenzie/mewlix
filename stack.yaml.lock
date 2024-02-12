@@ -704,4 +704,88 @@ packages:
       size: 263
   original:
     hackage: old-locale-1.0.0.7
+- completed:
+    hackage: zip-2.0.0@sha256:5b64a232914eb06a09897725e607e63190ddd3ec478bdb2550b9c1bc37fbd1ac,4073
+    pantry-tree:
+      sha256: 806f5513dcd2e9cd7c4cc29335e9e49604aa8160b05b462336fd7c5c176ad76d
+      size: 696
+  original:
+    hackage: zip-2.0.0
+- completed:
+    hackage: bzlib-conduit-0.3.0.2@sha256:d0cb531bf0730c17d75bb63b87295f081727fef3a4e0926e1912e547cd251be3,2561
+    pantry-tree:
+      sha256: 2d20969b42f37666e98dce74cdb64449247ec4200c87fdc1906360c83c62a93f
+      size: 1610
+  original:
+    hackage: bzlib-conduit-0.3.0.2
+- completed:
+    hackage: cereal-0.5.8.3@sha256:87a227c7b510217ea059db3dd59d9665edd8f0d1d3d8de39458e371a1d9402fb,2767
+    pantry-tree:
+      sha256: 2d570ae699908d131b63fe176115809982f86ec4589cdbf42848aa2ca79209cb
+      size: 641
+  original:
+    hackage: cereal-0.5.8.3
+- completed:
+    hackage: conduit-extra-1.3.6@sha256:83303e6fea78a683fdbb41682fc8dbc47b1d8830da1f09e88940f9a744a7f984,4355
+    pantry-tree:
+      sha256: af351369329e815381147ccb834deaac9c942d7526528103b1426a3b1130f0da
+      size: 2332
+  original:
+    hackage: conduit-extra-1.3.6
+- completed:
+    hackage: conduit-zstd-0.0.2.0@sha256:2d40156fb7d772bf68662959e382291c42112f860131f338358940ae9942a655,1730
+    pantry-tree:
+      sha256: 2da0e4643506a8d39d73231f6a3d6db61853f273c343ef0b1088f8874a2f935a
+      size: 321
+  original:
+    hackage: conduit-zstd-0.0.2.0
+- completed:
+    hackage: digest-0.0.2.1@sha256:938215f33ed3546dc2f059f3707f7370e9e9e1c0285cac16379ebfa45e9054c0,3623
+    pantry-tree:
+      sha256: 3246db635be9d76d3df53ec3485d27ed1fac0bf7e2ea7d612fe299cd04164942
+      size: 1807
+  original:
+    hackage: digest-0.0.2.1
+- completed:
+    hackage: monad-control-1.0.3.1@sha256:2d657279839e1a760c86a69f00f0c36473ef6972d413ec0f83a40249c70e098e,2365
+    pantry-tree:
+      sha256: f6b2e10b7ad03cbc2bd1df28543c9d514d54bd39833e318b48e5f0998d876df5
+      size: 292
+  original:
+    hackage: monad-control-1.0.3.1
+- completed:
+    hackage: transformers-base-0.4.6@sha256:6f18f320e371c8954c4b6b211e2fdd5d15a6d6310bd605b9d640f47ede408961,1643
+    pantry-tree:
+      sha256: 6c2d24a9678865e2a5f4b6286cb17228673a6987fb546bf07b89ffbd19716ad2
+      size: 275
+  original:
+    hackage: transformers-base-0.4.6
+- completed:
+    hackage: bindings-DSL-1.0.25@sha256:a469ff5e6a5b94c3781b4b458cedca744eb5b497ef838902151ec912aa5aed57,1507
+    pantry-tree:
+      sha256: 5e594ee30dddcfb779e4dc86d995de553591a395a1d8f7bf43c0d7ed91ba4ddb
+      size: 381
+  original:
+    hackage: bindings-DSL-1.0.25
+- completed:
+    hackage: data-default-class-0.1.2.0@sha256:63e62120b7efd733a5a17cf59ceb43268e9a929c748127172d7d42f4a336e327,542
+    pantry-tree:
+      sha256: 5017630b11698aefa65fc61cab84a257ce97833c968d425e1b2d53d6c3b5c096
+      size: 224
+  original:
+    hackage: data-default-class-0.1.2.0
+- completed:
+    hackage: typed-process-0.2.11.1@sha256:79e8555666f27a3e4e67fedf430000631d95c937147190b3f10817daca1874b0,2198
+    pantry-tree:
+      sha256: af2cf78e8f13ff036625a1d31e30d2b8f33f1c58f740adfe2d18275f6aac15e3
+      size: 531
+  original:
+    hackage: typed-process-0.2.11.1
+- completed:
+    hackage: zstd-0.1.3.0@sha256:4c0a372251068eb6086b8c3a0a9f347488f08b570a7705844ffeb2c720c97223,3723
+    pantry-tree:
+      sha256: 033cef067d7a48b195b3aafaebff3a75e8779bac04981d7ccbabf70f3b3fafdc
+      size: 6285
+  original:
+    hackage: zstd-0.1.3.0
 snapshots: []

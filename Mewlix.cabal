@@ -63,7 +63,6 @@ library
       Mewlix.Project.Modules.FileSearch
       Mewlix.Project.Modules.ModuleWriter
       Mewlix.Project.Templates.Constants
-      Mewlix.Project.Templates.Create
       Mewlix.Project.Templates.Template
       Mewlix.String.Escape
       Mewlix.String.Utils
@@ -100,6 +99,7 @@ library
     , wai ==3.2.*
     , warp ==3.4.*
     , yaml ==0.11.*
+    , zip ==2.0.*
   default-language: Haskell2010
 
 executable Mewlix
@@ -133,6 +133,7 @@ executable Mewlix
     , wai ==3.2.*
     , warp ==3.4.*
     , yaml ==0.11.*
+    , zip ==2.0.*
   default-language: Haskell2010
 
 test-suite Mewlix-test
@@ -167,4 +168,5 @@ test-suite Mewlix-test
     , wai ==3.2.*
     , warp ==3.4.*
     , yaml ==0.11.*
+    , zip ==2.0.*
   default-language: Haskell2010
