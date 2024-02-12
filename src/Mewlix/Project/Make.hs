@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Mewlix.Project.Run
+module Mewlix.Project.Make
 ( make
 , singletonProject
 ) where
@@ -10,7 +10,7 @@ import Mewlix.Project.ProjectMaker
     , Language(..)
     , projectMakeJS
     )
-import Mewlix.Project.ProjectData (ProjectData(..), projectSourceFilesL)
+import Mewlix.Project.Data.Types (ProjectData(..), projectSourceFilesL)
 import Mewlix.Project.Actions.Build (project, buildProject)
 import qualified Mewlix.Utils.Logging as Logging
 import Lens.Micro.Platform (over)

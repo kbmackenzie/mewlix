@@ -13,7 +13,7 @@ import Mewlix.Project.ProjectMaker
     , asks
     )
 import qualified Mewlix.Utils.FileIO as FileIO
-import Mewlix.Project.ProjectMode (ProjectMode(..))
+import Mewlix.Project.Data.Types (ProjectMode(..))
 import System.FilePath ((</>), takeFileName)
 import System.Directory (createDirectoryIfMissing)
 

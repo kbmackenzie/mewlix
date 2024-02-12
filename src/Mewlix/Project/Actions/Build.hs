@@ -4,8 +4,8 @@ module Mewlix.Project.Actions.Build
 ) where
 
 import Mewlix.Project.ProjectMaker (ProjectMaker, liftIO)
-import Mewlix.Project.ReadProject (readProject)
-import Mewlix.Project.ProjectData (ProjectData(..))
+import Mewlix.Project.Data.Read (readProject)
+import Mewlix.Project.Data.Types (ProjectData(..))
 import Mewlix.Project.Modules.Compile (compileModules)
 import Mewlix.Project.Templates.Template (createFromTemplate)
 import qualified Data.List as List

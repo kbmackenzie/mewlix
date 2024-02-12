@@ -1,8 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module Mewlix.Project.ProjectData
-( ProjectData(..)
+module Mewlix.Project.Data.Types
+( ProjectMode(..)
+, defaultMode
+, ProjectData(..)
 -- Lenses:
 , projectNameL
 , projectDescriptionL
@@ -15,7 +17,6 @@ module Mewlix.Project.ProjectData
 , projectFieldOrder
 ) where
 
-import Mewlix.Project.ProjectMode (ProjectMode(..), defaultMode)
 import Data.Aeson
     ( ToJSON(..)
     , FromJSON(..)
@@ -25,15 +26,55 @@ import Data.Aeson
     , (.:?)
     , object
     , pairs
+    , withText
     )
-import Data.Text (Text)
 import Data.HashSet (HashSet)
+import Data.Text (Text)
+import qualified Data.Text as Text
 import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe (fromMaybe)
 import Lens.Micro.Platform (makeLensesFor)
 import Data.Function (on)
+import Data.Char (toLower)
 
+{- Project Mode -}
+----------------------------------------------------------------
+data ProjectMode =
+      Console
+    | Graphic
+    | Library
+    deriving (Eq, Ord, Show, Read, Enum, Bounded)
+
+instance FromJSON ProjectMode where
+    parseJSON = withText "ProjectMode" (return . readProjectMode)
+
+instance ToJSON ProjectMode where
+    toJSON = toJSON . map toLower . show
+
+{- Mode Utils -}
+----------------------------------------------------------------
+modeKeys :: HashMap Text ProjectMode
+modeKeys = HashMap.fromList
+    -- Names:
+    [ ("console" , Console)
+    , ("graphic" , Graphic) 
+    , ("library" , Library)
+    -- Shorthand:
+    , ("c"       , Console)
+    , ("g"       , Graphic)
+    , ("l"       , Library) ]
+
+defaultMode :: ProjectMode
+defaultMode = Console
+
+readProjectMode :: Text -> ProjectMode
+readProjectMode = fromMaybe defaultMode . findKey . prepText
+    where prepText = Text.toLower . Text.strip
+          findKey  = flip HashMap.lookup modeKeys
+
+{- Project Data -}
+----------------------------------------------------------------
 data ProjectData = ProjectData
     { projectName           :: Text
     , projectDescription    :: Text
@@ -84,6 +125,8 @@ $(makeLensesFor
 
 ----------------------------------------------------------------
 
+{- Project Utils -}
+----------------------------------------------------------------
 projectDataEmpty :: ProjectData
 projectDataEmpty = ProjectData mempty mempty Console mempty mempty mempty
 

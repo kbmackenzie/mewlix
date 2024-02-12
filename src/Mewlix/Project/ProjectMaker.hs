@@ -7,6 +7,7 @@ module Mewlix.Project.ProjectMaker
 , projectMake
 , projectMakeJS
 , langExtension
+, defaultLanguage
 , projectContextEmpty
 -- Re-exports:
 , liftIO
@@ -49,6 +50,9 @@ projectMakeJS = projectMake ProjectContext
 
 langExtension :: Language -> String
 langExtension Javascript = "js"
+
+defaultLanguage :: Language
+defaultLanguage = Javascript
 
 projectContextEmpty :: ProjectContext
 projectContextEmpty = ProjectContext
