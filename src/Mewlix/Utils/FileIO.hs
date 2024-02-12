@@ -3,6 +3,7 @@ module Mewlix.Utils.FileIO
 , readFileB
 , writeFileT
 , writeFileB
+, writeFileBL
 , readDataFile
 , copyDataFile
 , writeFileS
@@ -16,6 +17,7 @@ import Prelude hiding (readFile, writeFile)
 import Data.Text (Text)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
+import qualified Data.ByteString.Lazy as ByteStringL
 import qualified Data.ByteString.UTF8 as ByteUTF8
 import qualified Data.Text.Encoding as ByteEncoding
 import Data.Text.Encoding.Error (UnicodeException)
@@ -41,6 +43,9 @@ writeFileT path = liftIO . ByteString.writeFile path . ByteEncoding.encodeUtf8
 
 writeFileB :: (MonadIO m) => FilePath -> ByteString -> m ()
 writeFileB = (liftIO .) . ByteString.writeFile
+
+writeFileBL :: (MonadIO m) => FilePath -> ByteStringL.ByteString -> m ()
+writeFileBL = (liftIO .) . ByteStringL.writeFile
 
 readDataFile :: (MonadIO m) => FilePath -> m ByteString
 readDataFile = liftIO . getDataFileName >=> liftIO . ByteString.readFile
