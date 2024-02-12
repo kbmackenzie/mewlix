@@ -421,7 +421,7 @@ instance ToJavascript YarnBall where
                 return $ indentLine moduleLevel returnStatement
 
             return $ separateLines
-                [ "async function yarnball() {"
+                [ "const yarnball = async function yarnball() {"
                 , stdLibrary
                 , separateLines transpiled
                 , moduleBindings
