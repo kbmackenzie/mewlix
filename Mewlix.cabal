@@ -63,7 +63,7 @@ library
       Mewlix.Project.Modules.FileSearch
       Mewlix.Project.Modules.ModuleWriter
       Mewlix.Project.Templates.Constants
-      Mewlix.Project.Templates.Template
+      Mewlix.Project.Templates.Create
       Mewlix.String.Escape
       Mewlix.String.Utils
       Mewlix.Utils.FileIO

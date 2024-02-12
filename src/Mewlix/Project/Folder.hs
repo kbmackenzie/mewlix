@@ -4,14 +4,15 @@ module Mewlix.Project.Folder
 , moduleFolder
 ) where
 
+import Control.Monad.IO.Class (MonadIO, liftIO)
 import System.FilePath ((</>))
 import System.Directory (getCurrentDirectory)
 
-outputFolder :: IO FilePath
-outputFolder = (</> "output") <$> getCurrentDirectory
+outputFolder :: (MonadIO m) => m FilePath
+outputFolder = (</> "output") <$> liftIO getCurrentDirectory
 
-coreFolder :: IO FilePath
+coreFolder :: (MonadIO m) => m FilePath
 coreFolder = (</> "core") <$> outputFolder
 
-moduleFolder :: IO FilePath
+moduleFolder :: (MonadIO m) => m FilePath
 moduleFolder = (</> "project") <$> outputFolder

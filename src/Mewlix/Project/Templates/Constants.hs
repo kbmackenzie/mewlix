@@ -1,7 +1,8 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Mewlix.Project.Templates.Constants
-( template
+( getTemplate
+, template
 ) where
 
 import Mewlix.Project.Maker (Language(..))

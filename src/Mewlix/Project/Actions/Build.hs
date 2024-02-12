@@ -5,7 +5,7 @@ module Mewlix.Project.Actions.Build
 import Mewlix.Project.Maker (ProjectMaker, liftIO)
 import Mewlix.Project.Data.Types (ProjectData(..))
 import Mewlix.Project.Modules.Compile (compileModules)
-import Mewlix.Project.Templates.Template (createFromTemplate)
+import Mewlix.Project.Templates.Create (createFromTemplate)
 import qualified Data.List as List
 import Mewlix.Utils.FileIO (writeFileS)
 
