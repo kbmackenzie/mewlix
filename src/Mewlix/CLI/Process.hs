@@ -4,7 +4,7 @@ module Mewlix.CLI.Process
 ) where
 
 import Mewlix.Project (Language(..), make, singletonProject)
-import Mewlix.Project.Data (projectDataEmpty)
+import Mewlix.Project.ProjectData (projectDataEmpty)
 import System.Directory (removeDirectoryRecursive, doesDirectoryExist)
 import qualified Mewlix.Utils.Logging as Logging
 import Control.Monad (when)

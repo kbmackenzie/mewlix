@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module Mewlix.Project.Data
+module Mewlix.Project.ProjectData
 ( ProjectData(..)
 -- Lenses:
 , projectNameL
@@ -15,7 +15,7 @@ module Mewlix.Project.Data
 , projectFieldOrder
 ) where
 
-import Mewlix.Project.Mode (ProjectMode(..), defaultMode)
+import Mewlix.Project.ProjectMode (ProjectMode(..), defaultMode)
 import Data.Aeson
     ( ToJSON(..)
     , FromJSON(..)

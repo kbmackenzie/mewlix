@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Project.Mode
+module Mewlix.Project.ProjectMode
 ( ProjectMode(..)
 , modeKeys
 , defaultMode

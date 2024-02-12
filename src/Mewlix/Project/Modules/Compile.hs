@@ -3,8 +3,8 @@ module Mewlix.Project.Modules.Compile
 ) where
 
 import Mewlix.Compiler (TranspilerContext(..))
-import Mewlix.Project.Make (ProjectMaker)
-import Mewlix.Project.Data (ProjectData(..))
+import Mewlix.Project.ProjectMaker (ProjectMaker)
+import Mewlix.Project.ProjectData (ProjectData(..))
 import Mewlix.Project.Modules.ModuleWriter (writeModules)
 import Mewlix.Project.Modules.FileSearch (processSources, validateSources)
 import Mewlix.Abstract.Key (Key(..))

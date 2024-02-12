@@ -53,17 +53,17 @@ library
       Mewlix.Parser.Statement
       Mewlix.Parser.Utils
       Mewlix.Project
-      Mewlix.Project.Build
-      Mewlix.Project.Data
+      Mewlix.Project.Actions.Build
       Mewlix.Project.Folder
-      Mewlix.Project.Make
-      Mewlix.Project.Mode
       Mewlix.Project.Modules.Compile
       Mewlix.Project.Modules.FileSearch
       Mewlix.Project.Modules.ModuleWriter
-      Mewlix.Project.Read
+      Mewlix.Project.ProjectData
+      Mewlix.Project.ProjectMaker
+      Mewlix.Project.ProjectMode
+      Mewlix.Project.ReadProject
       Mewlix.Project.Run
-      Mewlix.Project.Template
+      Mewlix.Project.Templates.Template
       Mewlix.String.Escape
       Mewlix.String.Utils
       Mewlix.Utils.FileIO

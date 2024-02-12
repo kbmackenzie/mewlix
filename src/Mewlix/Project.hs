@@ -5,5 +5,5 @@ module Mewlix.Project
 , singletonProject
 ) where
 
-import Mewlix.Project.Make (ProjectMaker, Language(..))
+import Mewlix.Project.ProjectMaker (ProjectMaker, Language(..))
 import Mewlix.Project.Run (make, singletonProject)

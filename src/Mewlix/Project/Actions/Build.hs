@@ -1,13 +1,13 @@
-module Mewlix.Project.Build
+module Mewlix.Project.Actions.Build
 ( project
 , buildProject
 ) where
 
-import Mewlix.Project.Make (ProjectMaker, liftIO)
-import Mewlix.Project.Read (readProject)
-import Mewlix.Project.Data (ProjectData(..))
+import Mewlix.Project.ProjectMaker (ProjectMaker, liftIO)
+import Mewlix.Project.ReadProject (readProject)
+import Mewlix.Project.ProjectData (ProjectData(..))
 import Mewlix.Project.Modules.Compile (compileModules)
-import Mewlix.Project.Template (createFromTemplate)
+import Mewlix.Project.Templates.Template (createFromTemplate)
 import qualified Data.List as List
 import qualified Mewlix.Utils.FileIO as FileIO
 

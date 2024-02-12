@@ -5,7 +5,7 @@ module Mewlix.Project.Modules.ModuleWriter
 , writeModules
 ) where
 
-import Mewlix.Project.Make
+import Mewlix.Project.ProjectMaker
     ( ProjectContext(..)
     , ProjectMaker
     , asks

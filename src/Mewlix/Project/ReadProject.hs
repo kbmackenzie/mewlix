@@ -1,12 +1,12 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Mewlix.Project.Read
+module Mewlix.Project.ReadProject
 ( readProject
 ) where
 
 import Conduit (runConduitRes, (.|), sourceDirectory, filterC, headC)
-import Mewlix.Project.Make (ProjectMaker, liftIO, throwError)
-import Mewlix.Project.Data (ProjectData(..))
+import Mewlix.Project.ProjectMaker (ProjectMaker, liftIO, throwError)
+import Mewlix.Project.ProjectData (ProjectData(..))
 import Mewlix.Utils.Yaml (readYaml)
 import System.FilePath (isExtensionOf)
 

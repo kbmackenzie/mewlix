@@ -1,10 +1,10 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Mewlix.Project.Template
+module Mewlix.Project.Templates.Template
 ( createFromTemplate
 ) where
 
-import Mewlix.Project.Make
+import Mewlix.Project.ProjectMaker
     ( ProjectMaker
     , Language(..)
     , ProjectContext(..)
@@ -13,7 +13,7 @@ import Mewlix.Project.Make
     , asks
     )
 import qualified Mewlix.Utils.FileIO as FileIO
-import Mewlix.Project.Mode (ProjectMode(..))
+import Mewlix.Project.ProjectMode (ProjectMode(..))
 import System.FilePath ((</>), takeFileName)
 import System.Directory (createDirectoryIfMissing)
 

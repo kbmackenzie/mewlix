@@ -5,13 +5,13 @@ module Mewlix.Project.Run
 , singletonProject
 ) where
 
-import Mewlix.Project.Make
+import Mewlix.Project.ProjectMaker
     ( ProjectMaker(..)
     , Language(..)
     , projectMakeJS
     )
-import Mewlix.Project.Data (ProjectData(..), projectSourceFilesL)
-import Mewlix.Project.Build (project, buildProject)
+import Mewlix.Project.ProjectData (ProjectData(..), projectSourceFilesL)
+import Mewlix.Project.Actions.Build (project, buildProject)
 import qualified Mewlix.Utils.Logging as Logging
 import Lens.Micro.Platform (over)
 

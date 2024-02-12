@@ -16,7 +16,7 @@ import Conduit
     )
 import System.FilePath (isExtensionOf)
 import System.Directory (doesDirectoryExist, doesFileExist, canonicalizePath)
-import Mewlix.Project.Make (ProjectMaker, throwError, liftIO)
+import Mewlix.Project.ProjectMaker (ProjectMaker, throwError, liftIO)
 
 findSources :: FilePath -> IO [FilePath]
 findSources dir = runConduitRes

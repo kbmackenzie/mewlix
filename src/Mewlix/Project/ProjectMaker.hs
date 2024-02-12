@@ -1,13 +1,13 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Mewlix.Project.Make
+module Mewlix.Project.ProjectMaker
 ( ProjectContext(..)
 , Language(..)
 , ProjectMaker(..)
 , projectMake
 , projectMakeJS
 , langExtension
-, emptyProject
+, projectContextEmpty
 -- Re-exports:
 , liftIO
 , asks
@@ -50,7 +50,7 @@ projectMakeJS = projectMake ProjectContext
 langExtension :: Language -> String
 langExtension Javascript = "js"
 
-emptyProject :: ProjectContext
-emptyProject = ProjectContext
+projectContextEmpty :: ProjectContext
+projectContextEmpty = ProjectContext
     { projectCompiler  = \_ _ _ -> Left "No compilter specified!"
     , projectLanguage  = Javascript }
