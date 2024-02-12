@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Mewlix.Compiler.Javascript.ToJavascript
-( ToJS(..)
+( ToJavascript(..)
 ) where
 
 import Mewlix.Abstract.AST
@@ -36,7 +36,7 @@ import qualified Data.HashMap.Strict as HashMap
 import Data.Char (isSpace)
 import Data.Maybe (fromMaybe)
 
-class ToJS a where
+class ToJavascript a where
     transpileJS :: Indentation -> a -> Transpiler Text
 
     toJS :: a -> Transpiler Text
@@ -44,7 +44,7 @@ class ToJS a where
 
 {- Primitives -}
 -----------------------------------------------------------------
-instance ToJS Primitive where
+instance ToJavascript Primitive where
     transpileJS _ (MewlixInt i)     = (return . showT) i
     transpileJS _ (MewlixBool b)    = (return . showT) b
     transpileJS _ (MewlixFloat f)   = (return . showT) f
@@ -55,7 +55,7 @@ instance ToJS Primitive where
 
 {- Expression -}
 -----------------------------------------------------------------
-instance ToJS Expression where
+instance ToJavascript Expression where
     transpileJS _ (PrimitiveExpr prim) = toJS prim
 
     -- Names:
@@ -202,12 +202,12 @@ instance ToJS Expression where
 
 {- Params -}
 -----------------------------------------------------------------
-instance ToJS Params where
+instance ToJavascript Params where
     transpileJS _ (Params params) = (wrap . sepComma . map getKey) params
 
 {- Arguments -}
 -----------------------------------------------------------------
-instance ToJS Arguments where
+instance ToJavascript Arguments where
     transpileJS _ (Arguments argExprs) = do
         args <- mapM toJS argExprs
         wrap $ sepComma args
@@ -217,7 +217,7 @@ instance ToJS Arguments where
 -- Note: Every statement should be transpiled with no trailing linebreaks.
 -- All linebreaks between statements will be added somewhere else.
 
-instance ToJS Statement where
+instance ToJavascript Statement where
     -- Expressions:
     ----------------------------------------------
     transpileJS level       (ExpressionStatement expr) = do
@@ -369,7 +369,7 @@ instance ToJS Statement where
 
 {- Function -}
 -----------------------------------------------------------------
-instance ToJS MewlixFunction where
+instance ToJavascript MewlixFunction where
     transpileJS level func = do
         let name = (getKey . funcName) func
         params  <- toJS (funcParams func)
@@ -378,7 +378,7 @@ instance ToJS MewlixFunction where
 
 {- Block -}
 -----------------------------------------------------------------
-instance ToJS Block where
+instance ToJavascript Block where
     transpileJS level block = do
         let blockLevel = succ level
         transpiled <- mapM (transpileJS blockLevel) (getBlock block)
@@ -390,7 +390,7 @@ instance ToJS Block where
 
 {- Yarn Ball -}
 -----------------------------------------------------------------
-instance ToJS YarnBall where
+instance ToJavascript YarnBall where
     transpileJS _ yarnball = do
         let key = maybe mempty joinKey (yarnballKey yarnball)
         let strictPragma = "'use strict';"

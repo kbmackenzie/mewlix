@@ -14,7 +14,7 @@ import Mewlix.Compiler.Transpiler
     , transpile
     , TranspilerContext(..)
     )
-import Mewlix.Compiler.Javascript.ToJavascript (ToJS(toJS))
+import Mewlix.Compiler.Javascript.ToJavascript (ToJavascript(toJS))
 import Mewlix.Parser (parseMewlix, FileContent, ParserError)
 import Data.Text (Text)
 
