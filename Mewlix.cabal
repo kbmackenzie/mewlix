@@ -54,9 +54,11 @@ library
       Mewlix.Parser.Utils
       Mewlix.Project
       Mewlix.Project.Actions.Build
+      Mewlix.Project.Actions.Clean
       Mewlix.Project.Data.Read
       Mewlix.Project.Data.Types
       Mewlix.Project.Folder
+      Mewlix.Project.Log
       Mewlix.Project.Make
       Mewlix.Project.Maker
       Mewlix.Project.Modules.Compile
