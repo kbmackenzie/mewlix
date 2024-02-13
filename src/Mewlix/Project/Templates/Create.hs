@@ -12,7 +12,7 @@ import System.Directory (createDirectoryIfMissing)
 createFromTemplate :: ProjectMode -> ProjectMaker ()
 createFromTemplate mode = do
     language <- asks projectLanguage
-    folder   <- outputFolder
+    let folder = outputFolder
     let projectTemplate = template language mode
 
     liftIO (createDirectoryIfMissing True folder)

@@ -34,7 +34,7 @@ writeModule context inputPath = do
 
     outputPath <- liftIO $ do
         relative <- makeRelativeToCurrentDirectory inputPath
-        folder   <- moduleFolder
+        let folder = moduleFolder
         return $ if isAbsolute relative
             then folder </> dropDrive relative
             else folder </> relative

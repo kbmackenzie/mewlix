@@ -24,7 +24,7 @@ buildProject projectData = do
 
 scriptList :: ProjectData -> [FilePath] -> ProjectMaker ()
 scriptList projectData paths = do
-    targetPath <- (</> "script-list") <$> coreFolder
+    let targetPath = coreFolder </> "script-list"
     let entrypoint = projectEntrypoint projectData
     let script = object
             [ "entrypoint" .= entrypoint
