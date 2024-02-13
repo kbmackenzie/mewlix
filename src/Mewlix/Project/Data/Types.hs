@@ -9,6 +9,7 @@ module Mewlix.Project.Data.Types
 , projectNameL
 , projectDescriptionL
 , projectModeL
+, projectEntrypointL
 , projectSourceFilesL
 , projectSpecialImportsL
 , projectFlagsL
@@ -123,6 +124,7 @@ $(makeLensesFor
     [ ("projectName"            , "projectNameL"            )
     , ("projectDescription"     , "projectDescriptionL"     )
     , ("projectMode"            , "projectModeL"            )
+    , ("projectEntrypoint"      , "projectEntrypointL"      )
     , ("projectSourceFiles"     , "projectSourceFilesL"     )
     , ("projectSpecialImports"  , "projectSpecialImportsL"  )
     , ("projectFlags"           , "projectFlagsL"           ) ] ''ProjectData)
