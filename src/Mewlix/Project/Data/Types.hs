@@ -79,6 +79,7 @@ data ProjectData = ProjectData
     { projectName           :: Text
     , projectDescription    :: Text
     , projectMode           :: ProjectMode
+    , projectEntrypoint     :: Text
     , projectSourceFiles    :: [FilePath]
     , projectSpecialImports :: HashMap Text Text
     , projectFlags          :: HashSet Text      }
@@ -86,12 +87,13 @@ data ProjectData = ProjectData
 
 instance FromJSON ProjectData where
     parseJSON = withObject "ProjectData" $ \obj -> ProjectData
-        <$> obj .: "name"
-        <*> obj .: "description"
-        <*> optional defaultMode (obj .:? "mode")
-        <*> obj .: "sources"
-        <*> optional mempty (obj .:? "specialImports")
-        <*> optional mempty (obj .:? "flags"         )
+        <$> optional "no-name"      (obj .:  "name"          )
+        <*> optional mempty         (obj .:  "description"   )
+        <*> optional defaultMode    (obj .:? "mode"          )
+        <*> optional "main"         (obj .:? "entrypoint"    )
+        <*> optional mempty         (obj .:  "sources"       )
+        <*> optional mempty         (obj .:? "specialImports")
+        <*> optional mempty         (obj .:? "flags"         )
         where
             optional :: (Functor f) => a -> f (Maybe a) -> f a
             optional = fmap . fromMaybe
@@ -101,6 +103,7 @@ instance ToJSON ProjectData where
         [ "name"            .= projectName project
         , "description"     .= projectDescription project
         , "mode"            .= projectMode project
+        , "entrypoint"      .= projectEntrypoint project
         , "sources"         .= projectSourceFiles project
         , "specialImports"  .= projectSpecialImports project
         , "flags"           .= projectFlags project ]
@@ -109,6 +112,7 @@ instance ToJSON ProjectData where
         [ "name"            .= projectName project
         , "description"     .= projectDescription project
         , "mode"            .= projectMode project
+        , "entrypoint"      .= projectEntrypoint project
         , "sources"         .= projectSourceFiles project
         , "specialImports"  .= projectSpecialImports project
         , "flags"           .= projectFlags project ]
@@ -128,7 +132,14 @@ $(makeLensesFor
 {- Project Utils -}
 ----------------------------------------------------------------
 projectDataEmpty :: ProjectData
-projectDataEmpty = ProjectData mempty mempty Console mempty mempty mempty
+projectDataEmpty = ProjectData
+    { projectName           = "no-name"
+    , projectDescription    = mempty
+    , projectMode           = defaultMode
+    , projectEntrypoint     = "main"
+    , projectSourceFiles    = mempty
+    , projectSpecialImports = mempty
+    , projectFlags          = mempty            }
 
 projectFieldOrder :: Text -> Text -> Ordering
 projectFieldOrder = compare `on` (`HashMap.lookup` fieldOrder)
@@ -138,7 +149,7 @@ projectFieldOrder = compare `on` (`HashMap.lookup` fieldOrder)
             [ ("name"           , 1)
             , ("description"    , 2)
             , ("mode"           , 3)
-            , ("sources"        , 4)
-            , ("specialImports" , 5)
-            , ("flags"          , 6)
-            ]
+            , ("entrypoint"     , 4)
+            , ("sources"        , 5)
+            , ("specialImports" , 6)
+            , ("flags"          , 7) ]
