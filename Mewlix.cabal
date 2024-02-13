@@ -55,6 +55,7 @@ library
       Mewlix.Project
       Mewlix.Project.Actions.Build
       Mewlix.Project.Actions.Clean
+      Mewlix.Project.Actions.Package
       Mewlix.Project.Actions.Server
       Mewlix.Project.Data.Read
       Mewlix.Project.Data.Types
