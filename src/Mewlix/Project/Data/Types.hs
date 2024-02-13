@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE StrictData #-}
 
 module Mewlix.Project.Data.Types
 ( ProjectMode(..)
@@ -38,6 +40,8 @@ import Data.Maybe (fromMaybe)
 import Lens.Micro.Platform (makeLensesFor)
 import Data.Function (on)
 import Data.Char (toLower)
+import Data.Data (Data)
+import Data.Typeable (Typeable)
 
 {- Project Mode -}
 ----------------------------------------------------------------
@@ -45,7 +49,7 @@ data ProjectMode =
       Console
     | Graphic
     | Library
-    deriving (Eq, Ord, Show, Read, Enum, Bounded)
+    deriving (Eq, Ord, Show, Read, Enum, Bounded, Data, Typeable)
 
 instance FromJSON ProjectMode where
     parseJSON = withText "ProjectMode" (return . readProjectMode)
