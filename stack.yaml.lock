@@ -893,4 +893,46 @@ packages:
       size: 334
   original:
     hackage: cabal-doctest-1.0.9
+- completed:
+    hackage: wai-middleware-static-0.9.2@sha256:045361d192667966dafa26584734a07298397990aa9b6e2bad855581310abe4e,3153
+    pantry-tree:
+      sha256: 75842e06c79e514492dff409c28064a28c7fe933e6c077c75b7c25c2884b65e9
+      size: 473
+  original:
+    hackage: wai-middleware-static-0.9.2
+- completed:
+    hackage: base16-bytestring-1.0.2.0@sha256:a694e88f9ec9fc79f0b03f233d3fea592b68f70a34aac2ddb5bcaecb6562e2fd,2630
+    pantry-tree:
+      sha256: cb1cf706d7e993bb333391309017b9ad529a509f275aab191bc85206da7763f5
+      size: 595
+  original:
+    hackage: base16-bytestring-1.0.2.0
+- completed:
+    hackage: cryptohash-sha1-0.11.101.0@sha256:bc5d3373ed5bbfd34b9deea62dc3b2ba21dde5b89e41d2a2399de7562543c621,3064
+    pantry-tree:
+      sha256: 9d37c28d933cd52acbf54af26891745c3eb1390eb9d4f2d4d1b6460e63d35da4
+      size: 577
+  original:
+    hackage: cryptohash-sha1-0.11.101.0
+- completed:
+    hackage: expiring-cache-map-0.0.6.1@sha256:6f298903cb33395b87adaa04874c590dcc1b3903c9e3b3b09ee376a768c4bccc,3404
+    pantry-tree:
+      sha256: 12e51100da12baccc868854f6e958282fb537cbc5a7d6456be74b2900af7e1f8
+      size: 2285
+  original:
+    hackage: expiring-cache-map-0.0.6.1
+- completed:
+    hackage: mime-types-0.1.2.0@sha256:3ddd330c16da943651db37e237d44dc0593ef9b1a63d39e98a48811644615bf6,862
+    pantry-tree:
+      sha256: c76b4099b4766a26444a41632db85a2602fc3613db9ab80aec0ba3a53bbd7cb8
+      size: 312
+  original:
+    hackage: mime-types-0.1.2.0
+- completed:
+    hackage: semigroups-0.20@sha256:925341e6f7eb104cb490bef06eab93bb7995c7c67c51ee938185a2ddefa7aaf2,6333
+    pantry-tree:
+      sha256: d4d3f0b32a68cf8808fcb8d2de117ab9ec09dbfec93a297aa3d386ca79a0fe05
+      size: 481
+  original:
+    hackage: semigroups-0.20
 snapshots: []
