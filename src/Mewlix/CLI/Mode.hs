@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wno-partial-fields #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Mewlix.CLI.Data
+module Mewlix.CLI.Mode
 ( MewlixOptions(..)
 , runCLI
 ) where
