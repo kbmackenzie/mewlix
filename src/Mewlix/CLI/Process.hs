@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Mewlix.CLI.Process
 ( runBuild
 , runClean
