@@ -9,13 +9,18 @@ import Mewlix.Project.Folder (coreFolder)
 import Mewlix.Project.Data.Types (ProjectData(..))
 import Mewlix.Project.Modules.Compile (compileModules)
 import Mewlix.Project.Templates.Create (createFromTemplate)
+import Mewlix.Project.Log (projectLog)
 import System.FilePath ((</>))
 import Mewlix.Utils.FileIO (writeFileBL)
 import Data.Aeson (object, (.=), encode)
 
 buildProject :: ProjectData -> ProjectMaker ()
 buildProject projectData = do
+    projectLog projectData $ mconcat
+        ["Building project '", projectName projectData, "'"]
+
     -- Template:
+    projectLog projectData "Creating template..."
     createFromTemplate (projectMode projectData)
 
     -- Modules:

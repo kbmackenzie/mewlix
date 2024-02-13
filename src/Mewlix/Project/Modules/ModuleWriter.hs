@@ -2,7 +2,6 @@
 
 module Mewlix.Project.Modules.ModuleWriter
 ( writeModule
-, writeModules
 ) where
 
 import Mewlix.Project.Maker
@@ -45,6 +44,3 @@ writeModule context inputPath = do
 
     writeFileT outputPath yarnball
     return outputPath
-
-writeModules :: TranspilerContext -> [FilePath] -> ProjectMaker [FilePath]
-writeModules context = mapM (writeModule context)

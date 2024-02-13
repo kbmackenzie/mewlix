@@ -7,7 +7,6 @@ module Mewlix.Project.Actions.Clean
 import Mewlix.Project.Maker (ProjectMaker, liftIO, throwError)
 import Mewlix.Project.Folder (outputFolder)
 import Mewlix.Project.Data.Read (readProject)
-import Mewlix.Project.Data.Types (ProjectData(..))
 import Mewlix.Project.Log (projectLog)
 import System.Directory (removeDirectoryRecursive, doesDirectoryExist)
 import Control.Monad (when)

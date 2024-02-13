@@ -7,10 +7,13 @@ module Mewlix.Project.Modules.Compile
 import Mewlix.Compiler (TranspilerContext(..))
 import Mewlix.Project.Maker (ProjectMaker)
 import Mewlix.Project.Data.Types (ProjectData(..), ProjectMode(..))
-import Mewlix.Project.Modules.ModuleWriter (writeModules)
+import Mewlix.Project.Modules.ModuleWriter (writeModule)
 import Mewlix.Project.Modules.FileSearch (processSources, validateSources)
+import Mewlix.Project.Log (projectLog)
+import Mewlix.Utils.Show (showT)
 import Mewlix.Abstract.Key (Key(..))
 import Data.HashMap.Strict (mapKeys)
+import qualified Data.Text as Text
 import qualified Data.HashMap.Strict as HashMap
 
 createContext :: ProjectData -> TranspilerContext
@@ -29,5 +32,14 @@ compileModules projectData = do
     sources <- processSources (projectSourceFiles projectData)
     validateSources sources
 
+    projectLog projectData $ mconcat
+        ["Compiling ", (showT . length) sources, " modules" ]
+
     let context = createContext projectData
-    writeModules context sources
+    let compile :: FilePath -> ProjectMaker FilePath
+        compile source = do
+            projectLog projectData $ mconcat
+                ["Compiling module \"", Text.pack source, "\""]
+            writeModule context source
+
+    mapM compile sources
