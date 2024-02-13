@@ -1,13 +1,13 @@
 module Mewlix.Project
-( ProjectMaker
-, Language(..)
-, ProjectContext(..)
+( Language(..)
+, Action(..)
+, make
+, makeSingle
 , ProjectData(..)
 , ProjectMode(..)
-, make
-, singletonProject
+-- Utils:
+, defaultMode
 ) where
 
-import Mewlix.Project.Maker (ProjectMaker, Language(..), ProjectContext(..))
-import Mewlix.Project.Data.Types (ProjectData(..), ProjectMode(..))
-import Mewlix.Project.Make (make, singletonProject)
+import Mewlix.Project.Data.Types (ProjectData(..), ProjectMode(..), defaultMode)
+import Mewlix.Project.Make (Action(..), Language(..), make, makeSingle)
