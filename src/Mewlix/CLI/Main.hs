@@ -4,10 +4,10 @@ module Mewlix.CLI.Main
 ( run
 ) where
 
-import Mewlix.CLI.Mode (MewlixOptions(..), runCLI)
-import Mewlix.CLI.Process (runClean, runBuild)
+import Mewlix.Project.Make (Action(..), Language(..), make, makeSingle)
+import qualified Mewlix.CLI.Options as Options
 
 run :: IO ()
-run = runCLI >>= \case
-    (Build paths)   -> runBuild paths
-    Clean           -> runClean
+run = Options.runOptions >>= \case
+    (Options.Build {})  -> undefined
+    Options.Clean       -> undefined

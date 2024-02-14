@@ -30,8 +30,7 @@ library
       Mewlix.Abstract.Key
       Mewlix.Abstract.Module
       Mewlix.CLI.Main
-      Mewlix.CLI.Mode
-      Mewlix.CLI.Process
+      Mewlix.CLI.Options
       Mewlix.Compiler
       Mewlix.Compiler.Indentation
       Mewlix.Compiler.Javascript.Constants
