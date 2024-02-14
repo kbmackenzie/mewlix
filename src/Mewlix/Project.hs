@@ -7,7 +7,17 @@ module Mewlix.Project
 , ProjectMode(..)
 -- Utils:
 , defaultMode
+, defaultPort
+, defaultName
+, defaultEntry
 ) where
 
-import Mewlix.Project.Data.Types (ProjectData(..), ProjectMode(..), defaultMode)
+import Mewlix.Project.Data.Types
+    ( ProjectData(..)
+    , ProjectMode(..)
+    , defaultMode
+    , defaultPort
+    , defaultName
+    , defaultEntry
+    )
 import Mewlix.Project.Make (Action(..), Language(..), make, makeSingle)
