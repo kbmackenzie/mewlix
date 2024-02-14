@@ -23,7 +23,7 @@ import qualified Data.Text.Encoding as ByteEncoding
 import Data.Text.Encoding.Error (UnicodeException)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad ((>=>))
-import Paths_Mewlix (getDataFileName)
+import Paths_mewlix (getDataFileName)
 import Conduit
     ( runConduitRes
     , sourceFile

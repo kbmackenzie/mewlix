@@ -4,11 +4,11 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 
-name:           Mewlix
+name:           mewlix
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/KBMackenzie/Mewlix/#readme>
-homepage:       https://github.com/KBMackenzie/Mewlix#readme
-bug-reports:    https://github.com/KBMackenzie/Mewlix/issues
+description:    Please see the README on GitHub at <https://github.com/KBMackenzie/mewlix/#readme>
+homepage:       https://github.com/KBMackenzie/mewlix#readme
+bug-reports:    https://github.com/KBMackenzie/mewlix/issues
 author:         KBMackenzie
 maintainer:     kelly.a.betty@gmail.com
 copyright:      2023 KBMackenzie
@@ -21,7 +21,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/KBMackenzie/Mewlix
+  location: https://github.com/KBMackenzie/mewlix
 
 library
   exposed-modules:
@@ -75,7 +75,7 @@ library
       Mewlix.Utils.Show
       Mewlix.Utils.Yaml
   other-modules:
-      Paths_Mewlix
+      Paths_mewlix
   hs-source-dirs:
       src
   ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
@@ -107,16 +107,15 @@ library
     , zip ==2.0.*
   default-language: Haskell2010
 
-executable Mewlix
+executable mewlix
   main-is: Main.hs
   other-modules:
-      Paths_Mewlix
+      Paths_mewlix
   hs-source-dirs:
       app
   ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-M128m
   build-depends:
-      Mewlix
-    , aeson ==2.2.*
+      aeson ==2.2.*
     , ansi-terminal ==1.0.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
@@ -127,6 +126,7 @@ executable Mewlix
     , hashable ==1.4.*
     , haskeline ==0.8.*
     , megaparsec ==9.3.*
+    , mewlix
     , microlens-platform ==0.4.*
     , mtl >=2.2 && <2.4
     , optparse-applicative ==0.18.*
@@ -143,17 +143,16 @@ executable Mewlix
     , zip ==2.0.*
   default-language: Haskell2010
 
-test-suite Mewlix-test
+test-suite mewlix-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_Mewlix
+      Paths_mewlix
   hs-source-dirs:
       test
   ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-M128m
   build-depends:
-      Mewlix
-    , aeson ==2.2.*
+      aeson ==2.2.*
     , ansi-terminal ==1.0.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
@@ -164,6 +163,7 @@ test-suite Mewlix-test
     , hashable ==1.4.*
     , haskeline ==0.8.*
     , megaparsec ==9.3.*
+    , mewlix
     , microlens-platform ==0.4.*
     , mtl >=2.2 && <2.4
     , optparse-applicative ==0.18.*
