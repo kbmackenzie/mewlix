@@ -11,15 +11,15 @@ import Mewlix.Project.Data.Types (ProjectData(..))
 import Mewlix.Utils.Yaml (readYaml)
 import System.FilePath (isExtensionOf)
 
-findProject :: ProjectMaker (Maybe FilePath)
-findProject = liftIO $ runConduitRes
+findProject :: IO (Maybe FilePath)
+findProject = runConduitRes
      $ sourceDirectory "."
     .| filterC (isExtensionOf "mewlix")
     .| headC
 
 readProject :: ProjectMaker ProjectData
 readProject = do
-    path <- findProject >>= \case
+    path <- liftIO findProject >>= \case
         (Just path) -> return path
         Nothing     -> throwError
             "Couldn't find a '.mewlix' project file the in current directory!"
