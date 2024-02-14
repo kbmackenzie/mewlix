@@ -29,6 +29,8 @@ library
       Mewlix.Abstract.AST
       Mewlix.Abstract.Key
       Mewlix.Abstract.Module
+      Mewlix.CLI.Main
+      Mewlix.CLI.Options
       Mewlix.Compiler
       Mewlix.Compiler.Indentation
       Mewlix.Compiler.Javascript.Constants
