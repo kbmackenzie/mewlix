@@ -3,7 +3,7 @@
 module Mewlix.Project.Make
 ( Action(..)
 , make
-, makeSingle
+, make'
 -- Re-exports:
 , Language(..)
 ) where
@@ -15,7 +15,8 @@ import Mewlix.Project.Maker
     )
 import Mewlix.Project.Data.Types
     ( ProjectData(..)
-    , projectDataEmpty
+    , ProjectTransform
+    , transformProject
     )
 -- Actions:
 import Mewlix.Project.Actions.Build (buildProject)
@@ -46,23 +47,16 @@ action Clean    = cleanProject
 action Package  = packageProject
 action Run      = runProject
 
-make :: Language -> Action -> IO ()
-make langOption actOption = execute (language langOption) (action actOption)
+make :: [ProjectTransform] -> Language -> Action -> IO ()
+make transforms langOption actOption = execute
+    (language langOption)
+    (action actOption . transformProject transforms)
+
+make' :: Language -> Action -> IO ()
+make' = make []
 
 execute :: ProjectFunc -> ActionFunc -> IO ()
 execute languageFunc actionFunc = do
     languageFunc (readProject >>= actionFunc) >>= \case
-        (Left err) -> Logging.writeStderr (Text.pack err)
-        (Right _ ) -> return ()
-
------------------------------------------------------------------------------------
-{- Singletons - Projects Without A Project File -}
-
-type ProjectTransform = ProjectData -> ProjectData
-
-makeSingle :: [ProjectTransform] -> Language -> Action -> IO ()
-makeSingle transforms langOption actOption = do
-    let projectData = foldr ($) projectDataEmpty transforms
-    language langOption (action actOption projectData) >>= \case
         (Left err) -> Logging.writeStderr (Text.pack err)
         (Right _ ) -> return ()

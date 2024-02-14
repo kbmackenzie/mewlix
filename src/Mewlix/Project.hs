@@ -5,7 +5,7 @@ module Mewlix.Project
 , ProjectMode(..)
 , Port
 , make
-, makeSingle
+, make'
 -- Project utils:
 , ProjectTransform
 , transformProject
@@ -45,4 +45,4 @@ import Mewlix.Project.Data.Types
     , projectSpecialImportsL
     , projectFlagsL
     )
-import Mewlix.Project.Make (Language(..), Action(..), make, makeSingle)
+import Mewlix.Project.Make (Language(..), Action(..), make, make')
