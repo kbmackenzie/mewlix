@@ -20,7 +20,7 @@ module Mewlix.Project.Data.Types
 -- Project Utils:
 , projectDataEmpty
 , ProjectTransform
-, createProjectData
+, transformProject
 , projectFieldOrder
 -- Defaults:
 , defaultMode
@@ -175,8 +175,8 @@ projectDataEmpty = ProjectData
 
 type ProjectTransform = ProjectData -> ProjectData
 
-createProjectData :: [ProjectTransform] -> ProjectData -> ProjectData
-createProjectData = flip (foldr ($))
+transformProject :: [ProjectTransform] -> ProjectData -> ProjectData
+transformProject = flip (foldr ($))
 
 projectFieldOrder :: Text -> Text -> Ordering
 projectFieldOrder = compare `on` (`HashMap.lookup` fieldOrder)

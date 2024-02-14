@@ -8,7 +8,7 @@ module Mewlix.Project
 , makeSingle
 -- Project utils:
 , ProjectTransform
-, createProjectData
+, transformProject
 -- Defaults:
 , defaultMode
 , defaultPort
@@ -34,7 +34,7 @@ import Mewlix.Project.Data.Types
     , defaultName
     , defaultEntry
     , ProjectTransform
-    , createProjectData
+    , transformProject
     -- Lenses:
     , projectNameL
     , projectDescriptionL
