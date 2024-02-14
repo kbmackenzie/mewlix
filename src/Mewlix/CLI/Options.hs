@@ -1,8 +1,10 @@
 module Mewlix.CLI.Options
-( runOptions
+( ProjectOptions(..)
+, MewlixOptions(..)
+, runOptions
 ) where
 
-import Mewlix.Project (ProjectMode(..), Port, defaultMode)
+import Mewlix.Project (ProjectMode(..), Port)
 import Options.Applicative
 
 data ProjectOptions = ProjectOptions
@@ -14,7 +16,7 @@ data ProjectOptions = ProjectOptions
 
 data MewlixOptions =
       BuildOpt ProjectOptions
-    | RunOpt ProjectOptions Port
+    | RunOpt ProjectOptions (Maybe Port)
     | PackageOpt ProjectOptions
     | CleanOpt
     deriving (Show)
@@ -79,7 +81,7 @@ parseOptions = do
 
     let run :: Mod CommandFields MewlixOptions
         run = command "run" $ makeInfo parser "Run project in a local server"
-            where parser = RunOpt <$> projectOptions <*> port
+            where parser = RunOpt <$> projectOptions <*> optional port
 
     let package :: Mod CommandFields MewlixOptions
         package = command "package" $ makeInfo parser "Package a project into a .zip archive"
@@ -94,5 +96,4 @@ parseOptions = do
 runOptions :: IO MewlixOptions
 runOptions = execParser $ info (parseOptions <**> helper)
      ( fullDesc
-    <> progDesc "Mewlix compiler"
     <> header "mewlix - a compiler for a cat-oriented programming language" )
