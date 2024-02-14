@@ -44,6 +44,7 @@ dependencies:
 - zip >= 2.0 && < 2.1
 - scotty >= 0.21 && < 0.22
 - wai-middleware-static >= 0.9 && < 1.0
+- optparse-applicative >= 0.18 && < 0.19
 
 ghc-options:
 - -O2

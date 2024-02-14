@@ -91,6 +91,7 @@ library
     , megaparsec ==9.3.*
     , microlens-platform ==0.4.*
     , mtl >=2.2 && <2.4
+    , optparse-applicative ==0.18.*
     , parser-combinators ==1.3.*
     , random ==1.2.*
     , scotty ==0.21.*
@@ -126,6 +127,7 @@ executable Mewlix
     , megaparsec ==9.3.*
     , microlens-platform ==0.4.*
     , mtl >=2.2 && <2.4
+    , optparse-applicative ==0.18.*
     , parser-combinators ==1.3.*
     , random ==1.2.*
     , scotty ==0.21.*
@@ -162,6 +164,7 @@ test-suite Mewlix-test
     , megaparsec ==9.3.*
     , microlens-platform ==0.4.*
     , mtl >=2.2 && <2.4
+    , optparse-applicative ==0.18.*
     , parser-combinators ==1.3.*
     , random ==1.2.*
     , scotty ==0.21.*

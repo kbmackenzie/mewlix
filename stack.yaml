@@ -142,3 +142,7 @@ extra-deps:
 - expiring-cache-map-0.0.6.1
 - mime-types-0.1.2.0
 - semigroups-0.20
+# optparse-applicative
+- optparse-applicative-0.18.1.0
+- prettyprinter-1.7.1
+- prettyprinter-ansi-terminal-1.1.3
