@@ -1,6 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE StrictData #-}
 
 module Mewlix.Project.Data.Types
@@ -46,8 +45,6 @@ import Data.Maybe (fromMaybe)
 import Lens.Micro.Platform (makeLensesFor)
 import Data.Function (on)
 import Data.Char (toLower)
-import Data.Data (Data)
-import Data.Typeable (Typeable)
 import Network.Wai.Handler.Warp (Port)
 
 {- Project Mode -}
@@ -56,7 +53,7 @@ data ProjectMode =
       Console
     | Graphic
     | Library
-    deriving (Eq, Ord, Show, Read, Enum, Bounded, Data, Typeable)
+    deriving (Eq, Ord, Show, Read, Enum, Bounded)
 
 {- Project Data -}
 ----------------------------------------------------------------
