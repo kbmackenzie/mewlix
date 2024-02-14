@@ -1,7 +1,7 @@
 module Mewlix.CLI.Options
 ( ProjectOptions(..)
 , MewlixOptions(..)
-, runOptions
+, getOptions
 ) where
 
 import Mewlix.Project (ProjectMode(..), Port)
@@ -93,7 +93,7 @@ parseOptions = do
 
     subparser (build <> run <> package <> clean)
 
-runOptions :: IO MewlixOptions
-runOptions = execParser $ info (parseOptions <**> helper)
+getOptions :: IO MewlixOptions
+getOptions = execParser $ info (parseOptions <**> helper)
      ( fullDesc
     <> header "mewlix - a compiler for a cat-oriented programming language" )

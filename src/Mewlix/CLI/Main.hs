@@ -8,9 +8,6 @@ import Mewlix.Project
     ( Language(..)
     , Action(..)
     , make
-    , make'
-    , ProjectData(..)
-    , ProjectMode(..)
     , ProjectTransform
     -- Lenses:
     , projectSourceFilesL
@@ -22,15 +19,13 @@ import Mewlix.Project
 import Mewlix.CLI.Options
     ( ProjectOptions(..)
     , MewlixOptions(..)
-    , runOptions
+    , getOptions
     )
-import Control.Monad (void)
-import Data.Maybe (fromMaybe)
 import Lens.Micro.Platform ((%~), set)
 import qualified Data.Text as Text
 
 run :: IO ()
-run = runOptions >>= takeOption Javascript
+run = getOptions >>= runOption Javascript
 
 fromOptions :: ProjectOptions -> [ProjectTransform]
 fromOptions ProjectOptions { filesOpt = files, nameOpt = name, entryOpt = entry, modeOpt = mode } =
@@ -44,8 +39,8 @@ fromOptions ProjectOptions { filesOpt = files, nameOpt = name, entryOpt = entry,
         , transform entry (set projectEntrypointL . Text.pack)
         , transform mode  (set projectModeL) ]
 
-takeOption :: Language -> MewlixOptions -> IO ()
-takeOption language = \case
+runOption :: Language -> MewlixOptions -> IO ()
+runOption language = \case
     (BuildOpt options) -> do
         let transforms = fromOptions options
         make transforms language Build
