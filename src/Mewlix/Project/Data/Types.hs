@@ -175,8 +175,8 @@ projectDataEmpty = ProjectData
 
 type ProjectTransform = ProjectData -> ProjectData
 
-createProjectData :: [ProjectTransform] -> ProjectData
-createProjectData = foldr ($) projectDataEmpty
+createProjectData :: [ProjectTransform] -> ProjectData -> ProjectData
+createProjectData = flip (foldr ($))
 
 projectFieldOrder :: Text -> Text -> Ordering
 projectFieldOrder = compare `on` (`HashMap.lookup` fieldOrder)
