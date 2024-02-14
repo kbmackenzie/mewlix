@@ -15,8 +15,12 @@ module Mewlix.Project.Data.Types
 , projectSourceFilesL
 , projectSpecialImportsL
 , projectFlagsL
--- Utils:
+-- Mode utils:
+, readProjectMode
+-- Project Utils:
 , projectDataEmpty
+, ProjectTransform
+, createProjectData
 , projectFieldOrder
 -- Defaults:
 , defaultMode
@@ -138,8 +142,6 @@ instance ToJSON ProjectData where
         , "specialImports"  .= projectSpecialImports project
         , "flags"           .= projectFlags project ]
 
------------------------------------------------------------------
-
 {- Mode Utils -}
 ----------------------------------------------------------------
 modeKeys :: HashMap Text ProjectMode
@@ -170,6 +172,11 @@ projectDataEmpty = ProjectData
     , projectSourceFiles    = mempty
     , projectSpecialImports = mempty
     , projectFlags          = mempty            }
+
+type ProjectTransform = ProjectData -> ProjectData
+
+createProjectData :: [ProjectTransform] -> ProjectData
+createProjectData = foldr ($) projectDataEmpty
 
 projectFieldOrder :: Text -> Text -> Ordering
 projectFieldOrder = compare `on` (`HashMap.lookup` fieldOrder)

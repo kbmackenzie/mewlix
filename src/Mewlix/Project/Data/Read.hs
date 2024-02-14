@@ -1,7 +1,8 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Mewlix.Project.Data.Read
-( readProject
+( findProject
+, readProject
 ) where
 
 import Conduit (runConduitRes, (.|), sourceDirectory, filterC, headC)
@@ -10,21 +11,19 @@ import Mewlix.Project.Data.Types (ProjectData(..))
 import Mewlix.Utils.Yaml (readYaml)
 import System.FilePath (isExtensionOf)
 
-findProject :: ProjectMaker FilePath
-findProject = do
-    let search :: IO (Maybe FilePath) 
-        search = runConduitRes
-             $ sourceDirectory "."
-            .| filterC (isExtensionOf "mewlix")
-            .| headC
-
-    liftIO search >>= \case
-        (Just path) -> return path
-        Nothing     -> throwError "Couldn't find a '.mewlix' project file the in current directory!"
+findProject :: ProjectMaker (Maybe FilePath)
+findProject = liftIO $ runConduitRes
+     $ sourceDirectory "."
+    .| filterC (isExtensionOf "mewlix")
+    .| headC
 
 readProject :: ProjectMaker ProjectData
 readProject = do
-    path <- findProject
+    path <- findProject >>= \case
+        (Just path) -> return path
+        Nothing     -> throwError
+            "Couldn't find a '.mewlix' project file the in current directory!"
+
     readYaml path >>= \case
         (Left err)  -> throwError $ concat
             [ "Couldn't parse project file: \"", path, "\":",  show err ]
