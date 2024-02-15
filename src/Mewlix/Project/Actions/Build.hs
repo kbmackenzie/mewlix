@@ -9,6 +9,7 @@ import Mewlix.Project.Folder (coreFolder)
 import Mewlix.Project.Data.Types (ProjectData(..))
 import Mewlix.Project.Modules.Compile (compileModules)
 import Mewlix.Project.Templates.Create (createFromTemplate)
+import Mewlix.Project.Templates.ReadMe (createReadme)
 import Mewlix.Project.Log (projectLog)
 import System.FilePath ((</>))
 import Mewlix.Utils.FileIO (writeFileBL)
@@ -25,6 +26,7 @@ buildProject projectData = do
 
     -- Modules:
     compiledModules <- compileModules projectData
+    createReadme projectData
     scriptList projectData compiledModules
 
 scriptList :: ProjectData -> [FilePath] -> ProjectMaker ()
