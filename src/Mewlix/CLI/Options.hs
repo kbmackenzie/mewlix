@@ -25,6 +25,7 @@ data MewlixOptions =
       BuildOpt      ProjectOptions FlagOptions Bool
     | RunOpt        ProjectOptions FlagOptions Bool (Maybe Port)
     | PackageOpt    ProjectOptions FlagOptions Bool
+    | NewOpt        (Maybe String) (Maybe ProjectMode)
     | CleanOpt
     deriving (Show)
 
@@ -113,7 +114,7 @@ makeInfo parser desc = info (parser <**> helper) (fullDesc <> progDesc desc)
 parseOptions :: Parser MewlixOptions
 parseOptions = options
     where
-        options = subparser (build <> run <> package <> clean)
+        options = subparser (build <> run <> package <> new <> clean)
 
         build :: Mod CommandFields MewlixOptions
         build = command "build" $ makeInfo parser "Build project"
@@ -136,6 +137,12 @@ parseOptions = options
                     <$> projectOptions
                     <*> flagOptions
                     <*> standalone
+
+        new :: Mod CommandFields MewlixOptions
+        new = command "new" $ makeInfo parser "Create a new project in the current directory"
+            where parser = NewOpt
+                    <$> optional (argument str (metavar "NAME"))
+                    <*> optional projectMode
 
         clean :: Mod CommandFields MewlixOptions
         clean = command "clean" $ makeInfo parser "Clean project"

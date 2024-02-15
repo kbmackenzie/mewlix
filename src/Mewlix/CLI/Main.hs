@@ -32,16 +32,16 @@ import Data.Maybe (catMaybes)
 run :: IO ()
 run = getOptions >>= runOption Javascript
 
+transform :: Maybe a -> (a -> ProjectTransform) -> ProjectTransform
+transform Nothing  _  = id
+transform (Just a) f  = f a
+
 fromOptions :: ProjectOptions -> [ProjectTransform]
 fromOptions ProjectOptions { filesOpt = files, nameOpt = name, entryOpt = entry, modeOpt = mode } =
-    let transform :: Maybe a -> (a -> ProjectTransform) -> ProjectTransform
-        transform Nothing  _  = id
-        transform (Just a) f  = f a
-
-    in  [ projectSourceFilesL %~ (files ++)
-        , transform name  (set projectNameL . Text.pack)
-        , transform entry (set projectEntrypointL . Text.pack)
-        , transform mode  (set projectModeL) ]
+    [ projectSourceFilesL %~ (files ++)
+    , transform name  (set projectNameL . Text.pack)
+    , transform entry (set projectEntrypointL . Text.pack)
+    , transform mode  (set projectModeL)                    ]
 
 fromFlags :: FlagOptions -> ProjectTransform
 fromFlags FlagOptions { quietFlag = quiet, noStdFlag = noStd, noReadMeFlag = noReadMe } = do
@@ -68,5 +68,11 @@ runOption language = \case
     (PackageOpt options flags standalone) -> do
         let transforms = fromFlags flags : fromOptions options
         make (not standalone) transforms language Package
+
+    (NewOpt name mode) -> do
+        let transforms =
+                [ transform name (set projectNameL . Text.pack)
+                , transform mode (set projectModeL)             ]
+        make False transforms language Create
 
     CleanOpt -> make False mempty language Clean
