@@ -6,11 +6,11 @@ module Mewlix.Project.Log
 ) where
 
 import Mewlix.Project.Data.Types (ProjectData(..))
-import Mewlix.Project.Maker (ProjectMaker)
 import Data.Text (Text)
 import qualified Data.Text.IO as TextIO
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import System.IO (Handle, stdout, stderr)
+import Control.Monad (unless)
 
 projectMessage :: ProjectData -> Text -> Text
 projectMessage projectData message = mconcat [ "[" , projectName projectData , "] " , message ]
@@ -20,8 +20,9 @@ loggerBase handle projectData message = do
     let str = projectMessage projectData message
     liftIO (TextIO.hPutStr handle str)
 
-projectLog :: ProjectData -> Text -> ProjectMaker ()
-projectLog = loggerBase stdout
+projectLog :: (MonadIO m) => ProjectData -> Text -> m ()
+projectLog projectData message = do
+    loggerBase stdout projectData message
 
 projectLogError :: (MonadIO m) => ProjectData -> Text -> m ()
 projectLogError = loggerBase stderr
