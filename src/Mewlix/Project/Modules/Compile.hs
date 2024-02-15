@@ -6,7 +6,11 @@ module Mewlix.Project.Modules.Compile
 
 import Mewlix.Compiler (TranspilerContext(..))
 import Mewlix.Project.Maker (ProjectMaker)
-import Mewlix.Project.Data.Types (ProjectData(..), ProjectMode(..))
+import Mewlix.Project.Data.Types
+    ( ProjectData(..)
+    , ProjectMode(..)
+    , ProjectFlag(..)
+    )
 import Mewlix.Project.Modules.ModuleWriter (writeModule)
 import Mewlix.Project.Modules.FileSearch (processSources, validateSources)
 import Mewlix.Project.Log (projectLog)
@@ -14,6 +18,7 @@ import Mewlix.Utils.Show (showT)
 import Mewlix.Abstract.Key (Key(..))
 import Data.HashMap.Strict (mapKeys)
 import qualified Data.Text as Text
+import qualified Data.Set as Set
 import qualified Data.HashMap.Strict as HashMap
 
 createContext :: ProjectData -> TranspilerContext
@@ -22,10 +27,11 @@ createContext projectData = do
             Console -> HashMap.insert (Key "std.console" ) "Mewlix.MewlixConsole"
             Graphic -> HashMap.insert (Key "std.graphics") "Mewlix.MewlixGraphics"
             Library -> id
+    let flags = projectFlags projectData
 
     TranspilerContext
         { specialImports  = (addModeImports . mapKeys Key . projectSpecialImports) projectData
-        , transpilerFlags = projectFlags projectData                                            }
+        , transpilerNoStd = Set.member NoStd flags                                              }
 
 compileModules :: ProjectData -> ProjectMaker [FilePath]
 compileModules projectData = do

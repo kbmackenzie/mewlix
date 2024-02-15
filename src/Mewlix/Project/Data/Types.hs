@@ -4,6 +4,7 @@
 
 module Mewlix.Project.Data.Types
 ( ProjectMode(..)
+, ProjectFlag(..)
 , ProjectData(..)
 , Port
 -- Lenses:
@@ -15,10 +16,8 @@ module Mewlix.Project.Data.Types
 , projectSourceFilesL
 , projectSpecialImportsL
 , projectFlagsL
--- Mode utils:
-, readProjectMode
 -- Project Utils:
-, projectDataEmpty
+, defaultProject
 , ProjectTransform
 , transformProject
 , projectFieldOrder
@@ -40,7 +39,7 @@ import Data.Aeson
     , pairs
     , withText
     )
-import Data.HashSet (HashSet)
+import Data.Set (Set)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Data.HashMap.Strict (HashMap)
@@ -59,6 +58,13 @@ data ProjectMode =
     | Library
     deriving (Eq, Ord, Show, Read, Enum, Bounded)
 
+{- Project Flags -}
+----------------------------------------------------------------
+data ProjectFlag =
+      Quiet
+    | NoStd
+    deriving (Eq, Ord, Show, Read, Enum, Bounded)
+
 {- Project Data -}
 ----------------------------------------------------------------
 data ProjectData = ProjectData
@@ -69,7 +75,7 @@ data ProjectData = ProjectData
     , projectPort           :: Port
     , projectSourceFiles    :: [FilePath]
     , projectSpecialImports :: HashMap Text Text
-    , projectFlags          :: HashSet Text      }
+    , projectFlags          :: Set ProjectFlag  }
     deriving (Show)
 
 {- Lenses -}
@@ -101,12 +107,19 @@ defaultEntry = "main"
 {- Instances -}
 -----------------------------------------------------------------
 instance FromJSON ProjectMode where
-    parseJSON = withText "ProjectMode" (return . readProjectMode)
+    parseJSON = withText "ProjectMode" readMode
 
 instance ToJSON ProjectMode where
     toJSON = toJSON . map toLower . show
 
------------------------------------------------------------------
+------------------------------------------------------------------
+instance FromJSON ProjectFlag where
+    parseJSON = withText "ProjectFlag" readFlag
+
+instance ToJSON ProjectFlag where
+    toJSON = toJSON . map toLower . show
+
+----------------------------------------------------------------
 instance FromJSON ProjectData where
     parseJSON = withObject "ProjectData" $ \obj -> ProjectData
         <$> optional defaultName    (obj .:? "name"          )
@@ -142,6 +155,23 @@ instance ToJSON ProjectData where
         , "specialImports"  .= projectSpecialImports project
         , "flags"           .= projectFlags project ]
 
+{- Flag Utils -}
+----------------------------------------------------------------
+flagKeys :: HashMap Text ProjectFlag
+flagKeys = HashMap.fromList
+    -- Names:
+    [ ("quiet"  , Quiet)
+    , ("no-std" , NoStd)
+    -- Shorthand:
+    , ("q"      , Quiet) ]
+
+readFlag :: (MonadFail m) => Text -> m ProjectFlag
+readFlag str = case parse str of
+    (Just flag) -> return flag
+    Nothing     -> fail $ mconcat
+        [ "Couldn't parse \"" , Text.unpack str , "\" as a valid project flag!" ]
+    where parse = (`HashMap.lookup` flagKeys) . Text.toLower . Text.strip
+
 {- Mode Utils -}
 ----------------------------------------------------------------
 modeKeys :: HashMap Text ProjectMode
@@ -155,15 +185,17 @@ modeKeys = HashMap.fromList
     , ("g"       , Graphic)
     , ("l"       , Library) ]
 
-readProjectMode :: Text -> ProjectMode
-readProjectMode = fromMaybe defaultMode . findKey . prepText
-    where prepText = Text.toLower . Text.strip
-          findKey  = flip HashMap.lookup modeKeys
+readMode :: (MonadFail m) => Text -> m ProjectMode
+readMode str = case parse str of
+    (Just mode) -> return mode
+    Nothing     -> fail $ mconcat
+        [ "Couldn't parse \"" , Text.unpack str , "\" as a valid value for ProjectMode!" ]
+    where parse = (`HashMap.lookup` modeKeys) . Text.toLower . Text.strip
 
 {- Project Utils -}
 ----------------------------------------------------------------
-projectDataEmpty :: ProjectData
-projectDataEmpty = ProjectData
+defaultProject :: ProjectData
+defaultProject = ProjectData
     { projectName           = defaultName
     , projectDescription    = mempty
     , projectMode           = defaultMode

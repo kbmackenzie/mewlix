@@ -13,13 +13,12 @@ module Mewlix.Compiler.Transpiler
 
 import Mewlix.Abstract.Key (Key)
 import Data.Text (Text)
-import Data.HashSet (HashSet)
 import Data.HashMap.Strict (HashMap)
 import Control.Monad.Reader (MonadReader, Reader, ask, asks, local, runReader)
 
 data TranspilerContext = TranspilerContext
     { specialImports    :: HashMap Key Text
-    , transpilerFlags   :: HashSet Text     }
+    , transpilerNoStd   :: Bool             }
     deriving (Show);
 
 newtype Transpiler a = Transpiler 
@@ -34,4 +33,6 @@ transpile :: TranspilerContext -> Transpiler a -> a
 transpile ctx = flip runReader ctx . runTranspiler;
 
 emptyContext :: TranspilerContext
-emptyContext = TranspilerContext mempty mempty
+emptyContext = TranspilerContext
+    { specialImports    = mempty
+    , transpilerNoStd   = False }

@@ -2,6 +2,7 @@ module Mewlix.Project
 ( Language(..)
 , Action(..)
 , ProjectData(..)
+, ProjectFlag(..)
 , ProjectMode(..)
 , Port
 , make
@@ -28,6 +29,7 @@ module Mewlix.Project
 import Mewlix.Project.Data.Types
     ( ProjectData(..)
     , ProjectMode(..)
+    , ProjectFlag(..)
     , Port
     , defaultMode
     , defaultPort
