@@ -98,7 +98,8 @@ port :: Parser Port
 port = option auto
      ( long "port"
     <> short 'p'
-    <> help "Project port" )
+    <> metavar "INT"
+    <> help "Port number to use when running the project" )
 
 standalone :: Parser Bool
 standalone = switch
