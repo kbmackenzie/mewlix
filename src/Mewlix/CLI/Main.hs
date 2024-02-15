@@ -44,13 +44,14 @@ fromOptions ProjectOptions { filesOpt = files, nameOpt = name, entryOpt = entry,
         , transform mode  (set projectModeL) ]
 
 fromFlags :: FlagOptions -> ProjectTransform
-fromFlags FlagOptions { quietFlag = quiet, noStdFlag = noStd } = do
+fromFlags FlagOptions { quietFlag = quiet, noStdFlag = noStd, noReadMeFlag = noReadMe } = do
     let fromBool :: Bool -> ProjectFlag -> Maybe ProjectFlag
         fromBool bool flag = if bool then Just flag else Nothing
 
     let flagList = catMaybes
-            [ fromBool quiet Quiet
-            , fromBool noStd NoStd ]
+            [ fromBool quiet    Quiet
+            , fromBool noStd    NoStd
+            , fromBool noReadMe NoReadMe ]
     projectFlagsL .~ Set.fromList flagList
 
 runOption :: Language -> MewlixOptions -> IO ()

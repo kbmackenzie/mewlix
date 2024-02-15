@@ -63,6 +63,7 @@ data ProjectMode =
 data ProjectFlag =
       Quiet
     | NoStd
+    | NoReadMe
     deriving (Eq, Ord, Show, Read, Enum, Bounded)
 
 {- Project Data -}
@@ -160,10 +161,11 @@ instance ToJSON ProjectData where
 flagKeys :: HashMap Text ProjectFlag
 flagKeys = HashMap.fromList
     -- Names:
-    [ ("quiet"  , Quiet)
-    , ("no-std" , NoStd)
+    [ ("quiet"     , Quiet     )
+    , ("no-std"    , NoStd     )
+    , ("no-readme" , NoReadMe  )
     -- Shorthand:
-    , ("q"      , Quiet) ]
+    , ("q"         , Quiet     ) ]
 
 readFlag :: (MonadFail m) => Text -> m ProjectFlag
 readFlag str = case parse str of

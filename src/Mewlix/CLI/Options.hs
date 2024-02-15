@@ -16,8 +16,9 @@ data ProjectOptions = ProjectOptions
     deriving (Show)
 
 data FlagOptions = FlagOptions
-    { quietFlag  :: Bool
-    , noStdFlag  :: Bool  }
+    { quietFlag    :: Bool
+    , noStdFlag    :: Bool
+    , noReadMeFlag :: Bool }
     deriving (Show)
 
 data MewlixOptions =
@@ -49,7 +50,7 @@ projectMode = console <|> graphic <|> library
             <> help "No frontend" )
 
 flagOptions :: Parser FlagOptions
-flagOptions = FlagOptions <$> quiet <*> noStd
+flagOptions = FlagOptions <$> quiet <*> noStd <*> noReadMe
     where
         quiet :: Parser Bool
         quiet = switch
@@ -61,6 +62,11 @@ flagOptions = FlagOptions <$> quiet <*> noStd
         noStd = switch
              ( long "no-std"
             <> help "Do not include std library binding when compiling" )
+
+        noReadMe :: Parser Bool
+        noReadMe = switch
+             ( long "no-readme"
+            <> help "Do not auto-generate a README file" )
 
 projectOptions :: Parser ProjectOptions
 projectOptions = options
