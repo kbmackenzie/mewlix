@@ -17,6 +17,7 @@ import Mewlix.Project.Data.Types
     ( ProjectData(..)
     , ProjectTransform
     , transformProject
+    , defaultProject
     )
 -- Actions:
 import Mewlix.Project.Actions.Build (buildProject)
@@ -47,16 +48,20 @@ action Clean    = cleanProject
 action Package  = packageProject
 action Run      = runProject
 
-make :: [ProjectTransform] -> Language -> Action -> IO ()
-make transforms langOption actOption = execute
+make :: Bool -> [ProjectTransform] -> Language -> Action -> IO ()
+make readProjectFile transforms langOption actOption = execute
+    readProjectFile
     (language langOption)
     (action actOption . transformProject transforms)
 
 make' :: Language -> Action -> IO ()
-make' = make []
+make' = make True []
 
-execute :: ProjectFunc -> ActionFunc -> IO ()
-execute languageFunc actionFunc = do
-    languageFunc (readProject >>= actionFunc) >>= \case
+execute :: Bool -> ProjectFunc -> ActionFunc -> IO ()
+execute readProjectFile languageFunc actionFunc = do
+    languageFunc (project >>= actionFunc) >>= \case
         (Left err) -> Logging.writeStderr (Text.pack err)
         (Right _ ) -> return ()
+    where project = if readProjectFile
+            then readProject
+            else return defaultProject
