@@ -23,6 +23,7 @@ import Mewlix.Project.Data.Types
 import Mewlix.Project.Actions.Build (buildProject)
 import Mewlix.Project.Actions.Clean (cleanProject)
 import Mewlix.Project.Actions.Package (packageProject)
+import Mewlix.Project.Actions.Create (createProject)
 import Mewlix.Project.Actions.Server (runProject)
 -- Assorted:
 import Mewlix.Project.Data.Read (readProject)
@@ -32,6 +33,7 @@ import qualified Data.Text as Text
 data Action =
       Build
     | Clean
+    | Create
     | Package
     | Run
     deriving (Eq, Ord, Show, Enum, Bounded)
@@ -45,6 +47,7 @@ language Javascript = projectMakeJS
 action :: Action -> ActionFunc
 action Build    = buildProject
 action Clean    = cleanProject
+action Create   = createProject
 action Package  = packageProject
 action Run      = runProject
 
