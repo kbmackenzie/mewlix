@@ -5,12 +5,13 @@ module Mewlix.Project.Log
 , projectLogError
 ) where
 
-import Mewlix.Project.Data.Types (ProjectData(..))
+import Mewlix.Project.Data.Types (ProjectData(..), ProjectFlag(..))
 import Data.Text (Text)
 import qualified Data.Text.IO as TextIO
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import System.IO (Handle, stdout, stderr)
 import Control.Monad (unless)
+import qualified Data.Set as Set
 
 projectMessage :: ProjectData -> Text -> Text
 projectMessage projectData message = mconcat [ "[" , projectName projectData , "] " , message ]
@@ -22,7 +23,9 @@ loggerBase handle projectData message = do
 
 projectLog :: (MonadIO m) => ProjectData -> Text -> m ()
 projectLog projectData message = do
-    loggerBase stdout projectData message
+    let quiet = Set.member Quiet (projectFlags projectData)
+    unless quiet $
+        loggerBase stdout projectData message
 
 projectLogError :: (MonadIO m) => ProjectData -> Text -> m ()
 projectLogError = loggerBase stderr
