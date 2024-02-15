@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.35.2.
+-- This file has been generated from package.yaml by hpack version 0.36.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -80,8 +80,8 @@ library
       src
   ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
-      aeson ==2.2.*
-    , ansi-terminal ==1.0.*
+      aeson ==2.1.*
+    , ansi-terminal ==0.11.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
     , conduit ==1.3.*
@@ -89,14 +89,12 @@ library
     , directory ==1.3.*
     , filepath ==1.4.*
     , hashable ==1.4.*
-    , haskeline ==0.8.*
     , megaparsec ==9.3.*
     , microlens-platform ==0.4.*
     , mtl >=2.2 && <2.4
-    , optparse-applicative ==0.18.*
+    , optparse-applicative ==0.17.*
     , parser-combinators ==1.3.*
-    , random ==1.2.*
-    , scotty ==0.21.*
+    , scotty ==0.12.*
     , text ==2.0.*
     , unordered-containers ==0.2.*
     , utf8-string ==1.0.*
@@ -115,8 +113,8 @@ executable mewlix
       app
   ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-M128m
   build-depends:
-      aeson ==2.2.*
-    , ansi-terminal ==1.0.*
+      aeson ==2.1.*
+    , ansi-terminal ==0.11.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
     , conduit ==1.3.*
@@ -124,15 +122,13 @@ executable mewlix
     , directory ==1.3.*
     , filepath ==1.4.*
     , hashable ==1.4.*
-    , haskeline ==0.8.*
     , megaparsec ==9.3.*
     , mewlix
     , microlens-platform ==0.4.*
     , mtl >=2.2 && <2.4
-    , optparse-applicative ==0.18.*
+    , optparse-applicative ==0.17.*
     , parser-combinators ==1.3.*
-    , random ==1.2.*
-    , scotty ==0.21.*
+    , scotty ==0.12.*
     , text ==2.0.*
     , unordered-containers ==0.2.*
     , utf8-string ==1.0.*
@@ -152,8 +148,8 @@ test-suite mewlix-test
       test
   ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-M128m
   build-depends:
-      aeson ==2.2.*
-    , ansi-terminal ==1.0.*
+      aeson ==2.1.*
+    , ansi-terminal ==0.11.*
     , base >=4.7 && <5
     , bytestring >=0.11 && <0.13
     , conduit ==1.3.*
@@ -161,15 +157,13 @@ test-suite mewlix-test
     , directory ==1.3.*
     , filepath ==1.4.*
     , hashable ==1.4.*
-    , haskeline ==0.8.*
     , megaparsec ==9.3.*
     , mewlix
     , microlens-platform ==0.4.*
     , mtl >=2.2 && <2.4
-    , optparse-applicative ==0.18.*
+    , optparse-applicative ==0.17.*
     , parser-combinators ==1.3.*
-    , random ==1.2.*
-    , scotty ==0.21.*
+    , scotty ==0.12.*
     , text ==2.0.*
     , unordered-containers ==0.2.*
     , utf8-string ==1.0.*
