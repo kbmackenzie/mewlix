@@ -23,15 +23,19 @@ import qualified Data.HashMap.Strict as HashMap
 
 createContext :: ProjectData -> TranspilerContext
 createContext projectData = do
+    -- Implicitly adds the standard yarn ball + the mode yarn balls to the
+    -- specialImports map:
+    let addStd = HashMap.insert (Key "std") "Mewlix.Base"
     let addModeImports = case projectMode projectData of
-            Console -> HashMap.insert (Key "std.console" ) "Mewlix.MewlixConsole"
-            Graphic -> HashMap.insert (Key "std.graphics") "Mewlix.MewlixGraphics"
+            Console -> HashMap.insert (Key "std.console" ) "Mewlix.Console"
+            Graphic -> HashMap.insert (Key "std.graphics") "Mewlix.Graphic"
             Library -> id
+    let patchImports = addModeImports . addStd . mapKeys Key
     let flags = projectFlags projectData
 
     TranspilerContext
-        { specialImports  = (addModeImports . mapKeys Key . projectSpecialImports) projectData
-        , transpilerNoStd = Set.member NoStd flags                                              }
+        { specialImports  = (patchImports . projectSpecialImports) projectData
+        , transpilerNoStd = Set.member NoStd flags                              }
 
 compileModules :: ProjectData -> ProjectMaker [FilePath]
 compileModules projectData = do
