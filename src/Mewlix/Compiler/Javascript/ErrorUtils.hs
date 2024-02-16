@@ -17,13 +17,12 @@ import Text.Megaparsec.Pos (SourcePos(..), unPos)
 
 data ErrorCode =
       TypeMisMatch
-    | InvalidOp
     | DivideByZero
-    | InvalidImport
     | BadConversion
     | CatOnComputer
     | Console
     | Graphic
+    | InvalidImport
     | CriticalError
     | ExternalError
     deriving (Eq, Ord, Show, Read, Enum, Bounded)
