@@ -5,7 +5,7 @@ module Mewlix.CLI.Options
 , getOptions
 ) where
 
-import Mewlix.Project (ProjectMode(..), Port)
+import Mewlix.Project (ProjectMode(..), Port(..))
 import Options.Applicative
 
 data ProjectOptions = ProjectOptions
@@ -96,7 +96,7 @@ projectOptions = options
             <> help "Project entrypoint" )
 
 port :: Parser Port
-port = option auto
+port = Port <$> option auto
      ( long "port"
     <> short 'p'
     <> metavar "INT"

@@ -4,7 +4,7 @@ module Mewlix.Project
 , ProjectData(..)
 , ProjectFlag(..)
 , ProjectMode(..)
-, Port
+, Port(..)
 , make
 , make'
 -- Project utils:
@@ -30,7 +30,7 @@ import Mewlix.Project.Data.Types
     ( ProjectData(..)
     , ProjectMode(..)
     , ProjectFlag(..)
-    , Port
+    , Port(..)
     , defaultMode
     , defaultPort
     , defaultName

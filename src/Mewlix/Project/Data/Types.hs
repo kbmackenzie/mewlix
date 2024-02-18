@@ -6,7 +6,7 @@ module Mewlix.Project.Data.Types
 ( ProjectMode(..)
 , ProjectFlag(..)
 , ProjectData(..)
-, Port
+, Port(..)
 -- Lenses:
 , projectNameL
 , projectDescriptionL
@@ -38,6 +38,7 @@ import Data.Aeson
     , object
     , pairs
     , withText
+    , Value(..)
     )
 import Data.Set (Set)
 import Data.Text (Text)
@@ -46,9 +47,9 @@ import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe (fromMaybe)
 import Lens.Micro.Platform (makeLensesFor)
+import Data.Aeson.Types (unexpected)
 import Data.Function (on)
 import Data.Char (toLower)
-import Network.Wai.Handler.Warp (Port)
 
 {- Project Mode -}
 ----------------------------------------------------------------
@@ -79,6 +80,12 @@ data ProjectData = ProjectData
     , projectFlags          :: Set ProjectFlag  }
     deriving (Show)
 
+
+{- Port -}
+----------------------------------------------------------------
+newtype Port = Port { getPort :: Int }
+    deriving (Eq, Ord, Show)
+
 {- Lenses -}
 ----------------------------------------------------------------
 $(makeLensesFor
@@ -97,7 +104,7 @@ defaultMode :: ProjectMode
 defaultMode = Console
 
 defaultPort :: Port
-defaultPort = 8143
+defaultPort = Port 8143
 
 defaultName :: Text
 defaultName = "no-name"
@@ -155,6 +162,18 @@ instance ToJSON ProjectData where
         , "sources"         .= projectSourceFiles project
         , "specialImports"  .= projectSpecialImports project
         , "flags"           .= projectFlags project ]
+
+------------------------------------------------------------------
+instance ToJSON Port where
+    toJSON port
+        | port == defaultPort = toJSON ("auto" :: String)
+        | otherwise           = toJSON (getPort port)
+
+instance FromJSON Port where
+    parseJSON value = case value of
+        (Number _)      -> Port <$> parseJSON value
+        (String "auto") -> return defaultPort
+        _               -> unexpected value
 
 {- Flag Utils -}
 ----------------------------------------------------------------
