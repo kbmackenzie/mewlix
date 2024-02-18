@@ -17,7 +17,7 @@ module Mewlix.Compiler.Javascript.Constants
 , lessThan
 , greaterThan
 , watchPounce
-, itsRaining
+, rainable
 , assert
 ) where
 
@@ -79,8 +79,8 @@ greaterThan = comparison "GreaterThan"
 watchPounce :: Text
 watchPounce = mewlix "watchPounce"
 
-itsRaining :: Text
-itsRaining = mewlix "itsRaining"
+rainable :: Text
+rainable = mewlix "rainable"
 
 assert :: Text
 assert = mewlix "assert"

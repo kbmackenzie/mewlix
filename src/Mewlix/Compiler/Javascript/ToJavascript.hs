@@ -266,18 +266,13 @@ instance ToJavascript Statement where
     ----------------------------------------------
     transpileJS level   (ForEachLoop expr key block) = do
         iterable    <- toJS expr
-        let callLevel = succ level
+        body        <- transpileJS level block
 
-        callback    <- transpileJS callLevel $ MewlixFunction
-            { funcName = mempty
-            , funcBody = block
-            , funcParams = Params [key] }
+        let rainable = syncCall Mewlix.rainable [iterable]
+        let header = indentLine level $ mconcat
+                [ "for (const ", getKey key, " of ", rainable, ") "]
 
-        return $ separateLines
-            [ indentLine level ("await " <> Mewlix.itsRaining <> "(")
-            , indentLine callLevel iterable <> ","
-            , indentLine callLevel callback
-            , indentLine level ");"                                     ]
+        return (header <> body)
 
     -- Bindings:
     ----------------------------------------------
