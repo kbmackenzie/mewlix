@@ -6,7 +6,7 @@ module Mewlix.Project.Actions.Server
 
 import Mewlix.Project.Maker (ProjectMaker)
 import Mewlix.Project.Folder (outputFolder)
-import Mewlix.Project.Data.Types (ProjectData(..))
+import Mewlix.Project.Data.Types (ProjectData(..), defaultPort)
 import Mewlix.Project.Actions.Build (buildProject)
 import Mewlix.Project.Log (projectLog)
 import Web.Scotty (scotty, middleware, get, file)
@@ -29,7 +29,7 @@ runProject projectData = do
     unless exists $
         buildProject projectData
 
-    let port = 8000 :: Port
+    let port = defaultPort
     projectLog projectData $ mconcat
         ["Running project ", projectName projectData, " in port ", showT port]
     runServer port

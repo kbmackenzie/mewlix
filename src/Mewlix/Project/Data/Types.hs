@@ -97,7 +97,7 @@ defaultMode :: ProjectMode
 defaultMode = Console
 
 defaultPort :: Port
-defaultPort = 8000
+defaultPort = 8143
 
 defaultName :: Text
 defaultName = "no-name"
