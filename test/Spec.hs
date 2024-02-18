@@ -1,49 +1,23 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE LambdaCase #-}
 
 import Data.Text (Text)
-import Mewlix.Parser.Run (parseExpr, parseRoot)
+import Mewlix.Compiler.Run
+import Mewlix.Compiler.Transpiler (emptyContext)
+import Mewlix.Utils.FileIO (readFileT)
 import System.Environment (getArgs)
 import qualified Data.Text.IO as TextIO
-import Mewlix.Utils.Show (showT)
-import Control.Monad (void)
 
-import Mewlix.Abstract.AST
-import Mewlix.Abstract.Module
-import Mewlix.Compiler.Javascript.ToJS
-import Mewlix.Compiler.Transpiler
-import qualified Data.List.NonEmpty as NonEmpty
-
-textPrint :: (Show a) => Either Text a -> IO ()
-textPrint x = case x of
-    (Left e) -> TextIO.putStrLn e
-    (Right a) -> (TextIO.putStrLn . showT) a
-
-expression :: IO ()
-expression = do
-    path    <- head <$> getArgs
-    content <- TextIO.readFile path
-    let expr = parseExpr path content
-    textPrint expr
-
-root :: IO (Either Text YarnBall)
-root = do 
-    path    <- head <$> getArgs
-    content <- TextIO.readFile path
-    let expr = parseRoot path content
-    textPrint expr
-    return expr
-
-compileRoot :: Either Text YarnBall -> IO ()
-compileRoot (Left _) = undefined
-compileRoot (Right yarnball) = do
-    let js = toJS yarnball
-    let moduleKey = NonEmpty.fromList [ "test", "module" ]
-    let context = TranspilerContext mempty (ModuleKey moduleKey)
-    let compilationOutput = transpile context js
-    TextIO.putStrLn compilationOutput
+compileFile :: FilePath -> IO Text
+compileFile path = do
+    contents <- readFileT path >>= \case
+        (Left e)    -> undefined
+        (Right a)   -> return a
+    case compileJS emptyContext path contents of
+        (Left e)    -> undefined
+        (Right a)   -> return a
 
 main :: IO ()
 main = do
-    TextIO.putStrLn "\n\n"
-    x <- root --expression --putStrLn "todo"
-    compileRoot x
+    [path] <- getArgs
+    compileFile path >>= TextIO.putStrLn
