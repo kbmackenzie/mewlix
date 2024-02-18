@@ -34,7 +34,6 @@ import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.HashMap.Strict as HashMap
 import Data.Char (isSpace)
-import Data.Maybe (fromMaybe)
 
 class ToJavascript a where
     transpileJS :: Indentation -> a -> Transpiler Text
@@ -341,25 +340,23 @@ instance ToJavascript Statement where
 
     -- Try/Catch:
     ----------------------------------------------
-    transpileJS level   (TryCatch watch customKey pounce) = do
-        let key = fromMaybe (Key "error") customKey
-        let callLevel = succ level
+    transpileJS level   (TryCatch watchBlock customKey pounceBlock) = do
+        let errorKey = maybe "error" getKey customKey
+        let blockLevel = succ level
 
-        watchFunc   <- transpileJS callLevel $ MewlixFunction
-                { funcName = mempty
-                , funcBody = watch
-                , funcParams = mempty  }
+        watch   <- transpileJS level watchBlock
+        pounce  <- transpileJS level pounceBlock
 
-        pounceFunc  <- transpileJS callLevel $ MewlixFunction
-                { funcName = mempty
-                , funcBody = pounce
-                , funcParams = Params [key] }
+        let patch = mconcat [ errorKey, " = ", syncCall Mewlix.pounceError [errorKey], ";" ]
 
-        return $ separateLines
-                [ indentLine level ("await " <> Mewlix.watchPounce <> "(")
-                , indentLine callLevel watchFunc <> ","
-                , indentLine callLevel pounceFunc
-                , indentLine level ");"                                      ]
+        return $ mconcat
+            [ indentLine level "try "
+            , watch
+            , "\n"
+            , indentLine level "catch (", errorKey, ") {\n"
+            , indentLine blockLevel patch
+            -- A dirty little hack, but it works for now!
+            , Text.tail pounce ]
 
     -- Assert:
     ----------------------------------------------
