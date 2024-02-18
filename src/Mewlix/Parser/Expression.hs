@@ -53,10 +53,10 @@ termR = Mega.choice
     , Identifier    <$> parseKey  ]
 
 exprL :: Parser Expression
-exprL = makeExprParser termL operatorsL
+exprL = makeExprParser termL operatorsL <?> "left-hand expression"
 
 exprR :: Parser Expression
-exprR = makeExprParser termR operatorsR
+exprR = makeExprParser termR operatorsR <?> "right-hand expression"
 
 expression :: Parser Expression
 expression = Mega.choice
@@ -67,6 +67,7 @@ expression = Mega.choice
     , parseLambda
     , parseThrow
     , exprR             ]
+    <?> "expression"
 
 {- Data -}
 ------------------------------------------------------------------------------------

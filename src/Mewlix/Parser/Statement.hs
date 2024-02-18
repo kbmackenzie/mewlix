@@ -30,7 +30,7 @@ import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Keywords.Types (SimpleKeyword(..))
 import Data.List.NonEmpty (NonEmpty((:|)))
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
-import Text.Megaparsec ((<|>))
+import Text.Megaparsec ((<|>), (<?>))
 import qualified Text.Megaparsec as Mega
 import Control.Monad (when)
 import Data.Maybe (fromMaybe)
@@ -41,7 +41,7 @@ root = Mega.between whitespaceLn Mega.eof yarnBall
 
 yarnBall :: Parser YarnBall
 yarnBall = do
-    key <- Mega.optional $ do
+    key <- (<?> "yarn ball") . Mega.optional $ do
         keyword Keywords.yarnball <|> keyword Keywords.yarnball'
         parseModuleKey <* whitespaceLn
     body <- Block <$> Mega.many (statement Root)
@@ -62,7 +62,7 @@ data Nesting =
 {- Parse statements: -}
 ----------------------------------------------------------------
 statement :: Nesting -> Parser Statement
-statement nesting = Mega.choice $ map lexemeLn
+statement nesting = Mega.choice (map lexemeLn
     [ whileLoop     nesting
     , ifelse        nesting
     , declareVar    nesting
@@ -75,7 +75,8 @@ statement nesting = Mega.choice $ map lexemeLn
     , forEach       nesting
     , classDef      nesting
     , tryCatch      nesting
-    , expressionStm nesting ]
+    , expressionStm nesting ])
+    <?> "statement"
 
 block :: Nesting -> Maybe (Parser ()) -> Parser Block
 block nesting customStop = do
@@ -88,7 +89,7 @@ block nesting customStop = do
 meowmeow :: Parser ()
 meowmeow = Mega.choice
     [ keyword Keywords.end
-    , fail "Block is unclosed!" ]
+    , fail "possibly unclosed block" ]
 
 
 {- Expression -}
