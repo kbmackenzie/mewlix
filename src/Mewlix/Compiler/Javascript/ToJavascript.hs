@@ -355,7 +355,7 @@ instance ToJavascript Statement where
             , "\n"
             , indentLine level "catch (", errorKey, ") {\n"
             , indentLine blockLevel patch
-            -- A dirty little hack, but it works for now!
+            -- A dirty little hack, but it works nicely.
             , Text.tail pounce ]
 
     -- Assert:

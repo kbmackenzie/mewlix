@@ -30,7 +30,7 @@ binaryOpFunc op = case op of
     Power           -> syncCall (Mewlix.arithmetic "pow")
     ListConcat      -> syncCall (Mewlix.shelf "concat")
     Equal           -> syncCall (Mewlix.compare "isEqual")
-    NotEqual        -> ("!" <>) . syncCall (Mewlix.compare"isEqual")
+    NotEqual        -> ("!" <>) . syncCall (Mewlix.compare "isEqual")
     LessThan        -> compareTo [Mewlix.lessThan] 
     GreaterThan     -> compareTo [Mewlix.greaterThan] 
     LesserOrEqual   -> compareTo [Mewlix.lessThan, Mewlix.equalTo] 
