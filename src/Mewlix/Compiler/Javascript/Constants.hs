@@ -9,6 +9,7 @@ module Mewlix.Compiler.Javascript.Constants
 , createStack
 , meow
 , listen
+, wrap
 , operation
 , addModule
 , getModule
@@ -48,6 +49,9 @@ meow = mewlix "meow"
 
 listen :: Text
 listen = mewlix "listen"
+
+wrap :: Text
+wrap = mewlix "wrap"
 
 operation :: Text -> Text
 operation = mewlix . ("Op." <>)

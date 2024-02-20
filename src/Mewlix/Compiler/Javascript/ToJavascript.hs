@@ -308,7 +308,7 @@ instance ToJavascript Statement where
             special <- asks specialImports
             case HashMap.lookup (Key key) special of
                 Nothing      -> return $ asyncCall Mewlix.getModule [key]
-                (Just value) -> return ("globalThis." <> value)
+                (Just value) -> return $ syncCall Mewlix.wrap [value]
         let declaration = mconcat [ "const ", key, " = ", importValue, ";" ]
         return (indentLine level declaration)
 
