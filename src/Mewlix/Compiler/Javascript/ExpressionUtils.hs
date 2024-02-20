@@ -34,4 +34,4 @@ asyncCall :: Text -> [Text] -> Text
 asyncCall name args = "await " <> name <> parens (sepComma args)
 
 asBoolean :: Text -> Text
-asBoolean = syncCall (Mewlix.operation "toBool") . List.singleton
+asBoolean = syncCall (Mewlix.conversion "toBool") . List.singleton

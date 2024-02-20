@@ -84,12 +84,12 @@ instance ToJavascript Expression where
     transpileJS _ (BooleanAnd left right) = do
         a  <- toJS left
         fb <- funcWrap <$> toJS right
-        return $ syncCall (Mewlix.operation "and") [ a, fb ]
+        return $ syncCall (Mewlix.boolean "and") [ a, fb ]
 
     transpileJS _ (BooleanOr left right) = do
         a  <- toJS left
         fb <- funcWrap <$> toJS right
-        return $ syncCall (Mewlix.operation "or") [ a, fb ]
+        return $ syncCall (Mewlix.boolean "or") [ a, fb ]
 
     -- Ternary operator:
     ----------------------------------------------
@@ -97,7 +97,7 @@ instance ToJavascript Expression where
         condition <- toJS conditionExpr
         fa <- funcWrap <$> toJS left
         fb <- funcWrap <$> toJS right
-        return $ syncCall (Mewlix.operation "ternary") [ condition, fa, fb ]
+        return $ syncCall (Mewlix.boolean "ternary") [ condition, fa, fb ]
 
     -- Assignment expression:
     ----------------------------------------------
@@ -118,11 +118,11 @@ instance ToJavascript Expression where
     transpileJS _ (ListPush itemExpr shelfExpr) = do
         item  <- toJS itemExpr
         shelf <- toJS shelfExpr
-        return $ syncCall (Mewlix.operation "push") [ shelf, item ]
+        return $ syncCall (Mewlix.shelf "push") [ shelf, item ]
 
     transpileJS _ (ListPop shelfExpr) = do
         shelf <- toJS shelfExpr
-        return $ syncCall (Mewlix.operation "pop") [ shelf ]
+        return $ syncCall (Mewlix.shelf "pop") [ shelf ]
 
     -- Function calls:
     ----------------------------------------------
@@ -175,19 +175,19 @@ instance ToJavascript Expression where
     ----------------------------------------------
     transpileJS _ (PawType operand) = do
         arg <- toJS operand
-        return $ syncCall (Mewlix.operation "typeOf") [arg]
+        return $ syncCall (Mewlix.reflection "typeOf") [arg]
 
     -- 'Is' / Instance of:
     ----------------------------------------------
     transpileJS _ (IsInstance a b) = do
         args <- mapM toJS [a, b]
-        return $ syncCall (Mewlix.operation "instanceOf") args
+        return $ syncCall (Mewlix.reflection "instanceOf") args
 
     -- 'Claw at'/ Box entries:
     ----------------------------------------------
     transpileJS _ (ClawEntries operand) = do
         arg <- toJS operand
-        return $ syncCall (Mewlix.operation "pairs") [arg]
+        return $ syncCall (Mewlix.box "pairs") [arg]
 
     -- 'Throw' expression:
     ----------------------------------------------

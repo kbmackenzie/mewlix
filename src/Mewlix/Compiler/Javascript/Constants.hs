@@ -3,20 +3,31 @@
 module Mewlix.Compiler.Javascript.Constants
 ( mewlix
 , purrify
+-- Data:
 , mewlixBox
 , stackNode
 , stackBottom
 , createStack
+-- Operations:
 , meow
 , listen
 , wrap
-, operation
+, arithmetic
+, boolean
+, compare
+, shelf
+, reflection
+, box
+, conversion
+-- Modules:
 , addModule
 , getModule
 , mewlixClowder
+-- Comparison:
 , equalTo
 , lessThan
 , greaterThan
+-- Statement utils:
 , rainable
 , pounceError
 , assert
@@ -24,6 +35,7 @@ module Mewlix.Compiler.Javascript.Constants
 
 {- This module should always be imported qualified. -}
 
+import Prelude hiding (compare)
 import Data.Text (Text)
 
 mewlix :: Text -> Text
@@ -32,6 +44,8 @@ mewlix = ("Mewlix." <>)
 purrify :: Text
 purrify = mewlix "purrify"
 
+{- Data -}
+--------------------------------------------
 mewlixBox :: Text
 mewlixBox = mewlix "MewlixBox"
 
@@ -44,6 +58,8 @@ stackBottom = mewlix "StackBottom"
 createStack :: Text
 createStack = mewlix "MewlixStack.fromArray"
 
+{- Operations -}
+--------------------------------------------
 meow :: Text
 meow = mewlix "meow"
 
@@ -53,9 +69,29 @@ listen = mewlix "listen"
 wrap :: Text
 wrap = mewlix "wrap"
 
-operation :: Text -> Text
-operation = mewlix . ("Op." <>)
+arithmetic :: Text -> Text
+arithmetic = mewlix . ("Arithmetic." <>)
 
+boolean :: Text -> Text
+boolean = mewlix . ("Boolean." <>)
+
+compare :: Text -> Text
+compare = mewlix . ("Compare." <>)
+
+shelf :: Text -> Text
+shelf = mewlix . ("Shelf." <>)
+
+reflection :: Text -> Text
+reflection = mewlix . ("Reflection." <>)
+
+box :: Text -> Text
+box = mewlix . ("Box." <>)
+
+conversion :: Text -> Text
+conversion = mewlix . ("Conversion." <>)
+
+{- Modules: -}
+--------------------------------------------
 modules :: Text -> Text
 modules = mewlix . ("Modules." <>)
 
@@ -68,6 +104,8 @@ getModule = modules "getModule"
 mewlixClowder :: Text
 mewlixClowder = mewlix "MewlixCloder"
 
+{- Comparisons: -}
+--------------------------------------------
 comparison :: Text -> Text
 comparison = mewlix . ("Comparison." <>)
 
@@ -80,6 +118,8 @@ lessThan = comparison "LessThan"
 greaterThan :: Text
 greaterThan = comparison "GreaterThan"
 
+{- Statement Utils: -}
+--------------------------------------------
 rainable :: Text
 rainable = mewlix "rainable"
 
