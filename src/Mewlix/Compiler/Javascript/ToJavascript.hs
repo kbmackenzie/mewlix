@@ -410,12 +410,12 @@ instance ToJavascript YarnBall where
                 let makeTuple :: Key -> Transpiler Text
                     makeTuple (Key binding) = do
                         bindingStr <- toJS (MewlixString binding)
-                        return $ mconcat [ "[", bindingStr, ", ", binding, "]" ]
+                        return $ mconcat [ "[", bindingStr, ", ", funcWrap binding, "]" ]
 
                 bindings <- mapM makeTuple (findBindings block)
                 let array = (brackets . sepComma) bindings
 
-                let returnStatement = "return " <> instantiate Mewlix.mewlixBox [array] <> ";"
+                let returnStatement = "return " <> instantiate Mewlix.yarnBall [array] <> ";"
                 return $ indentLine moduleLevel returnStatement
 
             return $ separateLines

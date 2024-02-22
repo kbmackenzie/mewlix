@@ -8,6 +8,8 @@ module Mewlix.Compiler.Javascript.Constants
 , stackNode
 , stackBottom
 , createStack
+, mewlixClowder
+, yarnBall
 -- Operations:
 , meow
 , listen
@@ -22,7 +24,6 @@ module Mewlix.Compiler.Javascript.Constants
 -- Modules:
 , addModule
 , getModule
-, mewlixClowder
 -- Comparison:
 , equalTo
 , lessThan
@@ -57,6 +58,12 @@ stackBottom = mewlix "StackBottom"
 
 createStack :: Text
 createStack = mewlix "MewlixStack.fromArray"
+
+mewlixClowder :: Text
+mewlixClowder = mewlix "MewlixCloder"
+
+yarnBall :: Text
+yarnBall = mewlix "YarnBall"
 
 {- Operations -}
 --------------------------------------------
@@ -100,9 +107,6 @@ addModule = modules "addModule"
 
 getModule :: Text
 getModule = modules "getModule"
-
-mewlixClowder :: Text
-mewlixClowder = mewlix "MewlixCloder"
 
 {- Comparisons: -}
 --------------------------------------------
