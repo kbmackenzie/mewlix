@@ -41,12 +41,17 @@ blockComment = open >> Mega.skipManyTill Mega.anySingle close
         open = commentSymbol Keywords.commentClose
         close = commentSymbol Keywords.commentClose
 
+{- Newlines: -}
+----------------------------------------------------------------
+escapeNewline :: Parser ()
+escapeNewline = Mega.try (MChar.char '\\' >> void MChar.newline)
+
 {- Single-line spaces: -}
 ----------------------------------------------------------------
 spaceChar :: Parser ()
 spaceChar = (void . Mega.choice)
     [ (void . Mega.choice . map MChar.char) [ ' ', '\t' ]
-    , (void . MChar.string) "\\\n"                      ]
+    , escapeNewline ]
 
 whitespace :: Parser ()
 whitespace = Lexer.space (Mega.skipSome spaceChar) lineComment blockComment
@@ -62,7 +67,7 @@ isSpaceLn c = isSpace c || c == ';'
 spaceCharLn :: Parser ()
 spaceCharLn = (void . Mega.choice)
     [ void (Mega.satisfy isSpaceLn)
-    , void (MChar.string "\\\n")    ]
+    , escapeNewline ]
 
 whitespaceLn :: Parser ()
 whitespaceLn = Lexer.space (Mega.skipSome spaceCharLn) lineComment blockComment
