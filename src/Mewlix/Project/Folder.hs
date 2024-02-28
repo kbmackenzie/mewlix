@@ -13,4 +13,4 @@ coreFolder :: FilePath
 coreFolder = outputFolder </> "core"
 
 moduleFolder :: FilePath
-moduleFolder = outputFolder </> "project"
+moduleFolder = outputFolder </> "yarn"
