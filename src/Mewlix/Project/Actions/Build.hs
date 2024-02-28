@@ -31,7 +31,7 @@ buildProject projectData = do
 
 scriptList :: ProjectData -> [FilePath] -> ProjectMaker ()
 scriptList projectData paths = do
-    let targetPath = coreFolder </> "script-list"
+    let targetPath = coreFolder </> "script-list.json"
     let entrypoint = projectEntrypoint projectData
     let script = object
             [ "entrypoint" .= entrypoint
