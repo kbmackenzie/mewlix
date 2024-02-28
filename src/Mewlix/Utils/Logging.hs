@@ -1,5 +1,6 @@
 module Mewlix.Utils.Logging
-( writeStdout
+( hPutUtil
+, writeStdout
 , writeStderr
 ) where
 
