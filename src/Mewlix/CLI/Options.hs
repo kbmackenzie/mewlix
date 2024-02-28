@@ -9,10 +9,11 @@ import Mewlix.Project (ProjectMode(..), Port(..))
 import Options.Applicative
 
 data ProjectOptions = ProjectOptions
-    { filesOpt :: [FilePath]
-    , nameOpt  :: Maybe String
-    , entryOpt :: Maybe FilePath
-    , modeOpt  :: Maybe ProjectMode     }
+    { filesOpt  :: [FilePath]
+    , nameOpt   :: Maybe String
+    , entryOpt  :: Maybe FilePath
+    , modeOpt   :: Maybe ProjectMode
+    , assetsOpt :: [FilePath] }
     deriving (Show)
 
 data FlagOptions = FlagOptions
@@ -77,6 +78,7 @@ projectOptions = options
             <*> optional name
             <*> optional entry
             <*> optional projectMode
+            <*> many asset
         
         files :: Parser [FilePath]
         files = many (argument str (metavar "FILES"))
@@ -94,6 +96,13 @@ projectOptions = options
             <> short 'e'
             <> metavar "KEY"
             <> help "Project entrypoint" )
+
+        asset :: Parser FilePath
+        asset = strOption
+             ( long "asset"
+            <> short 'a'
+            <> metavar "PATH"
+            <> help "Project asset" )
 
 port :: Parser Port
 port = Port <$> option auto

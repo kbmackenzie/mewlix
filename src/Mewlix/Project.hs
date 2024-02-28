@@ -22,6 +22,7 @@ module Mewlix.Project
 , projectEntrypointL
 , projectPortL
 , projectSourceFilesL
+, projectAssetsL
 , projectSpecialImportsL
 , projectFlagsL
 ) where
@@ -44,6 +45,7 @@ import Mewlix.Project.Data.Types
     , projectEntrypointL
     , projectPortL
     , projectSourceFilesL
+    , projectAssetsL
     , projectSpecialImportsL
     , projectFlagsL
     )

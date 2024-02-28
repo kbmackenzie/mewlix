@@ -17,6 +17,7 @@ import Mewlix.Project
     , projectEntrypointL
     , projectPortL
     , projectFlagsL
+    , projectAssetsL
     )
 import Mewlix.CLI.Options
     ( ProjectOptions(..)
@@ -37,11 +38,13 @@ transform Nothing  _  = id
 transform (Just a) f  = f a
 
 fromOptions :: ProjectOptions -> [ProjectTransform]
-fromOptions ProjectOptions { filesOpt = files, nameOpt = name, entryOpt = entry, modeOpt = mode } =
-    [ projectSourceFilesL %~ (files ++)
-    , transform name  (set projectNameL . Text.pack)
-    , transform entry (set projectEntrypointL . Text.pack)
-    , transform mode  (set projectModeL)                    ]
+fromOptions ProjectOptions
+    { filesOpt = files, nameOpt = name, entryOpt = entry, modeOpt = mode, assetsOpt = assets } =
+        [ projectSourceFilesL %~ (files ++)
+        , projectAssetsL %~ (assets ++)
+        , transform name  (set projectNameL . Text.pack)
+        , transform entry (set projectEntrypointL . Text.pack)
+        , transform mode  (set projectModeL)                    ]
 
 fromFlags :: FlagOptions -> ProjectTransform
 fromFlags FlagOptions { quietFlag = quiet, noStdFlag = noStd, noReadMeFlag = noReadMe } = do
