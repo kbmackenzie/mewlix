@@ -28,13 +28,13 @@ splitMessage message = do
     (x, _) <- Text.uncons message
     if x == '['
         then do
-            i <- Text.findIndex (== ']') message
+            i <- succ <$> Text.findIndex (== ']') message
             Just (Text.splitAt i message)
         else Nothing
 
 colorPrint :: (MonadIO m) => Handle -> [SGR] -> Text -> m ()
 colorPrint handle sgr message = case splitMessage message of
-    Nothing               -> put message
+    Nothing               -> putLine message
     (Just (header, body)) -> do
         supported <- liftIO $ hSupportsANSIColor handle
         if supported
@@ -42,9 +42,11 @@ colorPrint handle sgr message = case splitMessage message of
                 liftIO $ setSGR sgr
                 put header
                 liftIO $ setSGR [Reset]
-                put body
-            else put message
-    where put = hPutUtil handle
+                putLine body
+            else putLine message
+    where
+        put     = hPutUtil False handle
+        putLine = hPutUtil True  handle
 
 logger :: (MonadIO m) => LogType -> Text -> m ()
 logger logtype = case logtype of
