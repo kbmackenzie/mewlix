@@ -43,6 +43,7 @@ library
       Mewlix.Compiler.Transpiler
       Mewlix.Keywords.LanguageKeywords
       Mewlix.Keywords.Types
+      Mewlix.Logger
       Mewlix.Parser
       Mewlix.Parser.Expression
       Mewlix.Parser.Keyword
