@@ -57,6 +57,8 @@ library
       Mewlix.Project.Actions.Create
       Mewlix.Project.Actions.Package
       Mewlix.Project.Actions.Server
+      Mewlix.Project.Assets.Copy
+      Mewlix.Project.Assets.Find
       Mewlix.Project.Data.Read
       Mewlix.Project.Data.Types
       Mewlix.Project.Folder
