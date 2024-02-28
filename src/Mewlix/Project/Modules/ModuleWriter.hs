@@ -14,7 +14,7 @@ import Mewlix.Project.Maker
 import Mewlix.Project.Folder (moduleFolder)
 import Mewlix.Compiler (TranspilerContext, CompilerFunc, CompilerOutput)
 import Mewlix.Utils.FileIO (readFileT, writeFileT)
-import System.FilePath ((</>), takeDirectory, isAbsolute, dropDrive)
+import System.FilePath ((</>), takeDirectory, isRelative)
 import System.Directory (createDirectoryIfMissing, makeRelativeToCurrentDirectory)
 
 compileModule :: CompilerFunc -> TranspilerContext -> FilePath -> ProjectMaker CompilerOutput
@@ -31,12 +31,14 @@ writeModule context inputPath = do
     let prepareDirectory :: FilePath -> ProjectMaker ()
         prepareDirectory = liftIO . createDirectoryIfMissing True . takeDirectory
 
-    outputPath <- liftIO $ do
-        relative <- makeRelativeToCurrentDirectory inputPath
-        let folder = moduleFolder
-        return $ if isAbsolute relative
-            then folder </> dropDrive relative
-            else folder </> relative
+    outputPath <- do
+        relative <- liftIO (makeRelativeToCurrentDirectory inputPath)
+        if isRelative relative
+            then return (moduleFolder </> relative)
+            else throwError $ concat
+                [ "Source file path cannot be made relative to current directory: "
+                , show inputPath
+                , "!\nPlease use relative paths without indirections!" ]
 
     prepareDirectory outputPath
     compiler <- asks projectCompiler
