@@ -17,7 +17,6 @@ import Mewlix.Project.Log (projectLog)
 import Mewlix.Utils.Show (showT)
 import Mewlix.Abstract.Key (Key(..))
 import Data.HashMap.Strict (mapKeys)
-import qualified Data.Text as Text
 import qualified Data.Set as Set
 import qualified Data.HashMap.Strict as HashMap
 
@@ -48,8 +47,7 @@ compileModules projectData = do
     let context = createContext projectData
     let compile :: FilePath -> ProjectMaker FilePath
         compile source = do
-            projectLog projectData $ mconcat
-                ["Compiling module \"", Text.pack source, "\""]
+            projectLog projectData ("Compiling module " <> showT source)
             writeModule context source
 
     mapM compile sources

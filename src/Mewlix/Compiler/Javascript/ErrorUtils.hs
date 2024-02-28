@@ -8,7 +8,6 @@ module Mewlix.Compiler.Javascript.ErrorUtils
 ) where
 
 import Data.Text (Text)
-import qualified Data.Text as Text
 import Mewlix.String.Utils (quotes)
 import Mewlix.String.Escape (escapeString)
 import Mewlix.Compiler.Javascript.Constants (mewlix)
@@ -36,9 +35,9 @@ errorCode = (mewlix "ErrorCode." <>) . showT
 -- This returns a valid Javascript string.
 errorInfo :: SourcePos -> Text
 errorInfo pos = (quotes . escapeString . mconcat)
-    [ "\n -> In module \""
-    , (Text.pack . sourceName) pos
-    , "\", at line "
+    [ "\n -> In module "
+    , (showT . sourceName) pos
+    , ", at line "
     , (showT . unPos . sourceLine) pos ]
 
 errorArgs :: ErrorCode -> SourcePos -> Text -> Text

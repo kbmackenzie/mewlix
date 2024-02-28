@@ -190,7 +190,7 @@ readFlag :: (MonadFail m) => Text -> m ProjectFlag
 readFlag str = case parse str of
     (Just flag) -> return flag
     Nothing     -> fail $ mconcat
-        [ "Couldn't parse \"" , Text.unpack str , "\" as a valid project flag!" ]
+        [ "Couldn't parse " , show str , " as a valid project flag!" ]
     where parse = (`HashMap.lookup` flagKeys) . Text.toLower . Text.strip
 
 {- Mode Utils -}
@@ -210,7 +210,7 @@ readMode :: (MonadFail m) => Text -> m ProjectMode
 readMode str = case parse str of
     (Just mode) -> return mode
     Nothing     -> fail $ mconcat
-        [ "Couldn't parse \"" , Text.unpack str , "\" as a valid value for ProjectMode!" ]
+        [ "Couldn't parse ", show str, " as a valid value for ProjectMode!" ]
     where parse = (`HashMap.lookup` modeKeys) . Text.toLower . Text.strip
 
 {- Project Utils -}
