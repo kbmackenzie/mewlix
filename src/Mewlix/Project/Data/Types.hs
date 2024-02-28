@@ -14,6 +14,7 @@ module Mewlix.Project.Data.Types
 , projectEntrypointL
 , projectPortL
 , projectSourceFilesL
+, projectAssetsL
 , projectSpecialImportsL
 , projectFlagsL
 -- Project Utils:
@@ -76,6 +77,7 @@ data ProjectData = ProjectData
     , projectEntrypoint     :: Text
     , projectPort           :: Port
     , projectSourceFiles    :: [FilePath]
+    , projectAssets         :: [FilePath]
     , projectSpecialImports :: HashMap Text Text
     , projectFlags          :: Set ProjectFlag  }
     deriving (Show)
@@ -95,6 +97,7 @@ $(makeLensesFor
     , ("projectEntrypoint"      , "projectEntrypointL"      )
     , ("projectPort"            , "projectPortL"            )
     , ("projectSourceFiles"     , "projectSourceFilesL"     )
+    , ("projectAssets"          , "projectAssetsL"          )
     , ("projectSpecialImports"  , "projectSpecialImportsL"  )
     , ("projectFlags"           , "projectFlagsL"           ) ] ''ProjectData)
 
@@ -135,7 +138,8 @@ instance FromJSON ProjectData where
         <*> optional defaultMode    (obj .:? "mode"          )
         <*> optional defaultEntry   (obj .:? "entrypoint"    )
         <*> optional defaultPort    (obj .:? "port"          )
-        <*> optional mempty         (obj .:  "sources"       )
+        <*> optional mempty         (obj .:? "sources"       )
+        <*> optional mempty         (obj .:? "assets"        )
         <*> optional mempty         (obj .:? "specialImports")
         <*> optional mempty         (obj .:? "flags"         )
         where
@@ -150,6 +154,7 @@ instance ToJSON ProjectData where
         , "entrypoint"      .= projectEntrypoint project
         , "port"            .= projectPort project
         , "sources"         .= projectSourceFiles project
+        , "assets"          .= projectAssets project
         , "specialImports"  .= projectSpecialImports project
         , "flags"           .= projectFlags project ]
 
@@ -160,6 +165,7 @@ instance ToJSON ProjectData where
         , "entrypoint"      .= projectEntrypoint project
         , "port"            .= projectPort project
         , "sources"         .= projectSourceFiles project
+        , "assets"          .= projectAssets project
         , "specialImports"  .= projectSpecialImports project
         , "flags"           .= projectFlags project ]
 
@@ -223,6 +229,7 @@ defaultProject = ProjectData
     , projectEntrypoint     = defaultEntry
     , projectPort           = defaultPort
     , projectSourceFiles    = mempty
+    , projectAssets         = mempty
     , projectSpecialImports = mempty
     , projectFlags          = mempty            }
 
@@ -242,5 +249,6 @@ projectFieldOrder = compare `on` (`HashMap.lookup` fieldOrder)
             , ("entrypoint"     , 4)
             , ("port"           , 5)
             , ("sources"        , 6)
-            , ("specialImports" , 7)
-            , ("flags"          , 8) ]
+            , ("assets"         , 7)
+            , ("specialImports" , 8)
+            , ("flags"          , 9) ]
