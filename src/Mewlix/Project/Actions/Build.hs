@@ -10,6 +10,7 @@ import Mewlix.Project.Data.Types (ProjectData(..))
 import Mewlix.Project.Modules.Compile (compileModules)
 import Mewlix.Project.Templates.Create (createFromTemplate)
 import Mewlix.Project.Templates.ReadMe (createReadme)
+import Mewlix.Project.Assets.Copy (copyAssets)
 import Mewlix.Project.Log (projectLog)
 import System.FilePath ((</>))
 import Mewlix.Utils.FileIO (writeFileBL)
@@ -26,6 +27,7 @@ buildProject projectData = do
 
     -- Modules:
     compiledModules <- compileModules projectData
+    copyAssets projectData
     createReadme projectData
     scriptList projectData compiledModules
 
