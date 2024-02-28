@@ -5,6 +5,7 @@ module Mewlix.Utils.FileIO
 , writeFileB
 , writeFileBL
 , readDataFile
+, copyFile
 , copyDataFile
 , writeFileS
 , extractZip
@@ -50,12 +51,15 @@ writeFileBL = (liftIO .) . ByteStringL.writeFile
 readDataFile :: (MonadIO m) => FilePath -> m ByteString
 readDataFile = liftIO . getDataFileName >=> liftIO . ByteString.readFile
 
+copyFile :: (MonadIO m) => FilePath -> FilePath -> m ()
+copyFile file targetPath = liftIO . runConduitRes
+     $ sourceFile file
+    .| sinkFile targetPath
+
 copyDataFile :: (MonadIO m) => FilePath -> FilePath -> m ()
 copyDataFile dataFile targetPath = do
     dataPath <- liftIO (getDataFileName dataFile)
-    liftIO $ runConduitRes
-         $ sourceFile dataPath
-        .| sinkFile targetPath
+    copyFile dataPath targetPath
 
 writeFileS :: (MonadIO m) => FilePath -> String -> m ()
 writeFileS path = liftIO . ByteString.writeFile path . ByteUTF8.fromString
