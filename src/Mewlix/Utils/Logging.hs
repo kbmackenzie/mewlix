@@ -9,11 +9,12 @@ import qualified Data.Text.IO as TextIO
 import System.IO (Handle, stdout, stderr)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 
-hPutUtil :: (MonadIO m) => Handle -> Text -> m ()
-hPutUtil handle = liftIO . TextIO.hPutStr handle
+hPutUtil :: (MonadIO m) => Bool -> Handle -> Text -> m ()
+hPutUtil newline handle = liftIO . put handle
+    where put = if newline then TextIO.hPutStrLn else TextIO.hPutStr
 
 writeStdout :: (MonadIO m) => Text -> m ()
-writeStdout = hPutUtil stdout
+writeStdout = hPutUtil True stdout
 
 writeStderr :: (MonadIO m) => Text -> m ()
-writeStderr = hPutUtil stderr
+writeStderr = hPutUtil True stderr
