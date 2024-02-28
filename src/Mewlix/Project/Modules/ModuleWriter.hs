@@ -19,9 +19,9 @@ import System.Directory (createDirectoryIfMissing, makeRelativeToCurrentDirector
 
 compileModule :: CompilerFunc -> TranspilerContext -> FilePath -> ProjectMaker CompilerOutput
 compileModule compile context path = readFileT path >>= \case
-    (Left err)       -> throwError ("Couldn't read file:" ++ show err)
+    (Left err)       -> throwError $ concat [ "Couldn't read file ", show path, ": ", show err ]
     (Right contents) -> case compile context path contents of
-        (Left err)       -> throwError ("Mewlix syntax error:\n" ++ err)
+        (Left err)       -> throwError $ concat [ "Mewlix syntax error in file ", show path, ":\n", err ]
         (Right yarnball) -> return yarnball
 
 -- Compile a Mewlix module and write the output to a new file in the project folder.

@@ -40,7 +40,7 @@ validateSource :: FilePath -> ProjectMaker ()
 validateSource path = do
     fileExists <- liftIO (doesFileExist path)
     unless fileExists $
-        throwError (concat [ "Couldn't find file \"", path, "\"!" ])
+        throwError $ concat [ "Couldn't find file ", show path, "!" ]
 
 validateSources :: [FilePath] -> ProjectMaker ()
 validateSources = mapM_ validateSource

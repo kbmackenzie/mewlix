@@ -26,5 +26,5 @@ readProject = do
 
     readYaml path >>= \case
         (Left err)  -> throwError $ concat
-            [ "Couldn't parse project file: \"", path, "\":",  show err ]
+            [ "Couldn't parse project file ", show path, ": ",  show err ]
         (Right dat) -> return dat
