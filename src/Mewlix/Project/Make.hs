@@ -27,7 +27,7 @@ import Mewlix.Project.Actions.Create (createProject)
 import Mewlix.Project.Actions.Server (runProject)
 -- Assorted:
 import Mewlix.Project.Data.Read (readProject)
-import qualified Mewlix.Utils.Logging as Logging
+import Mewlix.Logger (LogType(..), logger);
 import qualified Data.Text as Text
 
 data Action =
@@ -63,7 +63,7 @@ make' = make True []
 execute :: Bool -> ProjectFunc -> ActionFunc -> IO ()
 execute readProjectFile languageFunc actionFunc = do
     languageFunc (project >>= actionFunc) >>= \case
-        (Left err) -> Logging.writeStderr (Text.pack err)
+        (Left err) -> logger Error (Text.pack err)
         (Right _ ) -> return ()
     where project = if readProjectFile
             then readProject
