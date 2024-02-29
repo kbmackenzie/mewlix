@@ -4,11 +4,11 @@ module Mewlix.Compiler.Javascript.Constants
 ( mewlix
 , purrify
 -- Data:
-, mewlixBox
-, stackNode
-, stackBottom
-, createStack
-, mewlixClowder
+, box
+, shelfNode
+, shelfBottom
+, createShelf
+, clowder
 , yarnBall
 -- Operations:
 , meow
@@ -19,7 +19,7 @@ module Mewlix.Compiler.Javascript.Constants
 , compare
 , shelf
 , reflection
-, box
+, boxes
 , conversion
 -- Modules:
 , addModule
@@ -47,20 +47,20 @@ purrify = mewlix "purrify"
 
 {- Data -}
 --------------------------------------------
-mewlixBox :: Text
-mewlixBox = mewlix "MewlixBox"
+box :: Text
+box = mewlix "Box"
 
-stackNode :: Text
-stackNode = mewlix "StackNode"
+shelfNode :: Text
+shelfNode = mewlix "ShelfNode"
 
-stackBottom :: Text
-stackBottom = mewlix "StackBottom"
+shelfBottom :: Text
+shelfBottom = mewlix "ShelfBottom"
 
-createStack :: Text
-createStack = mewlix "MewlixStack.fromArray"
+createShelf :: Text
+createShelf = mewlix "Shelf.fromArray"
 
-mewlixClowder :: Text
-mewlixClowder = mewlix "MewlixCloder"
+clowder :: Text
+clowder = mewlix "Clowder"
 
 yarnBall :: Text
 yarnBall = mewlix "YarnBall"
@@ -91,8 +91,8 @@ shelf = mewlix . ("Shelf." <>)
 reflection :: Text -> Text
 reflection = mewlix . ("Reflection." <>)
 
-box :: Text -> Text
-box = mewlix . ("Box." <>)
+boxes :: Text -> Text
+boxes = mewlix . ("Boxes." <>)
 
 conversion :: Text -> Text
 conversion = mewlix . ("Conversion." <>)

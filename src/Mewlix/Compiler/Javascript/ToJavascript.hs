@@ -67,7 +67,7 @@ instance ToJavascript Expression where
     transpileJS _ (ListExpression exprs) = do
         items <- mapM toJS exprs
         let array = (brackets . sepComma) items
-        return $ instantiate Mewlix.createStack [ array ]
+        return $ instantiate Mewlix.createShelf [ array ]
 
     transpileJS _ (BoxExpression pairs) = do
         let makeTuple :: (Key, Expression) -> Transpiler Text
@@ -77,7 +77,7 @@ instance ToJavascript Expression where
 
         items <- mapM makeTuple pairs
         let array = (brackets . sepComma) items
-        return $ instantiate Mewlix.mewlixBox [ array ]
+        return $ instantiate Mewlix.box [ array ]
 
     -- Boolean operations:
     ----------------------------------------------
@@ -187,7 +187,7 @@ instance ToJavascript Expression where
     ----------------------------------------------
     transpileJS _ (ClawEntries operand) = do
         arg <- toJS operand
-        return $ syncCall (Mewlix.box "pairs") [arg]
+        return $ syncCall (Mewlix.boxes "pairs") [arg]
 
     -- 'Throw' expression:
     ----------------------------------------------
@@ -315,7 +315,7 @@ instance ToJavascript Statement where
     -- Class statement:
     ----------------------------------------------
     transpileJS level   (ClassDef clowder) = do
-        let extends = maybe Mewlix.mewlixClowder getKey (classExtends clowder)
+        let extends = maybe Mewlix.clowder getKey (classExtends clowder)
         let header = mconcat [ "class ", (getKey . className) clowder, " extends ", extends ]
 
         let classLevel  = succ level
