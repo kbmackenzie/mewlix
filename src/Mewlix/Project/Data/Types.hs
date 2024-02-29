@@ -33,7 +33,6 @@ import Data.Aeson
     ( ToJSON(..)
     , FromJSON(..)
     , withObject
-    , (.:)
     , (.=)
     , (.:?)
     , object
@@ -183,41 +182,35 @@ instance FromJSON Port where
 
 {- Flag Utils -}
 ----------------------------------------------------------------
-flagKeys :: HashMap Text ProjectFlag
-flagKeys = HashMap.fromList
-    -- Names:
-    [ ("quiet"     , Quiet     )
-    , ("no-std"    , NoStd     )
-    , ("no-readme" , NoReadMe  )
-    -- Shorthand:
-    , ("q"         , Quiet     ) ]
+parseFlag :: Text -> Maybe ProjectFlag
+parseFlag key = case key of
+    "quiet"     -> return Quiet
+    "no-std"    -> return NoStd
+    "no-readme" -> return NoReadMe
+    _           -> Nothing
 
 readFlag :: (MonadFail m) => Text -> m ProjectFlag
 readFlag str = case parse str of
     (Just flag) -> return flag
     Nothing     -> fail $ mconcat
-        [ "Couldn't parse " , show str , " as a valid project flag!" ]
-    where parse = (`HashMap.lookup` flagKeys) . Text.toLower . Text.strip
+        [ "Couldn't parse ", show str, " as a valid project flag!" ]
+    where parse = parseFlag . Text.toLower . Text.strip
 
 {- Mode Utils -}
 ----------------------------------------------------------------
-modeKeys :: HashMap Text ProjectMode
-modeKeys = HashMap.fromList
-    -- Names:
-    [ ("console" , Console)
-    , ("graphic" , Graphic) 
-    , ("library" , Library)
-    -- Shorthand:
-    , ("c"       , Console)
-    , ("g"       , Graphic)
-    , ("l"       , Library) ]
+parseMode :: Text -> Maybe ProjectMode
+parseMode key = case key of
+    "console" -> return Console
+    "graphic" -> return Graphic
+    "library" -> return Library
+    _         -> Nothing
 
 readMode :: (MonadFail m) => Text -> m ProjectMode
 readMode str = case parse str of
     (Just mode) -> return mode
     Nothing     -> fail $ mconcat
         [ "Couldn't parse ", show str, " as a valid value for ProjectMode!" ]
-    where parse = (`HashMap.lookup` modeKeys) . Text.toLower . Text.strip
+    where parse = parseMode . Text.toLower . Text.strip
 
 {- Project Utils -}
 ----------------------------------------------------------------
