@@ -39,7 +39,7 @@ processSources :: [FilePath] -> ProjectMaker [FilePath]
 processSources paths = do
     let makeLocal = liftIO . makeRelativeToCurrentDirectory
     sourceBundle <- mapM processSource paths
-    sourceFiles  <- mapM makeLocal (fmap concat sourceBundle)
+    sourceFiles  <- mapM makeLocal (concat sourceBundle)
     (return . nubOrd) sourceFiles
 
 validateSource :: FilePath -> ProjectMaker ()

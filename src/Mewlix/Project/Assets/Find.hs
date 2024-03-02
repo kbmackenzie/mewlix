@@ -36,7 +36,7 @@ processAssets :: (MonadIO m) => [FilePath] -> m [FilePath]
 processAssets paths = do
     let makeLocal = liftIO . makeRelativeToCurrentDirectory
     assetBundle <- mapM processAsset paths
-    assets      <- mapM makeLocal (fmap concat assetBundle)
+    assets      <- mapM makeLocal (concat assetBundle)
     (return . nubOrd) assets
 
 validateAsset :: FilePath -> ProjectMaker ()
