@@ -17,7 +17,7 @@ module Mewlix.Compiler.Javascript.Constants
 , arithmetic
 , boolean
 , compare
-, shelf
+, shelves
 , reflection
 , boxes
 , conversion
@@ -85,8 +85,8 @@ boolean = mewlix . ("Boolean." <>)
 compare :: Text -> Text
 compare = mewlix . ("Compare." <>)
 
-shelf :: Text -> Text
-shelf = mewlix . ("Shelf." <>)
+shelves :: Text -> Text
+shelves = mewlix . ("Shelves." <>)
 
 reflection :: Text -> Text
 reflection = mewlix . ("Reflection." <>)

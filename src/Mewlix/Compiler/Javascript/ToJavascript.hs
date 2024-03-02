@@ -118,11 +118,11 @@ instance ToJavascript Expression where
     transpileJS _ (ListPush itemExpr shelfExpr) = do
         item  <- toJS itemExpr
         shelf <- toJS shelfExpr
-        return $ syncCall (Mewlix.shelf "push") [ shelf, item ]
+        return $ syncCall (Mewlix.shelves "push") [ shelf, item ]
 
     transpileJS _ (ListPop shelfExpr) = do
         shelf <- toJS shelfExpr
-        return $ syncCall (Mewlix.shelf "pop") [ shelf ]
+        return $ syncCall (Mewlix.shelves "pop") [ shelf ]
 
     -- Function calls:
     ----------------------------------------------
