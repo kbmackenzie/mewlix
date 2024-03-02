@@ -1,7 +1,5 @@
 module Mewlix
-( --Prim(..)
---, runMeowr
+( run
 ) where
 
---import Mewlix.Core.AST
---import Mewlix.Meowr.RunMeowr
+import Mewlix.CLI.Main (run)
