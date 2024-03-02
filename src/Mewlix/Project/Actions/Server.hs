@@ -15,12 +15,13 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad (unless)
 import System.Directory (doesDirectoryExist)
 import Mewlix.Utils.Show (showT)
+import System.FilePath ((</>))
 
 runServer :: (MonadIO m) => Port -> m ()
 runServer port = liftIO . scotty (getPort port) $ do
     let policy = staticPolicy (addBase outputFolder)
     middleware policy
-    get "/" $ file "index.html"
+    get "/" $ file (outputFolder </> "index.html")
 
 runProject :: ProjectData -> ProjectMaker ()
 runProject projectData = do
