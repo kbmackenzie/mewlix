@@ -162,13 +162,13 @@ break :: SimpleKeyword
 break = "escape"
 
 if_ :: WordSequence
-if_ = ["peek", "and", "see", "if"]
+if_ = ["peek", "if"]
 
 elif :: WordSequence
 elif = ["or", "if", "maybe"]
 
-else_ :: WordSequence
-else_ = ["otherwise", "just"]
+else_ :: SimpleKeyword
+else_ = "otherwise"
 
 while :: WordSequence
 while = ["stare", "until"]
@@ -226,6 +226,7 @@ reserved = HashSet.fromList
     , or
     , push
     , peek
+    , else_
     , firstWord yarnball
     , yarnball'
     , firstWord pop
