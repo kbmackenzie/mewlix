@@ -18,6 +18,10 @@ build-type:     Simple
 extra-source-files:
     README.md
     CHANGELOG.md
+data-files:
+    templates/js/console.zip
+    templates/js/graphic.zip
+    templates/js/library.zip
 
 source-repository head
   type: git

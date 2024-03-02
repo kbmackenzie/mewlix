@@ -56,8 +56,8 @@ ghc-options:
 - -Wpartial-fields
 - -Wredundant-constraints
 
-#data-files:
-#- std/*.meows
+data-files:
+- templates/js/*.zip
 
 library:
   source-dirs: src
