@@ -303,14 +303,15 @@ instance ToJavascript Statement where
     -- Import statement:
     ----------------------------------------------
     transpileJS level   (ImportStatement moduleData) = do
-        let key = maybe (defaultName moduleData) getKey (moduleAlias moduleData)
-        stringKey   <- toJS (MewlixString key)
+        let binding = maybe (defaultName moduleData) getKey (moduleAlias moduleData)
+        let key = (Key . joinKey . moduleKey) moduleData
+        stringKey   <- (toJS . MewlixString . getKey) key
         importValue <- do
             special <- asks specialImports
-            case HashMap.lookup (Key key) special of
+            case HashMap.lookup key special of
                 Nothing      -> return $ asyncCall Mewlix.getModule [stringKey]
                 (Just value) -> return $ syncCall Mewlix.wrap [value]
-        let declaration = mconcat [ "const ", key, " = ", importValue, ";" ]
+        let declaration = mconcat [ "const ", binding, " = ", importValue, ";" ]
         return (indentLine level declaration)
 
     -- Class statement:
