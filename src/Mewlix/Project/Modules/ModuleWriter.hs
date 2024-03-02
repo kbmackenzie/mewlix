@@ -15,7 +15,7 @@ import Mewlix.Project.Folder (moduleFolder)
 import Mewlix.Compiler (TranspilerContext, CompilerFunc, CompilerOutput)
 import Mewlix.Utils.FileIO (readFileT, writeFileT)
 import System.FilePath ((</>), takeDirectory, isRelative)
-import System.Directory (createDirectoryIfMissing, makeRelativeToCurrentDirectory)
+import System.Directory (createDirectoryIfMissing)
 
 compileModule :: CompilerFunc -> TranspilerContext -> FilePath -> ProjectMaker CompilerOutput
 compileModule compile context path = readFileT path >>= \case
@@ -31,14 +31,12 @@ writeModule context inputPath = do
     let prepareDirectory :: FilePath -> ProjectMaker ()
         prepareDirectory = liftIO . createDirectoryIfMissing True . takeDirectory
 
-    outputPath <- do
-        relative <- liftIO (makeRelativeToCurrentDirectory inputPath)
-        if isRelative relative
-            then return (moduleFolder </> relative)
-            else throwError $ concat
-                [ "Source file path cannot be made relative to current directory: "
-                , show inputPath
-                , "!\nPlease use relative paths without indirections!" ]
+    outputPath <- if isRelative inputPath
+        then return (moduleFolder </> inputPath)
+        else throwError $ concat
+            [ "Source file path cannot be made relative to current directory: "
+            , show inputPath
+            , "!\nPlease use relative paths without indirections!" ]
 
     prepareDirectory outputPath
     compiler <- asks projectCompiler

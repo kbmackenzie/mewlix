@@ -15,7 +15,11 @@ import Conduit
     , sourceDirectoryDeep
     )
 import System.FilePath (isExtensionOf)
-import System.Directory (doesDirectoryExist, doesFileExist, canonicalizePath)
+import System.Directory
+    ( doesDirectoryExist
+    , doesFileExist
+    , makeRelativeToCurrentDirectory
+    , canonicalizePath)
 import Mewlix.Project.Maker (ProjectMaker, throwError, liftIO)
 
 findSources :: FilePath -> IO [FilePath]
@@ -33,8 +37,10 @@ processSource = liftIO . canonicalizePath >=> \path -> do
 
 processSources :: [FilePath] -> ProjectMaker [FilePath]
 processSources paths = do
-    sourceFiles <- mapM processSource paths
-    (return . nubOrd . concat) sourceFiles
+    let makeLocal = liftIO . makeRelativeToCurrentDirectory
+    sourceBundle <- mapM processSource paths
+    sourceFiles  <- mapM makeLocal (fmap concat sourceBundle)
+    (return . nubOrd) sourceFiles
 
 validateSource :: FilePath -> ProjectMaker ()
 validateSource path = do

@@ -11,7 +11,12 @@ import Conduit
     , sinkList
     , sourceDirectoryDeep
     )
-import System.Directory (doesDirectoryExist, doesFileExist, canonicalizePath)
+import System.Directory
+    ( doesDirectoryExist
+    , doesFileExist
+    , makeRelativeToCurrentDirectory
+    , canonicalizePath
+    )
 import Mewlix.Project.Maker (ProjectMaker, throwError, liftIO)
 import Control.Monad.IO.Class (MonadIO)
 
@@ -29,8 +34,10 @@ processAsset = liftIO . canonicalizePath >=> \path -> do
 
 processAssets :: (MonadIO m) => [FilePath] -> m [FilePath]
 processAssets paths = do
-    assets <- mapM processAsset paths
-    (return . nubOrd . concat) assets
+    let makeLocal = liftIO . makeRelativeToCurrentDirectory
+    assetBundle <- mapM processAsset paths
+    assets      <- mapM makeLocal (fmap concat assetBundle)
+    (return . nubOrd) assets
 
 validateAsset :: FilePath -> ProjectMaker ()
 validateAsset path = do
