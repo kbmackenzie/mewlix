@@ -12,10 +12,11 @@ import Mewlix.Project.Log (projectLog)
 import Web.Scotty (scotty, middleware, get, file)
 import Network.Wai.Middleware.Static (staticPolicy, addBase)
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import Control.Monad (unless)
+import Control.Monad (unless, void)
 import System.Directory (doesDirectoryExist)
 import Mewlix.Utils.Show (showT)
 import System.FilePath ((</>))
+import Web.Browser (openBrowser)
 
 runServer :: (MonadIO m) => Port -> m ()
 runServer port = liftIO . scotty (getPort port) $ do
@@ -36,4 +37,10 @@ runProject projectData = do
         , " in port "
         , (showT . getPort) port
         ]
+
+    -- Open browser:
+    let address = concat ["http://127.0.0.1:", (show . getPort) port, "/"]
+    (liftIO . void . openBrowser) address
+
+    -- Run server:
     runServer port
