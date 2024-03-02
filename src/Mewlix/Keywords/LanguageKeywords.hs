@@ -171,7 +171,7 @@ else_ :: SimpleKeyword
 else_ = "otherwise"
 
 while :: WordSequence
-while = ["stare", "until"]
+while = ["stare", "while"]
 
 forEach :: WordSequence
 forEach = ["it's", "raining"]
