@@ -6,7 +6,7 @@ module Mewlix.Project.Actions.Server
 
 import Mewlix.Project.Maker (ProjectMaker)
 import Mewlix.Project.Folder (outputFolder)
-import Mewlix.Project.Data.Types (ProjectData(..), Port(..), defaultPort)
+import Mewlix.Project.Data.Types (ProjectData(..), Port(..))
 import Mewlix.Project.Actions.Build (buildProject)
 import Mewlix.Project.Log (projectLog)
 import Web.Scotty (scotty, middleware, get, file)
@@ -29,8 +29,8 @@ runProject projectData = do
     exists <- liftIO (doesDirectoryExist outputFolder)
     unless exists $
         buildProject projectData
+    let port = projectPort projectData
 
-    let port = defaultPort
     projectLog projectData $ mconcat
         [ "Running project "
         , (showT . projectName) projectData
