@@ -32,5 +32,5 @@ cleanProject projectData = do
 
     exists <- liftIO (doesDirectoryExist folder)
     when exists $ do
-        projectLog projectData "Cleaning project folder..."
+        projectLog projectData "Cleaning output folder..."
         clean 0
