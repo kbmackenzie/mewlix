@@ -31,5 +31,9 @@ runProject projectData = do
 
     let port = defaultPort
     projectLog projectData $ mconcat
-        ["Running project ", projectName projectData, " in port ", showT port]
+        [ "Running project "
+        , (showT . projectName) projectData
+        , " in port "
+        , (showT . getPort) port
+        ]
     runServer port
