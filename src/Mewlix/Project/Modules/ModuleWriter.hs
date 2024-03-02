@@ -14,7 +14,7 @@ import Mewlix.Project.Maker
 import Mewlix.Project.Folder (moduleFolder)
 import Mewlix.Compiler (TranspilerContext, CompilerFunc, CompilerOutput)
 import Mewlix.Utils.FileIO (readFileT, writeFileT)
-import System.FilePath ((</>), takeDirectory, isRelative)
+import System.FilePath ((</>), takeDirectory, isRelative, replaceExtension)
 import System.Directory (createDirectoryIfMissing)
 
 compileModule :: CompilerFunc -> TranspilerContext -> FilePath -> ProjectMaker CompilerOutput
@@ -32,7 +32,9 @@ writeModule context inputPath = do
         prepareDirectory = liftIO . createDirectoryIfMissing True . takeDirectory
 
     outputPath <- if isRelative inputPath
-        then return (moduleFolder </> inputPath)
+        then do
+            let transform = flip replaceExtension "js" . (moduleFolder </>)
+            return (transform inputPath)
         else throwError $ concat
             [ "Source file path cannot be made relative to current directory: "
             , show inputPath
