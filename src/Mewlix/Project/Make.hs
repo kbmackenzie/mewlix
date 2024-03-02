@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Mewlix.Project.Make
@@ -63,7 +64,7 @@ make' = make True []
 execute :: Bool -> ProjectFunc -> ActionFunc -> IO ()
 execute readProjectFile languageFunc actionFunc = do
     languageFunc (project >>= actionFunc) >>= \case
-        (Left err) -> logger Error (Text.pack err)
+        (Left err) -> logger Error ("[mewlix] " <> Text.pack err)
         (Right _ ) -> return ()
     where project = if readProjectFile
             then readProject
