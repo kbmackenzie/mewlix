@@ -1,5 +1,3 @@
-# mewlix
-
 <img align="left" width="256" height="256" src="logo.svg">
 
 Mewlix is a cat-themed esoteric programming language that compiles to ES6 Javascript. It comes with templates for making interactive console applications and little HTML5 games.
