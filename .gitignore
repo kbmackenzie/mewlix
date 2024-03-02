@@ -9,10 +9,7 @@ dist-newstyle/
 *.obj
 *.txt
 *.prof
-foo/
 *.zip
-std_backup/
-src_backup/
 txt/
 docs/
 *.mews
