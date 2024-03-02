@@ -165,7 +165,7 @@ if_ :: WordSequence
 if_ = ["peek", "if"]
 
 elif :: WordSequence
-elif = ["or", "if", "maybe"]
+elif = ["or", "if"]
 
 else_ :: SimpleKeyword
 else_ = "otherwise"
