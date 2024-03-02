@@ -8,7 +8,6 @@ import Mewlix.Project.Data.Types (ProjectData(..), projectFieldOrder)
 import Mewlix.Project.Log (projectLog)
 import Mewlix.Utils.Yaml (prettyYaml)
 import Mewlix.Utils.FileIO (writeFileB)
-import Mewlix.Utils.Show (showT)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Data.Text as Text
 import System.FilePath (replaceExtension, makeValid)
