@@ -17,6 +17,6 @@ templatePath = ("templates" </>)
 
 template :: Language -> ProjectMode -> Template
 template Javascript = \case
-    Console -> Template { getTemplate = templatePath "js/console" }
-    Graphic -> Template { getTemplate = templatePath "js/graphic" }
-    Library -> Template { getTemplate = templatePath "js/library" }
+    Console -> Template { getTemplate = templatePath "js/console.zip" }
+    Graphic -> Template { getTemplate = templatePath "js/graphic.zip" }
+    Library -> Template { getTemplate = templatePath "js/library.zip" }
