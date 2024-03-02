@@ -15,6 +15,7 @@ module Mewlix.Project
 , defaultPort
 , defaultName
 , defaultEntry
+, defaultSources
 -- Lenses:
 , projectNameL
 , projectDescriptionL
@@ -36,6 +37,7 @@ import Mewlix.Project.Data.Types
     , defaultPort
     , defaultName
     , defaultEntry
+    , defaultSources
     , ProjectTransform
     , transformProject
     -- Lenses:

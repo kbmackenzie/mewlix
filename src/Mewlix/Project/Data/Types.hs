@@ -27,6 +27,7 @@ module Mewlix.Project.Data.Types
 , defaultPort
 , defaultName
 , defaultEntry
+, defaultSources
 ) where
 
 import Data.Aeson
@@ -114,6 +115,9 @@ defaultName = "no-name"
 defaultEntry :: Text
 defaultEntry = "main"
 
+defaultSources :: [FilePath]
+defaultSources = ["src"]
+
 {- Instances -}
 -----------------------------------------------------------------
 instance FromJSON ProjectMode where
@@ -137,7 +141,7 @@ instance FromJSON ProjectData where
         <*> optional defaultMode    (obj .:? "mode"          )
         <*> optional defaultEntry   (obj .:? "entrypoint"    )
         <*> optional defaultPort    (obj .:? "port"          )
-        <*> optional mempty         (obj .:? "sources"       )
+        <*> optional defaultSources (obj .:? "sources"       )
         <*> optional mempty         (obj .:? "assets"        )
         <*> optional mempty         (obj .:? "specialImports")
         <*> optional mempty         (obj .:? "flags"         )
@@ -221,7 +225,7 @@ defaultProject = ProjectData
     , projectMode           = defaultMode
     , projectEntrypoint     = defaultEntry
     , projectPort           = defaultPort
-    , projectSourceFiles    = mempty
+    , projectSourceFiles    = defaultSources
     , projectAssets         = mempty
     , projectSpecialImports = mempty
     , projectFlags          = mempty            }
