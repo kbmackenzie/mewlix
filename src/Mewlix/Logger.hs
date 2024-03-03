@@ -13,13 +13,13 @@ import System.Console.ANSI
     , Color(..)
     , ConsoleLayer(..)
     , ColorIntensity(..)
-    , setSGR
+    , ConsoleIntensity(..)
+    , hSetSGR
     , hSupportsANSIColor
     )
 
 data LogType =
       Info
-    | Warning
     | Error
     deriving (Show)
 
@@ -36,12 +36,12 @@ colorPrint :: (MonadIO m) => Handle -> [SGR] -> Text -> m ()
 colorPrint handle sgr message = case splitMessage message of
     Nothing               -> putLine message
     (Just (header, body)) -> do
-        supported <- liftIO $ hSupportsANSIColor handle
+        supported <- liftIO (hSupportsANSIColor handle)
         if supported
             then do
-                liftIO $ setSGR sgr
+                liftIO (hSetSGR handle sgr)
                 put header
-                liftIO $ setSGR [Reset]
+                liftIO (hSetSGR handle [Reset])
                 putLine body
             else putLine message
     where
@@ -50,6 +50,5 @@ colorPrint handle sgr message = case splitMessage message of
 
 logger :: (MonadIO m) => LogType -> Text -> m ()
 logger logtype = case logtype of
-    Info    -> colorPrint stdout []
-    Warning -> colorPrint stdout [SetColor Foreground Vivid Yellow]
-    Error   -> colorPrint stderr [SetColor Foreground Vivid Magenta]
+    Info    -> colorPrint stdout [SetColor Foreground Vivid Yellow]
+    Error   -> colorPrint stderr [SetColor Foreground Vivid Magenta, SetConsoleIntensity BoldIntensity]
