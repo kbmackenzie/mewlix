@@ -78,4 +78,5 @@ runOption language = \case
                 , transform mode (set projectModeL)             ]
         make False transforms language Create
 
-    CleanOpt -> make False mempty language Clean
+    (CleanOpt standalone) -> do
+        make (not standalone) mempty language Clean

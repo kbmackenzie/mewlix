@@ -27,7 +27,7 @@ data MewlixOptions =
     | RunOpt        ProjectOptions FlagOptions Bool (Maybe Port)
     | PackageOpt    ProjectOptions FlagOptions Bool
     | NewOpt        (Maybe String) (Maybe ProjectMode)
-    | CleanOpt
+    | CleanOpt      Bool
     deriving (Show)
 
 projectMode :: Parser ProjectMode
@@ -155,7 +155,7 @@ parseOptions = options
 
         clean :: Mod CommandFields MewlixOptions
         clean = command "clean" $ makeInfo parser "Clean project"
-            where parser = pure CleanOpt
+            where parser = CleanOpt <$> standalone
 
 getOptions :: IO MewlixOptions
 getOptions = execParser $ info (parseOptions <**> helper)
