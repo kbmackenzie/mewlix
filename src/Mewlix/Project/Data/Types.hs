@@ -183,11 +183,12 @@ instance FromJSON Port where
 {- Flag Utils -}
 ----------------------------------------------------------------
 parseFlag :: Text -> Maybe ProjectFlag
-parseFlag key = case key of
+parseFlag key = case parse key of
     "quiet"     -> return Quiet
     "no-std"    -> return NoStd
     "no-readme" -> return NoReadMe
     _           -> Nothing
+    where parse = Text.dropWhile (== '-') . Text.strip
 
 readFlag :: (MonadFail m) => Text -> m ProjectFlag
 readFlag str = case parse str of
