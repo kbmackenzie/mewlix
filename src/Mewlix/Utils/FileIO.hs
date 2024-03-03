@@ -3,11 +3,12 @@ module Mewlix.Utils.FileIO
 , readFileB
 , writeFileT
 , writeFileB
+, writeFileS
 , writeFileBL
 , readDataFile
 , copyFile
 , copyDataFile
-, writeFileS
+, appendFileT
 , extractZip
 , extractDataFile
 ) where
@@ -45,6 +46,9 @@ writeFileT path = liftIO . ByteString.writeFile path . ByteEncoding.encodeUtf8
 writeFileB :: (MonadIO m) => FilePath -> ByteString -> m ()
 writeFileB = (liftIO .) . ByteString.writeFile
 
+writeFileS :: (MonadIO m) => FilePath -> String -> m ()
+writeFileS path = liftIO . ByteString.writeFile path . ByteUTF8.fromString
+
 writeFileBL :: (MonadIO m) => FilePath -> ByteStringL.ByteString -> m ()
 writeFileBL = (liftIO .) . ByteStringL.writeFile
 
@@ -61,8 +65,8 @@ copyDataFile dataFile targetPath = do
     dataPath <- liftIO (getDataFileName dataFile)
     copyFile dataPath targetPath
 
-writeFileS :: (MonadIO m) => FilePath -> String -> m ()
-writeFileS path = liftIO . ByteString.writeFile path . ByteUTF8.fromString
+appendFileT :: (MonadIO m) => FilePath -> Text -> m ()
+appendFileT path = liftIO . ByteString.appendFile path . ByteEncoding.encodeUtf8
 
 extractZip :: (MonadIO m) => FilePath -> FilePath -> m ()
 extractZip zipPath = withArchive zipPath . unpackInto
