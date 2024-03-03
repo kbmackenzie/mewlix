@@ -4,12 +4,16 @@
 
 Mewlix's compiler is written in pure Haskell, and is a self-contained binary executable. It can build projects, run them in a simple HTTP server, and package the build output neatly into a `.zip` file for upload in websites like [itch.io](https://itch.io/).
 
-As is tradition for all languages, here's a simple `'hello world` program in Mewlix:
+As is tradition for all languages, here's a simple `'hello world'` program in Mewlix:
 ```mewlix
+yarn ball main 
+
 meow "Hello world!"
 ```
 And a simple `greet` program:
 ```mewlix
+yarn ball main
+
 =^.x.^= greet()
   mew name = listen "What's your name?"
   meow "Hello, "..name.."!"
