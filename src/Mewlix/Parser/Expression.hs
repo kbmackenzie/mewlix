@@ -33,6 +33,7 @@ import Mewlix.Keywords.Types (LongSymbol(..))
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import qualified Text.Megaparsec as Mega
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
+import Data.Maybe (fromMaybe)
 
 {- Left-hand, Right-hand -}
 ------------------------------------------------------------------------------------
@@ -99,7 +100,8 @@ parseMeow = do
 parseListen :: Parser Expression
 parseListen = do
     keyword Keywords.listen
-    ListenExpression <$> expression
+    let nil = PrimitiveExpr MewlixNil
+    ListenExpression . fromMaybe nil <$> Mega.optional expression
 
 {- Clowder -}
 ------------------------------------------------------------------------------------
