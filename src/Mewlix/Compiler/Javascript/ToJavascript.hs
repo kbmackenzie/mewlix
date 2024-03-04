@@ -67,7 +67,7 @@ instance ToJavascript Expression where
     transpileJS _ (ListExpression exprs) = do
         items <- mapM toJS exprs
         let array = (brackets . sepComma) items
-        return $ instantiate Mewlix.createShelf [ array ]
+        return $ syncCall Mewlix.createShelf [ array ]
 
     transpileJS _ (BoxExpression pairs) = do
         let makeTuple :: (Key, Expression) -> Transpiler Text
