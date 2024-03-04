@@ -28,7 +28,7 @@ binaryOpFunc op = case op of
     Division        -> syncCall (Mewlix.arithmetic "div")
     Modulo          -> syncCall (Mewlix.arithmetic "mod")
     Power           -> syncCall (Mewlix.arithmetic "pow")
-    ListConcat      -> syncCall (Mewlix.shelves "concat")
+    ListConcat      -> syncCall (Mewlix.strings "concat")
     Equal           -> syncCall (Mewlix.compare "isEqual")
     NotEqual        -> ("!" <>) . syncCall (Mewlix.compare "isEqual")
     LessThan        -> compareTo [Mewlix.lessThan] 
