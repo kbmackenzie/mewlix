@@ -25,14 +25,14 @@ Mewlix is very similar to languages like Python and Javascript, with one catch: 
 In addition, Mewlix has support for higher order functions and anonymous functions, and supports a subset of object-oriented programming with classes—which, in Mewlix, we call [clowders](https://www.merriam-webster.com/dictionary/clowder).
 
 ## Documentation
-All of the documentation for Mewlix can be found in the [wiki](todo).
+All of the documentation for Mewlix can be found in the [wiki](https://github.com/KBMackenzie/mewlix/wiki).
 
 ## Installation
 Mewlix's compiler is a self-contained binary executable. It can be run from anywhere, and has no external dependencies.
 
-The installation guide can be found [here](INSTALL.md).
+The installation guide can be found [here](./INSTALL.md).
 
-A guide on how to build Mewlix from source can be found [here](INSTALL.md#build-from-source).
+A guide on how to build Mewlix from source can be found [here](./INSTALL.md#build-from-source).
 
 ## Special Thanks
 A big special thanks to my friend Jade for helping me stay sane through this project and for letting me talk endlessly about it these past few months. I wouldn't have been able to finish it without you, thank you! ♡
