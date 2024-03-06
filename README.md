@@ -1,4 +1,4 @@
-<img align="left" width="256" height="256" src="logo.svg">
+<img align="left" width="256" height="256" src="logo.svg" alt="Mewlix logo">
 
 **Mewlix** is a cat-themed [esoteric programming language](https://en.wikipedia.org/wiki/Esoteric_programming_language) that compiles to vanilla Javascript. It comes with templates for making little web applications and little HTML5 games.
 
@@ -26,6 +26,10 @@ In addition, Mewlix has support for higher order functions and anonymous functio
 
 ## Documentation
 All of the documentation for Mewlix can be found in the [wiki](https://github.com/KBMackenzie/mewlix/wiki).
+
+If you have any questions, be sure to read the [FAQ](https://github.com/KBMackenzie/mewlix/wiki/FAQ)!
+
+![Looping animation of a cartoon cat resting on a shelf.](https://github.com/KBMackenzie/mewlix/wiki/imgs/cat-shelf.webp)
 
 ## Installation
 Mewlix's compiler is a self-contained binary executable. It can be run from anywhere, and has no external dependencies.
