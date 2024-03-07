@@ -154,6 +154,7 @@ test-suite mewlix-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Test.Compiler
       Paths_mewlix
   hs-source-dirs:
       test
