@@ -24,7 +24,7 @@ compileFile path = do
         (Left e)    -> do
             hPutStrLn stderr e
             (throwIO . ParseException . concat)
-                    [ "Couldn't parse file \"", path, "\"!" ]
+                    [ "Couldn't parse file ", show path, "!" ]
         (Right a)   -> return a
 
 -- Compile a yarn ball containing every expression, operator and statement found in Mewlix.
