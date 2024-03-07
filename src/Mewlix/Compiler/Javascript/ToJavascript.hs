@@ -45,9 +45,9 @@ class ToJavascript a where
 -----------------------------------------------------------------
 instance ToJavascript Primitive where
     transpileJS _ (MewlixInt i)     = (return . showT) i
-    transpileJS _ (MewlixBool b)    = (return . showT) b
     transpileJS _ (MewlixFloat f)   = (return . showT) f
     transpileJS _ (MewlixString s)  = (return . quotes . escapeString) s
+    transpileJS _ (MewlixBool b)    = (return . Text.toLower . showT) b
     transpileJS _ MewlixNil         = return "null"
     transpileJS _ MewlixHome        = return "this"
     transpileJS _ MewlixSuper       = return "super"
