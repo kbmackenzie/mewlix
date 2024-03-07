@@ -70,10 +70,14 @@ instance ToJavascript Expression where
         return $ syncCall Mewlix.createShelf [ array ]
 
     transpileJS _ (BoxExpression pairs) = do
+        let makeKey :: Key -> Transpiler Text
+            makeKey = toJS . MewlixString . getKey
+
         let makeTuple :: (Key, Expression) -> Transpiler Text
             makeTuple (key, expr) = do
+                bind  <- makeKey key
                 value <- toJS expr
-                (return . brackets) (getKey key <> ", " <> value)
+                (return . brackets) (bind <> ", " <> value)
 
         items <- mapM makeTuple pairs
         let array = (brackets . sepComma) items
