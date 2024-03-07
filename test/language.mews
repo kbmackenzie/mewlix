@@ -54,6 +54,9 @@ meowmeow
 mew charlie = new Charlie()
 meow (charlie is Cat)
 
+meow charlie.introduction()
+meow charlie["introduction"]()
+
 mew name = listen "What's your name?"
 meow "Your name is: "..name
 
