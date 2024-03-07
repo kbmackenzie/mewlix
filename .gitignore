@@ -11,5 +11,3 @@ dist-newstyle/
 *.prof
 *.zip
 txt/
-docs/
-*.mews
