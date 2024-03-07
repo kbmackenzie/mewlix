@@ -1,0 +1,86 @@
+-- mewlix: all expressions, operators and statements
+yarn ball language
+
+takes std as something
+
+2 + 2 * 2 / 2
+true
+false
+mew x = 1
+x + x
+x .. x
+x + x / x ^ x
+paw at x
+not x
+x or x
+x and x
+x ? "x" : "not x"
+
+mew shelf = [1, 2, 3]
+meow shelf...?
+
+"charlie" push shelf
+peek shelf
+knock over shelf
+
+mew cat = =^-x-^= [
+  name: "charlie",
+  coat: "tabby",
+  hobbies: ["eating", "sleeping"]
+]
+
+mew sum = =^*x*^= (a, b) => a + b
+
+=^.x.^= sumf(a, b)
+  bring a + b
+meowmeow
+
+clowder Cat
+  =^.x.^= wake(name)
+    home.name = name
+  meowmeow
+
+  =^.x.^= introduction()
+    bring "meow, i'm " .. home.name
+  meowmeow
+meowmeow
+
+clowder Charlie is Cat
+  =^.x.^= wake()
+    outside("charlie")
+  meowmeow
+meowmeow
+
+mew charlie = new Charlie()
+meow (charlie is Cat)
+
+mew name = listen "What's your name?"
+meow "Your name is: "..name
+
+mew r = std.random()
+peek if r == 0
+  meow "extremely unlikely."
+or if r == 1
+  meow "impossible by design."
+otherwise
+  meow "hello! this is the most common case by a very, very, very big margin!"
+meowmeow
+
+stare while true 
+  meow ":3"
+  escape
+meowmeow
+
+mew kitties = [1, 2, 3]
+it's raining kitties! catch a kitty!
+  meow kitty
+  catnap
+meowmeow
+
+assert 2 == 2
+
+watch attentively
+  throw "!!"
+pounce on error
+  meow error
+meowmeow

@@ -27,7 +27,16 @@ compileFile path = do
                     [ "Couldn't parse file \"", path, "\"!" ]
         (Right a)   -> return a
 
+-- Compile a yarn ball containing every expression, operator and statement found in Mewlix.
+-- Run after making any sort of change to the parser and compiler.
+syntax :: IO ()
+syntax = do
+    let path = "test/language.mews"
+    compileFile path >>= TextIO.putStrLn
+
 main :: IO ()
 main = do
-    [path] <- getArgs
-    compileFile path >>= TextIO.putStrLn
+    args <- getArgs
+    case args of
+        []          -> syntax
+        (path : _)  -> compileFile path >>= TextIO.putStrLn
