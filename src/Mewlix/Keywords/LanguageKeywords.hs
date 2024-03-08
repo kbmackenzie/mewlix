@@ -234,6 +234,8 @@ reserved = HashSet.fromList
     , throw
     -- Internal:
     , "box"
+    , "valueOf"
+    , "toString"
     -- Javascript:
     , "break"
     , "case"
