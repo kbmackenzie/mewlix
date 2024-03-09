@@ -236,6 +236,8 @@ reserved = HashSet.fromList
     , "box"
     , "valueOf"
     , "toString"
+    , "globalThis"
+    , "window"
     -- Javascript:
     , "break"
     , "case"
