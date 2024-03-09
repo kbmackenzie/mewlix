@@ -4,6 +4,8 @@ yarn ball language
 takes std as something
 
 2 + 2 * 2 / 2
+2 + 2.25
+1.000006 + 2e12
 true
 false
 mew x = 1
