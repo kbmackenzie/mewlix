@@ -42,12 +42,12 @@ compileModules projectData = do
     validateSources sources
 
     projectLog projectData $ mconcat
-        ["Compiling ", (showT . length) sources, " modules" ]
+        ["Compiling ", (showT . length) sources, " yarn balls" ]
 
     let context = createContext projectData
     let compile :: FilePath -> ProjectMaker FilePath
         compile source = do
-            projectLog projectData ("Compiling module " <> showT source)
+            projectLog projectData ("Compiling yarn ball " <> showT source)
             writeModule context source
 
     mapM compile sources
