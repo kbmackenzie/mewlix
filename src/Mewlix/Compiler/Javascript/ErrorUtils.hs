@@ -46,4 +46,4 @@ createError code pos expr = do
     let arguments :: Text
         arguments = parens (errorCode code <> message)
 
-    parens "await (async () => { throw new " <> mewlixError <> arguments <> " })()"
+    parens ("await (async () => { throw new " <> mewlixError <> arguments <> " })()")
