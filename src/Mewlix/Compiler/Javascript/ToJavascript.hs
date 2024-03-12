@@ -25,7 +25,7 @@ import Mewlix.String.Utils (quotes, brackets, sepComma, separateLines)
 import Mewlix.Compiler.Transpiler (TranspilerContext(..), Transpiler , asks)
 import Mewlix.Utils.Show (showT)
 import Mewlix.Compiler.Indentation (Indentation, zeroIndent, toIndent, indentLine, indentMany)
-import Mewlix.Compiler.Javascript.ExpressionUtils (instantiate, wrap, funcWrap, syncCall, asyncCall, asBoolean)
+import Mewlix.Compiler.Javascript.ExpressionUtils (instantiate, wrap, lambda, syncCall, asyncCall, asBoolean)
 import Mewlix.Compiler.Javascript.ErrorUtils (ErrorCode(..), errorInfo, createErrorIIFE)
 import Mewlix.Compiler.Javascript.StatementUtils (terminate, findBindings)
 import Mewlix.Compiler.Javascript.Operations (binaryOpFunc, unaryOpFunc)
@@ -87,20 +87,20 @@ instance ToJavascript Expression where
     ----------------------------------------------
     transpileJS _ (BooleanAnd left right) = do
         a  <- toJS left
-        fb <- funcWrap <$> toJS right
+        fb <- lambda <$> toJS right
         return $ syncCall (Mewlix.boolean "and") [ a, fb ]
 
     transpileJS _ (BooleanOr left right) = do
         a  <- toJS left
-        fb <- funcWrap <$> toJS right
+        fb <- lambda <$> toJS right
         return $ syncCall (Mewlix.boolean "or") [ a, fb ]
 
     -- Ternary operator:
     ----------------------------------------------
     transpileJS _ (TernaryOperation conditionExpr left right) = do
         condition <- toJS conditionExpr
-        fa <- funcWrap <$> toJS left
-        fb <- funcWrap <$> toJS right
+        fa <- lambda <$> toJS left
+        fb <- lambda <$> toJS right
         return $ syncCall (Mewlix.boolean "ternary") [ condition, fa, fb ]
 
     -- Assignment expression:
@@ -418,7 +418,7 @@ instance ToJavascript YarnBall where
                 let makeTuple :: Key -> Transpiler Text
                     makeTuple (Key binding) = do
                         bindingStr <- toJS (MewlixString binding)
-                        return $ mconcat [ "[", bindingStr, ", ", funcWrap binding, "]" ]
+                        return $ mconcat [ "[", bindingStr, ", ", lambda binding, "]" ]
 
                 bindings <- mapM makeTuple (findBindings block)
                 let array = (brackets . sepComma) bindings

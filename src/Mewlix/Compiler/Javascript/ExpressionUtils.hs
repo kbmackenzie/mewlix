@@ -3,7 +3,7 @@
 module Mewlix.Compiler.Javascript.ExpressionUtils
 ( instantiate
 , wrap
-, funcWrap
+, lambda
 , iifeWrap
 , syncCall
 , asyncCall
@@ -21,11 +21,11 @@ instantiate name args = "new " <> name <> parens (sepComma args)
 wrap :: (Monad m) => Text -> m Text
 wrap = return . parens
 
-funcWrap :: Text -> Text
-funcWrap body = "(() => " <> body <> ")"
+lambda :: Text -> Text
+lambda body = "(() => " <> body <> ")"
 
 iifeWrap :: Text -> Text
-iifeWrap body = funcWrap body <> "()"
+iifeWrap body = lambda body <> "()"
 
 syncCall :: Text -> [Text] -> Text
 syncCall name args = name <> parens (sepComma args)
