@@ -4,6 +4,7 @@ module Mewlix.Compiler.Javascript.ExpressionUtils
 ( instantiate
 , wrap
 , lambda
+, asyncLambda
 , iife
 , syncCall
 , asyncCall
@@ -23,6 +24,9 @@ wrap = return . parens
 
 lambda :: Text -> Text
 lambda body = "(() => " <> body <> ")"
+
+asyncLambda :: Text -> Text
+asyncLambda body = "(async () => " <> body <> ")"
 
 iife :: Text -> Text
 iife body = lambda body <> "()"
