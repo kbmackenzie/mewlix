@@ -45,7 +45,7 @@ errorArgs code pos message = mconcat
     [ "(" , errorCode code , "," , message, " + ", errorInfo pos, ")" ]
 
 createError :: ErrorCode -> SourcePos -> Text -> Text
-createError code pos info = "throw new " <> mewlixError <> errorArgs code pos info
+createError code pos expr = "throw new " <> mewlixError <> errorArgs code pos expr
 
 createErrorIIFE :: ErrorCode -> SourcePos -> Text -> Text
-createErrorIIFE code pos info = "(() => { " <> createError code pos info <> " })()"
+createErrorIIFE code pos expr = "(() => { " <> createError code pos expr <> " })()"
