@@ -8,8 +8,8 @@ module Mewlix.Compiler.Javascript.ErrorUtils
 ) where
 
 import Data.Text (Text)
-import Mewlix.String.Utils (quotes)
 import Mewlix.String.Escape (escapeString)
+import Mewlix.String.Utils (quotes, parens)
 import Mewlix.Compiler.Javascript.Constants (mewlix)
 import Mewlix.Utils.Show (showT)
 import Text.Megaparsec.Pos (SourcePos(..), unPos)
@@ -42,10 +42,10 @@ errorInfo pos = (quotes . escapeString . mconcat)
 
 errorArgs :: ErrorCode -> SourcePos -> Text -> Text
 errorArgs code pos message = mconcat
-    [ "(" , errorCode code , "," , message, " + ", errorInfo pos, ")" ]
+    [ "(" , errorCode code , "," , parens message, " + ", errorInfo pos, ")" ]
 
 createError :: ErrorCode -> SourcePos -> Text -> Text
 createError code pos expr = "throw new " <> mewlixError <> errorArgs code pos expr
 
 createErrorIIFE :: ErrorCode -> SourcePos -> Text -> Text
-createErrorIIFE code pos expr = "(() => { " <> createError code pos expr <> " })()"
+createErrorIIFE code pos expr = "(async () => { " <> createError code pos expr <> " })()"
