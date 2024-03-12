@@ -4,7 +4,6 @@ module Mewlix.Compiler.Javascript.ErrorUtils
 ( ErrorCode(..)
 , errorInfo
 , createError
-, createErrorIIFE
 ) where
 
 import Data.Text (Text)
@@ -32,21 +31,19 @@ mewlixError = mewlix "MewlixError"
 errorCode :: ErrorCode -> Text
 errorCode = (mewlix "ErrorCode." <>) . showT
 
--- This returns a valid Javascript string.
 errorInfo :: SourcePos -> Text
-errorInfo pos = (quotes . escapeString . mconcat)
+errorInfo pos = (quotes. escapeString . mconcat)
     [ "\n -> In module "
     , (showT . sourceName) pos
     , ", at line "
-    , (showT . unPos . sourceLine) pos ]
-
-errorArgs :: ErrorCode -> SourcePos -> Text -> Text
-errorArgs code pos message = mconcat
-    [ "(" , errorCode code , "," , parens message, " + ", errorInfo pos, ")" ]
+    , (showT . unPos . sourceLine) pos ]     
 
 createError :: ErrorCode -> SourcePos -> Text -> Text
-createError code pos expr = "throw new " <> mewlixError <> errorArgs code pos expr
+createError code pos expr = do
+    let message :: Text
+        message = mconcat [ parens expr, " + ", errorInfo pos ]
 
-createErrorIIFE :: ErrorCode -> SourcePos -> Text -> Text
-createErrorIIFE code pos expr = do
-    parens "await (async () => { " <> createError code pos expr <> " })()"
+    let arguments :: Text
+        arguments = parens (errorCode code <> message)
+
+    parens "await (async () => { throw new " <> mewlixError <> arguments <> " })()"

@@ -40,7 +40,7 @@ import Mewlix.Compiler.Javascript.ExpressionUtils
     , asyncCall
     , asBoolean
     )
-import Mewlix.Compiler.Javascript.ErrorUtils (ErrorCode(..), errorInfo, createErrorIIFE)
+import Mewlix.Compiler.Javascript.ErrorUtils (ErrorCode(..), errorInfo, createError)
 import Mewlix.Compiler.Javascript.StatementUtils (terminate, findBindings)
 import Mewlix.Compiler.Javascript.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.Javascript.Constants as Mewlix
@@ -211,7 +211,7 @@ instance ToJavascript Expression where
     ----------------------------------------------
     transpileJS _ (ThrowError expr pos) = do
         arg <- toJS expr
-        return $ createErrorIIFE CatOnComputer pos arg
+        return $ createError CatOnComputer pos arg
 
     -- IO:
     ----------------------------------------------
