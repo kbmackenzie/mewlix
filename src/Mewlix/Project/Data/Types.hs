@@ -188,7 +188,7 @@ parseFlag key = case parse key of
     "no-std"    -> return NoStd
     "no-readme" -> return NoReadMe
     _           -> Nothing
-    where parse = Text.dropWhile (== '-') . Text.strip
+    where parse = Text.dropWhile (== '-')
 
 readFlag :: (MonadFail m) => Text -> m ProjectFlag
 readFlag str = case parse str of
