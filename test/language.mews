@@ -21,6 +21,8 @@ x ? "x" : "not x"
 mew shelf = [1, 2, 3]
 meow shelf...?
 
+throw (meow "hello c:")
+
 "charlie" push shelf
 peek shelf
 knock over shelf
