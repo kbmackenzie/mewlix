@@ -48,4 +48,5 @@ createError :: ErrorCode -> SourcePos -> Text -> Text
 createError code pos expr = "throw new " <> mewlixError <> errorArgs code pos expr
 
 createErrorIIFE :: ErrorCode -> SourcePos -> Text -> Text
-createErrorIIFE code pos expr = "(async () => { " <> createError code pos expr <> " })()"
+createErrorIIFE code pos expr = do
+    parens "await (async () => { " <> createError code pos expr <> " })()"
