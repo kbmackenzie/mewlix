@@ -129,7 +129,7 @@ instance ToJavascript Expression where
     transpileJS _ (LambdaExpression paramExprs bodyExpr) = do
         body   <- toJS bodyExpr
         params <- toJS paramExprs
-        wrap (params <> " => " <> body)
+        wrap ("async " <> params <> " => " <> body)
 
     -- List expressions:
     ----------------------------------------------
