@@ -26,6 +26,7 @@ findImports :: Block -> [ModuleData]
 findImports block = do
     let collectImports :: Statement -> [ModuleData] -> [ModuleData]
         collectImports (ImportModule dat) acc = dat : acc
+        collectImports (ImportList dat _) acc = dat : acc
         collectImports _                  acc = acc
     foldr collectImports [] (getBlock block)
 
