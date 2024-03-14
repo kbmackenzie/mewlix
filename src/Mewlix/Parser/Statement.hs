@@ -25,6 +25,7 @@ import Mewlix.Parser.Utils
     , whitespaceLn
     , lexemeLn
     , repeatChar
+    , symbol
     )
 import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Keywords.Types (SimpleKeyword(..))
@@ -32,7 +33,7 @@ import Data.List.NonEmpty (NonEmpty((:|)))
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import Text.Megaparsec ((<|>), (<?>))
 import qualified Text.Megaparsec as Mega
-import Control.Monad (when)
+import Control.Monad (when, void)
 import Data.Maybe (fromMaybe)
 import qualified Data.List as List
 
@@ -270,7 +271,7 @@ importList _ = do
     keyword Keywords.from
     path <- parseModuleKey
     keyword Keywords.takes
-    keys <- Mega.some parseKey
+    keys <- Mega.sepBy1 parseKey (symbol ',')
     return $ ImportList (ModuleData path Nothing) keys
 
 {- Watch/Catch -}
