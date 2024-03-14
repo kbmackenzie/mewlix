@@ -102,12 +102,12 @@ instance ToJavascript Expression where
     transpileJS _ (BooleanAnd left right) = do
         a  <- toJS left
         fb <- asyncLambda <$> toJS right
-        return $ syncCall (Mewlix.boolean "and") [ a, fb ]
+        return $ asyncCall (Mewlix.boolean "and") [ a, fb ]
 
     transpileJS _ (BooleanOr left right) = do
         a  <- toJS left
         fb <- asyncLambda <$> toJS right
-        return $ syncCall (Mewlix.boolean "or") [ a, fb ]
+        return $ asyncCall (Mewlix.boolean "or") [ a, fb ]
 
     -- Ternary operator:
     ----------------------------------------------
@@ -115,7 +115,7 @@ instance ToJavascript Expression where
         condition <- toJS conditionExpr
         fa <- asyncLambda <$> toJS left
         fb <- asyncLambda <$> toJS right
-        return $ syncCall (Mewlix.boolean "ternary") [ condition, fa, fb ]
+        return $ asyncCall (Mewlix.boolean "ternary") [ condition, fa, fb ]
 
     -- Assignment expression:
     ----------------------------------------------
