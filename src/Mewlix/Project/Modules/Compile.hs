@@ -26,8 +26,8 @@ createContext projectData = do
     -- specialImports map:
     let addStd = HashMap.insert (Key "std") "Mewlix.Base"
     let addModeImports = case projectMode projectData of
-            Console -> HashMap.insert (Key "std.console" ) "Mewlix.Console"
-            Graphic -> HashMap.insert (Key "std.graphics") "Mewlix.Graphic"
+            Console -> HashMap.insert (Key "std.console") "Mewlix.Console"
+            Graphic -> HashMap.insert (Key "std.graphic") "Mewlix.Graphic"
             Library -> id
     let patchImports = addModeImports . addStd . mapKeys Key
     let flags = projectFlags projectData
