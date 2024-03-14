@@ -33,7 +33,7 @@ import Data.List.NonEmpty (NonEmpty((:|)))
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import Text.Megaparsec ((<|>), (<?>))
 import qualified Text.Megaparsec as Mega
-import Control.Monad (when, void)
+import Control.Monad (when)
 import Data.Maybe (fromMaybe)
 import qualified Data.List as List
 
