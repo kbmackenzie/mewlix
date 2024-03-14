@@ -2,6 +2,7 @@
 yarn ball language
 
 takes std as something
+from std takes map, filter, fold
 
 2 + 2 * 2 / 2
 2 + 2.25
