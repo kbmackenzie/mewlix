@@ -40,6 +40,7 @@ module Mewlix.Keywords.LanguageKeywords
 , pop
 , takes
 , alias
+, from
 , yarnball
 , yarnball'
 , try
@@ -185,6 +186,9 @@ takes = "takes"
 alias :: SimpleKeyword
 alias = "as"
 
+from :: SimpleKeyword
+from = "from"
+
 yarnball :: WordSequence
 yarnball = ["yarn", "ball"]
 
@@ -231,6 +235,8 @@ reserved = HashSet.fromList
     , yarnball'
     , firstWord pop
     , takes
+    , alias
+    , from
     , throw
     -- Internal:
     , "box"
