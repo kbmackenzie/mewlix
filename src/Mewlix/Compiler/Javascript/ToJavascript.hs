@@ -320,7 +320,7 @@ instance ToJavascript Statement where
 
     -- Import statement:
     ----------------------------------------------
-    transpileJS level   (ImportStatement moduleData) = do
+    transpileJS level   (ImportModule moduleData) = do
         let binding = maybe (defaultName moduleData) getKey (moduleAlias moduleData)
         let key = (Key . joinKey . moduleKey) moduleData
         stringKey   <- (toJS . MewlixString . getKey) key

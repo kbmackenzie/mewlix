@@ -114,7 +114,7 @@ data Statement =
     | Binding               Key Expression
     | LocalBinding          Key Expression
     | ClassDef              MewlixClass
-    | ImportStatement       ModuleData
+    | ImportModule          ModuleData
     | Return                Expression
     | Assert                Expression SourcePos
     | TryCatch              Block (Maybe Key) Block

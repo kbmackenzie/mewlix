@@ -263,7 +263,7 @@ importKey _ = do
     keyword Keywords.takes
     path <- parseModuleKey
     name <- Mega.optional (keyword Keywords.alias >> parseKey)
-    return $ ImportStatement (ModuleData path name)
+    return $ ImportModule (ModuleData path name)
 
 
 {- Watch/Catch -}
