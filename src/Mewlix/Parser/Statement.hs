@@ -58,7 +58,6 @@ data Nesting =
 -- The maximum nesting should always propagate.
 -- The 'max' function is helpful: Root `max` Nested = Nested
 
-
 {- Parse statements: -}
 ----------------------------------------------------------------
 statement :: Nesting -> Parser Statement
@@ -72,6 +71,7 @@ statement nesting = Mega.choice (map lexemeLn
     , continueKey   nesting
     , breakKey      nesting
     , importKey     nesting
+    , importList    nesting
     , forEach       nesting
     , classDef      nesting
     , tryCatch      nesting
@@ -265,6 +265,13 @@ importKey _ = do
     name <- Mega.optional (keyword Keywords.alias >> parseKey)
     return $ ImportModule (ModuleData path name)
 
+importList :: Nesting -> Parser Statement
+importList _ = do
+    keyword Keywords.from
+    path <- parseModuleKey
+    keyword Keywords.takes
+    keys <- Mega.some parseKey
+    return $ ImportList (ModuleData path Nothing) keys
 
 {- Watch/Catch -}
 ----------------------------------------------------------------
