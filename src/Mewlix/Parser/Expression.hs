@@ -61,8 +61,7 @@ exprR = makeExprParser termR operatorsR <?> "right-hand expression"
 
 expression :: Parser Expression
 expression = Mega.choice
-    [ parens expression
-    , assignment
+    [ assignment
     , parseMeow
     , parseListen
     , parseLambda
