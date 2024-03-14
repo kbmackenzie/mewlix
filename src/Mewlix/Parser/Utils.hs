@@ -96,21 +96,21 @@ braces = betweenChars '{' '}'
 brackets :: Parser a -> Parser a
 brackets = betweenChars '[' ']'
 
-commaList :: (Parser [a] -> Parser [a]) -> Parser a -> Parser [a]
-commaList between token = do
+commaList :: Parser a -> Parser [a]
+commaList token = do
     let comma :: Parser ()
         comma = (lexemeLn . void . MChar.char) ','
 
     let sepByComma :: Parser a -> Parser [a]
         sepByComma = flip Mega.sepEndBy comma
 
-    (between . sepByComma . lexemeLn) token
+    (sepByComma . lexemeLn) token
 
 parensList :: Parser a -> Parser [a]
-parensList = commaList parens
+parensList = parens . commaList
 
 bracketList :: Parser a -> Parser [a]
-bracketList = commaList brackets
+bracketList = brackets . commaList
 
 {- Keywords/symbols: -}
 ----------------------------------------------------------------
