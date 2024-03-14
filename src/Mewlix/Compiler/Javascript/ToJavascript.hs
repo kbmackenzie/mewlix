@@ -21,7 +21,7 @@ import qualified Data.Text as Text
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (ModuleData(..), joinKey, defaultName)
 import Mewlix.String.Escape (escapeString)
-import Mewlix.String.Utils (quotes, brackets, sepComma, separateLines)
+import Mewlix.String.Utils (quotes, parens, brackets, sepComma, separateLines)
 import Mewlix.Compiler.Transpiler (TranspilerContext(..), Transpiler , asks)
 import Mewlix.Utils.Show (showT)
 import Mewlix.Compiler.Indentation
@@ -342,8 +342,9 @@ instance ToJavascript Statement where
                 (Just value) -> return $ syncCall Mewlix.wrap [value]
 
         let bind :: Key -> Text
-            bind key = indentLine level $ mconcat
-                [ "const ", getKey key, " = ", importValue, ";" ]
+            bind key = indentLine level $ do
+                let value = parens importValue <> ".box()." <> getKey key
+                mconcat [ "const ", getKey key, " = ", value, ";" ]
 
         (return . separateLines) (map bind keys)
 
