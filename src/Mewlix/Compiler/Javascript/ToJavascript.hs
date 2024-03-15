@@ -64,7 +64,6 @@ instance ToJavascript Primitive where
     transpileJS _ (MewlixBool b)    = (return . Text.toLower . showT) b
     transpileJS _ MewlixNil         = return "null"
     transpileJS _ MewlixHome        = return "this"
-    transpileJS _ MewlixSuper       = return "super"
 
 {- Expression -}
 -----------------------------------------------------------------

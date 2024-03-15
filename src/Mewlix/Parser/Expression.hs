@@ -40,7 +40,6 @@ import Data.Maybe (fromMaybe)
 termL :: Parser Expression
 termL = Mega.choice
     [ parseHome
-    , parseSuper
     , Identifier <$> parseKey ]
 
 termR :: Parser Expression
@@ -106,9 +105,6 @@ parseListen = do
 ------------------------------------------------------------------------------------
 parseHome :: Parser Expression
 parseHome = PrimitiveExpr MewlixHome <$ keyword Keywords.home
-
-parseSuper :: Parser Expression
-parseSuper = PrimitiveExpr MewlixSuper <$ keyword Keywords.super
 
 parseSuperCall :: Parser Expression
 parseSuperCall = do

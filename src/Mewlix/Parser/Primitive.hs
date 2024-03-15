@@ -41,7 +41,8 @@ parsePrim = Mega.choice
     , MewlixBool    <$> parseBool
     , MewlixNil     <$  keyword Keywords.nil
     , MewlixHome    <$  keyword Keywords.home
-    , MewlixSuper   <$  keyword Keywords.super ]
+    , keyword Keywords.super
+        >> fail "Did you mean to use the 'outside()' keyword?" ]
 
 {- Escape sequences: -}
 ----------------------------------------------------------------

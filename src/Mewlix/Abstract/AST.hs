@@ -29,7 +29,6 @@ data Primitive =
     | MewlixBool            Bool
     | MewlixNil
     | MewlixHome
-    | MewlixSuper
     deriving (Show)
 
 data Expression =
