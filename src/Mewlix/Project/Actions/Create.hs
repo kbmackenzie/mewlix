@@ -10,8 +10,6 @@ import Mewlix.Project.Folder (projectFile)
 import Mewlix.Utils.Yaml (prettyYaml)
 import Mewlix.Utils.FileIO (writeFileB)
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import qualified Data.Text as Text
-import System.FilePath (replaceExtension, makeValid)
 import System.Directory (createDirectoryIfMissing)
 import Lens.Micro.Platform ((%~))
 
