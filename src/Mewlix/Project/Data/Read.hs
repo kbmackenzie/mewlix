@@ -8,16 +8,18 @@ import Mewlix.Project.Maker (ProjectMaker, liftIO, throwError)
 import Mewlix.Project.Folder (projectFile)
 import Mewlix.Project.Data.Types (ProjectData(..))
 import Mewlix.Utils.Yaml (readYaml)
+import System.FilePath (takeFileName)
 import System.Directory (doesFileExist)
 import Control.Monad (unless)
 
 readProject :: ProjectMaker ProjectData
 readProject = do
     hasProject <- liftIO $ doesFileExist projectFile
+    let projectFileName = takeFileName projectFile
+
     unless hasProject $
-        throwError
-            "Couldn't find a project file the in current directory!"
+        (throwError . concat) [ "Couldn't find a ", show projectFileName, " file in the current directory!" ]
 
     readYaml projectFile >>= \case
-        (Left err)  -> throwError ("Couldn't parse project file: " ++  show err)
+        (Left err)  -> (throwError . concat) [ "Couldn't parse ", show projectFileName, " file: ", show err ]
         (Right dat) -> return dat
