@@ -6,6 +6,7 @@ module Mewlix.Project.Actions.Create
 
 import Mewlix.Project.Data.Types (ProjectData(..), projectFieldOrder, projectSourceFilesL)
 import Mewlix.Project.Log (projectLog)
+import Mewlix.Project.Folder (projectFile)
 import Mewlix.Utils.Yaml (prettyYaml)
 import Mewlix.Utils.FileIO (writeFileB)
 import Control.Monad.IO.Class (MonadIO, liftIO)
@@ -23,10 +24,8 @@ createProject = (. includeSrc) $ \projectData -> do
     projectLog projectData "Creating project file..."
 
     -- Create project file:
-    let name = (makeValid . Text.unpack . projectName) projectData
-    let path = replaceExtension ("./" <> name) "mewlix"
     let contents = prettyYaml projectFieldOrder projectData
-    writeFileB path contents
+    writeFileB projectFile contents
 
     -- Create 'src' directory:
     liftIO (createDirectoryIfMissing False "./src")
