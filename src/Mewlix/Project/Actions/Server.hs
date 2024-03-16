@@ -39,8 +39,7 @@ runProject projectData = do
         [ "Running project "
         , (showT . projectName) projectData
         , " in port "
-        , (showT . getPort) port
-        ]
+        , (showT . getPort) port ]
 
     -- Open browser:
     let address = concat ["http://127.0.0.1:", (show . getPort) port, "/"]
