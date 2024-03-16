@@ -47,4 +47,5 @@ runProject projectData = do
     (liftIO . void . openBrowser) address
 
     -- Run server:
+    projectLog projectData "Press (Ctrl + C) to exit."
     runServer port
