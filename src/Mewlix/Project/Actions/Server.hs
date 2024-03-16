@@ -9,7 +9,8 @@ import Mewlix.Project.Folder (outputFolder)
 import Mewlix.Project.Data.Types (ProjectData(..), Port(..))
 import Mewlix.Project.Actions.Build (buildProject)
 import Mewlix.Project.Log (projectLog)
-import Web.Scotty (scotty, middleware, get, file, addHeader)
+import Web.Scotty (scottyApp, middleware, get, file, addHeader)
+import qualified Network.Wai.Handler.Warp as Warp
 import Network.Wai.Middleware.Static (staticPolicy, addBase)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad (unless, void)
@@ -19,12 +20,13 @@ import System.FilePath ((</>))
 import Web.Browser (openBrowser)
 
 runServer :: (MonadIO m) => Port -> m ()
-runServer port = liftIO . scotty (getPort port) $ do
+runServer port = run (getPort port) $ do
     let policy = staticPolicy (addBase outputFolder)
     middleware policy
     get "/" $ do
         addHeader "Cache-Control" "max-age=0"
         file (outputFolder </> "index.html")
+    where run p s = liftIO (Warp.run p =<< scottyApp s)
 
 runProject :: ProjectData -> ProjectMaker ()
 runProject projectData = do
