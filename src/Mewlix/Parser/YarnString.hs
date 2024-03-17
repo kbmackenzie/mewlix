@@ -1,4 +1,4 @@
-module Mewlix.Parser.Yarnstring
+module Mewlix.Parser.YarnString
 ( yarnstring
 ) where
 
