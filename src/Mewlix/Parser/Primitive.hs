@@ -2,6 +2,7 @@
 
 module Mewlix.Parser.Primitive
 ( parsePrim
+, escapeChar
 , parseString
 , parseStringM
 , parseKeyText
