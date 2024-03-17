@@ -188,7 +188,7 @@ operatorsR =
     ,   [ Prefix  (UnaryOperation ListPeek          <$ keyword Keywords.peek        )
         , InfixL  (ListPush                         <$ keyword Keywords.push        )
         , Prefix  (ListPop                          <$ keyword Keywords.pop         )   ]
-    ,   [ InfixL  (BinaryOperation ListConcat       <$ keyword (LongSymbol "..")    )   ]
+    ,   [ InfixL  (BinaryOperation StringConcat     <$ keyword (LongSymbol "..")    )   ]
     ,   [ InfixL  (BinaryOperation Power            <$ symbol '^'                   )   ]
     ,   [ Prefix  (UnaryOperation Negation          <$ symbol '-'                   )
         , Prefix  (UnaryOperation BooleanNot        <$ keyword Keywords.not         )   ]

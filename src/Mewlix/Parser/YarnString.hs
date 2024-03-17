@@ -50,7 +50,7 @@ yarnstring = do
         unroll (ExpressionPiece e)  = e
 
     let join :: Expression -> Expression -> Expression
-        join = BinaryOperation ListConcat
+        join = BinaryOperation StringConcat
 
     let putTogether :: (Monad m) => [YarnString] -> m Expression
         putTogether = return . foldr1 join . map unroll
