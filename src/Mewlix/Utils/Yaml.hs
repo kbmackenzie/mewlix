@@ -7,13 +7,12 @@ module Mewlix.Utils.Yaml
 
 import Data.Text (Text)
 import Data.ByteString (ByteString)
-import qualified Data.ByteString as ByteString
-import Control.Monad.IO.Class (MonadIO, liftIO)
-import Data.Yaml (decodeEither', FromJSON, ToJSON, ParseException)
+import Data.Yaml (decodeEither', FromJSON, ToJSON, prettyPrintParseException)
 import Data.Yaml.Pretty (encodePretty, setConfCompare, defConfig)
+import Data.Bifunctor (first)
 
-readYaml :: (MonadIO m, FromJSON a) => FilePath -> m (Either ParseException a)
-readYaml = fmap decodeEither' . liftIO . ByteString.readFile
+readYaml :: (FromJSON a) => ByteString -> Either String a
+readYaml = first prettyPrintParseException . decodeEither'
 
 prettyYaml :: (ToJSON a) => (Text -> Text -> Ordering) -> a -> ByteString
 prettyYaml = encodePretty . flip setConfCompare defConfig
