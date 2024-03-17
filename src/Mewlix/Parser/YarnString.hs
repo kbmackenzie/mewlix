@@ -3,9 +3,8 @@ module Mewlix.Parser.YarnString
 ) where
 
 import Mewlix.Abstract.AST (Primitive(..), Expression(..), BinaryOp(..))
-import Mewlix.Parser.Utils (Parser, symbol, braces)
+import Mewlix.Parser.Utils (Parser, braces)
 import Mewlix.Parser.Primitive (escapeChar)
-import Mewlix.Parser.Expression (expression)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Text.Megaparsec ((<?>), (<|>))
@@ -27,21 +26,23 @@ stringChar = Mega.choice
 stringPiece :: Parser YarnString
 stringPiece = StringPiece . Text.pack <$> Mega.many stringChar
 
-expressionPiece :: Parser YarnString
-expressionPiece = ExpressionPiece <$> braces expression
+expressionPiece :: Parser Expression -> Parser YarnString
+expressionPiece = fmap ExpressionPiece . braces
 
-yarnPiece :: Parser YarnString
-yarnPiece = stringPiece <|> expressionPiece
+yarnPiece :: Parser Expression -> Parser YarnString
+yarnPiece parser = stringPiece <|> expressionPiece parser
 
-yarnstring :: Parser Expression
-yarnstring = do
+-- Accept expression parser as an argument.
+-- This makes this module not depend on Mewlix.Parser.Expression.
+yarnstring :: Parser Expression -> Parser Expression
+yarnstring parser = do
     let quotation :: Parser ()
         quotation = (void . MChar.char) '"' <?> "quotation mark"
 
     pieces <- do
-        symbol '$'
+        (void . MChar.char) '$'
         quotation
-        pieces <- Mega.some yarnPiece
+        pieces <- Mega.some (yarnPiece parser)
         quotation
         return pieces
 
