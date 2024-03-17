@@ -65,12 +65,12 @@ stringChar = Mega.choice
     , Mega.satisfy (/= '"')                             ]
 
 parseString :: Parser Text
-parseString = do
+parseString = (<?> "string") $ do
     let quotation :: Parser ()
         quotation = (void . MChar.char) '"' <?> "quotation mark"
 
     quotation
-    text <- Text.pack <$> Mega.many stringChar <?> "string"
+    text <- Text.pack <$> Mega.many stringChar
     lexeme quotation
     return text
 
@@ -82,12 +82,12 @@ stringCharM = Mega.choice
     , Mega.satisfy (/= '"')                             ]
 
 parseStringM :: Parser Text
-parseStringM = do
+parseStringM = (<?> "multiline string") $ do
     let quotations :: Parser ()
         quotations = (void . MChar.string) "\"\"\"" <?> "triple quotes"
 
     quotations
-    text <- Text.pack <$> Mega.many stringCharM <?> "multiline string"
+    text <- Text.pack <$> Mega.many stringCharM
     lexeme quotations
     return text
 
@@ -113,7 +113,7 @@ parseKeyText = lexeme (Mega.takeWhile1P (Just "key") isKeyChar)
  - These cannot be reserved keywords. -}
 parseKey :: Parser Key
 parseKey = do
-    text <- parseKeyText <?> "identifier"
+    text <- parseKeyText
     when (HashSet.member (SimpleKeyword text) Keywords.reserved) 
         (fail (Text.unpack text ++ " is a reserved keyword!"))
     return (Key text)
