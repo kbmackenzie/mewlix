@@ -20,7 +20,7 @@ yarn ball main
 meowmeow
 ```
 
-Mewlix is very similar to languages like Python and Javascript, with one catch: Instead of arrays or lists, Mewlix has *shelves*: a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure). To learn more about shelves and how they work, [read the documentation page for shelves](todo)!
+Mewlix is very similar to languages like Python and Javascript, with one catch: Instead of arrays or lists, Mewlix has *shelves*: a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure). To learn more about shelves and how they work, [read the documentation page for shelves](https://github.com/KBMackenzie/mewlix/wiki/Shelf)!
 
 In addition, Mewlix has support for higher order functions and anonymous functions, and supports a subset of object-oriented programming with classes—which, in Mewlix, we call [clowders](https://www.merriam-webster.com/dictionary/clowder).
 
