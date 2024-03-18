@@ -94,7 +94,7 @@ projectOptions = options
         entry = strOption
              ( long "entrypoint"
             <> short 'e'
-            <> metavar "STRING"
+            <> metavar "KEY"
             <> help "Project entrypoint" )
 
         asset :: Parser FilePath
