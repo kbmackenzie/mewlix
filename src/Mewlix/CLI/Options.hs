@@ -58,7 +58,7 @@ flagOptions = FlagOptions <$> quiet <*> noStd <*> noReadMe
         quiet = switch
              ( long "quiet"
             <> short 'q'
-            <> help "Silence console messages" )
+            <> help "Silence compiler messages" )
 
         noStd :: Parser Bool
         noStd = switch
@@ -88,7 +88,7 @@ projectOptions = options
              ( long "name"
             <> short 'n'
             <> metavar "STRING"
-            <> help "Name of project" )
+            <> help "Project name" )
 
         entry :: Parser FilePath
         entry = strOption
@@ -154,7 +154,7 @@ parseOptions = options
                     <*> optional projectMode
 
         clean :: Mod CommandFields MewlixOptions
-        clean = command "clean" $ makeInfo parser "Clean project"
+        clean = command "clean" $ makeInfo parser "Clean project directory, removing 'output' folder"
             where parser = CleanOpt <$> standalone
 
 getOptions :: IO MewlixOptions
