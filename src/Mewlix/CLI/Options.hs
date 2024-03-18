@@ -37,19 +37,19 @@ projectMode = console <|> graphic <|> library
         console = flag' Console
              ( long "console"
             <> short 'c'
-            <> help "Console frontend" )
+            <> help "Console template" )
 
         graphic :: Parser ProjectMode
         graphic = flag' Graphic
              ( long "graphic"
             <> short 'g'
-            <> help "Graphic frontend" )
+            <> help "Graphic template" )
 
         library :: Parser ProjectMode
         library = flag' Library
              ( long "library"
             <> short 'l'
-            <> help "No frontend" )
+            <> help "No template" )
 
 flagOptions :: Parser FlagOptions
 flagOptions = FlagOptions <$> quiet <*> noStd <*> noReadMe
@@ -94,7 +94,7 @@ projectOptions = options
         entry = strOption
              ( long "entrypoint"
             <> short 'e'
-            <> metavar "KEY"
+            <> metavar "STRING"
             <> help "Project entrypoint" )
 
         asset :: Parser FilePath
@@ -133,7 +133,7 @@ parseOptions = options
                     <*> standalone
 
         run :: Mod CommandFields MewlixOptions
-        run = command "run" $ makeInfo parser "Run project in a local server"
+        run = command "run" $ makeInfo parser "Run project in a local HTTP server"
             where parser = RunOpt
                     <$> projectOptions
                     <*> flagOptions
@@ -141,7 +141,7 @@ parseOptions = options
                     <*> optional port
 
         package :: Mod CommandFields MewlixOptions
-        package = command "package" $ makeInfo parser "Package a project into a .zip archive"
+        package = command "package" $ makeInfo parser "Package project's build output into a .zip archive"
             where parser = PackageOpt
                     <$> projectOptions
                     <*> flagOptions
