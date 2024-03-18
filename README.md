@@ -40,5 +40,3 @@ A guide on how to build Mewlix from source can be found [here](./INSTALL.md#buil
 
 ## Special Thanks
 A big special thanks to my friend Jade for helping me stay sane through this project and for letting me talk endlessly about it these past few months. I wouldn't have been able to finish it without you, thank you! ♡
-
-A big special thanks to my friend Atom for letting me rant endlessly every time I found a roadblock in this project. I really appreciate it.
