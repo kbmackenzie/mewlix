@@ -244,7 +244,7 @@ reserved = HashSet.fromList
     , "toString"
     , "globalThis"
     , "window"
-    -- Javascript:
+    -- JavaScript:
     , "break"
     , "case"
     , "catch"
