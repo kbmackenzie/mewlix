@@ -7,6 +7,34 @@ module Mewlix.CLI.Options
 
 import Mewlix.Project (ProjectMode(..), Port(..))
 import Options.Applicative
+    ( Parser
+    , ParserInfo
+    , CommandFields
+    , Mod
+    , help
+    , long
+    , short
+    , metavar
+    , switch
+    , flag'
+    , str
+    , auto
+    , (<|>)
+    , (<**>)
+    , option
+    , optional
+    , many
+    , argument
+    , strOption
+    , command
+    , subparser
+    , fullDesc
+    , progDesc
+    , info
+    , helper
+    , execParser
+    , header
+    )
 
 data ProjectOptions = ProjectOptions
     { filesOpt  :: [FilePath]
