@@ -11,7 +11,7 @@ import qualified Data.Text as Text
 
 {- Escape Sequences-}
 ----------------------------------------------------------------------------------------
--- The following escape sequences are meant to be valid in both Mewlix *and* Javascript.
+-- The following escape sequences are meant to be valid in both Mewlix *and* JavaScript.
 escapeCharacter :: Char -> Text
 escapeCharacter c = case c of
     '\n'    -> "\\n"
