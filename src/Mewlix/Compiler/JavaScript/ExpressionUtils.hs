@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Compiler.Javascript.ExpressionUtils
+module Mewlix.Compiler.JavaScript.ExpressionUtils
 ( instantiate
 , wrap
 , lambda
@@ -13,7 +13,7 @@ module Mewlix.Compiler.Javascript.ExpressionUtils
 
 import Data.Text (Text)
 import Mewlix.String.Utils (sepComma, parens)
-import qualified Mewlix.Compiler.Javascript.Constants as Mewlix
+import qualified Mewlix.Compiler.JavaScript.Constants as Mewlix
 import qualified Data.List as List
 
 instantiate :: Text -> [Text] -> Text

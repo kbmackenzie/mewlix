@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Compiler.Javascript.ToJavaScript
+module Mewlix.Compiler.JavaScript.ToJavaScript
 ( ToJavaScript(..)
 ) where
 
@@ -31,7 +31,7 @@ import Mewlix.Compiler.Indentation
     , indentLine
     , indentMany
     )
-import Mewlix.Compiler.Javascript.ExpressionUtils
+import Mewlix.Compiler.JavaScript.ExpressionUtils
     ( instantiate
     , wrap
     , lambda
@@ -40,10 +40,10 @@ import Mewlix.Compiler.Javascript.ExpressionUtils
     , asyncCall
     , asBoolean
     )
-import Mewlix.Compiler.Javascript.ErrorUtils (ErrorCode(..), errorInfo, createError)
-import Mewlix.Compiler.Javascript.StatementUtils (terminate, findBindings)
-import Mewlix.Compiler.Javascript.Operations (binaryOpFunc, unaryOpFunc)
-import qualified Mewlix.Compiler.Javascript.Constants as Mewlix
+import Mewlix.Compiler.JavaScript.ErrorUtils (ErrorCode(..), errorInfo, createError)
+import Mewlix.Compiler.JavaScript.StatementUtils (terminate, findBindings)
+import Mewlix.Compiler.JavaScript.Operations (binaryOpFunc, unaryOpFunc)
+import qualified Mewlix.Compiler.JavaScript.Constants as Mewlix
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.HashMap.Strict as HashMap

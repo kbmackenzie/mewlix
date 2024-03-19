@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Compiler.Javascript.ErrorUtils
+module Mewlix.Compiler.JavaScript.ErrorUtils
 ( ErrorCode(..)
 , errorInfo
 , createError
@@ -9,7 +9,7 @@ module Mewlix.Compiler.Javascript.ErrorUtils
 import Data.Text (Text)
 import Mewlix.String.Escape (escapeString)
 import Mewlix.String.Utils (quotes, parens)
-import Mewlix.Compiler.Javascript.Constants (mewlix)
+import Mewlix.Compiler.JavaScript.Constants (mewlix)
 import Mewlix.Utils.Show (showT)
 import Text.Megaparsec.Pos (SourcePos(..), unPos)
 

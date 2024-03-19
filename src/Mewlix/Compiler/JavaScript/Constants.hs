@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Compiler.Javascript.Constants
+module Mewlix.Compiler.JavaScript.Constants
 ( mewlix
 , purrify
 -- Data:

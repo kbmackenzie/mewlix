@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Compiler.Javascript.StatementUtils
+module Mewlix.Compiler.JavaScript.StatementUtils
 ( terminate
 , findImports
 , findBindings

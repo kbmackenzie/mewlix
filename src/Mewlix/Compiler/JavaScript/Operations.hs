@@ -1,15 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Compiler.Javascript.Operations
+module Mewlix.Compiler.JavaScript.Operations
 ( OperationBuilder
 , binaryOpFunc
 , unaryOpFunc
 ) where
 
 import Data.Text (Text)
-import Mewlix.Compiler.Javascript.ExpressionUtils (syncCall)
+import Mewlix.Compiler.JavaScript.ExpressionUtils (syncCall)
 import Mewlix.String.Utils (sepComma)
-import qualified Mewlix.Compiler.Javascript.Constants as Mewlix
+import qualified Mewlix.Compiler.JavaScript.Constants as Mewlix
 import Mewlix.Abstract.AST (BinaryOp(..), UnaryOp(..))
 
 type OperationBuilder = ([Text] -> Text)
