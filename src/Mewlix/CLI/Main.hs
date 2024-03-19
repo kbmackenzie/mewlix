@@ -31,7 +31,7 @@ import qualified Data.Set as Set
 import Data.Maybe (catMaybes)
 
 run :: IO ()
-run = getOptions >>= runOption Javascript
+run = getOptions >>= runOption JavaScript
 
 transform :: Maybe a -> (a -> ProjectTransform) -> ProjectTransform
 transform Nothing  _  = id

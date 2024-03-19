@@ -8,4 +8,4 @@ import Mewlix.CLI.Main (run)
 import Mewlix.Project.Make (Action(..), make', Language(..))
 
 make :: Action -> IO ()
-make = make' Javascript
+make = make' JavaScript

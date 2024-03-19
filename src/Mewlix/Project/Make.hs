@@ -43,7 +43,7 @@ type ActionFunc  = ProjectData -> ProjectMaker ()
 type ProjectFunc = ProjectMaker () -> IO (Either String ())
 
 language :: Language -> ProjectFunc
-language Javascript = projectMakeJS
+language JavaScript = projectMakeJS
 
 action :: Action -> ActionFunc
 action Build    = buildProject

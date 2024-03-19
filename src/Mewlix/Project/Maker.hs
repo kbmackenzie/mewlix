@@ -27,7 +27,7 @@ data ProjectContext = ProjectContext
 
 -- I might add another language option in the future, which is why this data type exists.
 -- If I do, this data type guarantees the process will be much easier.
-data Language = Javascript
+data Language = JavaScript
     deriving (Eq, Ord, Show, Enum, Bounded)
 
 newtype ProjectMaker a = ProjectMaker
@@ -46,15 +46,15 @@ projectMake ctx = runExceptT . flip runReaderT ctx . runProjectMaker
 projectMakeJS :: ProjectMaker a -> IO (Either String a)
 projectMakeJS = projectMake ProjectContext
     { projectCompiler  = compileJS
-    , projectLanguage  = Javascript }
+    , projectLanguage  = JavaScript }
 
 langExtension :: Language -> String
-langExtension Javascript = "js"
+langExtension JavaScript = "js"
 
 defaultLanguage :: Language
-defaultLanguage = Javascript
+defaultLanguage = JavaScript
 
 projectContextEmpty :: ProjectContext
 projectContextEmpty = ProjectContext
     { projectCompiler  = \_ _ _ -> Left "No compilter specified!"
-    , projectLanguage  = Javascript }
+    , projectLanguage  = JavaScript }
