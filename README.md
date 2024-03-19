@@ -1,6 +1,6 @@
 <img align="left" width="256" height="256" src="logo.svg" alt="Mewlix logo">
 
-**Mewlix** is a cat-themed [esoteric programming language](https://en.wikipedia.org/wiki/Esoteric_programming_language) that compiles to vanilla Javascript. It comes with templates for making little web applications and little HTML5 games.
+**Mewlix** is a cat-themed [esoteric programming language](https://en.wikipedia.org/wiki/Esoteric_programming_language) that compiles to vanilla JavaScript. It comes with templates for making little web applications and little HTML5 games.
 
 Mewlix's compiler is written in pure Haskell, and is a self-contained binary executable. It can build projects, run them in a simple HTTP server, and package the build output neatly into a `.zip` file for upload in websites like [itch.io](https://itch.io/).
 
@@ -20,7 +20,7 @@ yarn ball main
 meowmeow
 ```
 
-Mewlix is very similar to languages like Python and Javascript, with one catch: Instead of arrays or lists, Mewlix has *shelves*: a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure). To learn more about shelves and how they work, [read the documentation page for shelves](https://github.com/KBMackenzie/mewlix/wiki/Shelf)!
+Mewlix is very similar to languages like Python and JavaScript, with one catch: Instead of arrays or lists, Mewlix has *shelves*: a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure). To learn more about shelves and how they work, [read the documentation page for shelves](https://github.com/KBMackenzie/mewlix/wiki/Shelf)!
 
 In addition, Mewlix has support for higher order functions and anonymous functions, and supports a subset of object-oriented programming with classes—which, in Mewlix, we call [clowders](https://www.merriam-webster.com/dictionary/clowder).
 
