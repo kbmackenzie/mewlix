@@ -232,17 +232,17 @@ type ProjectTransform = ProjectData -> ProjectData
 transformProject :: [ProjectTransform] -> ProjectData -> ProjectData
 transformProject = flip (foldr ($))
 
+fieldOrder :: HashMap Text Int
+fieldOrder = HashMap.fromList
+    [ ("name"           , 1)
+    , ("description"    , 2)
+    , ("mode"           , 3)
+    , ("entrypoint"     , 4)
+    , ("port"           , 5)
+    , ("sources"        , 6)
+    , ("assets"         , 7)
+    , ("specialImports" , 8)
+    , ("flags"          , 9) ]
+
 projectFieldOrder :: Text -> Text -> Ordering
 projectFieldOrder = compare `on` (`HashMap.lookup` fieldOrder)
-    where 
-        fieldOrder :: HashMap Text Int
-        fieldOrder = HashMap.fromList
-            [ ("name"           , 1)
-            , ("description"    , 2)
-            , ("mode"           , 3)
-            , ("entrypoint"     , 4)
-            , ("port"           , 5)
-            , ("sources"        , 6)
-            , ("assets"         , 7)
-            , ("specialImports" , 8)
-            , ("flags"          , 9) ]
