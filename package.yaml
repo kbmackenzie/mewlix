@@ -4,7 +4,9 @@ author:       KBMackenzie <kelly.a.betty@gmail.com>
 github:       KBMackenzie/mewlix
 license:      MIT
 copyright:    2024 KBMackenzie
-description:  Please see the README on GitHub at <https://github.com/KBMackenzie/mewlix/#readme>
+description:  |
+  A compiler for Mewlix, a cat-themed esoteric programming language that compiles to vanilla Javascript.
+  Learn more at <https://github.com/KBMackenzie/mewlix/#readme>
 
 extra-source-files:
   - README.md

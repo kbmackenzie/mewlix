@@ -6,7 +6,8 @@ cabal-version: 1.12
 
 name:           mewlix
 version:        1.0.0
-description:    Please see the README on GitHub at <https://github.com/KBMackenzie/mewlix/#readme>
+description:    A compiler for Mewlix, a cat-themed esoteric programming language that compiles to vanilla Javascript.
+                Learn more at <https://github.com/KBMackenzie/mewlix/#readme>
 homepage:       https://github.com/KBMackenzie/mewlix#readme
 bug-reports:    https://github.com/KBMackenzie/mewlix/issues
 author:         KBMackenzie <kelly.a.betty@gmail.com>
