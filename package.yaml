@@ -1,23 +1,14 @@
-name:                mewlix
-version:             0.1.0.0
-github:              "KBMackenzie/mewlix"
-license:             MIT
-author:              "KBMackenzie"
-maintainer:          "kelly.a.betty@gmail.com"
-copyright:           "2023 KBMackenzie" 
+name:         mewlix
+version:      1.0.0
+author:       KBMackenzie <kelly.a.betty@gmail.com>
+github:       KBMackenzie/mewlix
+license:      MIT
+copyright:    2024 KBMackenzie
+description:  Please see the README on GitHub at <https://github.com/KBMackenzie/mewlix/#readme>
 
 extra-source-files:
-- README.md
-- CHANGELOG.md
-
-# Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
-
-# To avoid duplicated efforts in documentation and dealing with the
-# complications of embedding Haddock markup inside cabal files, it is
-# common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/KBMackenzie/mewlix/#readme>
+  - README.md
+  - CHANGELOG.md
 
 dependencies:
 - base >= 4.7 && < 5

@@ -5,13 +5,13 @@ cabal-version: 1.12
 -- see: https://github.com/sol/hpack
 
 name:           mewlix
-version:        0.1.0.0
+version:        1.0.0
 description:    Please see the README on GitHub at <https://github.com/KBMackenzie/mewlix/#readme>
 homepage:       https://github.com/KBMackenzie/mewlix#readme
 bug-reports:    https://github.com/KBMackenzie/mewlix/issues
-author:         KBMackenzie
-maintainer:     kelly.a.betty@gmail.com
-copyright:      2023 KBMackenzie
+author:         KBMackenzie <kelly.a.betty@gmail.com>
+maintainer:     KBMackenzie <kelly.a.betty@gmail.com>
+copyright:      2024 KBMackenzie
 license:        MIT
 license-file:   LICENSE
 build-type:     Simple
