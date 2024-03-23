@@ -120,7 +120,7 @@ box :: LongSymbol
 box = "=^-x-^="
 
 lambda :: LongSymbol
-lambda = "=^*x*^="
+lambda = "=^oxo^="
 
 not :: SimpleKeyword
 not = "not"
