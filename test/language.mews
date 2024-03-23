@@ -36,7 +36,7 @@ mew cat = =^-x-^= [
   hobbies: ["eating", "sleeping"]
 ]
 
-mew sum = =^*x*^= (a, b) => a + b
+mew sum = =^oxo^= (a, b) => a + b
 
 =^.x.^= sumf(a, b)
   bring a + b
