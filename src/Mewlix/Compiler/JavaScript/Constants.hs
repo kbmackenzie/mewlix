@@ -9,6 +9,7 @@ module Mewlix.Compiler.JavaScript.Constants
 , shelfBottom
 , createShelf
 , clowder
+, wake
 , yarnBall
 -- Operations:
 , meow
@@ -62,6 +63,9 @@ createShelf = mewlix "Shelf.fromArray"
 
 clowder :: Text
 clowder = mewlix "Clowder"
+
+wake :: Text
+wake = mewlix "wake"
 
 yarnBall :: Text
 yarnBall = mewlix "YarnBall"
