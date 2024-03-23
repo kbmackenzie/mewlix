@@ -170,7 +170,7 @@ instance ToJavaScript Expression where
     transpileJS _ (ClowderCreate clowderExpr argExprs) = do
         clowder <- toJS clowderExpr
         args    <- toJS argExprs
-        wrap ("await new " <> clowder <> "().wake" <> args)
+        wrap $ mconcat ["await new ", clowder, "()[", Mewlix.wake, "]", args]
 
     transpileJS _ (SuperCall argExprs) = do
         args    <- toJS argExprs
