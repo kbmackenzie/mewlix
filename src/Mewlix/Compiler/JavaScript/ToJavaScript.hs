@@ -44,6 +44,8 @@ import Mewlix.Compiler.JavaScript.ErrorUtils (ErrorCode(..), errorInfo, createEr
 import Mewlix.Compiler.JavaScript.StatementUtils (terminate, findBindings)
 import Mewlix.Compiler.JavaScript.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.JavaScript.Constants as Mewlix
+import qualified Mewlix.Keywords.LanguageKeywords as Keywords
+import Mewlix.Keywords.Types (unwrapKeyword)
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.HashMap.Strict as HashMap
@@ -356,10 +358,15 @@ instance ToJavaScript Statement where
         let classLevel  = succ level
         let methodLevel = succ classLevel
 
+        let wake = Key (unwrapKeyword Keywords.constructor)
+
         let transpileMethod :: MewlixFunction -> Transpiler Text
             transpileMethod func = do
                 funcExpr <- transpileJS methodLevel func
-                return $ mconcat [ "this.", (getKey . funcName) func, " = ", funcExpr, ";" ]
+                let bind = if funcName func == wake
+                    then "this[" <> Mewlix.wake <> "]"
+                    else "this." <> (getKey . funcName) func
+                return $ mconcat [ bind, " = ", funcExpr, ";" ]
 
         methods <- mapM transpileMethod (classMethods clowder)
         let constructor = separateLines
