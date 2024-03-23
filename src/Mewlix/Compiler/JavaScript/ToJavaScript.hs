@@ -465,11 +465,12 @@ instance ToJavaScript YarnBall where
         let footer = syncCall Mewlix.addModule [keyString, "yarnball"]
 
         -- Separate with two line breaks instead of one.
+        -- Always end with a newline character.
         let separate :: [Text] -> Text
-            separate = Text.intercalate "\n\n"
+            separate = (`Text.snoc` '\n') . Text.intercalate "\n\n"
 
         return $ separate
                 [ metadataComment
                 , strictPragma
                 , moduleFunction
-                , footer        ]
+                , footer         ]
