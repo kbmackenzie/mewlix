@@ -217,7 +217,8 @@ instance ToJavaScript Expression where
     -- IO:
     ----------------------------------------------
     transpileJS _ (MeowExpression expr) = do
-        arg <- toJS expr
+        let stringify = syncCall Mewlix.purrify . List.singleton
+        arg <- stringify <$> toJS expr
         return $ asyncCall Mewlix.meow [arg]
 
     transpileJS _ (ListenExpression expr) = do
