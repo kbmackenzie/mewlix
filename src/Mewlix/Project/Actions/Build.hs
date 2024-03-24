@@ -37,7 +37,9 @@ scriptList projectData paths = do
     let entrypoint = projectEntrypoint projectData
     let relativePaths = map (makeRelative outputFolder) paths
 
-    let script = object
+    let json = object
             [ "entrypoint" .= entrypoint
             , "scripts"    .= relativePaths ]
-    writeFileBL targetPath (encode script)
+
+    let contents = mappend (encode json) "\n"
+    writeFileBL targetPath contents
