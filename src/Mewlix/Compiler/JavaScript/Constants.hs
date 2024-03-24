@@ -15,7 +15,7 @@ module Mewlix.Compiler.JavaScript.Constants
 , meow
 , listen
 , wrap
-, arithmetic
+, numbers
 , boolean
 , compare
 , strings
@@ -81,8 +81,8 @@ listen = mewlix "listen"
 wrap :: Text
 wrap = mewlix "wrap"
 
-arithmetic :: Text -> Text
-arithmetic = mewlix . ("Arithmetic." <>)
+numbers :: Text -> Text
+numbers = mewlix . ("Numbers." <>)
 
 boolean :: Text -> Text
 boolean = mewlix . ("Boolean." <>)

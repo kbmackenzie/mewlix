@@ -22,12 +22,12 @@ compareTo comparisons = do
 
 binaryOpFunc :: BinaryOp -> OperationBuilder
 binaryOpFunc op = case op of 
-    Addition        -> syncCall (Mewlix.arithmetic "add")
-    Subtraction     -> syncCall (Mewlix.arithmetic "sub")
-    Multiplication  -> syncCall (Mewlix.arithmetic "mul")
-    Division        -> syncCall (Mewlix.arithmetic "div")
-    Modulo          -> syncCall (Mewlix.arithmetic "mod")
-    Power           -> syncCall (Mewlix.arithmetic "pow")
+    Addition        -> syncCall (Mewlix.numbers "add")
+    Subtraction     -> syncCall (Mewlix.numbers "sub")
+    Multiplication  -> syncCall (Mewlix.numbers "mul")
+    Division        -> syncCall (Mewlix.numbers "div")
+    Modulo          -> syncCall (Mewlix.numbers "mod")
+    Power           -> syncCall (Mewlix.numbers "pow")
     StringConcat    -> syncCall (Mewlix.strings "concat")
     Equal           -> syncCall (Mewlix.compare "isEqual")
     NotEqual        -> ("!" <>) . syncCall (Mewlix.compare "isEqual")
@@ -38,7 +38,7 @@ binaryOpFunc op = case op of
 
 unaryOpFunc :: UnaryOp -> OperationBuilder
 unaryOpFunc op = case op of
-    Negation        -> syncCall (Mewlix.arithmetic  "negate")
-    ListPeek        -> syncCall (Mewlix.shelves     "peek"  )
-    BooleanNot      -> syncCall (Mewlix.boolean     "not"   )
-    LengthLookup    -> syncCall (Mewlix.shelves     "length")
+    Negation        -> syncCall (Mewlix.numbers "negate")
+    ListPeek        -> syncCall (Mewlix.shelves "peek"  )
+    BooleanNot      -> syncCall (Mewlix.boolean "not"   )
+    LengthLookup    -> syncCall (Mewlix.shelves "length")
