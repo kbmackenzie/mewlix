@@ -29,4 +29,4 @@ createProject = (. includeSrc) $ \projectData -> do
     liftIO (createDirectoryIfMissing False "./src")
 
     -- Create .gitignore
-    writeFileB "./.gitignore" "output/"
+    writeFileB "./.gitignore" "output/\n"
