@@ -132,14 +132,14 @@ greaterThan = comparison "GreaterThan"
 
 {- Statement Utils: -}
 --------------------------------------------
-inner :: Text -> Text
-inner = mewlix . ("Inner." <>)
+internal :: Text -> Text
+internal = mewlix . ("Internal." <>)
 
 rainable :: Text
-rainable = inner "rainable"
+rainable = internal "rainable"
 
 pounceError :: Text
-pounceError = inner "pounceError"
+pounceError = internal "pounceError"
 
 assert :: Text
-assert = inner "assert"
+assert = internal "assert"
