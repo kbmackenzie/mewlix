@@ -34,11 +34,13 @@ buildProject projectData = do
 scriptList :: ProjectData -> [FilePath] -> ProjectMaker ()
 scriptList projectData paths = do
     let targetPath = coreFolder </> "script-list.json"
+    let title = projectName projectData
     let entrypoint = projectEntrypoint projectData
     let relativePaths = map (makeRelative outputFolder) paths
 
     let json = object
-            [ "entrypoint" .= entrypoint
+            [ "title"      .= title
+            , "entrypoint" .= entrypoint
             , "scripts"    .= relativePaths ]
 
     let contents = mappend (encode json) "\n"
