@@ -54,7 +54,6 @@ import Mewlix.Keywords.Types
     ( SimpleKeyword(..)
     , LongSymbol(..)
     , WordSequence(..)
-    , firstWord
     )
 import Data.HashSet (HashSet)
 import qualified Data.HashSet as HashSet
@@ -222,18 +221,14 @@ reserved = HashSet.fromList
     , new
     , home
     , super
-    , firstWord paw
     , is
-    , firstWord claw
     , not
     , and
     , or
     , push
     , peek
     , else_
-    , firstWord yarnball
     , yarnball'
-    , firstWord pop
     , takes
     , alias
     , from
