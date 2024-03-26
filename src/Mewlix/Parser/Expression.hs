@@ -98,8 +98,7 @@ parseMeow = do
 parseListen :: Parser Expression
 parseListen = do
     keyword Keywords.listen
-    let nil = PrimitiveExpr MewlixNil
-    ListenExpression . fromMaybe nil <$> Mega.optional expression
+    ListenExpression <$> Mega.optional expression
 
 {- Clowder -}
 ------------------------------------------------------------------------------------
