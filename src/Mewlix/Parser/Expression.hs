@@ -33,7 +33,6 @@ import Mewlix.Keywords.Types (LongSymbol(..))
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import qualified Text.Megaparsec as Mega
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
-import Data.Maybe (fromMaybe)
 
 {- Left-hand, Right-hand -}
 ------------------------------------------------------------------------------------
