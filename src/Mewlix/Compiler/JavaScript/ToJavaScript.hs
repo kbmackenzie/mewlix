@@ -222,7 +222,9 @@ instance ToJavaScript Expression where
         return $ asyncCall Mewlix.meow [arg]
 
     transpileJS _ (ListenExpression expr) = do
-        arg <- toJS expr
+        let stringify = syncCall Mewlix.purrify . List.singleton
+        let nil = toJS MewlixNil
+        arg <- maybe nil (fmap stringify . toJS) expr 
         return $ asyncCall Mewlix.listen [arg]
 
 {- Params -}
