@@ -55,7 +55,7 @@ data Expression =
     | DotExpression         Expression Expression
     | LookupExpression      Expression Expression
     | MeowExpression        Expression
-    | ListenExpression      Expression
+    | ListenExpression      (Maybe Expression)
     | ThrowError            Expression SourcePos
     deriving (Show)
 
