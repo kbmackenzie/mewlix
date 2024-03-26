@@ -2,7 +2,6 @@
 
 module Mewlix.Compiler.JavaScript.StatementUtils
 ( terminate
-, findImports
 , findBindings
 ) where
 
@@ -14,21 +13,12 @@ import Mewlix.Abstract.AST
     )
 import Data.Text (Text)
 import Mewlix.Abstract.Key (Key(..))
-import Mewlix.Abstract.Module (ModuleData(..))
 
 semicolon :: Text
 semicolon = ";"
 
 terminate :: Text -> Text
 terminate = (<> semicolon)
-
-findImports :: Block -> [ModuleData]
-findImports block = do
-    let collectImports :: Statement -> [ModuleData] -> [ModuleData]
-        collectImports (ImportModule dat) acc = dat : acc
-        collectImports (ImportList dat _) acc = dat : acc
-        collectImports _                  acc = acc
-    foldr collectImports [] (getBlock block)
 
 findBindings :: Block -> [Key]
 findBindings block = do
