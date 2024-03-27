@@ -30,6 +30,8 @@ mew multiline = """
 This is a multiline string!
 """
 mew lucky_number = :3"Your number is [std.random_int(0, 10)]!"
+:3"[std.random()]"
+:3"Yarn strings with no expressions are valid, too!"
 
 -- Shelves:
 mew shelf = [1, 2, 3]
