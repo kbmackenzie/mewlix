@@ -85,9 +85,6 @@ stringCharI = Mega.choice
     , MChar.newline >> fail "Linebreak in string!"
     , Mega.satisfy (\x -> x /= '"' && x /= '[')        ]
 
-stringBite :: Parser Text
-stringBite = Text.pack <$> Mega.some stringCharI
-
 parseYarnString :: Parser Expression -> Parser Expression
 parseYarnString expression = do
     let quotation :: Parser ()
@@ -98,8 +95,8 @@ parseYarnString expression = do
 
     let stringPiece :: Parser Expression
         stringPiece = Mega.choice
-            [ stringToExpr <$> stringBite
-            , brackets expression         ]
+            [ stringToExpr . Text.pack <$> Mega.some stringCharI
+            , brackets expression                               ]
 
     yarnMeow
     pieces <- Mega.many stringPiece 
