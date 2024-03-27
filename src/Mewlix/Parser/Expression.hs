@@ -21,6 +21,7 @@ import Mewlix.Parser.Utils
     , bracketList
     )
 import Mewlix.Parser.Keyword (keyword)
+import Mewlix.Parser.String (parseYarnString)
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Parser.Primitive
     ( parseKey
@@ -48,6 +49,7 @@ termR = Mega.choice
     , parseList
     , parseSuperCall
     , parseMeet
+    , parseYarnString expression
     , PrimitiveExpr <$> parsePrim
     , Identifier    <$> parseKey  ]
 
