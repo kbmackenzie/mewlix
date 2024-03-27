@@ -56,6 +56,7 @@ library
       Mewlix.Parser.Primitive
       Mewlix.Parser.Run
       Mewlix.Parser.Statement
+      Mewlix.Parser.String
       Mewlix.Parser.Utils
       Mewlix.Project
       Mewlix.Project.Actions.Build
