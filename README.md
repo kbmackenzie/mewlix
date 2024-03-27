@@ -16,7 +16,7 @@ yarn ball main
 
 =^.x.^= greet()
   mew name = listen "What's your name?"
-  meow "Hello, "..name.."!"
+  meow :3"Hello, [name]!"
 meowmeow
 ```
 
