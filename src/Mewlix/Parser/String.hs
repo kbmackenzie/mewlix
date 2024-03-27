@@ -76,8 +76,8 @@ stringToExpr :: Text -> Expression
 stringToExpr = PrimitiveExpr . MewlixString
 
 interpolate :: [Expression] -> Expression
-interpolate [] = stringToExpr ""
-interpolate xs = foldl1 (BinaryOperation StringConcat) xs
+interpolate = foldl (BinaryOperation StringConcat) emptyString
+    where emptyString = stringToExpr mempty
 
 stringCharI :: Parser Char
 stringCharI = Mega.choice
