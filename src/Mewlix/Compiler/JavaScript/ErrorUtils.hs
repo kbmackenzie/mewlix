@@ -15,8 +15,8 @@ import Text.Megaparsec.Pos (SourcePos(..), unPos)
 
 data ErrorCode =
       TypeMisMatch
-    | DivideByZero
-    | BadConversion
+    | InvalidOperation
+    | InvalidConversion
     | CatOnComputer
     | Console
     | Graphic
