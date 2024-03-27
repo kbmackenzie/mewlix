@@ -34,8 +34,8 @@ import Control.Monad (when)
 ----------------------------------------------------------------
 parsePrim :: Parser Primitive
 parsePrim = Mega.choice
-    [ MewlixString  <$> parseString
-    , MewlixString  <$> parseStringM
+    [ MewlixString  <$> parseStringM
+    , MewlixString  <$> parseString
     , MewlixFloat   <$> parseFloat
     , MewlixInt     <$> parseInt
     , MewlixBool    <$> parseBool
