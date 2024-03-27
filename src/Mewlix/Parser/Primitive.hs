@@ -2,7 +2,6 @@
 
 module Mewlix.Parser.Primitive
 ( parsePrim
-, escapeChar
 , parseString
 , parseStringM
 , parseKeyText
@@ -18,6 +17,7 @@ import Mewlix.Parser.Utils
     , whitespace
     , parensList
     )
+import Mewlix.Parser.String (parseString, parseStringM)
 import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Keywords.Types (SimpleKeyword(..))
@@ -27,9 +27,8 @@ import qualified Data.Text as Text
 import Text.Megaparsec ((<?>))
 import qualified Data.HashSet as HashSet
 import qualified Text.Megaparsec as Mega
-import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
-import Control.Monad (void, when)
+import Control.Monad (when)
 
 {- Prims: -}
 ----------------------------------------------------------------
@@ -43,53 +42,6 @@ parsePrim = Mega.choice
     , MewlixNil     <$  keyword Keywords.nil
     , MewlixHome    <$  keyword Keywords.home
     , keyword Keywords.super >> fail "Did you mean 'outside()'?" ]
-
-{- Escape sequences: -}
-----------------------------------------------------------------
-escapeChar :: Char -> Char
-escapeChar c = case c of
-    'n'     -> '\n'
-    't'     -> '\t'
-    'b'     -> '\b'
-    'r'     -> '\r'
-    'f'     -> '\f'
-    'v'     -> '\v'
-    other   -> other
-
-{- Single-line strings: -}
-----------------------------------------------------------------
-stringChar :: Parser Char
-stringChar = Mega.choice
-    [ MChar.char '\\' >> fmap escapeChar Mega.anySingle
-    , MChar.newline >> fail "Linebreak in string!"
-    , Mega.satisfy (/= '"')                             ]
-
-parseString :: Parser Text
-parseString = (<?> "string") $ do
-    let quotation :: Parser ()
-        quotation = (void . MChar.char) '"' <?> "quotation mark"
-
-    quotation
-    text <- Text.pack <$> Mega.many stringChar
-    lexeme quotation
-    return text
-
-{- Multi-line strings: -}
-----------------------------------------------------------------
-stringCharM :: Parser Char
-stringCharM = Mega.choice
-    [ MChar.char '\\' >> fmap escapeChar Mega.anySingle
-    , Mega.satisfy (/= '"')                             ]
-
-parseStringM :: Parser Text
-parseStringM = (<?> "multiline string") $ do
-    let quotations :: Parser ()
-        quotations = (void . MChar.string) "\"\"\"" <?> "triple quotes"
-
-    quotations
-    text <- Text.pack <$> Mega.many stringCharM
-    lexeme quotations
-    return text
 
 {- Numbers and constants: -}
 ----------------------------------------------------------------
