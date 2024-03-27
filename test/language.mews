@@ -21,13 +21,19 @@ x or x
 x and x
 x ? "x" : "not x"
 
+-- Empty declarations:
 mew empty
 mew also_empty = nothing
 
+-- Strings:
+mew multiline = """
+This is a multiline string!
+"""
+mew lucky_number = :3"Your number is [std.random_int(0, 10)]!"
+
+-- Shelves:
 mew shelf = [1, 2, 3]
 meow shelf...?
-
-throw (meow "hello c:")
 
 "charlie" push shelf
 peek shelf
@@ -39,12 +45,14 @@ mew cat = =^-x-^= [
   hobbies: ["eating", "sleeping"]
 ]
 
+-- Functions:
 mew sum = =^oxo^= (a, b) => a + b
 
 =^.x.^= sumf(a, b)
   bring a + b
 meowmeow
 
+-- Clowders:
 clowder Cat
   =^.x.^= wake(name)
     home.name = name
@@ -67,9 +75,11 @@ meow (charlie is Cat)
 meow charlie.introduction()
 meow charlie["introduction"]()
 
+-- IO:
 mew name = listen "What's your name?"
 meow "Your name is: "..name
 
+-- Control Flow:
 mew r = std.random()
 peek if r == 0
   meow "extremely unlikely."
@@ -79,6 +89,7 @@ otherwise
   meow "hello! this is the most common case by a very, very, very big margin!"
 meowmeow
 
+-- Loops:
 stare while true 
   meow ":3"
   escape
@@ -90,8 +101,13 @@ it's raining kitties! catch a kitty!
   catnap
 meowmeow
 
+-- Assertions:
 assert 2 == 2
 
+-- Exceptions:
+throw (meow "hello c:")
+
+-- Try/Catch:
 watch attentively
   throw "!!"
 pounce on error
