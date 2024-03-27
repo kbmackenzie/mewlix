@@ -86,7 +86,7 @@ stringCharI = Mega.choice
     , Mega.satisfy (\x -> x /= '"' && x /= '[')        ]
 
 parseYarnString :: Parser Expression -> Parser Expression
-parseYarnString expression = do
+parseYarnString expression = (<?> "yarn string") $ do
     let quotation :: Parser ()
         quotation = (void . MChar.char) '"' <?> "quotation mark"
 
