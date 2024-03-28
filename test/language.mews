@@ -23,6 +23,9 @@ x nor x
 x nand x
 x ? "x" : "not x"
 
+f |> g
+f |> g |> h
+
 -- Empty declarations:
 mew empty
 mew also_empty = nothing
