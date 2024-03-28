@@ -8,9 +8,10 @@ module Mewlix.Parser.Expression
 import Mewlix.Abstract.AST
     ( Primitive(..)
     , Expression(..)
-    , Arguments(..)
     , BinaryOp(..)
     , UnaryOp(..)
+    , Arguments(..)
+    , Params(..)
     )
 import Mewlix.Parser.Utils
     ( Parser
@@ -35,6 +36,7 @@ import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import qualified Text.Megaparsec as Mega
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 import Data.Maybe (fromMaybe)
+import qualified Data.List as List
 
 {- Left-hand, Right-hand -}
 ------------------------------------------------------------------------------------
@@ -89,6 +91,22 @@ parseBox = do
 
 parseArguments :: Parser Arguments
 parseArguments = Arguments <$> parensList expression
+
+{- Pipe -}
+------------------------------------------------------------------------------------
+pipe :: Parser (Expression -> Expression -> Expression)
+pipe = return $ \f g -> do
+    let var = Identifier . Key
+    let param = Params . List.singleton . Key
+    let argument = Arguments . List.singleton
+
+    let funcCall :: Expression -> Expression -> Expression
+        funcCall = (. argument) . FunctionCall
+
+    let compose :: Expression -> Expression
+        compose = funcCall g . funcCall f
+
+    LambdaExpression (param "x") $ compose (var "x")
 
 {- Boolean -}
 ------------------------------------------------------------------------------------
