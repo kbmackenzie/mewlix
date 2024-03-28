@@ -34,6 +34,7 @@ import Mewlix.Keywords.Types (LongSymbol(..))
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import qualified Text.Megaparsec as Mega
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
+import Data.Maybe (fromMaybe)
 
 {- Left-hand, Right-hand -}
 ------------------------------------------------------------------------------------
@@ -108,9 +109,9 @@ parseHome = PrimitiveExpr MewlixHome <$ keyword Keywords.home
 
 parseSuperCall :: Parser Expression
 parseSuperCall = do
-    args <- Mega.try $ do
-        keyword Keywords.super
-        parseArguments
+    args <- do
+        keyword Keywords.superCall
+        fromMaybe mempty <$> Mega.optional parseArguments
     return (SuperCall args)
 
 parseMeet :: Parser Expression
