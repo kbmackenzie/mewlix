@@ -73,9 +73,9 @@ function = "=^.x.^="
 local :: SimpleKeyword
 local = "mew"
 
--- Function pipes:
+-- Application + Piping:
 pipe :: LongSymbol
-pipe = "|>"
+pipe = ">:"
 
 pipeRef :: SimpleKeyword
 pipeRef = "___x"
