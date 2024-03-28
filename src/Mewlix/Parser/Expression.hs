@@ -111,11 +111,11 @@ compose = do
 
     keyword Keywords.compose
     return $ \f g -> do
-        let compose :: Expression -> Expression
-            compose = funcCall g . funcCall f
+        let apply :: Expression -> Expression
+            apply = funcCall g . funcCall f
         let x = unwrapKeyword Keywords.composeRef
 
-        LambdaExpression (param x) $ compose (var x)
+        LambdaExpression (param x) $ apply (var x)
 
 {- Boolean -}
 ------------------------------------------------------------------------------------
