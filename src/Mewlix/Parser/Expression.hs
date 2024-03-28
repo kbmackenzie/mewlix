@@ -92,7 +92,7 @@ parseBox = do
 parseArguments :: Parser Arguments
 parseArguments = Arguments <$> parensList expression
 
-{- Application + Piping-}
+{- Composing + Piping -}
 ------------------------------------------------------------------------------------
 pipe :: Parser (Expression -> Expression -> Expression)
 pipe = do
