@@ -5,8 +5,8 @@ module Mewlix.Keywords.LanguageKeywords
 ( function
 , local
 , apply
-, pipe
-, pipeRef
+, compose
+, composeRef
 , commentOpen
 , commentClose
 , true
@@ -78,11 +78,11 @@ local = "mew"
 apply :: LongSymbol
 apply = "|>"
 
-pipe :: LongSymbol
-pipe = ":>"
+compose :: LongSymbol
+compose = ":>"
 
-pipeRef :: SimpleKeyword
-pipeRef = "___x"
+composeRef :: SimpleKeyword
+composeRef = "___x"
 
 -- Block Comments:
 commentOpen :: LongSymbol
@@ -233,7 +233,7 @@ reserved = HashSet.fromList
     , nil
     , meow
     , listen
-    , pipeRef
+    , composeRef
     , end
     , ret
     , catnap

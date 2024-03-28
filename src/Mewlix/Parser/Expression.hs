@@ -109,11 +109,11 @@ pipe = do
     let funcCall :: Expression -> Expression -> Expression
         funcCall = (. argument) . FunctionCall
 
-    keyword Keywords.pipe
+    keyword Keywords.compose
     return $ \f g -> do
         let compose :: Expression -> Expression
             compose = funcCall g . funcCall f
-        let x = unwrapKeyword Keywords.pipeRef
+        let x = unwrapKeyword Keywords.composeRef
 
         LambdaExpression (param x) $ compose (var x)
 
