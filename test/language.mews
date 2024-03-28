@@ -26,6 +26,9 @@ x ? "x" : "not x"
 f :> g
 f :> g :> h
 
+x |> f
+x |> f |> g |> h
+
 -- Empty declarations:
 mew empty
 mew also_empty = nothing
