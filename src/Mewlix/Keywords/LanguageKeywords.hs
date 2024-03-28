@@ -19,8 +19,8 @@ module Mewlix.Keywords.LanguageKeywords
 , extends
 , new
 , home
-, super
 , constructor
+, superCall
 , if_
 , elif
 , else_
@@ -99,11 +99,11 @@ new = "new"
 home :: SimpleKeyword
 home = "home"
 
-super :: SimpleKeyword
-super = "outside"
-
 constructor :: SimpleKeyword
 constructor = "wake"
+
+superCall :: SimpleKeyword
+superCall = "look outside"
 
 -- Expressions:
 paw :: WordSequence
@@ -220,7 +220,6 @@ reserved = HashSet.fromList
     , extends
     , new
     , home
-    , super
     , is
     , not
     , and
