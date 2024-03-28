@@ -102,8 +102,8 @@ home = "home"
 constructor :: SimpleKeyword
 constructor = "wake"
 
-superCall :: SimpleKeyword
-superCall = "look outside"
+superCall :: WordSequence
+superCall = ["look", "outside"]
 
 -- Expressions:
 paw :: WordSequence
