@@ -100,8 +100,8 @@ apply = do
     keyword Keywords.pipe
     return $ (. argument) . FunctionCall
 
-pipe :: Parser (Expression -> Expression -> Expression)
-pipe = do
+compose :: Parser (Expression -> Expression -> Expression)
+compose = do
     let var = Identifier . Key
     let param = Params . List.singleton . Key
     let argument = Arguments . List.singleton
@@ -249,7 +249,7 @@ operatorsR =
     ,   [ InfixL  parseNor                                                              ]
     ,   [ TernR   ((TernaryOperation <$ symbol ':') <$ symbol '?'                   )   ]
     ,   [ InfixL  apply                                                                 ]
-    ,   [ InfixL  pipe                                                                  ]
+    ,   [ InfixL  compose                                                               ]
     ]
 
 {- Declaration -}
