@@ -31,7 +31,7 @@ import Mewlix.Parser.Primitive
     , parseParams
     )
 import Text.Megaparsec ((<?>))
-import Mewlix.Keywords.Types (LongSymbol(..))
+import Mewlix.Keywords.Types (LongSymbol(..), unwrapKeyword)
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import qualified Text.Megaparsec as Mega
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
@@ -107,7 +107,9 @@ pipe = do
     return $ \f g -> do
         let compose :: Expression -> Expression
             compose = funcCall g . funcCall f
-        LambdaExpression (param "x") $ compose (var "x")
+        let x = unwrapKeyword Keywords.pipeRef
+
+        LambdaExpression (param x) $ compose (var x)
 
 {- Boolean -}
 ------------------------------------------------------------------------------------
