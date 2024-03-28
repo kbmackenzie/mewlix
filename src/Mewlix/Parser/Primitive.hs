@@ -40,8 +40,7 @@ parsePrim = Mega.choice
     , MewlixInt     <$> parseInt
     , MewlixBool    <$> parseBool
     , MewlixNil     <$  keyword Keywords.nil
-    , MewlixHome    <$  keyword Keywords.home
-    , keyword Keywords.super >> fail "Did you mean 'outside()'?" ]
+    , MewlixHome    <$  keyword Keywords.home ]
 
 {- Numbers and constants: -}
 ----------------------------------------------------------------
