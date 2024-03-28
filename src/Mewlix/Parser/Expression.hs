@@ -218,8 +218,8 @@ operatorsR =
         , InfixL  (BinaryOperation NotEqual         <$ keyword (LongSymbol "!=")    )   ]
     ,   [ InfixL  (BooleanAnd                       <$ keyword Keywords.and         )   ]
     ,   [ InfixL  (BooleanOr                        <$ keyword Keywords.or          )   ]
-    ,   [ InfixL  parseNand
-        , InfixL  parseNor                                                              ]
+    ,   [ InfixL  parseNand                                                             ]
+    ,   [ InfixL  parseNor                                                              ]
     ,   [ TernR   ((TernaryOperation <$ symbol ':') <$ symbol '?'                   )   ]
     ]
 
