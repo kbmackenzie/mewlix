@@ -25,7 +25,7 @@ Mewlix is similar to C-family languages, with a few differences. Instead of arra
 Additionally, it has:
 - `nand` and `nor` operators
 - [Function composition](https://github.com/KBMackenzie/mewlix/wiki/Operators#function-composition) with the `:>` operator
-- [Function application/piping](https://github.com/KBMackenzie/mewlix/wiki/Operators#function-pipes) with the `|>` operator
+- [Function application / piping](https://github.com/KBMackenzie/mewlix/wiki/Operators#function-pipes) with the `|>` operator
 - String interpolation with [yarn strings](https://github.com/KBMackenzie/mewlix/wiki/Expressions#yarn-strings), `:3"like [this]!`
 - Classes, affectionately nicknamed [clowders](https://github.com/KBMackenzie/mewlix/wiki/Clowders)
 - Higher order functions and anonymous functions
