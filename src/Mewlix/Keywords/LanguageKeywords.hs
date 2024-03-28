@@ -4,6 +4,7 @@
 module Mewlix.Keywords.LanguageKeywords
 ( function
 , local
+, apply
 , pipe
 , pipeRef
 , commentOpen
@@ -74,6 +75,9 @@ local :: SimpleKeyword
 local = "mew"
 
 -- Application + Piping:
+apply :: LongSymbol
+apply = "|>"
+
 pipe :: LongSymbol
 pipe = ":>"
 
