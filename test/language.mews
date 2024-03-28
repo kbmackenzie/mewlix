@@ -67,7 +67,7 @@ meowmeow
 
 clowder Charlie is Cat
   =^.x.^= wake()
-    outside("charlie")
+    look outside("charlie")
   meowmeow
 meowmeow
 
