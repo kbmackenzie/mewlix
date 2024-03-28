@@ -4,7 +4,7 @@
 module Mewlix.Keywords.LanguageKeywords
 ( function
 , local
-, apply
+, pipe
 , compose
 , composeRef
 , commentOpen
@@ -74,15 +74,15 @@ function = "=^.x.^="
 local :: SimpleKeyword
 local = "mew"
 
--- Application + Piping:
-apply :: LongSymbol
-apply = "|>"
-
+-- Composition + Piping
 compose :: LongSymbol
 compose = ":>"
 
 composeRef :: SimpleKeyword
 composeRef = "___x"
+
+pipe :: LongSymbol
+pipe = "|>"
 
 -- Block Comments:
 commentOpen :: LongSymbol

@@ -97,7 +97,7 @@ parseArguments = Arguments <$> parensList expression
 apply :: Parser (Expression -> Expression -> Expression)
 apply = do
     let argument = Arguments . List.singleton
-    keyword Keywords.apply
+    keyword Keywords.pipe
     return $ (. argument) . FunctionCall
 
 pipe :: Parser (Expression -> Expression -> Expression)
