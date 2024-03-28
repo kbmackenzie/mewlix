@@ -98,7 +98,7 @@ pipe :: Parser (Expression -> Expression -> Expression)
 pipe = do
     let argument = Arguments . List.singleton
     keyword Keywords.pipe
-    return $ (. argument) . FunctionCall
+    return $ flip FunctionCall . argument
 
 compose :: Parser (Expression -> Expression -> Expression)
 compose = do
