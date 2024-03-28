@@ -95,7 +95,7 @@ parseArguments = Arguments <$> parensList expression
 {- Pipe -}
 ------------------------------------------------------------------------------------
 pipe :: Parser (Expression -> Expression -> Expression)
-pipe = return $ \f g -> do
+pipe = do
     let var = Identifier . Key
     let param = Params . List.singleton . Key
     let argument = Arguments . List.singleton
@@ -103,10 +103,11 @@ pipe = return $ \f g -> do
     let funcCall :: Expression -> Expression -> Expression
         funcCall = (. argument) . FunctionCall
 
-    let compose :: Expression -> Expression
-        compose = funcCall g . funcCall f
-
-    LambdaExpression (param "x") $ compose (var "x")
+    keyword Keywords.pipe
+    return $ \f g -> do
+        let compose :: Expression -> Expression
+            compose = funcCall g . funcCall f
+        LambdaExpression (param "x") $ compose (var "x")
 
 {- Boolean -}
 ------------------------------------------------------------------------------------
@@ -239,6 +240,7 @@ operatorsR =
     ,   [ InfixL  parseNand                                                             ]
     ,   [ InfixL  parseNor                                                              ]
     ,   [ TernR   ((TernaryOperation <$ symbol ':') <$ symbol '?'                   )   ]
+    ,   [ InfixL  pipe                                                                  ]
     ]
 
 {- Declaration -}
