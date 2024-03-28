@@ -3,6 +3,7 @@
 
 module Mewlix.Keywords.LanguageKeywords
 ( function
+, pipe
 , local
 , commentOpen
 , commentClose
@@ -66,6 +67,9 @@ import Prelude hiding (and, or, not, break)
 -- Functions:
 function :: LongSymbol
 function = "=^.x.^="
+
+pipe :: LongSymbol
+pipe = "|>"
 
 -- Variables:
 local :: SimpleKeyword
