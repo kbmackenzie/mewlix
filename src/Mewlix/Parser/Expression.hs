@@ -90,6 +90,18 @@ parseBox = do
 parseArguments :: Parser Arguments
 parseArguments = Arguments <$> parensList expression
 
+{- Boolean -}
+------------------------------------------------------------------------------------
+parseNand :: Parser (Expression -> Expression -> Expression)
+parseNand = do
+    keyword Keywords.nand
+    return $ (UnaryOperation BooleanNot .) . BooleanAnd
+
+parseNor :: Parser (Expression -> Expression -> Expression)
+parseNor = do
+    keyword Keywords.nor
+    return $ (UnaryOperation BooleanNot .) . BooleanOr
+
 {- IO -}
 ------------------------------------------------------------------------------------
 parseMeow :: Parser Expression
@@ -206,6 +218,8 @@ operatorsR =
         , InfixL  (BinaryOperation NotEqual         <$ keyword (LongSymbol "!=")    )   ]
     ,   [ InfixL  (BooleanAnd                       <$ keyword Keywords.and         )   ]
     ,   [ InfixL  (BooleanOr                        <$ keyword Keywords.or          )   ]
+    ,   [ InfixL  parseNand
+        , InfixL  parseNor                                                              ]
     ,   [ TernR   ((TernaryOperation <$ symbol ':') <$ symbol '?'                   )   ]
     ]
 
