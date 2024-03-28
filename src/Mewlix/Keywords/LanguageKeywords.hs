@@ -75,7 +75,7 @@ local = "mew"
 
 -- Application + Piping:
 pipe :: LongSymbol
-pipe = ">:"
+pipe = ":>"
 
 pipeRef :: SimpleKeyword
 pipeRef = "___x"
