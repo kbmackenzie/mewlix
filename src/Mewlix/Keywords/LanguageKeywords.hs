@@ -3,8 +3,9 @@
 
 module Mewlix.Keywords.LanguageKeywords
 ( function
-, pipe
 , local
+, pipe
+, pipeRef
 , commentOpen
 , commentClose
 , true
@@ -68,12 +69,16 @@ import Prelude hiding (and, or, not, break)
 function :: LongSymbol
 function = "=^.x.^="
 
-pipe :: LongSymbol
-pipe = "|>"
-
 -- Variables:
 local :: SimpleKeyword
 local = "mew"
+
+-- Function pipes:
+pipe :: LongSymbol
+pipe = "|>"
+
+pipeRef :: SimpleKeyword
+pipeRef = "___x"
 
 -- Block Comments:
 commentOpen :: LongSymbol
@@ -224,6 +229,7 @@ reserved = HashSet.fromList
     , nil
     , meow
     , listen
+    , pipeRef
     , end
     , ret
     , catnap
