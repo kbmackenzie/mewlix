@@ -35,6 +35,8 @@ module Mewlix.Keywords.LanguageKeywords
 , not
 , and
 , or
+, nand
+, nor
 , push
 , peek
 , pop
@@ -130,6 +132,12 @@ and = "and"
 or :: SimpleKeyword
 or = "or"
 
+nand :: SimpleKeyword
+nand = "nand"
+
+nor :: SimpleKeyword
+nor = "nor"
+
 push :: SimpleKeyword
 push = "push"
 
@@ -224,6 +232,8 @@ reserved = HashSet.fromList
     , not
     , and
     , or
+    , nand
+    , nor
     , push
     , peek
     , else_
