@@ -94,8 +94,8 @@ parseArguments = Arguments <$> parensList expression
 
 {- Application + Piping-}
 ------------------------------------------------------------------------------------
-apply :: Parser (Expression -> Expression -> Expression)
-apply = do
+pipe :: Parser (Expression -> Expression -> Expression)
+pipe = do
     let argument = Arguments . List.singleton
     keyword Keywords.pipe
     return $ (. argument) . FunctionCall
@@ -248,7 +248,7 @@ operatorsR =
     ,   [ InfixL  parseNand                                                             ]
     ,   [ InfixL  parseNor                                                              ]
     ,   [ TernR   ((TernaryOperation <$ symbol ':') <$ symbol '?'                   )   ]
-    ,   [ InfixL  apply                                                                 ]
+    ,   [ InfixL  pipe                                                                  ]
     ,   [ InfixL  compose                                                               ]
     ]
 
