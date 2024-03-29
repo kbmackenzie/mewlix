@@ -203,7 +203,7 @@ parseLambda = do
     keyword Keywords.lambda
     params <- parseParams
     keyword $ LongSymbol "=>"
-    LambdaExpression params <$> exprR
+    LambdaExpression params <$> expression
 
 {- Assignment -}
 ------------------------------------------------------------------------------------
