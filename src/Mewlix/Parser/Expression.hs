@@ -42,16 +42,16 @@ import qualified Data.List as List
 ------------------------------------------------------------------------------------
 termL :: Parser Expression
 termL = Mega.choice
-    [ parseHome
+    [ home
     , Identifier <$> parseKey ]
 
 termR :: Parser Expression
 termR = Mega.choice
     [ parens expression
-    , parseBox
-    , parseList
-    , parseSuperCall
-    , parseMeet
+    , box
+    , shelf
+    , superCall
+    , new
     , parseYarnString expression
     , PrimitiveExpr <$> parsePrim
     , Identifier    <$> parseKey  ]
@@ -65,20 +65,20 @@ exprR = makeExprParser termR operatorsR <?> "right-hand expression"
 expression :: Parser Expression
 expression = Mega.choice
     [ assignment
-    , parseMeow
-    , parseListen
-    , parseLambda
-    , parseThrow
+    , meow
+    , listen
+    , lambda
+    , throw_
     , exprR             ]
     <?> "expression"
 
 {- Data -}
 ------------------------------------------------------------------------------------
-parseList :: Parser Expression
-parseList = ListExpression <$> bracketList expression <?> "list"
+shelf :: Parser Expression
+shelf = ListExpression <$> bracketList expression <?> "list"
 
-parseBox :: Parser Expression
-parseBox = do
+box :: Parser Expression
+box = do
     let parsePair :: Parser (Key, Expression)
         parsePair = do
             key <- parseKey
@@ -89,8 +89,8 @@ parseBox = do
     keyword Keywords.box
     BoxExpression <$> bracketList parsePair <?> "box"
 
-parseArguments :: Parser Arguments
-parseArguments = Arguments <$> parensList expression
+arguments :: Parser Arguments
+arguments = Arguments <$> parensList expression
 
 {- Composing + Piping -}
 ------------------------------------------------------------------------------------
@@ -119,13 +119,13 @@ compose = do
 
 {- Boolean -}
 ------------------------------------------------------------------------------------
-parseNand :: Parser (Expression -> Expression -> Expression)
-parseNand = do
+nand :: Parser (Expression -> Expression -> Expression)
+nand = do
     keyword Keywords.nand
     return $ (UnaryOperation BooleanNot .) . BooleanAnd
 
-parseNor :: Parser (Expression -> Expression -> Expression)
-parseNor = do
+nor :: Parser (Expression -> Expression -> Expression)
+nor = do
     keyword Keywords.nor
     return $ (UnaryOperation BooleanNot .) . BooleanOr
 
@@ -137,37 +137,37 @@ ternary = let op = flip TernaryOperation
 
 {- IO -}
 ------------------------------------------------------------------------------------
-parseMeow :: Parser Expression
-parseMeow = do
+meow :: Parser Expression
+meow = do
     keyword Keywords.meow
     MeowExpression <$> expression
 
-parseListen :: Parser Expression
-parseListen = do
+listen :: Parser Expression
+listen = do
     keyword Keywords.listen
     ListenExpression <$> Mega.optional expression
 
 {- Clowder -}
 ------------------------------------------------------------------------------------
-parseHome :: Parser Expression
-parseHome = PrimitiveExpr MewlixHome <$ keyword Keywords.home
+home :: Parser Expression
+home = PrimitiveExpr MewlixHome <$ keyword Keywords.home
 
-parseSuperCall :: Parser Expression
-parseSuperCall = do
+superCall :: Parser Expression
+superCall = do
     args <- do
         keyword Keywords.superCall
-        fromMaybe mempty <$> Mega.optional parseArguments
+        fromMaybe mempty <$> Mega.optional arguments
     return (SuperCall args)
 
-parseMeet :: Parser Expression
-parseMeet = do
+new :: Parser Expression
+new = do
     keyword Keywords.new
-    ClowderCreate <$> termR <*> parseArguments
+    ClowderCreate <$> termR <*> arguments
 
 {- Throw -}
 ------------------------------------------------------------------------------------
-parseThrow :: Parser Expression
-parseThrow = do
+throw_ :: Parser Expression
+throw_ = do
     keyword Keywords.throw
     pos     <- Mega.getSourcePos
     expr    <- expression
@@ -178,28 +178,28 @@ parseThrow = do
 property :: Parser Expression
 property = ObjectProperty <$> parseKey
 
-dotOp :: Parser (Expression -> Expression)
-dotOp = do
+dot :: Parser (Expression -> Expression)
+dot = do
     Mega.try $ do
         symbol '.'
         Mega.notFollowedBy (symbol '.')
     flip DotExpression <$> property
 
-boxOp :: Parser (Expression -> Expression)
-boxOp = flip LookupExpression <$> brackets expression
+lookup_ :: Parser (Expression -> Expression)
+lookup_ = flip LookupExpression <$> brackets expression
 
 call :: Parser (Expression -> Expression)
 call = do
-    args <- parseArguments
+    args <- arguments
     return (`FunctionCall` args)
 
 postfixes :: Parser (Expression -> Expression)
-postfixes = foldr1 (flip (.)) <$> Mega.some (Mega.choice [ dotOp, boxOp, call ])
+postfixes = foldr1 (flip (.)) <$> Mega.some (Mega.choice [ dot, lookup_, call ])
 
 {- Lambda -}
 ------------------------------------------------------------------------------------
-parseLambda :: Parser Expression
-parseLambda = do
+lambda :: Parser Expression
+lambda = do
     keyword Keywords.lambda
     params <- parseParams
     keyword $ LongSymbol "=>"
@@ -251,8 +251,8 @@ operatorsR =
         , InfixL  (BinaryOperation NotEqual         <$ keyword (LongSymbol "!=")    )   ]
     ,   [ InfixL  (BooleanAnd                       <$ keyword Keywords.and         )   ]
     ,   [ InfixL  (BooleanOr                        <$ keyword Keywords.or          )   ]
-    ,   [ InfixL  parseNand                                                             ]
-    ,   [ InfixL  parseNor                                                              ]
+    ,   [ InfixL  nand                                                                  ]
+    ,   [ InfixL  nor                                                                   ]
     ,   [ TernR   ternary                                                               ]
     ,   [ InfixL  pipe                                                                  ]
     ,   [ InfixL  compose                                                               ]
