@@ -129,6 +129,12 @@ parseNor = do
     keyword Keywords.nor
     return $ (UnaryOperation BooleanNot .) . BooleanOr
 
+{- If/Else -}
+------------------------------------------------------------------------------------
+ternary :: Parser (Parser (Expression -> Expression -> Expression -> Expression))
+ternary = let op = flip TernaryOperation
+    in (op <$ keyword Keywords.ternaryElse) <$ keyword Keywords.ternaryIf
+
 {- IO -}
 ------------------------------------------------------------------------------------
 parseMeow :: Parser Expression
@@ -247,7 +253,7 @@ operatorsR =
     ,   [ InfixL  (BooleanOr                        <$ keyword Keywords.or          )   ]
     ,   [ InfixL  parseNand                                                             ]
     ,   [ InfixL  parseNor                                                              ]
-    ,   [ TernR   ((TernaryOperation <$ symbol ':') <$ symbol '?'                   )   ]
+    ,   [ TernR   ternary                                                               ]
     ,   [ InfixL  pipe                                                                  ]
     ,   [ InfixL  compose                                                               ]
     ]
