@@ -58,6 +58,8 @@ mew cat = =^-x-^= [
 -- Functions:
 mew sum = =^oxo^= (a, b) => a + b
 
+mew curry = =^oxo^= (a) => =^oxo^= (b) => =^oxo^= (c) => [a, b, c]
+
 =^.x.^= sumf(a, b)
   bring a + b
 meowmeow
