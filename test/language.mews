@@ -21,7 +21,7 @@ x or x
 x and x
 x nor x
 x nand x
-x ? "x" : "not x"
+"x" if x else "not x"
 
 f :> g
 f :> g :> h
