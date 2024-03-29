@@ -242,6 +242,8 @@ reserved = HashSet.fromList
     , meow
     , listen
     , composeRef
+    , ternIf
+    , ternElse
     , end
     , ret
     , catnap
