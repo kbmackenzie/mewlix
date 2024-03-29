@@ -43,6 +43,8 @@ module Mewlix.Keywords.LanguageKeywords
 , push
 , peek
 , pop
+, ternaryIf
+, ternaryElse
 , takes
 , alias
 , from
@@ -165,6 +167,12 @@ meow = "meow"
 
 listen :: SimpleKeyword
 listen = "listen"
+
+ternaryIf :: SimpleKeyword
+ternaryIf = "if"
+
+ternaryElse :: SimpleKeyword
+ternaryElse = "else"
 
 -- Statements:
 end :: SimpleKeyword
