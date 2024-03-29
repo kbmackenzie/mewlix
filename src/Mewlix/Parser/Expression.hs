@@ -133,7 +133,7 @@ nor = do
 ------------------------------------------------------------------------------------
 ternary :: Parser (Parser (Expression -> Expression -> Expression -> Expression))
 ternary = let op = flip TernaryOperation
-    in (op <$ keyword Keywords.ternaryElse) <$ keyword Keywords.ternaryIf
+    in (op <$ keyword Keywords.ternElse) <$ keyword Keywords.ternIf
 
 {- IO -}
 ------------------------------------------------------------------------------------
