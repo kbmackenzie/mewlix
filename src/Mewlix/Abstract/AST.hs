@@ -67,6 +67,7 @@ data BinaryOp =
     | Modulo
     | Power
     | StringConcat
+    | Contains
     | Equal
     | LessThan
     | GreaterThan
