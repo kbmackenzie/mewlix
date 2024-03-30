@@ -211,7 +211,8 @@ instance ToJavaScript Expression where
     -- 'Throw' expression:
     ----------------------------------------------
     transpileJS _ (ThrowError expr pos) = do
-        arg <- toJS expr
+        let stringify = syncCall Mewlix.purrify . List.singleton
+        arg <- stringify <$> toJS expr
         return $ createError CatOnComputer pos arg
 
     -- IO:
