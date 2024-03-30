@@ -48,6 +48,7 @@ meow shelf...?
 "charlie" push shelf
 peek shelf
 knock over shelf
+meow "charlie" in shelf
 
 mew cat = =^-x-^= [
   name: "charlie",
