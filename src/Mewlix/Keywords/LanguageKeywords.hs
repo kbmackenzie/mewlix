@@ -32,6 +32,7 @@ module Mewlix.Keywords.LanguageKeywords
 , thenDo
 , paw
 , is
+, in_
 , claw
 , box
 , lambda
@@ -131,6 +132,9 @@ claw = ["claw", "at"]
 
 is :: SimpleKeyword
 is = "is"
+
+in_ :: SimpleKeyword
+in_ = "in"
 
 box :: LongSymbol
 box = "=^-x-^="
