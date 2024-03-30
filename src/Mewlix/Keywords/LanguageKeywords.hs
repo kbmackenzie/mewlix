@@ -257,6 +257,7 @@ reserved = HashSet.fromList
     , new
     , home
     , is
+    , in_
     , not
     , and
     , or
