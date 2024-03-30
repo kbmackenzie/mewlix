@@ -29,6 +29,7 @@ binaryOpFunc op = case op of
     Modulo          -> syncCall (Mewlix.numbers "mod")
     Power           -> syncCall (Mewlix.numbers "pow")
     StringConcat    -> syncCall (Mewlix.strings "concat")
+    Contains        -> syncCall (Mewlix.shelves "contains")
     Equal           -> syncCall (Mewlix.compare "isEqual")
     NotEqual        -> ("!" <>) . syncCall (Mewlix.compare "isEqual")
     LessThan        -> compareTo [Mewlix.lessThan] 
