@@ -451,7 +451,11 @@ instance ToJavaScript YarnBall where
             transpiled <- mapM (transpileJS moduleLevel) (getBlock block)
 
             -- The standard library import.
-            let stdLibrary = indentLine moduleLevel "const std = Mewlix.Base;\n"
+
+            noStd <- asks transpilerNoStd
+            let stdLibrary = if noStd
+                then mempty
+                else indentLine moduleLevel "const std = Mewlix.Base;\n"
 
             -- The module bindings to be exported:
             moduleBindings <- do
