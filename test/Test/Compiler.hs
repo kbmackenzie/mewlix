@@ -7,8 +7,11 @@ module Test.Compiler
 ) where
 
 import Data.Text (Text)
-import Mewlix.Compiler.Run
-import Mewlix.Compiler.Transpiler (emptyContext)
+import Mewlix.Compiler.Run (compileJS)
+import Mewlix.Compiler.Transpiler (specialImports, emptyContext)
+import Mewlix.Project.Maker (Language(..))
+import Mewlix.Project.Data.Types (ProjectMode(..))
+import Mewlix.Project.Modules.StandardLibrary (addLibraries)
 import Mewlix.Utils.FileIO (readFileT)
 import System.IO (stderr, hPutStrLn)
 import Control.Exception (throwIO, Exception(..))
@@ -23,7 +26,11 @@ compileFile path = do
     contents <- readFileT path >>= \case
         (Left e)    -> throwIO e
         (Right a)   -> return a
-    case compileJS emptyContext path contents of
+
+    let libs = addLibraries JavaScript Library mempty
+    let context = emptyContext { specialImports = libs }
+
+    case compileJS context path contents of
         (Left e)    -> do
             hPutStrLn stderr e
             (throwIO . ParseException . concat)
