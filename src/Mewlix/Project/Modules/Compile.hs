@@ -4,13 +4,10 @@ module Mewlix.Project.Modules.Compile
 ( compileModules
 ) where
 
+import Mewlix.Project.Maker (ProjectMaker, ProjectContext(..), asks)
 import Mewlix.Compiler (TranspilerContext(..))
-import Mewlix.Project.Maker (ProjectMaker)
-import Mewlix.Project.Data.Types
-    ( ProjectData(..)
-    , ProjectMode(..)
-    , ProjectFlag(..)
-    )
+import Mewlix.Project.Data.Types (ProjectData(..), ProjectFlag(..))
+import Mewlix.Project.Modules.StandardLibrary (addLibraries)
 import Mewlix.Project.Modules.ModuleWriter (writeModule)
 import Mewlix.Project.Modules.FileSearch (processSources, validateSources)
 import Mewlix.Project.Log (projectLog)
@@ -18,23 +15,16 @@ import Mewlix.Utils.Show (showT)
 import Mewlix.Abstract.Key (Key(..))
 import Data.HashMap.Strict (mapKeys)
 import qualified Data.Set as Set
-import qualified Data.HashMap.Strict as HashMap
 
-createContext :: ProjectData -> TranspilerContext
+createContext :: ProjectData -> ProjectMaker TranspilerContext
 createContext projectData = do
-    -- Implicitly adds the standard yarn ball + the mode yarn balls to the
-    -- specialImports map:
-    let addStd = HashMap.insert (Key "std") "Mewlix.Base"
-    let addModeImports = case projectMode projectData of
-            Console -> HashMap.insert (Key "std.console") "Mewlix.Console"
-            Graphic -> HashMap.insert (Key "std.graphic") "Mewlix.Graphic"
-            Library -> id
-    let patchImports = addModeImports . addStd . mapKeys Key
-    let flags = projectFlags projectData
+    language <- asks projectLanguage
+    let projectLibs = addLibraries language (projectMode projectData)
+    let createImportMap = projectLibs . mapKeys Key . projectSpecialImports
 
-    TranspilerContext
-        { specialImports  = (patchImports . projectSpecialImports) projectData
-        , transpilerNoStd = Set.member NoStd flags                              }
+    return TranspilerContext
+        { specialImports  = createImportMap projectData
+        , transpilerNoStd = Set.member NoStd (projectFlags projectData) }
 
 compileModules :: ProjectData -> ProjectMaker [FilePath]
 compileModules projectData = do
@@ -44,7 +34,8 @@ compileModules projectData = do
     projectLog projectData $ mconcat
         ["Compiling ", (showT . length) sources, " yarn balls!" ]
 
-    let context = createContext projectData
+    context <- createContext projectData
+
     let compile :: FilePath -> ProjectMaker FilePath
         compile source = do
             projectLog projectData ("Compiling yarn ball " <> showT source)
