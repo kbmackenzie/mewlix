@@ -25,7 +25,7 @@ import Mewlix.CLI.Options
     , MewlixOptions(..)
     , getOptions
     )
-import Lens.Micro.Platform ((%~), (.~), set)
+import Lens.Micro.Platform ((%~), set)
 import qualified Data.Text as Text
 import qualified Data.Set as Set
 import Data.Maybe (catMaybes)
@@ -55,7 +55,7 @@ fromFlags FlagOptions { quietFlag = quiet, noStdFlag = noStd, noReadMeFlag = noR
             [ fromBool quiet    Quiet
             , fromBool noStd    NoStd
             , fromBool noReadMe NoReadMe ]
-    projectFlagsL .~ Set.fromList flagList
+    projectFlagsL %~ mappend (Set.fromList flagList)
 
 runOption :: Language -> MewlixOptions -> IO ()
 runOption language = \case
