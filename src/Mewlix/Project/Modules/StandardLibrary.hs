@@ -19,8 +19,8 @@ library = HashMap.mapKeys Key . HashMap.fromList
 
 baseLibrary :: Language -> Library
 baseLibrary JavaScript = library
-    [ ("std"       , "Mewlix.Base" )
-    , ("std.curry" , "Mewlix.Curry") ]
+    [ ("std"       , "Mewlix.Base"      )
+    , ("std.curry" , "Mewlix.BaseCurry" ) ]
 
 templateLibraries :: Language -> ProjectMode -> Library
 templateLibraries JavaScript = \case
