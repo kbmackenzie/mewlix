@@ -29,6 +29,10 @@ f :> g :> h
 x |> f
 x |> f |> g |> h
 
+~( ^.x.^)>
+This is a long comment!
+<(^.x.^ )~
+
 -- Empty declarations:
 mew empty
 mew also_empty = nothing
