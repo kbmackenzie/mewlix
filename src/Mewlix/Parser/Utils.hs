@@ -38,7 +38,7 @@ blockComment = open >> Mega.skipManyTill Mega.anySingle close
     -- Case-insensitive comment symbols:
     where 
         commentSymbol = void . MChar.string' . unwrapSymbol
-        open = commentSymbol Keywords.commentClose
+        open  = commentSymbol Keywords.commentOpen
         close = commentSymbol Keywords.commentClose
 
 {- Newlines: -}
