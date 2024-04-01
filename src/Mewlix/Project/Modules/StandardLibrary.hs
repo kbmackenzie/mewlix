@@ -26,10 +26,10 @@ templateLibraries :: Language -> ProjectMode -> Library
 templateLibraries JavaScript = \case
     Console -> library
         [ ("std.console"        , "Mewlix.Console"      )
-        , ("std.curry.console"  , "Mewlix.ConsoleCurry" ) ]
+        , ("std.console.curry"  , "Mewlix.ConsoleCurry" ) ]
     Graphic -> library
         [ ("std.graphic"        , "Mewlix.Graphic"      )
-        , ("std.curry.graphic"  , "Mewlix.GraphicCurry" ) ]
+        , ("std.graphic.curry"  , "Mewlix.GraphicCurry" ) ]
     Library -> mempty
 
 addLibraries :: Language -> ProjectMode -> (Library -> Library)
