@@ -1,12 +1,12 @@
 name:         mewlix
 version:      1.0.0
-author:       KBMackenzie <kelly.a.betty@gmail.com>
-github:       KBMackenzie/mewlix
+author:       kbmackenzie <kelly.a.betty@gmail.com>
+github:       kbmackenzie/mewlix
 license:      MIT
-copyright:    2024 KBMackenzie
+copyright:    2024 kbmackenzie
 description:  |
   A compiler for Mewlix, a cat-themed esoteric programming language that compiles to vanilla Javascript.
-  Learn more at <https://github.com/KBMackenzie/mewlix/#readme>
+  Learn more at <https://github.com/kbmackenzie/mewlix/#readme>
 
 extra-source-files:
   - README.md
