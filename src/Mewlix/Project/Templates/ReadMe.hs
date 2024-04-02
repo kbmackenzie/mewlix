@@ -20,5 +20,6 @@ createReadme projectData = do
         let path = outputFolder </> "README.md"
         let contents = Text.unlines
                 [ "# " <> projectName projectData 
+                , mempty
                 , projectDescription projectData  ]
         liftIO (writeFileT path contents)
