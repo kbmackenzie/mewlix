@@ -357,7 +357,8 @@ instance ToJavaScript Statement where
     ----------------------------------------------
     transpileJS level   (ClassDef clowder) = do
         let extends = maybe Mewlix.clowder getKey (classExtends clowder)
-        let header = mconcat [ "class ", (getKey . className) clowder, " extends ", extends ]
+        let binding = (getKey . className) clowder
+        let header = mconcat [ "const ", binding, " = class ", binding, " extends ", extends ]
 
         let classLevel  = succ level
         let methodLevel = succ classLevel
