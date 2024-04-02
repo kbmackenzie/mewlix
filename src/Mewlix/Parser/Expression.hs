@@ -15,6 +15,7 @@ import Mewlix.Abstract.AST
     )
 import Mewlix.Parser.Utils
     ( Parser
+    , lexeme
     , symbol
     , parens
     , brackets
@@ -34,8 +35,10 @@ import Text.Megaparsec ((<?>))
 import Mewlix.Keywords.Types (LongSymbol(..), unwrapKeyword)
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import qualified Text.Megaparsec as Mega
+import qualified Text.Megaparsec.Char as MChar
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 import Data.Maybe (fromMaybe)
+import Control.Monad (void)
 import qualified Data.List as List
 
 {- Left-hand, Right-hand -}
@@ -211,8 +214,9 @@ assignment :: Parser Expression
 assignment = do
     key <- Mega.try $ do
         key <- exprL
-        symbol '='
-        Mega.notFollowedBy (symbol '=')
+        lexeme $ do
+            (void . MChar.char) '='
+            Mega.notFollowedBy (MChar.char '=')
         return key
     Assignment key <$> expression
 
