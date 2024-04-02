@@ -20,22 +20,22 @@ yarn ball main
 meowmeow
 ```
 
-Mewlix is similar to C-family languages, with a few differences. Instead of arrays, Mewlix has a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*. Learn more [here](https://github.com/KBMackenzie/mewlix/wiki/Shelf)!
+Mewlix is similar to C-family languages, with a few differences. Instead of arrays, Mewlix has a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*. Learn more [here](https://github.com/kbmackenzie/mewlix/wiki/Shelf)!
 
 Additionally, it has:
 - `nand` and `nor` operators
-- [Function composition](https://github.com/KBMackenzie/mewlix/wiki/Operators#function-composition-) with the `:>` operator
-- [Function application / piping](https://github.com/KBMackenzie/mewlix/wiki/Operators#function-pipes-) with the `|>` operator
-- String interpolation with [yarn strings](https://github.com/KBMackenzie/mewlix/wiki/Expressions#yarn-strings), `:3"like [this]!`
-- Classes, affectionately nicknamed [clowders](https://github.com/KBMackenzie/mewlix/wiki/Clowders)
+- [Function composition](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-composition-) with the `:>` operator
+- [Function application / piping](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-pipes-) with the `|>` operator
+- String interpolation with [yarn strings](https://github.com/kbmackenzie/mewlix/wiki/Expressions#yarn-strings), `:3"like [this]!`
+- Classes, affectionately nicknamed [clowders](https://github.com/kbmackenzie/mewlix/wiki/Clowders)
 - Higher order functions and anonymous functions
 
 ## Documentation
-All of the documentation for Mewlix can be found in the [wiki](https://github.com/KBMackenzie/mewlix/wiki).
+All of the documentation for Mewlix can be found in the [wiki](https://github.com/kbmackenzie/mewlix/wiki).
 
-If you have any questions, be sure to read the [FAQ](https://github.com/KBMackenzie/mewlix/wiki/FAQ)!
+If you have any questions, be sure to read the [FAQ](https://github.com/kbmackenzie/mewlix/wiki/FAQ)!
 
-![Looping animation of a cartoon cat resting on a shelf.](https://github.com/KBMackenzie/mewlix/wiki/imgs/cat-shelf.webp)
+![Looping animation of a cartoon cat resting on a shelf.](https://github.com/kbmackenzie/mewlix/wiki/imgs/cat-shelf.webp)
 
 ## Installation
 Mewlix's compiler is a self-contained binary executable. It can be run from anywhere, and has no external dependencies.

@@ -30,9 +30,9 @@ You *can*, but I don't think you *should*. [This StackOverflow answer explains w
 
 ### Build From Source
 1. Install [stack](https://docs.haskellstack.org/en/stable/). You should preferably get version 2.13.1 or above.
-2. Clone the [mewlix](https://github.com/KBMackenzie/mewlix) repository:
+2. Clone the [mewlix](https://github.com/kbmackenzie/mewlix) repository:
 ```bash
-git clone https://github.com/KBMackenzie/mewlix
+git clone https://github.com/kbmackenzie/mewlix
 cd mewlix
 ```
 3. Build the `mewlix` binary and install it to `~/.local/bin` with `stack`:
