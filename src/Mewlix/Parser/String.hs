@@ -14,7 +14,6 @@ import Mewlix.Abstract.AST
 import Mewlix.Parser.Utils
     ( Parser
     , lexeme
-    , brackets
     )
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -92,6 +91,9 @@ parseYarnString expression = (<?> "yarn string") $ do
 
     let yarnMeow :: Parser ()
         yarnMeow = void (MChar.string' ":3\"" <?> "yarn string")
+
+    let brackets :: Parser a -> Parser a
+        brackets p = (lexeme . MChar.char) '[' *> p <* MChar.char ']'
 
     let stringPiece :: Parser Expression
         stringPiece = Mega.choice
