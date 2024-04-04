@@ -46,8 +46,6 @@ data Expression =
     | PawType               Expression
     | IsInstance            Expression Expression
     | ClawEntries           Expression
-    | ListPush              Expression Expression
-    | ListPop               Expression
     | LambdaExpression      Params Expression
     | FunctionCall          Expression Arguments
     | SuperCall             Arguments

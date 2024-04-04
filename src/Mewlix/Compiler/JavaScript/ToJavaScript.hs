@@ -132,17 +132,6 @@ instance ToJavaScript Expression where
         params <- toJS paramExprs
         wrap ("async " <> params <> " => " <> body)
 
-    -- List expressions:
-    ----------------------------------------------
-    transpileJS _ (ListPush itemExpr shelfExpr) = do
-        item  <- toJS itemExpr
-        shelf <- toJS shelfExpr
-        return $ syncCall (Mewlix.shelves "push") [ shelf, item ]
-
-    transpileJS _ (ListPop shelfExpr) = do
-        shelf <- toJS shelfExpr
-        return $ syncCall (Mewlix.shelves "pop") [ shelf ]
-
     -- Function calls:
     ----------------------------------------------
     transpileJS _ (FunctionCall expr argExprs) = do
