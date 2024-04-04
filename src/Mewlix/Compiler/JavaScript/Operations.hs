@@ -28,6 +28,7 @@ binaryOpFunc op = case op of
     Division        -> syncCall (Mewlix.numbers "div")
     Modulo          -> syncCall (Mewlix.numbers "mod")
     Power           -> syncCall (Mewlix.numbers "pow")
+    ListPush        -> syncCall (Mewlix.shelves "push")
     StringConcat    -> syncCall (Mewlix.strings "concat")
     Contains        -> syncCall (Mewlix.shelves "contains")
     Equal           -> syncCall (Mewlix.compare "isEqual")
@@ -40,6 +41,7 @@ binaryOpFunc op = case op of
 unaryOpFunc :: UnaryOp -> OperationBuilder
 unaryOpFunc op = case op of
     Negation        -> syncCall (Mewlix.numbers "negate")
+    ListPop         -> syncCall (Mewlix.shelves "pop"   )
     ListPeek        -> syncCall (Mewlix.shelves "peek"  )
     BooleanNot      -> syncCall (Mewlix.boolean "not"   )
     LengthLookup    -> syncCall (Mewlix.shelves "length")
