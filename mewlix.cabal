@@ -39,11 +39,11 @@ library
       Mewlix.Compiler
       Mewlix.Compiler.Indentation
       Mewlix.Compiler.JavaScript.Constants
-      Mewlix.Compiler.JavaScript.ErrorUtils
-      Mewlix.Compiler.JavaScript.ExpressionUtils
+      Mewlix.Compiler.JavaScript.Error
       Mewlix.Compiler.JavaScript.Operations
-      Mewlix.Compiler.JavaScript.StatementUtils
       Mewlix.Compiler.JavaScript.ToJavaScript
+      Mewlix.Compiler.JavaScript.Utils.Expression
+      Mewlix.Compiler.JavaScript.Utils.Statement
       Mewlix.Compiler.Run
       Mewlix.Compiler.Transpiler
       Mewlix.Keywords.LanguageKeywords

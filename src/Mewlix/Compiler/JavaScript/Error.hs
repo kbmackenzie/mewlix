@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Compiler.JavaScript.ErrorUtils
+module Mewlix.Compiler.JavaScript.Error
 ( ErrorCode(..)
 , errorInfo
 , createError

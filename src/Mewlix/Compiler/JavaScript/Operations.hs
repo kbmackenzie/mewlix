@@ -7,7 +7,7 @@ module Mewlix.Compiler.JavaScript.Operations
 ) where
 
 import Data.Text (Text)
-import Mewlix.Compiler.JavaScript.ExpressionUtils (syncCall)
+import Mewlix.Compiler.JavaScript.Utils.Expression (syncCall)
 import Mewlix.String.Utils (sepComma)
 import qualified Mewlix.Compiler.JavaScript.Constants as Mewlix
 import Mewlix.Abstract.AST (BinaryOp(..), UnaryOp(..))

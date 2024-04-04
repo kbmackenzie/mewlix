@@ -31,7 +31,7 @@ import Mewlix.Compiler.Indentation
     , indentLine
     , indentMany
     )
-import Mewlix.Compiler.JavaScript.ExpressionUtils
+import Mewlix.Compiler.JavaScript.Utils.Expression
     ( instantiate
     , wrap
     , lambda
@@ -40,8 +40,8 @@ import Mewlix.Compiler.JavaScript.ExpressionUtils
     , asyncCall
     , asBoolean
     )
-import Mewlix.Compiler.JavaScript.ErrorUtils (ErrorCode(..), errorInfo, createError)
-import Mewlix.Compiler.JavaScript.StatementUtils (terminate, findBindings)
+import Mewlix.Compiler.JavaScript.Error (ErrorCode(..), errorInfo, createError)
+import Mewlix.Compiler.JavaScript.Utils.Statement (terminate, findBindings)
 import Mewlix.Compiler.JavaScript.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.JavaScript.Constants as Mewlix
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
