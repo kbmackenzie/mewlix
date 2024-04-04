@@ -235,7 +235,9 @@ operatorsR =
         , InfixL  (IsInstance                       <$ keyword Keywords.is          )
         , Prefix  (ClawEntries                      <$ keyword Keywords.claw        )   ]
     ,   [ Postfix (UnaryOperation LengthLookup      <$ keyword (LongSymbol "...?")  )   ] 
-    ,   [ Prefix  (UnaryOperation ListPeek          <$ keyword Keywords.peek        )   ]
+    ,   [ Prefix  (UnaryOperation ListPeek          <$ keyword Keywords.peek        )
+        , Prefix  (UnaryOperation ListPop           <$ keyword Keywords.pop         )
+        , InfixL  (BinaryOperation ListPush         <$ keyword Keywords.push        )   ]
     ,   [ InfixL  (BinaryOperation StringConcat     <$ keyword (LongSymbol "..")    )
         , InfixL  (BinaryOperation Contains         <$ keyword Keywords.in_         )   ]
     ,   [ InfixL  (BinaryOperation Power            <$ symbol '^'                   )   ]
