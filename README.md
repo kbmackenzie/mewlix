@@ -1,6 +1,6 @@
 <img align="left" width="256" height="256" src="logo.svg" alt="Mewlix logo">
 
-**Mewlix** is a cat-themed [esoteric programming language](https://en.wikipedia.org/wiki/Esoteric_programming_language) that compiles to vanilla JavaScript. It comes with templates for making little web applications and little HTML5 games.
+**Mewlix** is a cat-themed [esoteric programming language](https://en.wikipedia.org/wiki/Esoteric_programming_language) that compiles to vanilla JavaScript. It comes with templates for making little web applications and little HTML5 games!
 
 Mewlix's compiler is written in pure Haskell, and is a self-contained binary executable. It can build projects, run them in a simple HTTP server, and package the build output neatly into a `.zip` file for upload in websites like [itch.io](https://itch.io/).
 
@@ -20,7 +20,7 @@ yarn ball main
 meowmeow
 ```
 
-Mewlix is similar to C-family languages, with a few differences. Instead of arrays, Mewlix has a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*. Learn more [here](https://github.com/kbmackenzie/mewlix/wiki/Shelf)!
+Mewlix is similar to C-family languages, with a few key differences. Instead of arrays, Mewlix has a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*. Learn more [here](https://github.com/kbmackenzie/mewlix/wiki/Shelf)!
 
 Additionally, it has:
 - `nand` and `nor` operators
@@ -28,7 +28,9 @@ Additionally, it has:
 - [Function application / piping](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-pipes-) with the `|>` operator
 - String interpolation with [yarn strings](https://github.com/kbmackenzie/mewlix/wiki/Expressions#yarn-strings), `:3"like [this]!`
 - Classes, affectionately nicknamed [clowders](https://github.com/kbmackenzie/mewlix/wiki/Clowders)
-- Higher order functions and anonymous functions
+- Higher-order functions
+- Anonymous functions, defined like this: `=^oxo^= (a, b) => a + b`
+- *Feline-oriented programming capabilities!*
 
 ## Documentation
 All of the documentation for Mewlix can be found in the [wiki](https://github.com/kbmackenzie/mewlix/wiki).
