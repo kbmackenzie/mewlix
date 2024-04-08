@@ -20,16 +20,15 @@ yarn ball main
 meowmeow
 ```
 
-Mewlix is similar to C-family languages, with a few key differences. Instead of arrays, Mewlix has a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*. Learn more [here](https://github.com/kbmackenzie/mewlix/wiki/Shelf)!
+Mewlix is similar to C-family languages, with a few key differences. Instead of arrays or lists, Mewlix has a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*. Learn more [here](https://github.com/kbmackenzie/mewlix/wiki/Shelf)!
 
 Additionally, it has:
-- `nand` and `nor` operators
-- [Function composition](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-composition-) with the `:>` operator
-- [Function application / piping](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-pipes-) with the `|>` operator
+- Cat-themed syntax!
 - String interpolation with [yarn strings](https://github.com/kbmackenzie/mewlix/wiki/Expressions#yarn-strings), `:3"like [this]!`
-- Classes, affectionately nicknamed [clowders](https://github.com/kbmackenzie/mewlix/wiki/Clowders)
-- Higher-order functions
-- Anonymous functions, defined like this: `=^oxo^= (a, b) => a + b`
+- Lambda functions, defined like this: `=^oxo^= (a, b) => a + b`
+- Classes, affectionately nicknamed [clowders](https://github.com/kbmackenzie/mewlix/wiki/Clowders)!
+- A [function composition](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-composition-) operator (`:>`) and a [function application](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-pipes-) operator (`|>`)
+- `nand` and `nor` operators, for pessimistic boolean expressions
 - *Feline-oriented programming capabilities!*
 
 ## Documentation
