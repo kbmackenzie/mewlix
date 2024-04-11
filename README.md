@@ -17,7 +17,7 @@ yarn ball main
 =^.x.^= greet()
   mew name = listen "What's your name?"
   meow :3"Hello, [name]!"
-meowmeow
+~meow
 ```
 
 Mewlix is similar to C-family languages, with a few key differences. Instead of arrays or lists, Mewlix has a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*. Learn more [here](https://github.com/kbmackenzie/mewlix/wiki/Shelf)!
