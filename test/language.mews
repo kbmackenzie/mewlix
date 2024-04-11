@@ -67,24 +67,24 @@ mew curry = =^oxo^= (a) => =^oxo^= (b) => =^oxo^= (c) => [a, b, c]
 
 =^.x.^= sumf(a, b)
   bring a + b
-meowmeow
+~meow
 
 -- Clowders:
 clowder Cat
   =^.x.^= wake(name)
     home.name = name
-  meowmeow
+  ~meow
 
   =^.x.^= introduction()
     bring "meow, i'm " .. home.name
-  meowmeow
-meowmeow
+  ~meow
+~meow
 
 clowder Charlie is Cat
   =^.x.^= wake()
     look outside("charlie")
-  meowmeow
-meowmeow
+  ~meow
+~meow
 
 mew charlie = new Charlie()
 meow (charlie is Cat)
@@ -104,19 +104,19 @@ or if r == 1
   meow "impossible by design."
 otherwise
   meow "hello! this is the most common case by a very, very, very big margin!"
-meowmeow
+~meow
 
 -- Loops:
 stare while true 
   meow ":3"
   escape
-meowmeow
+~meow
 
 mew kitties = [1, 2, 3]
 it's raining kitties! catch a kitty!
   meow kitty
   catnap
-meowmeow
+~meow
 
 -- Assertions:
 assert 2 == 2
@@ -129,4 +129,4 @@ watch attentively
   throw "!!"
 pounce on error
   meow error
-meowmeow
+~meow
