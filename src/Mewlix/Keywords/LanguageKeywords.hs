@@ -264,7 +264,6 @@ reserved = HashSet.fromList
     , nand
     , nor
     , push
-    , peek
     , else_
     , yarnball'
     , takes
