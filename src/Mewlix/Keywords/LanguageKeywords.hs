@@ -125,7 +125,7 @@ superCall = ["look", "outside"]
 
 -- Expressions:
 typeOf :: WordSequence
-typeOf = ["paw", "at"]
+typeOf = ["look", "closely", "at"]
 
 claw :: WordSequence
 claw = ["claw", "at"]
