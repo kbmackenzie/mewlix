@@ -30,7 +30,7 @@ module Mewlix.Keywords.LanguageKeywords
 , while
 , forEach
 , thenDo
-, paw
+, typeOf
 , is
 , in_
 , claw
@@ -124,8 +124,8 @@ superCall :: WordSequence
 superCall = ["look", "outside"]
 
 -- Expressions:
-paw :: WordSequence
-paw = ["paw", "at"]
+typeOf :: WordSequence
+typeOf = ["paw", "at"]
 
 claw :: WordSequence
 claw = ["claw", "at"]
