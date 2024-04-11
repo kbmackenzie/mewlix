@@ -200,8 +200,8 @@ if_ = ["look", "if"]
 elif :: WordSequence
 elif = ["or", "if"]
 
-else_ :: SimpleKeyword
-else_ = "otherwise"
+else_ :: WordSequence
+else_ = ["else", "just"]
 
 while :: WordSequence
 while = ["stare", "while"]
@@ -264,7 +264,6 @@ reserved = HashSet.fromList
     , nand
     , nor
     , push
-    , else_
     , yarnball'
     , takes
     , alias
