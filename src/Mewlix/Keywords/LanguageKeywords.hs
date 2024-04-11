@@ -180,7 +180,7 @@ ternElse = "else"
 
 -- Statements:
 end :: SimpleKeyword
-end = "meowmeow"
+end = "~meow"
 
 ret :: SimpleKeyword
 ret = "bring"
