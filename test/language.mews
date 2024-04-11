@@ -98,7 +98,7 @@ meow "Your name is: "..name
 
 -- Control Flow:
 mew r = std.random()
-peek if r == 0
+look if r == 0
   meow "extremely unlikely."
 or if r == 1
   meow "impossible by design."
