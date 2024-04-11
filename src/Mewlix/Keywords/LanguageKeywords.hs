@@ -160,8 +160,8 @@ nor = "nor"
 push :: SimpleKeyword
 push = "push"
 
-peek :: SimpleKeyword
-peek = "peek"
+peek :: WordSequence
+peek = ["paw", "at"]
 
 pop :: WordSequence
 pop = ["knock", "over"]
