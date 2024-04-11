@@ -181,7 +181,7 @@ instance ToJavaScript Expression where
 
     -- 'Paw at' / Type of:
     ----------------------------------------------
-    transpileJS _ (PawType operand) = do
+    transpileJS _ (AskType operand) = do
         arg <- toJS operand
         return $ syncCall (Mewlix.reflection "typeOf") [arg]
 

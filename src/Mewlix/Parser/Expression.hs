@@ -231,7 +231,7 @@ operatorsR :: OperatorTable
 operatorsR =
     [
         [ Postfix postfixes                                                             ]
-    ,   [ Prefix  (PawType                          <$ keyword Keywords.typeOf      )
+    ,   [ Prefix  (AskType                          <$ keyword Keywords.typeOf      )
         , InfixL  (IsInstance                       <$ keyword Keywords.is          )
         , Prefix  (ClawEntries                      <$ keyword Keywords.claw        )   ]
     ,   [ Postfix (UnaryOperation LengthLookup      <$ keyword (LongSymbol "...?")  )   ] 

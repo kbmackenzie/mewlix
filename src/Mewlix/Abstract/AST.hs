@@ -43,7 +43,7 @@ data Expression =
     | ListExpression        [Expression]
     | BoxExpression         [(Key, Expression)]
     | Assignment            Expression Expression
-    | PawType               Expression
+    | AskType               Expression
     | IsInstance            Expression Expression
     | ClawEntries           Expression
     | LambdaExpression      Params Expression
