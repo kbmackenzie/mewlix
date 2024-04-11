@@ -195,7 +195,7 @@ break :: SimpleKeyword
 break = "escape"
 
 if_ :: WordSequence
-if_ = ["peek", "if"]
+if_ = ["look", "if"]
 
 elif :: WordSequence
 elif = ["or", "if"]
