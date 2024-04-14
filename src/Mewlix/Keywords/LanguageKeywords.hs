@@ -206,11 +206,11 @@ else_ = ["else", "just"]
 while :: WordSequence
 while = ["stare", "while"]
 
-forEach :: SimpleKeyword
-forEach = "chase"
+forEach :: WordSequence
+forEach = ["chase", "after"]
 
 forEachOf :: SimpleKeyword
-forEachOf = "from"
+forEachOf = "in"
 
 takes :: SimpleKeyword
 takes = "takes"
@@ -264,7 +264,6 @@ reserved = HashSet.fromList
     , nand
     , nor
     , push
-    , forEach
     , forEachOf
     , yarnball'
     , takes
