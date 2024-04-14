@@ -62,7 +62,7 @@ data Nesting =
 {- Parse statements: -}
 ----------------------------------------------------------------
 statement :: Nesting -> Parser Statement
-statement nesting = Mega.choice (map lexemeLn
+statement nesting = choose
     [ whileLoop     nesting
     , ifelse        nesting
     , declareVar    nesting
@@ -76,8 +76,9 @@ statement nesting = Mega.choice (map lexemeLn
     , forEach       nesting
     , classDef      nesting
     , tryCatch      nesting
-    , expressionStm nesting ])
+    , expressionStm nesting ]
     <?> "statement"
+    where choose = Mega.choice . map lexemeLn
 
 block :: Nesting -> Maybe (Parser ()) -> Parser Block
 block nesting customStop = do
