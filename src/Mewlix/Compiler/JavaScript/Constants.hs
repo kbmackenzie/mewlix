@@ -31,7 +31,7 @@ module Mewlix.Compiler.JavaScript.Constants
 , lessThan
 , greaterThan
 -- Statement utils:
-, rainable
+, canChase
 , pounceError
 , assert
 ) where
@@ -135,8 +135,8 @@ greaterThan = comparison "GreaterThan"
 internal :: Text -> Text
 internal = mewlix . ("Internal." <>)
 
-rainable :: Text
-rainable = internal "rainable"
+canChase :: Text
+canChase = internal "canChase"
 
 pounceError :: Text
 pounceError = internal "pounceError"

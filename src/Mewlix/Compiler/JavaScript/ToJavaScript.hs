@@ -279,9 +279,9 @@ instance ToJavaScript Statement where
         iterable    <- toJS expr
         body        <- transpileJS level block
 
-        let rainable = syncCall Mewlix.rainable [iterable]
+        let chase  = syncCall Mewlix.canChase [iterable]
         let header = indentLine level $ mconcat
-                [ "for (const ", getKey key, " of ", rainable, ") "]
+                [ "for (const ", getKey key, " of ", chase, ") "]
 
         return (header <> body)
 
