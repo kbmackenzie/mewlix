@@ -42,7 +42,7 @@ root = Mega.between whitespaceLn Mega.eof yarnBall
 
 yarnBall :: Parser YarnBall
 yarnBall = do
-    key <- (<?> "yarn ball") . Mega.optional $ do
+    key  <- (<?> "yarn ball") . Mega.optional $ do
         keyword Keywords.yarnball <|> keyword Keywords.yarnball'
         parseModuleKey <* whitespaceLn
     body <- Block <$> Mega.many (statement Root)
@@ -87,8 +87,11 @@ block nesting customStop = do
             statement nesting
     (fmap Block . Mega.many . lexemeLn) line
 
-meowmeow :: Parser ()
-meowmeow = Mega.choice
+open :: Parser a -> Parser a
+open = (<* whitespaceLn)
+
+close :: Parser ()
+close = Mega.choice
     [ keyword Keywords.end
     , fail "possibly unclosed block" ]
 
@@ -111,11 +114,11 @@ declareVar nesting = do
 ----------------------------------------------------------------
 whileLoop :: Nesting -> Parser Statement
 whileLoop nesting = do
-    keyword Keywords.while
-    condition <- expression
-    whitespaceLn
+    condition <- open $ do
+        keyword Keywords.while
+        expression
     body <- block (max nesting NestedInLoop) Nothing
-    meowmeow
+    close
     return (WhileLoop condition body)
 
 
@@ -130,25 +133,24 @@ ifelse nesting = do
             , keyword Keywords.end  ]
 
     initialConditional <- do
-        keyword Keywords.if_
-        condition   <- expression
-        whitespaceLn
-        body        <- block nest (Just stopPoint)
+        condition <- open $ do
+            keyword Keywords.if_
+            expression
+        body      <- block nest (Just stopPoint)
         return (Conditional condition body)
 
     additonalConditionals <- Mega.many $ do
-        keyword Keywords.elif
-        condition   <- expression
-        whitespaceLn
-        body        <- block nest (Just stopPoint)
+        condition <- open $ do
+            keyword Keywords.elif
+            expression
+        body      <- block nest (Just stopPoint)
         return (Conditional condition body)
 
     elseBlock <- Mega.optional $ do
-        keyword Keywords.else_
-        whitespaceLn
+        open (keyword Keywords.else_)
         block nest Nothing
 
-    meowmeow
+    close
     let conditionals = initialConditional :| additonalConditionals
     return (IfElse conditionals elseBlock)
 
@@ -157,12 +159,13 @@ ifelse nesting = do
 ----------------------------------------------------------------
 func :: Parser MewlixFunction
 func = do
-    keyword Keywords.function
-    name   <- parseKey
-    params <- parseParams
-    whitespaceLn
+    (name, params) <- open $ do
+        keyword Keywords.function
+        name   <- parseKey
+        params <- parseParams
+        return (name, params)
     body   <- block Nested Nothing
-    meowmeow
+    close
     return (MewlixFunction name params body)
 
 funcDef :: Nesting -> Parser Statement
@@ -176,12 +179,13 @@ type Methods     = [MewlixFunction]
 
 classDef :: Nesting -> Parser Statement
 classDef _ = do
-    keyword Keywords.clowder
-    name    <- parseKey
-    parent  <- Mega.optional (keyword Keywords.extends >> parseKey)
-    whitespaceLn
+    (name, parent) <- open $ do
+        keyword Keywords.clowder
+        name    <- parseKey
+        parent  <- Mega.optional (keyword Keywords.extends >> parseKey)
+        return (name, parent)
     (constructor, methods) <- (Mega.many . lexemeLn) func >>= sortConstructor
-    meowmeow
+    close
 
     let patchedConstructor = fmap patchConstructor constructor
     let patchedMethods = maybe methods (: methods) patchedConstructor
@@ -253,7 +257,7 @@ forEach nesting = do
     repeatChar '!'
     whitespaceLn
     body <- block (max nesting NestedInLoop) Nothing
-    meowmeow
+    close
     return (ForEachLoop iter key body)
 
 
@@ -280,14 +284,13 @@ tryCatch :: Nesting -> Parser Statement
 tryCatch nesting = do
     let localNest = max nesting Nested
 
-    keyword Keywords.try
-    whitespaceLn
+    open (keyword Keywords.try)
     try_    <- block localNest (Just $ keyword Keywords.catch)
 
-    keyword Keywords.catch
-    key_    <- Mega.optional parseKey
-    whitespaceLn
+    key_    <- open $ do
+        keyword Keywords.catch
+        Mega.optional parseKey
     catch_  <- block localNest Nothing
 
-    meowmeow
+    close
     return (TryCatch try_ key_ catch_)
