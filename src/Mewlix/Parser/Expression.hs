@@ -21,6 +21,7 @@ import Mewlix.Parser.Utils
     , brackets
     , parensList
     , bracketList
+    , multiline
     )
 import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Parser.String (parseYarnString)
@@ -205,7 +206,7 @@ lambda :: Parser Expression
 lambda = do
     keyword Keywords.lambda
     params <- parseParams
-    keyword $ LongSymbol "=>"
+    multiline . keyword $ LongSymbol "=>"
     LambdaExpression params <$> expression
 
 {- Assignment -}
