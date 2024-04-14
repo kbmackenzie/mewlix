@@ -65,6 +65,12 @@ mew sum = =^oxo^= (a, b) => a + b
 
 mew curry = =^oxo^= (a) => =^oxo^= (b) => =^oxo^= (c) => [a, b, c]
 
+mew curry_ = =^oxo^= (a)
+  => =^oxo^= (b)
+  => =^oxo^= (c)
+  => =^oxo^= (d)
+  => =^oxo^= (e) => [a, b, c, d, e]
+
 =^.x.^= sumf(a, b)
   bring a + b
 ~meow
