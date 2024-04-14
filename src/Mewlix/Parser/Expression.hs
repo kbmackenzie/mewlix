@@ -205,7 +205,7 @@ postfixes = foldr1 (flip (.)) <$> Mega.some (Mega.choice [ dot, lookup_, call ])
 lambda :: Parser Expression
 lambda = do
     keyword Keywords.lambda
-    params <- parseParams
+    params <- multiline parseParams
     multiline . keyword $ LongSymbol "=>"
     LambdaExpression params <$> expression
 
