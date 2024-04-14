@@ -22,8 +22,8 @@ import Mewlix.Parser.Primitive (parseKey, parseParams)
 import Mewlix.Parser.Expression (declaration, expression)
 import Mewlix.Parser.Utils
     ( Parser
-    , whitespaceLn
-    , lexemeLn
+    , linespace
+    , multiline
     , repeatChar
     , symbol
     )
@@ -38,13 +38,13 @@ import Data.Maybe (fromMaybe)
 import qualified Data.List as List
 
 root :: Parser YarnBall
-root = Mega.between whitespaceLn Mega.eof yarnBall
+root = Mega.between linespace Mega.eof yarnBall
 
 yarnBall :: Parser YarnBall
 yarnBall = do
     key  <- (<?> "yarn ball") . Mega.optional $ do
         keyword Keywords.yarnball <|> keyword Keywords.yarnball'
-        parseModuleKey <* whitespaceLn
+        parseModuleKey <* linespace
     body <- Block <$> Mega.many (statement Root)
     return (YarnBall key body)
 
@@ -78,7 +78,7 @@ statement nesting = choose
     , tryCatch      nesting
     , expressionStm nesting ]
     <?> "statement"
-    where choose = Mega.choice . map lexemeLn
+    where choose = Mega.choice . map multiline
 
 block :: Nesting -> Maybe (Parser ()) -> Parser Block
 block nesting customStop = do
@@ -88,7 +88,7 @@ block nesting customStop = do
         statement nesting
 
 open :: Parser a -> Parser a
-open = (<* whitespaceLn)
+open = (<* linespace)
 
 close :: Parser ()
 close = Mega.choice
@@ -184,7 +184,7 @@ classDef _ = do
         name    <- parseKey
         parent  <- Mega.optional (keyword Keywords.extends >> parseKey)
         return (name, parent)
-    (constructor, methods) <- (Mega.many . lexemeLn) func >>= sortConstructor
+    (constructor, methods) <- (Mega.many . multiline) func >>= sortConstructor
     close
 
     let patchedConstructor = fmap patchConstructor constructor
@@ -255,7 +255,7 @@ forEach nesting = do
     keyword Keywords.thenDo
     key  <- parseKey
     repeatChar '!'
-    whitespaceLn
+    linespace
     body <- block (max nesting NestedInLoop) Nothing
     close
     return (ForEachLoop iter key body)

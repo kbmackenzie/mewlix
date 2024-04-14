@@ -3,9 +3,9 @@
 module Mewlix.Parser.Utils
 ( Parser
 , whitespace
-, whitespaceLn
+, linespace
 , lexeme
-, lexemeLn
+, multiline
 , parens
 , braces
 , brackets
@@ -61,19 +61,19 @@ lexeme = Lexer.lexeme whitespace
 
 {- Multi-line spaces: -}
 ----------------------------------------------------------------
-isSpaceLn :: Char -> Bool
-isSpaceLn c = isSpace c || c == ';'
+isLinespace :: Char -> Bool
+isLinespace c = isSpace c || c == ';'
 
-spaceCharLn :: Parser ()
-spaceCharLn = (void . Mega.choice)
-    [ void (Mega.satisfy isSpaceLn)
+parseLinespace :: Parser ()
+parseLinespace = (void . Mega.choice)
+    [ void (Mega.satisfy isLinespace)
     , escapeNewline ]
 
-whitespaceLn :: Parser ()
-whitespaceLn = Lexer.space (Mega.skipSome spaceCharLn) lineComment blockComment
+linespace :: Parser ()
+linespace = Lexer.space (Mega.skipSome parseLinespace) lineComment blockComment
 
-lexemeLn :: Parser a -> Parser a
-lexemeLn = Lexer.lexeme whitespaceLn
+multiline :: Parser a -> Parser a
+multiline = Lexer.lexeme linespace
 
 {- Lists: -}
 ----------------------------------------------------------------
@@ -82,7 +82,7 @@ betweenChars open close f = do
     let lexChar :: Char -> Parser ()
         lexChar = void . MChar.char
 
-    (lexemeLn . lexChar) open
+    (multiline . lexChar) open
     a <- f
     (lexeme . lexChar) close
     return a
@@ -99,12 +99,12 @@ brackets = betweenChars '[' ']'
 commaList :: Parser a -> Parser [a]
 commaList token = do
     let comma :: Parser ()
-        comma = (lexemeLn . void . MChar.char) ','
+        comma = (multiline . void . MChar.char) ','
 
     let sepByComma :: Parser a -> Parser [a]
         sepByComma = flip Mega.sepEndBy comma
 
-    (sepByComma . lexemeLn) token
+    (sepByComma . multiline) token
 
 parensList :: Parser a -> Parser [a]
 parensList = parens . commaList
