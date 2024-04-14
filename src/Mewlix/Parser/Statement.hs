@@ -83,10 +83,9 @@ statement nesting = choose
 block :: Nesting -> Maybe (Parser ()) -> Parser Block
 block nesting customStop = do
     let stopPoint = fromMaybe (keyword Keywords.end) customStop
-    let line = do
-            Mega.notFollowedBy stopPoint
-            statement nesting
-    (fmap Block . Mega.many . lexemeLn) line
+    fmap Block . Mega.many $ do
+        Mega.notFollowedBy stopPoint
+        statement nesting
 
 open :: Parser a -> Parser a
 open = (<* whitespaceLn)
