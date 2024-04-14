@@ -29,7 +29,7 @@ module Mewlix.Keywords.LanguageKeywords
 , else_
 , while
 , forEach
-, thenDo
+, forEachOf
 , typeOf
 , is
 , in_
@@ -206,11 +206,11 @@ else_ = ["else", "just"]
 while :: WordSequence
 while = ["stare", "while"]
 
-forEach :: WordSequence
-forEach = ["it's", "raining"]
+forEach :: SimpleKeyword
+forEach = "chase"
 
-thenDo :: WordSequence
-thenDo = ["catch", "a"]
+forEachOf :: SimpleKeyword
+forEachOf = "from"
 
 takes :: SimpleKeyword
 takes = "takes"
@@ -264,6 +264,8 @@ reserved = HashSet.fromList
     , nand
     , nor
     , push
+    , forEach
+    , forEachOf
     , yarnball'
     , takes
     , alias
