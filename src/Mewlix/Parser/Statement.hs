@@ -24,6 +24,7 @@ import Mewlix.Parser.Utils
     ( Parser
     , linespace
     , multiline
+    , repeatChar
     , symbol
     )
 import Mewlix.Parser.Keyword (keyword)
@@ -253,6 +254,7 @@ forEach nesting = do
         key  <- parseKey
         keyword Keywords.forEachOf
         iter <- expression
+        repeatChar '!'
         return (key, iter)
     body <- block (max nesting NestedInLoop) Nothing
     close
