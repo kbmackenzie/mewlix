@@ -23,7 +23,8 @@ terminate = (<> semicolon)
 findBindings :: Block -> [Key]
 findBindings block = do
     let collectBindings :: Statement -> [Key] -> [Key]
-        collectBindings (Binding key _)     acc = key : acc
+        collectBindings (Variable key _)    acc = key : acc
+        collectBindings (Constant key _)    acc = key : acc
         collectBindings (FunctionDef func)  acc = funcName func : acc
         collectBindings (ClassDef clowder)  acc = className clowder : acc
         collectBindings _                   acc = acc

@@ -287,11 +287,15 @@ instance ToJavaScript Statement where
 
     -- Bindings:
     ----------------------------------------------
-    transpileJS level    (Binding key expr) = do
+    transpileJS level    (Variable key expr) = do
         value <- toJS expr
         let declaration = mconcat [ "let ", getKey key, " = ", value, ";" ]
         return (indentLine level declaration)
-    transpileJS level    (LocalBinding key expr) = transpileJS level (Binding key expr)
+
+    transpileJS level    (Constant key expr) = do
+        value <- toJS expr
+        let declaration = mconcat [ "const ", getKey key, " = ", value, ";" ]
+        return (indentLine level declaration)
 
     -- Functions:
     ----------------------------------------------
