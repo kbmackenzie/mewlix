@@ -121,4 +121,4 @@ symbol :: Char -> Parser ()
 symbol = lexeme . void . MChar.char
 
 repeatChar :: Char -> Parser ()
-repeatChar = Mega.skipMany . symbol
+repeatChar = Mega.skipSome . symbol
