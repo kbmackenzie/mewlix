@@ -33,6 +33,9 @@ x |> f |> g |> h
 This is a long comment!
 <(^.x.^ )~
 
+-- Constants:
+mew foo!!!!! = "this is a constant!"
+
 -- Empty declarations:
 mew empty
 mew also_empty = nothing
