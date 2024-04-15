@@ -111,8 +111,8 @@ data Statement =
     | ForEachLoop           Expression Key Block
     | IfElse                (NonEmpty Conditional) (Maybe Block)
     | FunctionDef           MewlixFunction
-    | Binding               Key Expression
-    | LocalBinding          Key Expression
+    | Variable              Key Expression
+    | Constant              Key Expression
     | ClassDef              MewlixClass
     | ImportModule          ModuleData
     | ImportList            ModuleData [Key]
