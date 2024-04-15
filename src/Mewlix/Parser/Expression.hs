@@ -2,7 +2,6 @@
 
 module Mewlix.Parser.Expression
 ( expression
-, declaration
 ) where
 
 import Mewlix.Abstract.AST
@@ -263,17 +262,3 @@ operatorsR =
     ,   [ InfixL  pipe                                                                  ]
     ,   [ InfixL  compose                                                               ]
     ]
-
-{- Declaration -}
-------------------------------------------------------------------------------------
-declaration :: Parser (Key, Expression)
-declaration = do
-    let getValue :: Parser Expression
-        getValue = Mega.choice
-            [ symbol '=' >> expression
-            , return (PrimitiveExpr MewlixNil) ]
-
-    keyword Keywords.local
-    name   <- parseKey
-    rvalue <- getValue
-    return (name, rvalue)

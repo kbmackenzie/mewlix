@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Mewlix.Parser.Statement
 ( root
@@ -19,7 +20,7 @@ import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (ModuleData(..))
 import Mewlix.Parser.Module (parseModuleKey)
 import Mewlix.Parser.Primitive (parseKey, parseParams)
-import Mewlix.Parser.Expression (declaration, expression)
+import Mewlix.Parser.Expression (expression)
 import Mewlix.Parser.Utils
     ( Parser
     , linespace
@@ -33,9 +34,10 @@ import Data.List.NonEmpty (NonEmpty((:|)))
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import Text.Megaparsec ((<|>), (<?>))
 import qualified Text.Megaparsec as Mega
-import Control.Monad (when)
+import Control.Monad (when, void)
 import Data.Maybe (fromMaybe)
 import qualified Data.List as List
+import Data.Functor ((<&>))
 
 root :: Parser YarnBall
 root = Mega.between linespace Mega.eof yarnBall
@@ -65,7 +67,7 @@ statement :: Nesting -> Parser Statement
 statement nesting = choose
     [ whileLoop     nesting
     , ifelse        nesting
-    , declareVar    nesting
+    , declaration   nesting
     , funcDef       nesting
     , returnKey     nesting
     , assert        nesting
@@ -104,10 +106,21 @@ expressionStm  _ = ExpressionStatement <$> expression
 
 {- Declaration -}
 ----------------------------------------------------------------
-declareVar :: Nesting -> Parser Statement
-declareVar nesting = do
-    let bind = if nesting == Root then Binding else LocalBinding
-    uncurry bind <$> declaration
+binding :: Parser (Expression -> Statement)
+binding = do
+    key <- parseKey
+    Mega.optional (repeatChar '!') <&> \case
+        Nothing -> Variable key
+        _       -> Constant key
+
+declaration :: Nesting -> Parser Statement
+declaration _ = do
+    let rvalue :: Parser Expression
+        rvalue = Mega.choice
+            [ symbol '=' >> expression
+            , return $ PrimitiveExpr MewlixNil ]
+    keyword Keywords.local
+    binding <*> rvalue
 
 
 {- While -}
@@ -254,7 +267,7 @@ forEach nesting = do
         key  <- parseKey
         keyword Keywords.forEachOf
         iter <- expression
-        repeatChar '!'
+        void . Mega.optional $ repeatChar '!'
         return (key, iter)
     body <- block (max nesting NestedInLoop) Nothing
     close
