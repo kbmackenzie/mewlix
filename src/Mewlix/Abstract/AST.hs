@@ -62,6 +62,7 @@ data BinaryOp =
     | Subtraction
     | Multiplication
     | Division
+    | FloorDivision
     | Modulo
     | Power
     | ListPush
