@@ -26,6 +26,7 @@ binaryOpFunc op = case op of
     Subtraction     -> syncCall (Mewlix.numbers "sub")
     Multiplication  -> syncCall (Mewlix.numbers "mul")
     Division        -> syncCall (Mewlix.numbers "div")
+    FloorDivision   -> syncCall (Mewlix.numbers "floordiv")
     Modulo          -> syncCall (Mewlix.numbers "mod")
     Power           -> syncCall (Mewlix.numbers "pow")
     ListPush        -> syncCall (Mewlix.shelves "push")
