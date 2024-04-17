@@ -245,6 +245,7 @@ operatorsR =
         , Prefix  (UnaryOperation BooleanNot        <$ keyword Keywords.not         )   ]
     ,   [ InfixL  (BinaryOperation Multiplication   <$ symbol '*'                   )
         , InfixL  (BinaryOperation Division         <$ symbol '/'                   )
+        , InfixL  (BinaryOperation FloorDivision    <$ keyword (LongSymbol "//")    )
         , InfixL  (BinaryOperation Modulo           <$ symbol '%'                   )   ]
     ,   [ InfixL  (BinaryOperation Addition         <$ symbol '+'                   )
         , InfixL  (BinaryOperation Subtraction      <$ symbol '-'                   )   ]
