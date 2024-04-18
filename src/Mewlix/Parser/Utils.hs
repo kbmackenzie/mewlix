@@ -2,9 +2,10 @@
 
 module Mewlix.Parser.Utils
 ( Parser
+, lexeme
+, linebreak
 , whitespace
 , skipLines
-, lexeme
 , multiline
 , parens
 , braces
@@ -74,6 +75,11 @@ skipLines = Lexer.space (Mega.skipSome parseLineSpace) lineComment blockComment
 
 multiline :: Parser a -> Parser a
 multiline = Lexer.lexeme skipLines
+
+linebreak :: Parser ()
+linebreak = multiline . Mega.choice $
+    [ void (MChar.char ';')
+    , void MChar.newline  ]
 
 {- Lists: -}
 ----------------------------------------------------------------
