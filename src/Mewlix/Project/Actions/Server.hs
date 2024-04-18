@@ -24,7 +24,7 @@ runServer port = run (getPort port) $ do
     let policy = staticPolicy (addBase outputFolder)
     middleware policy
     get "/" $ do
-        addHeader "Cache-Control" "max-age=0"
+        addHeader "Cache-Control" "no-cache"
         file (outputFolder </> "index.html")
     where run p s = liftIO (Warp.run p =<< scottyApp s)
 
