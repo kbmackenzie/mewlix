@@ -52,7 +52,7 @@ yarnBall = do
     return (YarnBall key body)
 
 {- Nesting -}
-----------------------------------------------------------------
+------------------------------------------------------------------
 data Nesting =
       Root
     | Nested
@@ -63,7 +63,7 @@ data Nesting =
 -- The 'max' function is helpful: Root `max` Nested = Nested
 
 {- Parse statements: -}
-----------------------------------------------------------------
+------------------------------------------------------------------
 statement :: Nesting -> Parser Statement
 statement nesting = choose
     [ whileLoop     nesting
@@ -100,13 +100,13 @@ close = Mega.choice
 
 
 {- Expression -}
-----------------------------------------------------------------
+------------------------------------------------------------------
 expressionStm :: Nesting -> Parser Statement
 expressionStm  _ = ExpressionStatement <$> expression <* linebreak
 
 
 {- Declaration -}
-----------------------------------------------------------------
+------------------------------------------------------------------
 binding :: Parser (Expression -> Statement)
 binding = do
     key <- parseKey
@@ -125,7 +125,7 @@ declaration _ = do
 
 
 {- While -}
-----------------------------------------------------------------
+------------------------------------------------------------------
 whileLoop :: Nesting -> Parser Statement
 whileLoop nesting = do
     condition <- open $ do
@@ -137,7 +137,7 @@ whileLoop nesting = do
 
 
 {- If Else -}
-----------------------------------------------------------------
+------------------------------------------------------------------
 ifelse :: Nesting -> Parser Statement
 ifelse nesting = do
     let nest = max nesting Nested
@@ -170,7 +170,7 @@ ifelse nesting = do
 
 
 {- Functions -}
-----------------------------------------------------------------
+------------------------------------------------------------------
 func :: Parser MewlixFunction
 func = do
     (name, params) <- open $ do
@@ -187,7 +187,7 @@ funcDef _ = FunctionDef <$> func
 
 
 {- Classes -}
-----------------------------------------------------------------
+------------------------------------------------------------------
 type Constructor = MewlixFunction
 type Methods     = [MewlixFunction]
 
@@ -227,21 +227,21 @@ patchConstructor constructor = do
 
 
 {- Return -}
-----------------------------------------------------------------
+------------------------------------------------------------------
 returnKey :: Nesting -> Parser Statement
 returnKey _ = do
     keyword Keywords.ret
     Return <$> expression <* linebreak
 
 {- Assert -}
-----------------------------------------------------------------
+------------------------------------------------------------------
 assert :: Nesting -> Parser Statement
 assert _ = do
     keyword Keywords.assert
     Assert <$> (expression <* linebreak) <*> Mega.getSourcePos
 
 {- Continue -}
-----------------------------------------------------------------
+------------------------------------------------------------------
 continueKey :: Nesting -> Parser Statement
 continueKey nesting = do
     keyword Keywords.catnap <* linebreak
@@ -251,7 +251,7 @@ continueKey nesting = do
 
 
 {- Break -}
-----------------------------------------------------------------
+------------------------------------------------------------------
 breakKey :: Nesting -> Parser Statement
 breakKey nesting = do
     keyword Keywords.break <* linebreak
@@ -260,7 +260,7 @@ breakKey nesting = do
     return Break
 
 {- For Loop -}
-----------------------------------------------------------------
+------------------------------------------------------------------
 forEach :: Nesting -> Parser Statement
 forEach nesting = do
     (key, iter) <- open $ do
@@ -276,7 +276,7 @@ forEach nesting = do
 
 
 {- Import -}
-----------------------------------------------------------------
+------------------------------------------------------------------
 importKey :: Nesting -> Parser Statement
 importKey _ = do
     keyword Keywords.takes
@@ -295,7 +295,7 @@ importList _ = do
     return $ ImportList (ModuleData path Nothing) keys
 
 {- Watch/Catch -}
-----------------------------------------------------------------
+------------------------------------------------------------------
 tryCatch :: Nesting -> Parser Statement
 tryCatch nesting = do
     let localNest = max nesting Nested
