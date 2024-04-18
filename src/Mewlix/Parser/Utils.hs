@@ -79,7 +79,8 @@ multiline = Lexer.lexeme skipLines
 linebreak :: Parser ()
 linebreak = multiline . Mega.choice $
     [ void (MChar.char ';')
-    , void MChar.newline  ]
+    , void MChar.newline
+    , fail "expected linebreak or semicolon!" ]
 
 {- Lists: -}
 ----------------------------------------------------------------
