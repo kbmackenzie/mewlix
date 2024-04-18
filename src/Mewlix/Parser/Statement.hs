@@ -137,32 +137,28 @@ whileLoop nesting = do
 ifelse :: Nesting -> Parser Statement
 ifelse nesting = do
     let nest = max nesting Nested
-    let stopPoint = Mega.choice
+    let stopPoints = Mega.choice
             [ keyword Keywords.elif
             , keyword Keywords.else_
             , keyword Keywords.end  ]
-
-    initialConditional <- do
+    lookIf <- do
         condition <- open $ do
             keyword Keywords.if_
             expression
-        body      <- block nest (Just stopPoint)
+        body <- block nest (Just stopPoints)
         return (Conditional condition body)
-
-    additonalConditionals <- Mega.many $ do
+    orIfs <- Mega.many $ do
         condition <- open $ do
             keyword Keywords.elif
             expression
-        body      <- block nest (Just stopPoint)
+        body <- block nest (Just stopPoints)
         return (Conditional condition body)
-
-    elseBlock <- Mega.optional $ do
+    elseJust <- Mega.optional $ do
         open (keyword Keywords.else_)
         block nest Nothing
-
     close
-    let conditionals = initialConditional :| additonalConditionals
-    return (IfElse conditionals elseBlock)
+    let conditionals = lookIf :| orIfs
+    return (IfElse conditionals elseJust)
 
 {- Functions -}
 ------------------------------------------------------------------
