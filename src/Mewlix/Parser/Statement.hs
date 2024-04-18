@@ -69,17 +69,17 @@ statement nesting = choose
     [ whileLoop     nesting
     , ifelse        nesting
     , declaration   nesting
-    , funcDef       nesting
-    , returnKey     nesting
-    , assert        nesting
+    , funcDef
+    , returnKey
+    , assert
     , continueKey   nesting
     , breakKey      nesting
-    , importKey     nesting
-    , importList    nesting
+    , importKey
+    , importList
     , forEach       nesting
-    , classDef      nesting
+    , classDef
     , tryCatch      nesting
-    , expressionStm nesting ]
+    , expressionStm         ]
     <?> "statement"
     where choose = Mega.choice . map multiline
 
@@ -100,8 +100,8 @@ close = Mega.choice
 
 {- Expression -}
 ------------------------------------------------------------------
-expressionStm :: Nesting -> Parser Statement
-expressionStm  _ = ExpressionStatement <$> expression <* linebreak
+expressionStm :: Parser Statement
+expressionStm = ExpressionStatement <$> (expression <* linebreak)
 
 {- Declaration -}
 ------------------------------------------------------------------
@@ -177,16 +177,16 @@ func = do
     close
     return (MewlixFunction name params body)
 
-funcDef :: Nesting -> Parser Statement
-funcDef _ = FunctionDef <$> func
+funcDef :: Parser Statement
+funcDef = FunctionDef <$> func
 
 {- Classes -}
 ------------------------------------------------------------------
 type Constructor = MewlixFunction
 type Methods     = [MewlixFunction]
 
-classDef :: Nesting -> Parser Statement
-classDef _ = do
+classDef :: Parser Statement
+classDef = do
     (name, parent) <- open $ do
         keyword Keywords.clowder
         name    <- parseKey
@@ -221,15 +221,15 @@ patchConstructor constructor = do
 
 {- Return -}
 ------------------------------------------------------------------
-returnKey :: Nesting -> Parser Statement
-returnKey _ = do
+returnKey :: Parser Statement
+returnKey = do
     keyword Keywords.ret
     Return <$> expression <* linebreak
 
 {- Assert -}
 ------------------------------------------------------------------
-assert :: Nesting -> Parser Statement
-assert _ = do
+assert :: Parser Statement
+assert = do
     keyword Keywords.assert
     Assert <$> (expression <* linebreak) <*> Mega.getSourcePos
 
@@ -268,16 +268,16 @@ forEach nesting = do
 
 {- Import -}
 ------------------------------------------------------------------
-importKey :: Nesting -> Parser Statement
-importKey _ = do
+importKey :: Parser Statement
+importKey = do
     keyword Keywords.takes
     path <- parseModuleKey
     name <- Mega.optional (keyword Keywords.alias >> parseKey)
     linebreak
     return $ ImportModule (ModuleData path name)
 
-importList :: Nesting -> Parser Statement
-importList _ = do
+importList :: Parser Statement
+importList = do
     keyword Keywords.from
     path <- parseModuleKey
     keyword Keywords.takes
