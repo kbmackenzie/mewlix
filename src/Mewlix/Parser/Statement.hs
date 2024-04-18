@@ -186,9 +186,13 @@ classDef = do
     (name, parent) <- open $ do
         keyword Keywords.clowder
         name    <- parseKey
-        parent  <- Mega.optional (keyword Keywords.extends >> parseKey)
+        parent  <- Mega.optional $ do
+            keyword Keywords.extends
+            parseKey
         return (name, parent)
-    (constructor, methods) <- (Mega.many . multiline) func >>= sortConstructor
+    (constructor, methods) <- do
+        methods <- (Mega.many . multiline) func
+        findConstructor methods
     close
 
     let patchedConstructor = fmap patchConstructor constructor
@@ -200,14 +204,15 @@ classDef = do
         , classMethods      = patchedMethods
         , classConstructor  = patchedConstructor }
 
-sortConstructor :: Methods -> Parser (Maybe Constructor, Methods) 
-sortConstructor methods = do
+findConstructor :: Methods -> Parser (Maybe Constructor, Methods)
+findConstructor methods = do
     let wake = Key (unwrapKeyword Keywords.constructor)
     let predicate = (== wake) . funcName
+
     case List.partition predicate methods of
-        ([] , xs)   -> return (Nothing, xs)
-        ([x], xs)   -> return (Just x, xs)
-        _           -> fail "Clowder cannot have more than one constructor!"
+        ([] , xs) -> return (Nothing, xs)
+        ([x], xs) -> return (Just x, xs)
+        _         -> fail "Clowder cannot have more than one constructor!"
 
 patchConstructor :: Constructor -> Constructor
 patchConstructor constructor = do
