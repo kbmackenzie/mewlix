@@ -23,6 +23,7 @@ import Mewlix.Parser.Primitive (parseKey, parseParams)
 import Mewlix.Parser.Expression (expression)
 import Mewlix.Parser.Utils
     ( Parser
+    , linebreak
     , skipLines
     , multiline
     , repeatChar
@@ -46,7 +47,7 @@ yarnBall :: Parser YarnBall
 yarnBall = do
     key  <- (<?> "yarn ball") . Mega.optional $ do
         keyword Keywords.yarnball <|> keyword Keywords.yarnball'
-        parseModuleKey <* skipLines
+        parseModuleKey <* linebreak
     body <- Block <$> Mega.many (statement Root)
     return (YarnBall key body)
 
@@ -90,18 +91,18 @@ block nesting customStop = do
         statement nesting
 
 open :: Parser a -> Parser a
-open = (<* skipLines)
+open = (<* linebreak)
 
 close :: Parser ()
 close = Mega.choice
-    [ keyword Keywords.end
-    , fail "possibly unclosed block" ]
+    [ keyword Keywords.end >> linebreak
+    , fail "possibly unclosed block"    ]
 
 
 {- Expression -}
 ----------------------------------------------------------------
 expressionStm :: Nesting -> Parser Statement
-expressionStm  _ = ExpressionStatement <$> expression
+expressionStm  _ = ExpressionStatement <$> expression <* linebreak
 
 
 {- Declaration -}
@@ -117,7 +118,7 @@ declaration :: Nesting -> Parser Statement
 declaration _ = do
     let rvalue :: Parser Expression
         rvalue = Mega.choice
-            [ symbol '=' >> expression
+            [ symbol '=' >> expression <* linebreak
             , return $ PrimitiveExpr MewlixNil ]
     keyword Keywords.local
     binding <*> rvalue
@@ -230,20 +231,20 @@ patchConstructor constructor = do
 returnKey :: Nesting -> Parser Statement
 returnKey _ = do
     keyword Keywords.ret
-    Return <$> expression
+    Return <$> expression <* linebreak
 
 {- Assert -}
 ----------------------------------------------------------------
 assert :: Nesting -> Parser Statement
 assert _ = do
     keyword Keywords.assert
-    Assert <$> expression <*> Mega.getSourcePos
+    Assert <$> (expression <* linebreak) <*> Mega.getSourcePos
 
 {- Continue -}
 ----------------------------------------------------------------
 continueKey :: Nesting -> Parser Statement
 continueKey nesting = do
-    keyword Keywords.catnap
+    keyword Keywords.catnap <* linebreak
     when (nesting < NestedInLoop)
         (fail "Cannot use loop keyword outside loop!")
     return Continue
@@ -253,7 +254,7 @@ continueKey nesting = do
 ----------------------------------------------------------------
 breakKey :: Nesting -> Parser Statement
 breakKey nesting = do
-    keyword Keywords.break
+    keyword Keywords.break <* linebreak
     when (nesting < NestedInLoop)
         (fail "Cannot use loop keyword outside loop!")
     return Break
@@ -281,6 +282,7 @@ importKey _ = do
     keyword Keywords.takes
     path <- parseModuleKey
     name <- Mega.optional (keyword Keywords.alias >> parseKey)
+    linebreak
     return $ ImportModule (ModuleData path name)
 
 importList :: Nesting -> Parser Statement
@@ -289,6 +291,7 @@ importList _ = do
     path <- parseModuleKey
     keyword Keywords.takes
     keys <- Mega.sepBy1 parseKey (symbol ',')
+    linebreak
     return $ ImportList (ModuleData path Nothing) keys
 
 {- Watch/Catch -}
