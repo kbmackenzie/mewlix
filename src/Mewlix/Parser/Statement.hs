@@ -116,8 +116,8 @@ declaration :: Nesting -> Parser Statement
 declaration _ = do
     let rvalue :: Parser Expression
         rvalue = Mega.choice
-            [ symbol '=' >> expression <* linebreak
-            , return $ PrimitiveExpr MewlixNil ]
+            [ symbol '=' >> (expression <* linebreak)
+            , return $ PrimitiveExpr MewlixNil        ]
     keyword Keywords.local
     binding <*> rvalue
 
@@ -140,7 +140,7 @@ ifelse nesting = do
     let stopPoints = Mega.choice
             [ keyword Keywords.elif
             , keyword Keywords.else_
-            , keyword Keywords.end  ]
+            , keyword Keywords.end   ]
     lookIf <- do
         condition <- open $ do
             keyword Keywords.if_
@@ -291,14 +291,11 @@ importList = do
 tryCatch :: Nesting -> Parser Statement
 tryCatch nesting = do
     let localNest = max nesting Nested
-
     open (keyword Keywords.try)
-    try_    <- block localNest (Just $ keyword Keywords.catch)
-
-    key_    <- open $ do
+    tryBlock <- block localNest (Just $ keyword Keywords.catch)
+    key <- open $ do
         keyword Keywords.catch
         Mega.optional parseKey
-    catch_  <- block localNest Nothing
-
+    catchBlock <- block localNest Nothing
     close
-    return (TryCatch try_ key_ catch_)
+    return (TryCatch tryBlock key catchBlock)
