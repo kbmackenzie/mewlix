@@ -98,12 +98,10 @@ close = Mega.choice
     [ keyword Keywords.end >> linebreak
     , fail "possibly unclosed block"    ]
 
-
 {- Expression -}
 ------------------------------------------------------------------
 expressionStm :: Nesting -> Parser Statement
 expressionStm  _ = ExpressionStatement <$> expression <* linebreak
-
 
 {- Declaration -}
 ------------------------------------------------------------------
@@ -123,7 +121,6 @@ declaration _ = do
     keyword Keywords.local
     binding <*> rvalue
 
-
 {- While -}
 ------------------------------------------------------------------
 whileLoop :: Nesting -> Parser Statement
@@ -134,7 +131,6 @@ whileLoop nesting = do
     body <- block (max nesting NestedInLoop) Nothing
     close
     return (WhileLoop condition body)
-
 
 {- If Else -}
 ------------------------------------------------------------------
@@ -168,7 +164,6 @@ ifelse nesting = do
     let conditionals = initialConditional :| additonalConditionals
     return (IfElse conditionals elseBlock)
 
-
 {- Functions -}
 ------------------------------------------------------------------
 func :: Parser MewlixFunction
@@ -184,7 +179,6 @@ func = do
 
 funcDef :: Nesting -> Parser Statement
 funcDef _ = FunctionDef <$> func
-
 
 {- Classes -}
 ------------------------------------------------------------------
@@ -225,7 +219,6 @@ patchConstructor constructor = do
     let patch = (<> Block [returnHome])
     constructor { funcBody = patch (funcBody constructor) }
 
-
 {- Return -}
 ------------------------------------------------------------------
 returnKey :: Nesting -> Parser Statement
@@ -248,7 +241,6 @@ continueKey nesting = do
     when (nesting < NestedInLoop)
         (fail "Cannot use loop keyword outside loop!")
     return Continue
-
 
 {- Break -}
 ------------------------------------------------------------------
@@ -273,7 +265,6 @@ forEach nesting = do
     body <- block (max nesting NestedInLoop) Nothing
     close
     return (ForEachLoop iter key body)
-
 
 {- Import -}
 ------------------------------------------------------------------
