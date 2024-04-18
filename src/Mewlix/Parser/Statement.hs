@@ -237,7 +237,7 @@ assert _ = do
 ------------------------------------------------------------------
 continueKey :: Nesting -> Parser Statement
 continueKey nesting = do
-    keyword Keywords.catnap <* linebreak
+    keyword Keywords.catnap >> linebreak
     when (nesting < NestedInLoop)
         (fail "Cannot use loop keyword outside loop!")
     return Continue
@@ -246,7 +246,7 @@ continueKey nesting = do
 ------------------------------------------------------------------
 breakKey :: Nesting -> Parser Statement
 breakKey nesting = do
-    keyword Keywords.break <* linebreak
+    keyword Keywords.break >> linebreak
     when (nesting < NestedInLoop)
         (fail "Cannot use loop keyword outside loop!")
     return Break
