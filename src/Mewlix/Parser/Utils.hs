@@ -3,7 +3,7 @@
 module Mewlix.Parser.Utils
 ( Parser
 , whitespace
-, linespace
+, skipLines
 , lexeme
 , multiline
 , parens
@@ -61,19 +61,19 @@ lexeme = Lexer.lexeme whitespace
 
 {- Multi-line spaces: -}
 ----------------------------------------------------------------
-isLinespace :: Char -> Bool
-isLinespace c = isSpace c || c == ';'
+isLineSpace :: Char -> Bool
+isLineSpace c = isSpace c || c == ';'
 
-parseLinespace :: Parser ()
-parseLinespace = (void . Mega.choice)
-    [ void (Mega.satisfy isLinespace)
+parseLineSpace :: Parser ()
+parseLineSpace = (void . Mega.choice)
+    [ void (Mega.satisfy isLineSpace)
     , escapeNewline ]
 
-linespace :: Parser ()
-linespace = Lexer.space (Mega.skipSome parseLinespace) lineComment blockComment
+skipLines :: Parser ()
+skipLines = Lexer.space (Mega.skipSome parseLineSpace) lineComment blockComment
 
 multiline :: Parser a -> Parser a
-multiline = Lexer.lexeme linespace
+multiline = Lexer.lexeme skipLines
 
 {- Lists: -}
 ----------------------------------------------------------------

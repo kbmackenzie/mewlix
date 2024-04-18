@@ -23,7 +23,7 @@ import Mewlix.Parser.Primitive (parseKey, parseParams)
 import Mewlix.Parser.Expression (expression)
 import Mewlix.Parser.Utils
     ( Parser
-    , linespace
+    , skipLines
     , multiline
     , repeatChar
     , symbol
@@ -40,13 +40,13 @@ import qualified Data.List as List
 import Data.Functor ((<&>))
 
 root :: Parser YarnBall
-root = Mega.between linespace Mega.eof yarnBall
+root = Mega.between skipLines Mega.eof yarnBall
 
 yarnBall :: Parser YarnBall
 yarnBall = do
     key  <- (<?> "yarn ball") . Mega.optional $ do
         keyword Keywords.yarnball <|> keyword Keywords.yarnball'
-        parseModuleKey <* linespace
+        parseModuleKey <* skipLines
     body <- Block <$> Mega.many (statement Root)
     return (YarnBall key body)
 
@@ -90,7 +90,7 @@ block nesting customStop = do
         statement nesting
 
 open :: Parser a -> Parser a
-open = (<* linespace)
+open = (<* skipLines)
 
 close :: Parser ()
 close = Mega.choice
