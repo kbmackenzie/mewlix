@@ -48,7 +48,6 @@ data Expression =
     | ClawEntries           Expression
     | LambdaExpression      Params Expression
     | FunctionCall          Expression Arguments
-    | SuperCall             Arguments
     | ClowderCreate         Expression Arguments
     | DotExpression         Expression Expression
     | LookupExpression      Expression Expression
@@ -115,6 +114,7 @@ data Statement =
     | Variable              Key Expression
     | Constant              Key Expression
     | ClassDef              MewlixClass
+    | SuperCall             Arguments
     | ImportModule          ModuleData
     | ImportList            ModuleData [Key]
     | Return                Expression
