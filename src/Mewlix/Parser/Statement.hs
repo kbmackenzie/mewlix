@@ -341,14 +341,14 @@ tryCatch = do
     key <- open $ do
         keyword Keywords.catch
         Mega.optional parseKey
-    catchBlock <- local (addNesting InTryCatch) $ block Nothing
+    catchBlock <- local (addNesting InCatch) $ block Nothing
     close
     return (TryCatch tryBlock key catchBlock)
 
 rethrow :: Parser Statement
 rethrow = do
     keyword Keywords.rethrow
-    isTryCatch <- asks (nested InTryCatch)
-    unless isTryCatch
-        (fail "Cannot use this statement outside watch/pounce block!")
+    isCatch <- asks (nested InCatch)
+    unless isCatch
+        (fail "Cannot use this statement outside 'pounce' block!")
     Rethrow <$ linebreak

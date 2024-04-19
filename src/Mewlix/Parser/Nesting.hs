@@ -17,7 +17,7 @@ data NestingFlag =
       InLoop
     | InClass
     | InFunction
-    | InTryCatch 
+    | InCatch 
     deriving (Eq, Ord, Enum, Bounded, Show, Read)
 
 newtype Nesting = Nesting { getNesting :: Set NestingFlag }
