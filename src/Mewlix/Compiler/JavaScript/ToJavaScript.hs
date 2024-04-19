@@ -161,10 +161,6 @@ instance ToJavaScript Expression where
         args    <- toJS argExprs
         wrap $ mconcat ["await new ", clowder, "()[", Mewlix.wake, "]", args]
 
-    transpileJS _ (SuperCall argExprs) = do
-        args    <- toJS argExprs
-        wrap ("await super.wake" <> args)
-
     -- Binary operations:
     ----------------------------------------------
     transpileJS _ (BinaryOperation op left right) = do
@@ -377,6 +373,10 @@ instance ToJavaScript Statement where
             [ indentLine level header <> " {"
             , constructor
             , indentLine level "}"           ]
+
+    transpileJS level (SuperCall argExprs) = do
+        args <- toJS argExprs
+        return . indentLine level . terminate $ ("await super.wake" <> args)
 
     -- Try/Catch:
     ----------------------------------------------
