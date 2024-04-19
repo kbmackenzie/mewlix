@@ -81,6 +81,7 @@ statement = choose
     , importList
     , throwException
     , tryCatch
+    , rethrow
     , expressionStm ]
     <?> "statement"
     where choose = Mega.choice . map multiline
@@ -343,3 +344,11 @@ tryCatch = do
     catchBlock <- local (addNesting InTryCatch) $ block Nothing
     close
     return (TryCatch tryBlock key catchBlock)
+
+rethrow :: Parser Statement
+rethrow = do
+    keyword Keywords.rethrow
+    isTryCatch <- asks (nested InTryCatch)
+    unless isTryCatch
+        (fail "Cannot use this statement outside watch/pounce block!")
+    Rethrow <$ linebreak
