@@ -25,6 +25,7 @@ module Mewlix.Keywords.LanguageKeywords
 , constructor
 , superCall
 , superRef
+, catTree
 , if_
 , elif
 , else_
@@ -128,6 +129,10 @@ superCall = ["look", "outside"]
 
 superRef :: SimpleKeyword
 superRef = "___super"
+
+-- Cat trees:
+catTree :: WordSequence
+catTree = ["cat", "tree"]
 
 -- Expressions:
 typeOf :: WordSequence
