@@ -391,23 +391,22 @@ instance ToJavaScript Statement where
 
     -- Try/Catch:
     ----------------------------------------------
-    transpileJS level   (TryCatch watchBlock customKey pounceBlock) = do
+    transpileJS level   (TryCatch watch customKey pounce) = do
         let errorKey = maybe "error" getKey customKey
-        let blockLevel = succ level
 
-        watch   <- transpileJS level watchBlock
-        pounce  <- transpileJS level pounceBlock
+        tryBlock   <- transpileJS level watch
+        catchBlock <- transpileJS level pounce
 
-        let patch = mconcat [ errorKey, " = ", syncCall Mewlix.pounceError [errorKey], ";" ]
+        let errorRef = unwrapKeyword Keywords.errorRef
+        let defineErrorBox = mconcat
+                [ "const ", errorKey, " = ", syncCall Mewlix.pounceError [errorRef], ";\n" ]
 
         return $ mconcat
-            [ indentLine level "try "
-            , watch
-            , "\n"
-            , indentLine level "catch (", errorKey, ") {\n"
-            , indentLine blockLevel patch
-            -- A dirty little hack, but it works nicely.
-            , Text.tail pounce ]
+            [ indentLine level ("try " <> tryBlock <> "\n")
+            , indentLine level ("catch (" <> errorRef <> ") {\n")
+            , indentLine (succ level) defineErrorBox
+            -- A dirty little hack, but it works nicely:
+            , Text.tail catchBlock ]
 
     -- Assert:
     ----------------------------------------------
