@@ -437,6 +437,14 @@ instance ToJavaScript MewlixFunction where
         body    <- transpileJS level (funcBody func)
         return $ mconcat [ "(async function ", name, params, " ", body, ").bind(this)" ]
 
+{- Function -}
+-----------------------------------------------------------------
+instance ToJavaScript MewlixEnum where
+    transpileJS _ enum = do
+        strings <- mapM (toJS . MewlixString . getKey) (enumKeys enum)
+        let arg = (brackets . sepComma) strings
+        return $ instantiate Mewlix.enum [arg]
+
 {- Block -}
 -----------------------------------------------------------------
 instance ToJavaScript Block where
