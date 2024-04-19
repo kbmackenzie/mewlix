@@ -50,7 +50,7 @@ import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.HashMap.Strict as HashMap
 import Data.Char (isSpace)
-import Control.Monad ((>=>), (<=<))
+import Control.Monad ((<=<))
 
 class ToJavaScript a where
     transpileJS :: Indentation -> a -> Transpiler Text
@@ -231,7 +231,6 @@ instance ToJavaScript Statement where
     -- Control flow:
     ----------------------------------------------
     transpileJS level   (IfElse conditionals else_) = do
-
         let transpileConditional :: Conditional -> Transpiler Text
             transpileConditional (Conditional expr block) = do
                 condition <- asBoolean <$> toJS expr
@@ -239,8 +238,8 @@ instance ToJavaScript Statement where
                 let header = mconcat [ "if (", condition, ") " ]
                 return (header <> body)
 
-        initialConditional  <- transpileConditional (NonEmpty.head conditionals)
-        moreConditionals    <- mapM transpileConditional (NonEmpty.tail conditionals)
+        lookIf <- transpileConditional (NonEmpty.head conditionals)
+        orIfs  <- mapM transpileConditional (NonEmpty.tail conditionals)
 
         elseBlock <- case else_ of
             Nothing      -> return Text.empty
@@ -249,9 +248,9 @@ instance ToJavaScript Statement where
                 return ("else " <> body)
 
         return . separateLines . filter (Text.any (not . isSpace)) $
-            [ indentLine level initialConditional
-            , (separateLines . indentMany level . map ("else " <>)) moreConditionals
-            , indentLine level elseBlock                                            ]
+            [ indentLine level lookIf
+            , (separateLines . indentMany level . map ("else " <>)) orIfs
+            , indentLine level elseBlock                                  ]
 
     -- While loop:
     ----------------------------------------------
