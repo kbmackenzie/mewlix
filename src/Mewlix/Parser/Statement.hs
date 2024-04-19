@@ -6,6 +6,7 @@ module Mewlix.Parser.Statement
 , Nesting(..)
 ) where
 
+import Mewlix.Parser.Type (Parser)
 import Mewlix.Abstract.AST
     ( Block(..)
     , Primitive(..)
@@ -22,8 +23,7 @@ import Mewlix.Parser.Module (parseModuleKey)
 import Mewlix.Parser.Primitive (parseKey, parseParams)
 import Mewlix.Parser.Expression (expression)
 import Mewlix.Parser.Utils
-    ( Parser
-    , linebreak
+    ( linebreak
     , skipLines
     , multiline
     , repeatChar

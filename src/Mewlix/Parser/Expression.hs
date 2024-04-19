@@ -12,9 +12,9 @@ import Mewlix.Abstract.AST
     , Arguments(..)
     , Params(..)
     )
+import Mewlix.Parser.Type (Parser)
 import Mewlix.Parser.Utils
-    ( Parser
-    , lexeme
+    ( lexeme
     , symbol
     , parens
     , brackets

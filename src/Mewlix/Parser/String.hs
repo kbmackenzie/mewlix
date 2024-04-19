@@ -6,15 +6,13 @@ module Mewlix.Parser.String
 , parseYarnString
 ) where
 
+import Mewlix.Parser.Type (Parser)
 import Mewlix.Abstract.AST
     ( Primitive(..)
     , BinaryOp(..)
     , Expression(..)
     )
-import Mewlix.Parser.Utils
-    ( Parser
-    , lexeme
-    )
+import Mewlix.Parser.Utils (lexeme)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Text.Megaparsec ((<?>))

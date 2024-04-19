@@ -1,8 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Mewlix.Parser.Utils
-( Parser
-, lexeme
+( lexeme
 , linebreak
 , whitespace
 , skipLines
@@ -17,17 +16,14 @@ module Mewlix.Parser.Utils
 , repeatChar
 ) where
 
+import Mewlix.Parser.Type (Parser)
 import Mewlix.Keywords.Types (LongSymbol(..))
-import Data.Text (Text)
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
-import Data.Void (Void)
 import Control.Monad (void)
 import Data.Char (isSpace, isAlphaNum)
-
-type Parser = Mega.Parsec Void Text
 
 {- Comments: -}
 ----------------------------------------------------------------

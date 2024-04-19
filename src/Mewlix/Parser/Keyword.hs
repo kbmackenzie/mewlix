@@ -3,16 +3,13 @@ module Mewlix.Parser.Keyword
 , anyKeyword
 ) where
 
+import Mewlix.Parser.Type (Parser)
 import Mewlix.Keywords.Types
     ( SimpleKeyword(..)
     , LongSymbol(..)
     , WordSequence(..)
     )
-import Mewlix.Parser.Utils
-    ( Parser
-    , lexeme
-    , isKeyChar
-    )
+import Mewlix.Parser.Utils (lexeme, isKeyChar)
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import Control.Monad (void)

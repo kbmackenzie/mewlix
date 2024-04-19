@@ -3,11 +3,8 @@ module Mewlix.Parser.Module
 ) where
 
 import Mewlix.Abstract.Module (ModuleKey(..))
-import Mewlix.Parser.Utils
-    ( Parser
-    , lexeme
-    , isKeyChar
-    )
+import Mewlix.Parser.Type (Parser)
+import Mewlix.Parser.Utils (lexeme, isKeyChar)
 import Data.Text (Text)
 import qualified Data.List.NonEmpty as NonEmpty
 import Text.Megaparsec ((<?>))

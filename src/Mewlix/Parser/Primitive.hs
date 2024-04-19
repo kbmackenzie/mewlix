@@ -10,13 +10,8 @@ module Mewlix.Parser.Primitive
 ) where
 
 import Mewlix.Abstract.AST (Primitive(..), Params(..))
-import Mewlix.Parser.Utils
-    ( Parser
-    , lexeme
-    , isKeyChar
-    , whitespace
-    , parensList
-    )
+import Mewlix.Parser.Type (Parser)
+import Mewlix.Parser.Utils (lexeme, isKeyChar, whitespace, parensList)
 import Mewlix.Parser.String (parseString, parseStringM)
 import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Abstract.Key (Key(..))

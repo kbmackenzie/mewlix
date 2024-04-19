@@ -15,10 +15,10 @@ import Mewlix.Compiler.Transpiler
     , TranspilerContext(..)
     )
 import Mewlix.Compiler.JavaScript.ToJavaScript (ToJavaScript(toJS))
-import Mewlix.Parser (parseMewlix, FileContent, ParserError)
+import Mewlix.Parser (parseMewlix, FileContent, ParseError)
 import Data.Text (Text)
 
-type CompilerFunc = TranspilerContext -> FilePath -> FileContent -> Either ParserError CompilerOutput
+type CompilerFunc = TranspilerContext -> FilePath -> FileContent -> Either ParseError CompilerOutput
 type CompilerOutput = Text
 type CompilerCallback = YarnBall -> Transpiler Text
 

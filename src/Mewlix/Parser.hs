@@ -1,8 +1,8 @@
 module Mewlix.Parser
 ( ParserFunc
+, ParseError
 , FileContent
-, ParserError
 , parseMewlix
 ) where
 
-import Mewlix.Parser.Run (ParserFunc, FileContent, ParserError, parseMewlix)
+import Mewlix.Parser.Run (ParserFunc, FileContent, ParseError, parseMewlix)

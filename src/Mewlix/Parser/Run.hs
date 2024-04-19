@@ -1,31 +1,25 @@
 module Mewlix.Parser.Run
 ( ParserFunc
+, ParseError
 , FileContent
-, ParserError
 , runParser
 , parseRoot
 , parseExpr
 , parseMewlix
 ) where
 
+import Mewlix.Parser.Type (Parser, parse, FileContent, ParseError)
 import Mewlix.Abstract.AST
     ( Expression
     , YarnBall
     )
-import Mewlix.Parser.Utils (Parser)
 import Mewlix.Parser.Statement (root)
 import Mewlix.Parser.Expression (expression)
-import Text.Megaparsec (parse, errorBundlePretty)
-import Data.Text (Text)
 
-type ParserFunc a = FilePath -> FileContent -> Either ParserError a
-type FileContent = Text
-type ParserError = String
+type ParserFunc a = FilePath -> FileContent -> Either ParseError a
 
 runParser :: Parser a -> ParserFunc a
-runParser parser path contents = case parse parser path contents of
-    (Left e)  -> (Left . errorBundlePretty) e
-    (Right a) -> Right a
+runParser parser path contents = parse path contents parser
 
 parseRoot :: ParserFunc YarnBall
 parseRoot = runParser root
