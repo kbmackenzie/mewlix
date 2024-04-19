@@ -55,6 +55,7 @@ module Mewlix.Keywords.LanguageKeywords
 , try
 , catch
 , throw
+, rethrow
 , assert
 , errorRef
 , reserved
@@ -241,6 +242,9 @@ catch = ["pounce", "on"]
 throw :: SimpleKeyword
 throw = "throw"
 
+rethrow :: SimpleKeyword
+rethrow = "rethrow"
+
 errorRef :: SimpleKeyword
 errorRef = "___error"
 
@@ -278,6 +282,7 @@ reserved = HashSet.fromList
     , alias
     , from
     , throw
+    , rethrow
     , superRef
     , errorRef
     -- Internal:
