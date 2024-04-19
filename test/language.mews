@@ -65,9 +65,7 @@ mew cat = =^-x-^= [
 
 -- Functions:
 mew sum = =^oxo^= (a, b) => a + b
-
 mew curry = =^oxo^= (a) => =^oxo^= (b) => =^oxo^= (c) => [a, b, c]
-
 mew curry_ = =^oxo^= (a)
   => =^oxo^= (b)
   => =^oxo^= (c)
@@ -78,9 +76,14 @@ mew curry_ = =^oxo^= (a)
   bring a + b
 ~meow
 
+mew dummyf = =^-x-^= []
+
+=^.x.^= [dummyf.sum]()
+  bring a + b
+~meow
+
 mew sumf_ = =^oxo^= () =>
   a + b
-
 mew sumf__ = =^oxo^= ()
   => a + b
 
