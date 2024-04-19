@@ -7,11 +7,12 @@ module Mewlix.Parser.Type
 , ask
 , asks
 , local
+, Nesting
+, NestingFlag(..)
 , addNesting
 , nested
 , noNesting
 , defineNesting
-, NestingFlag(..)
 , FileContent
 , ParseError
 ) where
