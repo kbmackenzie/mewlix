@@ -70,6 +70,7 @@ statement = choose
     , functionDef
     , functionAssign
     , returnKey
+    , earlyReturn
     , classDef
     , superCall
     , enumDef
@@ -208,6 +209,14 @@ returnKey = do
     unless inFunction
         (fail "Cannot use function keyword outside function!")
     Return <$> expression <* linebreak
+
+earlyReturn :: Parser Statement
+earlyReturn = do
+    keyword Keywords.earlyRet
+    inFunction <- asks (nested InFunction)
+    unless inFunction
+        (fail "Cannot use function keyword outside function!")
+    Return (PrimitiveExpr MewlixNil) <$ linebreak
 
 {- Classes -}
 ------------------------------------------------------------------
