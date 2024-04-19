@@ -9,6 +9,7 @@ module Mewlix.Parser.Type
 , local
 , nested
 , isNested
+, FileContent
 , ParseError
 ) where
 
@@ -33,6 +34,7 @@ newtype Parser a = Parser { runParser :: ParsecT Void Text (Reader Nesting) a }
              , MonadParsec Void Text
              )
 
+type FileContent = Text
 type ParseError = String
 
 parse :: FilePath -> Text -> Parser a -> Either ParseError a
