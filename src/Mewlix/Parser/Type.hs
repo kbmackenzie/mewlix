@@ -9,6 +9,7 @@ module Mewlix.Parser.Type
 , local
 , nested
 , isNested
+, ParseError
 ) where
 
 import Mewlix.Parser.Nesting (Nesting, nested, isNested)
@@ -32,11 +33,10 @@ newtype Parser a = Parser { runParser :: ParsecT Void Text (Reader Nesting) a }
              , MonadParsec Void Text
              )
 
-newtype ParseError = ParseError { getParseError :: String }
-    deriving (Eq, Ord, Show)
+type ParseError = String
 
 parse :: FilePath -> Text -> Parser a -> Either ParseError a
 parse path contents = prettifyError . (`runReader` mempty) . runParsecT . runParser
     where
         runParsecT parsec = runParserT parsec path contents
-        prettifyError = first $ ParseError . errorBundlePretty
+        prettifyError = first errorBundlePretty
