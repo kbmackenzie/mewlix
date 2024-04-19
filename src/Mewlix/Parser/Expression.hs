@@ -2,6 +2,7 @@
 
 module Mewlix.Parser.Expression
 ( expression
+, arguments
 ) where
 
 import Mewlix.Abstract.AST
@@ -51,10 +52,9 @@ termL = Mega.choice
 termR :: Parser Expression
 termR = Mega.choice
     [ parens expression
+    , new
     , box
     , shelf
-    , superCall
-    , new
     , parseYarnString expression
     , PrimitiveExpr <$> parsePrim
     , Identifier    <$> parseKey  ]
@@ -154,13 +154,6 @@ listen = do
 ------------------------------------------------------------------------------------
 home :: Parser Expression
 home = PrimitiveExpr MewlixHome <$ keyword Keywords.home
-
-superCall :: Parser Expression
-superCall = do
-    args <- do
-        keyword Keywords.superCall
-        fromMaybe mempty <$> Mega.optional arguments
-    return (SuperCall args)
 
 new :: Parser Expression
 new = do

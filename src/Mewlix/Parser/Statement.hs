@@ -30,7 +30,7 @@ import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (ModuleData(..))
 import Mewlix.Parser.Module (parseModuleKey)
 import Mewlix.Parser.Primitive (parseKey, parseParams)
-import Mewlix.Parser.Expression (expression)
+import Mewlix.Parser.Expression (expression, arguments)
 import Mewlix.Parser.Utils
     ( linebreak
     , skipLines
@@ -69,13 +69,14 @@ statement = choose
     , declaration
     , funcDef
     , returnKey
+    , classDef
+    , superCall
     , assert
     , continueKey
     , breakKey
     , importKey
     , importList
     , forEach
-    , classDef
     , tryCatch
     , expressionStm ]
     <?> "statement"
@@ -216,6 +217,18 @@ patchConstructor constructor = do
     let returnHome = Return (PrimitiveExpr MewlixHome)
     let patch = (<> Block [returnHome])
     constructor { funcBody = patch (funcBody constructor) }
+
+{- Super -}
+------------------------------------------------------------------
+superCall :: Parser Statement
+superCall = do
+    args <- do
+        keyword Keywords.superCall
+        fromMaybe mempty <$> Mega.optional arguments <* linebreak
+    inClass <- asks (nested InClass)
+    unless inClass
+        (fail "Cannot call parent constructor outside clowder!")
+    return $ SuperCall args
 
 {- Return -}
 ------------------------------------------------------------------
