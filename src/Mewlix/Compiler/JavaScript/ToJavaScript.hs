@@ -50,6 +50,7 @@ import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.HashMap.Strict as HashMap
 import Data.Char (isSpace)
+import Control.Monad ((>=>), (<=<))
 
 class ToJavaScript a where
     transpileJS :: Indentation -> a -> Transpiler Text
@@ -209,21 +210,19 @@ instance ToJavaScript Expression where
 {- Params -}
 -----------------------------------------------------------------
 instance ToJavaScript Params where
-    transpileJS _ (Params params) = (wrap . sepComma . map getKey) params
+    transpileJS _ = wrap . sepComma . map getKey . getParams
 
 {- Arguments -}
 -----------------------------------------------------------------
 instance ToJavaScript Arguments where
-    transpileJS _ (Arguments argExprs) = do
-        args <- mapM toJS argExprs
-        wrap $ sepComma args
+    transpileJS _ = wrap . sepComma <=< mapM toJS . getArguments
 
 {- Statements -}
 -----------------------------------------------------------------
--- Note: Every statement should be transpiled with no trailing linebreaks.
--- All linebreaks between statements will be added somewhere else.
-
 instance ToJavaScript Statement where
+    -- Note: Every statement should be transpiled with no trailing linebreaks.
+    -- Linebreaks between statements are added during Block transpilation.
+
     -- Expressions:
     ----------------------------------------------
     transpileJS level       (ExpressionStatement expr) = do
