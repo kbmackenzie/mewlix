@@ -293,6 +293,12 @@ instance ToJavaScript Statement where
         let declaration = mconcat [ "const ", (getKey . funcName) func, " = ", funcExpr, ";" ]
         return (indentLine level declaration)
 
+    transpileJS level   (FunctionAssignment expr func) = do
+        lvalue   <- toJS expr
+        funcExpr <- transpileJS level func
+        let assignment = mconcat [ lvalue, " = ", funcExpr, ";" ]
+        return (indentLine level assignment)
+
     -- Loop keywords:
     ----------------------------------------------
     transpileJS level   Break = return (indentLine level "break;")
