@@ -82,6 +82,14 @@ mew dummyf = =^-x-^= []
   bring a + b
 ~meow
 
+=^.x.^= early_return(n)
+  look if n % 2 == 0
+    meow "Number is even"
+    run away
+  ~meow
+  meow "Number is odd"
+~meow
+
 mew sumf_ = =^oxo^= () =>
   a + b
 mew sumf__ = =^oxo^= ()
