@@ -31,5 +31,5 @@ nested flag = Set.member flag . getNesting
 noNesting :: Nesting -> Nesting
 noNesting = const (Nesting mempty)
 
-defineNesting :: NestingFlag -> Nesting -> Nesting
-defineNesting flag = addNesting flag . noNesting
+defineNesting :: [NestingFlag] -> Nesting -> Nesting
+defineNesting = const . foldr addNesting mempty
