@@ -172,7 +172,8 @@ func nesting = do
     return (MewlixFunction name params body)
 
 funcDef :: Parser Statement
-funcDef = FunctionDef <$> func noNesting
+funcDef = FunctionDef <$> func nesting
+    where nesting = defineNesting [InFunction]
 
 {- Classes -}
 ------------------------------------------------------------------
@@ -189,7 +190,8 @@ classDef = do
             parseKey
         return (name, parent)
     (constructor, methods) <- do
-        methods <- (Mega.many . multiline) $ func (defineNesting InClass)
+        let methodNesting = defineNesting [InFunction, InClass]
+        methods <- (Mega.many . multiline) (func methodNesting)
         findConstructor methods
     close
 
