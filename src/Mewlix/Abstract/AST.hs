@@ -119,8 +119,9 @@ data Statement =
     | ImportList            ModuleData [Key]
     | Return                Expression
     | Assert                Expression SourcePos
-    | TryCatch              Block (Maybe Key) Block
     | ThrowError            Expression SourcePos
+    | TryCatch              Block (Maybe Key) Block
+    | Rethrow
     | Break 
     | Continue
     deriving (Show)
