@@ -30,13 +30,14 @@ import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Abstract.Module (ModuleData(..))
 import Mewlix.Parser.Module (parseModuleKey)
 import Mewlix.Parser.Primitive (parseKey, parseParams)
-import Mewlix.Parser.Expression (expression, arguments)
+import Mewlix.Parser.Expression (expression, lvalue, arguments)
 import Mewlix.Parser.Utils
     ( linebreak
     , skipLines
     , multiline
-    , repeatChar
     , symbol
+    , brackets
+    , repeatChar
     )
 import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Keywords.Types (SimpleKeyword(..))
@@ -66,6 +67,7 @@ statement :: Parser Statement
 statement = choose
     [ declaration
     , functionDef
+    , functionAssign
     , returnKey
     , classDef
     , superCall
@@ -114,12 +116,12 @@ binding = do
 
 declaration :: Parser Statement
 declaration = do
-    let rvalue :: Parser Expression
-        rvalue = Mega.choice
+    let value :: Parser Expression
+        value = Mega.choice
             [ symbol '=' >> (expression <* linebreak)
             , return $ PrimitiveExpr MewlixNil        ]
     keyword Keywords.local
-    binding <*> rvalue
+    binding <*> value
 
 {- While -}
 ------------------------------------------------------------------
@@ -162,24 +164,37 @@ ifelse = do
 {- Functions -}
 ------------------------------------------------------------------
 functionLike :: Parser k -> (Nesting -> Nesting) -> Parser (k, Params, Block)
-functionLike keyParser nesting = do
+functionLike parseK nesting = do
+    let funcKey = Mega.try (keyword Keywords.function >> parseK)
     (key, params) <- open $ do
-        keyword Keywords.function
-        key     <- keyParser
-        params  <- parseParams
+        key    <- funcKey
+        params <- parseParams
         return (key, params)
-    body   <- local nesting $ block Nothing
+    body <- local nesting $ block Nothing
     close
     return (key, params, body)
 
 function :: (Nesting -> Nesting) -> Parser MewlixFunction
 function nesting = do
     (key, params, body) <- functionLike parseKey nesting
-    return (MewlixFunction key params body)
+    return $ MewlixFunction
+        { funcName   = key
+        , funcBody   = body
+        , funcParams = params }
 
 functionDef :: Parser Statement
 functionDef = FunctionDef <$> function nesting
     where nesting = defineNesting [InFunction]
+
+functionAssign :: Parser Statement
+functionAssign = do
+    let assignment = brackets lvalue
+    let nesting = defineNesting [InFunction]
+    (expr, params, body) <- functionLike assignment nesting
+    return . FunctionAssignment expr $ MewlixFunction
+        { funcName   = mempty
+        , funcBody   = body
+        , funcParams = params }
 
 {- Return -}
 ------------------------------------------------------------------
