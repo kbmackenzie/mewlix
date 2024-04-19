@@ -14,7 +14,12 @@ import Mewlix.Abstract.AST
     , Arguments(..)
     , Params(..)
     )
-import Mewlix.Parser.Type (Parser)
+import Mewlix.Parser.Type
+    ( Parser
+    , asks
+    , nested
+    , NestingFlag(..)
+    )
 import Mewlix.Parser.Utils
     ( lexeme
     , symbol
@@ -39,7 +44,7 @@ import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
-import Control.Monad (void)
+import Control.Monad (void, unless)
 import qualified Data.List as List
 
 {- Left-hand, Right-hand -}
@@ -152,7 +157,12 @@ listen = do
 {- Clowder -}
 ------------------------------------------------------------------------------------
 home :: Parser Expression
-home = PrimitiveExpr MewlixHome <$ keyword Keywords.home
+home = do
+    keyword Keywords.home
+    inClass <- asks (nested InClass)
+    unless inClass
+        (fail "Cannot use clowder keyword outside clowder!")
+    return $ PrimitiveExpr MewlixHome
 
 new :: Parser Expression
 new = do
