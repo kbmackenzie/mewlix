@@ -351,6 +351,10 @@ instance ToJavaScript Statement where
 
         let wake = Key (unwrapKeyword Keywords.constructor)
 
+        let superRef = unwrapKeyword Keywords.superRef
+        let defineSuper = mconcat
+                ["const ", superRef, " = this[", Mewlix.wake, "];"]
+
         let transpileMethod :: MewlixFunction -> Transpiler Text
             transpileMethod func = do
                 funcExpr <- transpileJS methodLevel func
@@ -363,6 +367,7 @@ instance ToJavaScript Statement where
         let constructor = separateLines
                 [ indentLine classLevel "constructor() {"
                 , indentLine methodLevel "super();"
+                , indentLine methodLevel defineSuper
                 , separateLines (indentMany methodLevel methods)
                 , indentLine classLevel "}"                     ]
 
@@ -372,8 +377,9 @@ instance ToJavaScript Statement where
             , indentLine level "}"           ]
 
     transpileJS level (SuperCall argExprs) = do
+        let superRef = unwrapKeyword Keywords.superRef
         args <- toJS argExprs
-        return . indentLine level . terminate $ ("await super.wake" <> args)
+        return . indentLine level . terminate $ ("await " <> superRef <> args)
 
     -- 'Throw' expression:
     ----------------------------------------------
