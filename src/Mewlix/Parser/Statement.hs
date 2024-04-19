@@ -23,6 +23,7 @@ import Mewlix.Abstract.AST
     , Statement(..)
     , MewlixFunction(..)
     , MewlixClass(..)
+    , MewlixEnum(..)
     , Conditional(..)
     , YarnBall(..),
     )
@@ -71,6 +72,7 @@ statement = choose
     , returnKey
     , classDef
     , superCall
+    , enumDef
     , whileLoop
     , ifelse
     , forEach
@@ -263,6 +265,20 @@ superCall = do
     unless inClass
         (fail "Cannot call parent constructor outside clowder!")
     SuperCall args <$ linebreak
+
+{- Enums -}
+------------------------------------------------------------------
+enumDef :: Parser Statement
+enumDef = do
+    name <- open $ do
+        keyword Keywords.catTree
+        parseKey
+    keys <- do
+        Mega.some $ parseKey <* linebreak
+    close
+    return . EnumDef $ MewlixEnum
+        { enumName = name
+        , enumKeys = keys }
 
 {- Assert -}
 ------------------------------------------------------------------
