@@ -110,6 +110,7 @@ data Statement =
     | ForEachLoop           Expression Key Block
     | IfElse                (NonEmpty Conditional) (Maybe Block)
     | FunctionDef           MewlixFunction
+    | FunctionAssignment    Expression MewlixFunction
     | Variable              Key Expression
     | Constant              Key Expression
     | ClassDef              MewlixClass
