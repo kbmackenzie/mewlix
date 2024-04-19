@@ -16,6 +16,7 @@ module Mewlix.Keywords.LanguageKeywords
 , listen
 , end
 , ret
+, earlyRet
 , catnap
 , break
 , clowder
@@ -195,6 +196,9 @@ end = "~meow"
 
 ret :: SimpleKeyword
 ret = "bring"
+
+earlyRet :: WordSequence
+earlyRet = ["run", "away"]
 
 assert :: SimpleKeyword
 assert = "assert"
