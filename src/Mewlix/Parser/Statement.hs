@@ -224,11 +224,11 @@ superCall :: Parser Statement
 superCall = do
     args <- do
         keyword Keywords.superCall
-        fromMaybe mempty <$> Mega.optional arguments <* linebreak
+        fromMaybe mempty <$> Mega.optional arguments
     inClass <- asks (nested InClass)
     unless inClass
         (fail "Cannot call parent constructor outside clowder!")
-    return $ SuperCall args
+    SuperCall args <$ linebreak
 
 {- Return -}
 ------------------------------------------------------------------
@@ -248,21 +248,21 @@ assert = do
 ------------------------------------------------------------------
 continueKey :: Parser Statement
 continueKey = do
-    keyword Keywords.catnap >> linebreak
+    keyword Keywords.catnap
     inLoop <- asks (nested InLoop)
     unless inLoop
         (fail "Cannot use loop keyword outside loop!")
-    return Continue
+    Continue <$ linebreak
 
 {- Break -}
 ------------------------------------------------------------------
 breakKey :: Parser Statement
 breakKey = do
-    keyword Keywords.break >> linebreak
+    keyword Keywords.break
     inLoop <- asks (nested InLoop)
     unless inLoop
         (fail "Cannot use loop keyword outside loop!")
-    return Break
+    Break <$ linebreak
 
 {- For Loop -}
 ------------------------------------------------------------------
