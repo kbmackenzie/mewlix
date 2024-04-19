@@ -12,6 +12,7 @@ module Mewlix.Abstract.AST
 , UnaryOp(..)
 , MewlixFunction(..)
 , MewlixClass(..)
+, MewlixEnum(..)
 , Conditional(..)
 , YarnBall(..)
 ) where
@@ -99,6 +100,11 @@ data MewlixClass = MewlixClass
     , classMethods      :: [MewlixFunction]      }
     deriving (Show)
 
+data MewlixEnum = MewlixEnum
+    { enumName :: Key
+    , enumKeys :: [Key] }
+    deriving (Show)
+
 data Conditional = Conditional
     { conditionalExpression :: Expression
     , conditionalBlock      :: Block             }
@@ -114,6 +120,7 @@ data Statement =
     | Variable              Key Expression
     | Constant              Key Expression
     | ClassDef              MewlixClass
+    | EnumDef               MewlixEnum
     | SuperCall             Arguments
     | ImportModule          ModuleData
     | ImportList            ModuleData [Key]
