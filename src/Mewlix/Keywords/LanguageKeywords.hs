@@ -24,6 +24,7 @@ module Mewlix.Keywords.LanguageKeywords
 , home
 , constructor
 , superCall
+, superRef
 , if_
 , elif
 , else_
@@ -55,6 +56,7 @@ module Mewlix.Keywords.LanguageKeywords
 , catch
 , throw
 , assert
+, errorRef
 , reserved
 ) where
 
@@ -122,6 +124,9 @@ constructor = "wake"
 
 superCall :: WordSequence
 superCall = ["look", "outside"]
+
+superRef :: SimpleKeyword
+superRef = "___super"
 
 -- Expressions:
 typeOf :: WordSequence
@@ -236,6 +241,9 @@ catch = ["pounce", "on"]
 throw :: SimpleKeyword
 throw = "throw"
 
+errorRef :: SimpleKeyword
+errorRef = "___error"
+
 reserved :: HashSet SimpleKeyword
 {-# INLINE reserved #-}
 reserved = HashSet.fromList
@@ -270,6 +278,8 @@ reserved = HashSet.fromList
     , alias
     , from
     , throw
+    , superRef
+    , errorRef
     -- Internal:
     , "box"
     , "valueOf"
