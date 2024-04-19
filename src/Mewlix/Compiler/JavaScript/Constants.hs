@@ -10,6 +10,7 @@ module Mewlix.Compiler.JavaScript.Constants
 , createShelf
 , clowder
 , wake
+, enum
 , yarnBall
 -- Operations:
 , meow
@@ -66,6 +67,9 @@ clowder = mewlix "Clowder"
 
 wake :: Text
 wake = mewlix "wake"
+
+enum :: Text
+enum = mewlix "Enum"
 
 yarnBall :: Text
 yarnBall = mewlix "YarnBall"
