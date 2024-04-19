@@ -193,13 +193,6 @@ instance ToJavaScript Expression where
         arg <- toJS operand
         return $ syncCall (Mewlix.boxes "pairs") [arg]
 
-    -- 'Throw' expression:
-    ----------------------------------------------
-    transpileJS _ (ThrowError expr pos) = do
-        let stringify = syncCall Mewlix.purrify . List.singleton
-        arg <- stringify <$> toJS expr
-        return $ createError CatOnComputer pos arg
-
     -- IO:
     ----------------------------------------------
     transpileJS _ (MeowExpression expr) = do
@@ -377,6 +370,14 @@ instance ToJavaScript Statement where
     transpileJS level (SuperCall argExprs) = do
         args <- toJS argExprs
         return . indentLine level . terminate $ ("await super.wake" <> args)
+
+    -- 'Throw' expression:
+    ----------------------------------------------
+    transpileJS level (ThrowError expr pos) = do
+        let stringify = syncCall Mewlix.purrify . List.singleton
+        arg <- stringify <$> toJS expr
+        let err = createError CatOnComputer pos arg
+        return . indentLine level . terminate $ ("throw " <> err)
 
     -- Try/Catch:
     ----------------------------------------------

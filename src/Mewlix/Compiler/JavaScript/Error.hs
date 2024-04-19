@@ -40,10 +40,6 @@ errorInfo pos = (quotes. escapeString . mconcat)
 
 createError :: ErrorCode -> SourcePos -> Text -> Text
 createError code pos expr = do
-    let message :: Text
-        message = parens expr <> " + " <> errorInfo pos
-
-    let arguments :: Text
-        arguments = parens (errorCode code <> ", " <> message)
-
-    parens ("await (async () => { throw new " <> mewlixError <> arguments <> " })()")
+    let message = parens expr <> " + " <> errorInfo pos
+    let arguments = parens (errorCode code <> ", " <> message)
+    parens ("new " <> mewlixError <> arguments)
