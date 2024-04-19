@@ -3,10 +3,19 @@
 
 module Mewlix.Parser.Statement
 ( root
-, Nesting(..)
 ) where
 
-import Mewlix.Parser.Type (Parser)
+import Mewlix.Parser.Type
+    ( Parser
+    , asks
+    , local
+    , nested
+    , addNesting
+    , noNesting
+    , defineNesting
+    , Nesting
+    , NestingFlag(..)
+    )
 import Mewlix.Abstract.AST
     ( Block(..)
     , Primitive(..)
@@ -35,7 +44,7 @@ import Data.List.NonEmpty (NonEmpty((:|)))
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import Text.Megaparsec ((<|>), (<?>))
 import qualified Text.Megaparsec as Mega
-import Control.Monad (when, void)
+import Control.Monad (void, unless)
 import Data.Maybe (fromMaybe)
 import qualified Data.List as List
 import Data.Functor ((<&>))
@@ -48,47 +57,36 @@ yarnBall = do
     key  <- (<?> "yarn ball") . Mega.optional $ do
         keyword Keywords.yarnball <|> keyword Keywords.yarnball'
         parseModuleKey <* linebreak
-    body <- Block <$> Mega.many (statement Root)
+    body <- Block <$> Mega.many statement
     return (YarnBall key body)
-
-{- Nesting -}
-------------------------------------------------------------------
-data Nesting =
-      Root
-    | Nested
-    | NestedInLoop
-    deriving (Eq, Ord, Show, Enum, Bounded)
-
--- The maximum nesting should always propagate.
--- The 'max' function is helpful: Root `max` Nested = Nested
 
 {- Parse statements: -}
 ------------------------------------------------------------------
-statement :: Nesting -> Parser Statement
-statement nesting = choose
-    [ whileLoop     nesting
-    , ifelse        nesting
-    , declaration   nesting
+statement :: Parser Statement
+statement = choose
+    [ whileLoop
+    , ifelse
+    , declaration
     , funcDef
     , returnKey
     , assert
-    , continueKey   nesting
-    , breakKey      nesting
+    , continueKey
+    , breakKey
     , importKey
     , importList
-    , forEach       nesting
+    , forEach
     , classDef
-    , tryCatch      nesting
-    , expressionStm         ]
+    , tryCatch
+    , expressionStm ]
     <?> "statement"
     where choose = Mega.choice . map multiline
 
-block :: Nesting -> Maybe (Parser ()) -> Parser Block
-block nesting customStop = do
+block :: Maybe (Parser ()) -> Parser Block
+block customStop = do
     let stopPoint = fromMaybe (keyword Keywords.end) customStop
     fmap Block . Mega.many $ do
         Mega.notFollowedBy stopPoint
-        statement nesting
+        statement
 
 open :: Parser a -> Parser a
 open = (<* linebreak)
@@ -112,8 +110,8 @@ binding = do
         Nothing -> Variable key
         _       -> Constant key
 
-declaration :: Nesting -> Parser Statement
-declaration _ = do
+declaration :: Parser Statement
+declaration = do
     let rvalue :: Parser Expression
         rvalue = Mega.choice
             [ symbol '=' >> (expression <* linebreak)
@@ -123,20 +121,19 @@ declaration _ = do
 
 {- While -}
 ------------------------------------------------------------------
-whileLoop :: Nesting -> Parser Statement
-whileLoop nesting = do
+whileLoop :: Parser Statement
+whileLoop = do
     condition <- open $ do
         keyword Keywords.while
         expression
-    body <- block (max nesting NestedInLoop) Nothing
+    body <- local (addNesting InLoop) $ block Nothing
     close
     return (WhileLoop condition body)
 
 {- If Else -}
 ------------------------------------------------------------------
-ifelse :: Nesting -> Parser Statement
-ifelse nesting = do
-    let nest = max nesting Nested
+ifelse :: Parser Statement
+ifelse = do
     let stopPoints = Mega.choice
             [ keyword Keywords.elif
             , keyword Keywords.else_
@@ -145,36 +142,36 @@ ifelse nesting = do
         condition <- open $ do
             keyword Keywords.if_
             expression
-        body <- block nest (Just stopPoints)
+        body <- block (Just stopPoints)
         return (Conditional condition body)
     orIfs <- Mega.many $ do
         condition <- open $ do
             keyword Keywords.elif
             expression
-        body <- block nest (Just stopPoints)
+        body <- block (Just stopPoints)
         return (Conditional condition body)
     elseJust <- Mega.optional $ do
         open (keyword Keywords.else_)
-        block nest Nothing
+        block Nothing
     close
     let conditionals = lookIf :| orIfs
     return (IfElse conditionals elseJust)
 
 {- Functions -}
 ------------------------------------------------------------------
-func :: Parser MewlixFunction
-func = do
+func :: (Nesting -> Nesting) -> Parser MewlixFunction
+func nesting = do
     (name, params) <- open $ do
         keyword Keywords.function
         name   <- parseKey
         params <- parseParams
         return (name, params)
-    body   <- block Nested Nothing
+    body   <- local nesting $ block Nothing
     close
     return (MewlixFunction name params body)
 
 funcDef :: Parser Statement
-funcDef = FunctionDef <$> func
+funcDef = FunctionDef <$> func noNesting
 
 {- Classes -}
 ------------------------------------------------------------------
@@ -191,7 +188,7 @@ classDef = do
             parseKey
         return (name, parent)
     (constructor, methods) <- do
-        methods <- (Mega.many . multiline) func
+        methods <- (Mega.many . multiline) $ func (defineNesting InClass)
         findConstructor methods
     close
 
@@ -236,26 +233,28 @@ assert = do
 
 {- Continue -}
 ------------------------------------------------------------------
-continueKey :: Nesting -> Parser Statement
-continueKey nesting = do
+continueKey :: Parser Statement
+continueKey = do
     keyword Keywords.catnap >> linebreak
-    when (nesting < NestedInLoop)
+    inLoop <- asks (nested InLoop)
+    unless inLoop
         (fail "Cannot use loop keyword outside loop!")
     return Continue
 
 {- Break -}
 ------------------------------------------------------------------
-breakKey :: Nesting -> Parser Statement
-breakKey nesting = do
+breakKey :: Parser Statement
+breakKey = do
     keyword Keywords.break >> linebreak
-    when (nesting < NestedInLoop)
+    inLoop <- asks (nested InLoop)
+    unless inLoop
         (fail "Cannot use loop keyword outside loop!")
     return Break
 
 {- For Loop -}
 ------------------------------------------------------------------
-forEach :: Nesting -> Parser Statement
-forEach nesting = do
+forEach :: Parser Statement
+forEach = do
     (key, iter) <- open $ do
         keyword Keywords.forEach
         key  <- parseKey
@@ -263,7 +262,7 @@ forEach nesting = do
         iter <- expression
         void . Mega.optional $ repeatChar '!'
         return (key, iter)
-    body <- block (max nesting NestedInLoop) Nothing
+    body <- local (addNesting InLoop) $ block Nothing
     close
     return (ForEachLoop iter key body)
 
@@ -288,14 +287,13 @@ importList = do
 
 {- Watch/Catch -}
 ------------------------------------------------------------------
-tryCatch :: Nesting -> Parser Statement
-tryCatch nesting = do
-    let localNest = max nesting Nested
+tryCatch :: Parser Statement
+tryCatch = do
     open (keyword Keywords.try)
-    tryBlock <- block localNest (Just $ keyword Keywords.catch)
+    tryBlock <- block (Just $ keyword Keywords.catch)
     key <- open $ do
         keyword Keywords.catch
         Mega.optional parseKey
-    catchBlock <- block localNest Nothing
+    catchBlock <- local (addNesting InTryCatch) $ block Nothing
     close
     return (TryCatch tryBlock key catchBlock)
