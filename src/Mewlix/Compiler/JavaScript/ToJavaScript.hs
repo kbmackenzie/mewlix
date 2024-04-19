@@ -408,6 +408,10 @@ instance ToJavaScript Statement where
             -- A dirty little hack, but it works nicely:
             , Text.tail catchBlock ]
 
+    transpileJS level   Rethrow = do
+        let errorRef = unwrapKeyword Keywords.errorRef
+        return . indentLine level . terminate $ ("throw " <> errorRef)
+
     -- Assert:
     ----------------------------------------------
     transpileJS level   (Assert expr pos) = do
