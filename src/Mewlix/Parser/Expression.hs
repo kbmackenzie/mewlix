@@ -38,7 +38,6 @@ import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
-import Data.Maybe (fromMaybe)
 import Control.Monad (void)
 import qualified Data.List as List
 
@@ -71,7 +70,6 @@ expression = Mega.choice
     , meow
     , listen
     , lambda
-    , throw_
     , exprR             ]
     <?> "expression"
 
@@ -159,15 +157,6 @@ new :: Parser Expression
 new = do
     keyword Keywords.new
     ClowderCreate <$> termR <*> arguments
-
-{- Throw -}
-------------------------------------------------------------------------------------
-throw_ :: Parser Expression
-throw_ = do
-    keyword Keywords.throw
-    pos     <- Mega.getSourcePos
-    expr    <- expression
-    return (ThrowError expr pos)
 
 {- Postfixes -}
 ------------------------------------------------------------------------------------

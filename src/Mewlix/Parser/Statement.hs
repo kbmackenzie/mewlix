@@ -11,7 +11,6 @@ import Mewlix.Parser.Type
     , local
     , nested
     , addNesting
-    , noNesting
     , defineNesting
     , Nesting
     , NestingFlag(..)
@@ -77,6 +76,7 @@ statement = choose
     , importKey
     , importList
     , forEach
+    , throwException
     , tryCatch
     , expressionStm ]
     <?> "statement"
@@ -303,8 +303,15 @@ importList = do
     linebreak
     return $ ImportList (ModuleData path Nothing) keys
 
-{- Watch/Catch -}
+{- Errors -}
 ------------------------------------------------------------------
+throwException :: Parser Statement
+throwException = do
+    keyword Keywords.throw
+    pos  <- Mega.getSourcePos
+    expr <- expression <* linebreak
+    return (ThrowError expr pos)
+
 tryCatch :: Parser Statement
 tryCatch = do
     open (keyword Keywords.try)
