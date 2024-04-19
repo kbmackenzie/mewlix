@@ -53,10 +53,12 @@ library
       Mewlix.Parser.Expression
       Mewlix.Parser.Keyword
       Mewlix.Parser.Module
+      Mewlix.Parser.Nesting
       Mewlix.Parser.Primitive
       Mewlix.Parser.Run
       Mewlix.Parser.Statement
       Mewlix.Parser.String
+      Mewlix.Parser.Type
       Mewlix.Parser.Utils
       Mewlix.Project
       Mewlix.Project.Actions.Build
