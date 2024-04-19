@@ -16,6 +16,7 @@ import qualified Data.Set as Set
 data NestingFlag =
       InLoop
     | InClass
+    | InFunction
     | InTryCatch 
     deriving (Eq, Ord, Enum, Bounded, Show, Read)
 
