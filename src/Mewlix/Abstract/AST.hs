@@ -53,7 +53,6 @@ data Expression =
     | LookupExpression      Expression Expression
     | MeowExpression        Expression
     | ListenExpression      (Maybe Expression)
-    | ThrowError            Expression SourcePos
     deriving (Show)
 
 data BinaryOp =
@@ -120,6 +119,7 @@ data Statement =
     | Return                Expression
     | Assert                Expression SourcePos
     | TryCatch              Block (Maybe Key) Block
+    | ThrowError            Expression SourcePos
     | Break 
     | Continue
     deriving (Show)
