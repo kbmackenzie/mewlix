@@ -13,6 +13,7 @@ import Mewlix.Abstract.AST
     , Statement(..)
     , MewlixFunction(..)
     , MewlixClass(..)
+    , MewlixEnum(..)
     , Conditional(..)
     , YarnBall(..)
     ) 
@@ -380,6 +381,14 @@ instance ToJavaScript Statement where
         let superRef = unwrapKeyword Keywords.superRef
         args <- toJS argExprs
         return . indentLine level . terminate $ ("await " <> superRef <> args)
+
+    -- Enum statement:
+    transpileJS level (EnumDef enum) = do
+        strings <- mapM (toJS . MewlixString . getKey) (enumKeys enum)
+        let key = (getKey . enumName) enum
+        let arg = (brackets . sepComma) strings
+        let enumBox = instantiate Mewlix.enum [arg]
+        return . indentLine level . mconcat $ [ "const ", key, " = ", enumBox, ";" ]
 
     -- 'Throw' expression:
     ----------------------------------------------
