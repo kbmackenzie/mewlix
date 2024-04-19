@@ -147,4 +147,5 @@ watch attentively
   throw "!!"
 pounce on error
   meow error
+  rethrow
 ~meow
