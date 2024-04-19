@@ -2,6 +2,7 @@
 
 module Mewlix.Parser.Expression
 ( expression
+, lvalue
 , arguments
 ) where
 
@@ -58,11 +59,11 @@ termR = Mega.choice
     , PrimitiveExpr <$> parsePrim
     , Identifier    <$> parseKey  ]
 
-exprL :: Parser Expression
-exprL = makeExprParser termL operatorsL <?> "left-hand expression"
+rvalue :: Parser Expression
+rvalue = makeExprParser termL operatorsL <?> "left-hand expression"
 
-exprR :: Parser Expression
-exprR = makeExprParser termR operatorsR <?> "right-hand expression"
+lvalue :: Parser Expression
+lvalue = makeExprParser termR operatorsR <?> "right-hand expression"
 
 expression :: Parser Expression
 expression = Mega.choice
@@ -70,7 +71,7 @@ expression = Mega.choice
     , meow
     , listen
     , lambda
-    , exprR             ]
+    , lvalue    ]
     <?> "expression"
 
 {- Data -}
@@ -195,7 +196,7 @@ lambda = do
 assignment :: Parser Expression
 assignment = do
     key <- Mega.try $ do
-        key <- exprL
+        key <- rvalue
         lexeme $ do
             (void . MChar.char) '='
             Mega.notFollowedBy (MChar.char '=')
