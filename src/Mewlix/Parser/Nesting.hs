@@ -4,8 +4,10 @@
 module Mewlix.Parser.Nesting
 ( NestingFlag(..)
 , Nesting
+, addNesting
 , nested
-, isNested
+, noNesting
+, defineNesting
 ) where
 
 import Data.Set (Set)
@@ -20,8 +22,14 @@ data NestingFlag =
 newtype Nesting = Nesting { getNesting :: Set NestingFlag }
     deriving (Eq, Show, Monoid, Semigroup)
 
-nested :: NestingFlag -> Nesting -> Nesting
-nested flag = Nesting . Set.insert flag . getNesting
+addNesting :: NestingFlag -> Nesting -> Nesting
+addNesting flag = Nesting . Set.insert flag . getNesting
 
-isNested :: NestingFlag -> Nesting -> Bool
-isNested flag = Set.member flag . getNesting
+nested :: NestingFlag -> Nesting -> Bool
+nested flag = Set.member flag . getNesting
+
+noNesting :: Nesting -> Nesting
+noNesting = const (Nesting mempty)
+
+defineNesting :: NestingFlag -> Nesting -> Nesting
+defineNesting flag = addNesting flag . noNesting

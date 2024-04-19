@@ -7,13 +7,23 @@ module Mewlix.Parser.Type
 , ask
 , asks
 , local
+, addNesting
 , nested
-, isNested
+, noNesting
+, defineNesting
+, NestingFlag(..)
 , FileContent
 , ParseError
 ) where
 
-import Mewlix.Parser.Nesting (Nesting, nested, isNested)
+import Mewlix.Parser.Nesting
+    ( Nesting
+    , NestingFlag(..)
+    , addNesting
+    , nested
+    , noNesting
+    , defineNesting
+    )
 import Data.Text (Text)
 import Data.Void (Void)
 import Data.Bifunctor (first)
