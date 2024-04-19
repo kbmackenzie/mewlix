@@ -110,6 +110,17 @@ meow (charlie is Cat)
 meow charlie.introduction()
 meow charlie["introduction"]()
 
+-- Cat Trees:
+cat tree Colors
+  Pink
+  Red
+  Orange
+  Yellow
+  Green
+  Cyen
+  Magenta
+~meow
+
 -- IO:
 mew name = listen "What's your name?"
 meow "Your name is: "..name
