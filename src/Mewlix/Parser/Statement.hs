@@ -175,6 +175,16 @@ funcDef :: Parser Statement
 funcDef = FunctionDef <$> func nesting
     where nesting = defineNesting [InFunction]
 
+{- Return -}
+------------------------------------------------------------------
+returnKey :: Parser Statement
+returnKey = do
+    keyword Keywords.ret
+    inFunction <- asks (nested InFunction)
+    unless inFunction
+        (fail "Cannot use function keyword outside function!")
+    Return <$> expression <* linebreak
+
 {- Classes -}
 ------------------------------------------------------------------
 type Constructor = MewlixFunction
@@ -231,13 +241,6 @@ superCall = do
     unless inClass
         (fail "Cannot call parent constructor outside clowder!")
     SuperCall args <$ linebreak
-
-{- Return -}
-------------------------------------------------------------------
-returnKey :: Parser Statement
-returnKey = do
-    keyword Keywords.ret
-    Return <$> expression <* linebreak
 
 {- Assert -}
 ------------------------------------------------------------------
