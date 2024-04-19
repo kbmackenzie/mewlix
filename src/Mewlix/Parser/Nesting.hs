@@ -33,4 +33,4 @@ noNesting :: Nesting -> Nesting
 noNesting = const (Nesting mempty)
 
 defineNesting :: [NestingFlag] -> Nesting -> Nesting
-defineNesting = const . foldr addNesting mempty
+defineNesting = const . Nesting . Set.fromList
