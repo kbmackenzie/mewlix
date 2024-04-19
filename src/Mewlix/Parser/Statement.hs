@@ -17,6 +17,7 @@ import Mewlix.Parser.Type
     )
 import Mewlix.Abstract.AST
     ( Block(..)
+    , Params(..)
     , Primitive(..)
     , Expression(..)
     , Statement(..)
@@ -63,19 +64,19 @@ yarnBall = do
 ------------------------------------------------------------------
 statement :: Parser Statement
 statement = choose
-    [ whileLoop
-    , ifelse
-    , declaration
-    , funcDef
+    [ declaration
+    , functionDef
     , returnKey
     , classDef
     , superCall
+    , whileLoop
+    , ifelse
+    , forEach
     , assert
     , continueKey
     , breakKey
     , importKey
     , importList
-    , forEach
     , throwException
     , tryCatch
     , expressionStm ]
@@ -160,19 +161,24 @@ ifelse = do
 
 {- Functions -}
 ------------------------------------------------------------------
-func :: (Nesting -> Nesting) -> Parser MewlixFunction
-func nesting = do
-    (name, params) <- open $ do
+functionLike :: Parser k -> (Nesting -> Nesting) -> Parser (k, Params, Block)
+functionLike keyParser nesting = do
+    (key, params) <- open $ do
         keyword Keywords.function
-        name   <- parseKey
-        params <- parseParams
-        return (name, params)
+        key     <- keyParser
+        params  <- parseParams
+        return (key, params)
     body   <- local nesting $ block Nothing
     close
-    return (MewlixFunction name params body)
+    return (key, params, body)
 
-funcDef :: Parser Statement
-funcDef = FunctionDef <$> func nesting
+function :: (Nesting -> Nesting) -> Parser MewlixFunction
+function nesting = do
+    (key, params, body) <- functionLike parseKey nesting
+    return (MewlixFunction key params body)
+
+functionDef :: Parser Statement
+functionDef = FunctionDef <$> function nesting
     where nesting = defineNesting [InFunction]
 
 {- Return -}
@@ -201,7 +207,7 @@ classDef = do
         return (name, parent)
     (constructor, methods) <- do
         let methodNesting = defineNesting [InFunction, InClass]
-        methods <- (Mega.many . multiline) (func methodNesting)
+        methods <- (Mega.many . multiline) (function methodNesting)
         findConstructor methods
     close
 
