@@ -383,11 +383,10 @@ instance ToJavaScript Statement where
         return . indentLine level . terminate $ ("await " <> superRef <> args)
 
     -- Enum statement:
+    ----------------------------------------------
     transpileJS level   (EnumDef enum) = do
-        strings <- mapM (toJS . MewlixString . getKey) (enumKeys enum)
         let key = (getKey . enumName) enum
-        let arg = (brackets . sepComma) strings
-        let enumBox = instantiate Mewlix.enum [arg]
+        enumBox <- toJS enum
         return . indentLine level . mconcat $ [ "const ", key, " = ", enumBox, ";" ]
 
     -- 'Throw' expression:
