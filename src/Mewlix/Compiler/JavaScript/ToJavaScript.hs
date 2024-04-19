@@ -226,7 +226,7 @@ instance ToJavaScript Statement where
 
     -- Expressions:
     ----------------------------------------------
-    transpileJS level       (ExpressionStatement expr) = do
+    transpileJS level   (ExpressionStatement expr) = do
         indentLine level . terminate <$> toJS expr
 
     -- Control flow:
@@ -377,13 +377,13 @@ instance ToJavaScript Statement where
             , constructor
             , indentLine level "}"           ]
 
-    transpileJS level (SuperCall argExprs) = do
+    transpileJS level   (SuperCall argExprs) = do
         let superRef = unwrapKeyword Keywords.superRef
         args <- toJS argExprs
         return . indentLine level . terminate $ ("await " <> superRef <> args)
 
     -- Enum statement:
-    transpileJS level (EnumDef enum) = do
+    transpileJS level   (EnumDef enum) = do
         strings <- mapM (toJS . MewlixString . getKey) (enumKeys enum)
         let key = (getKey . enumName) enum
         let arg = (brackets . sepComma) strings
@@ -392,7 +392,7 @@ instance ToJavaScript Statement where
 
     -- 'Throw' expression:
     ----------------------------------------------
-    transpileJS level (ThrowError expr pos) = do
+    transpileJS level   (ThrowError expr pos) = do
         let stringify = syncCall Mewlix.purrify . List.singleton
         arg <- stringify <$> toJS expr
         let err = createError CatOnComputer pos arg
