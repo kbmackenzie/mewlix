@@ -32,7 +32,7 @@ errorCode :: ErrorCode -> Text
 errorCode = (mewlix "ErrorCode." <>) . showT
 
 errorInfo :: SourcePos -> Text
-errorInfo pos = (quotes. escapeString . mconcat)
+errorInfo pos = (quotes . escapeString . mconcat)
     [ "\n -> In yarn ball "
     , (showT . sourceName) pos
     , ", at line "
