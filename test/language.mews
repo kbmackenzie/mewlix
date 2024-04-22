@@ -76,11 +76,16 @@ mew curry_ = =^oxo^= (a)
   bring a + b
 ~meow
 
+do sumf! 4, 2
+
 mew dummyf = =^-x-^= []
 
-=^.x.^= [dummyf.sum]()
+=^.x.^= [dummyf.sum](a, b)
   bring a + b
 ~meow
+
+do dummyf.sum! 4, 3
+do dummyf["sum"]! 3, 4
 
 =^.x.^= early_return(n)
   look if n % 2 == 0
