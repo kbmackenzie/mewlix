@@ -108,7 +108,7 @@ do_ = do
     key  <- lvalue
     args <- fmap (maybe mempty Arguments) . Mega.optional $ do
         keyword Keywords.doArrow
-        Mega.sepBy rvalue (symbol ',')
+        Mega.sepBy expression (symbol ',')
     return $ FunctionCall key args
 
 {- Composing + Piping -}
