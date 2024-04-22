@@ -19,6 +19,7 @@ module Mewlix.Parser.Utils
 import Mewlix.Parser.Type (Parser)
 import Mewlix.Keywords.Types (LongSymbol(..))
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
+import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import qualified Text.Megaparsec.Char.Lexer as Lexer
@@ -73,7 +74,7 @@ multiline :: Parser a -> Parser a
 multiline = Lexer.lexeme skipLines
 
 linebreak :: Parser ()
-linebreak = multiline . Mega.choice $
+linebreak = (<?> "linebreak") . multiline . Mega.choice $
     [ void (MChar.char ';')
     , void MChar.newline
     , fail "expected linebreak or semicolon!" ]
