@@ -1,23 +1,28 @@
 <img align="left" width="256" height="256" src="logo.svg" alt="Mewlix logo">
 
-**Mewlix** is a cat-themed [esoteric programming language](https://en.wikipedia.org/wiki/Esoteric_programming_language) that compiles to vanilla JavaScript. It comes with templates for making little web applications and little HTML5 games!
+**Mewlix** is a cat-themed [esoteric programming language](https://en.wikipedia.org/wiki/Esoteric_programming_language) that compiles to asynchronous vanilla JavaScript. It comes with templates for making little HTML5 games!
 
 Mewlix's compiler is written in pure Haskell, and is a self-contained binary executable. It can build projects, run them in a simple HTTP server, and package the build output neatly into a `.zip` file for upload in websites like [itch.io](https://itch.io/).
 
 As is tradition for all languages, here's a simple `'hello world'` program in Mewlix:
 ```mewlix
-yarn ball main 
-
 meow "Hello world!"
 ```
-And a simple `greet` program:
+A simple `greet` program:
 ```mewlix
-yarn ball main
-
 =^.x.^= greet()
   mew name = listen "What's your name?"
   meow :3"Hello, [name]!"
 ~meow
+
+do greet
+```
+*And* a simple example of how to draw a sprite on the canvas using the `graphic` project mode:
+```mewlix
+from std.graphic takes load, draw, init
+
+do load => "my_sprite", "./path/to/sprite.png"
+do init => =^oxo^= () => draw("my_sprite")
 ```
 
 Mewlix is similar to C-family languages, with a few key differences. Instead of arrays or lists, Mewlix has a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*. Learn more [here](https://github.com/kbmackenzie/mewlix/wiki/Shelf)!
