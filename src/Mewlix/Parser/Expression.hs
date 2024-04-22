@@ -28,7 +28,6 @@ import Mewlix.Parser.Utils
     , parensList
     , bracketList
     , multiline
-    , repeatChar
     )
 import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Parser.String (parseYarnString)
@@ -107,7 +106,7 @@ do_ :: Parser Expression
 do_ = do
     keyword Keywords.do_
     key <- lvalue
-    repeatChar '!' 
+    keyword Keywords.doArrow
     FunctionCall key . Arguments <$> Mega.sepBy rvalue (symbol ',')
 
 {- Composing + Piping -}
