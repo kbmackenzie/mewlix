@@ -19,6 +19,7 @@ module Mewlix.Keywords.LanguageKeywords
 , earlyRet
 , catnap
 , do_
+, doArrow
 , break
 , clowder
 , extends
@@ -187,6 +188,9 @@ listen = "listen"
 
 do_ :: SimpleKeyword
 do_ = "do"
+
+doArrow :: LongSymbol
+doArrow = "=>"
 
 ternIf :: SimpleKeyword
 ternIf = "if"
