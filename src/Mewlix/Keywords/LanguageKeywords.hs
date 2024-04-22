@@ -18,6 +18,7 @@ module Mewlix.Keywords.LanguageKeywords
 , ret
 , earlyRet
 , catnap
+, do_
 , break
 , clowder
 , extends
@@ -184,6 +185,9 @@ meow = "meow"
 listen :: SimpleKeyword
 listen = "listen"
 
+do_ :: SimpleKeyword
+do_ = "do"
+
 ternIf :: SimpleKeyword
 ternIf = "if"
 
@@ -266,6 +270,7 @@ reserved = HashSet.fromList
     , nil
     , meow
     , listen
+    , do_
     , composeRef
     , ternIf
     , ternElse
