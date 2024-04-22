@@ -105,9 +105,11 @@ arguments = Arguments <$> parensList expression
 do_ :: Parser Expression
 do_ = do
     keyword Keywords.do_
-    key <- lvalue
-    keyword Keywords.doArrow
-    FunctionCall key . Arguments <$> Mega.sepBy rvalue (symbol ',')
+    key  <- lvalue
+    args <- fmap (maybe mempty Arguments) . Mega.optional $ do
+        keyword Keywords.doArrow
+        Mega.sepBy rvalue (symbol ',')
+    return $ FunctionCall key args
 
 {- Composing + Piping -}
 ------------------------------------------------------------------------------------
