@@ -28,6 +28,7 @@ import Mewlix.Parser.Utils
     , parensList
     , bracketList
     , multiline
+    , repeatChar
     )
 import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Parser.String (parseYarnString)
@@ -60,6 +61,7 @@ termR = Mega.choice
     , new
     , box
     , shelf
+    , do_
     , parseYarnString expression
     , PrimitiveExpr <$> parsePrim
     , Identifier    <$> parseKey  ]
@@ -98,6 +100,15 @@ box = do
 
 arguments :: Parser Arguments
 arguments = Arguments <$> parensList expression
+
+{- 'Do' Action -}
+------------------------------------------------------------------------------------
+do_ :: Parser Expression
+do_ = do
+    keyword Keywords.do_
+    key <- lvalue
+    repeatChar '!' 
+    FunctionCall key . Arguments <$> Mega.sepBy rvalue (symbol ',')
 
 {- Composing + Piping -}
 ------------------------------------------------------------------------------------
