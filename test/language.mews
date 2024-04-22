@@ -104,6 +104,11 @@ mew sumf_ = =^oxo^= () =>
 mew sumf__ = =^oxo^= ()
   => a + b
 
+=^.x.^= void_func()
+~meow
+
+do void_func
+
 -- Clowders:
 clowder Cat
   =^.x.^= wake(name)
