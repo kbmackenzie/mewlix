@@ -460,7 +460,7 @@ instance ToJavaScript Block where
 -----------------------------------------------------------------
 instance ToJavaScript YarnBall where
     transpileJS _ yarnball = do
-        let key = maybe mempty joinKey (yarnballKey yarnball)
+        let key = maybe Mewlix.defaultKey joinKey (yarnballKey yarnball)
         let strictPragma = "'use strict';"
 
         let metadataComment = separateLines
