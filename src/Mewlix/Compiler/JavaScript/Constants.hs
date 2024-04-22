@@ -12,6 +12,7 @@ module Mewlix.Compiler.JavaScript.Constants
 , wake
 , enum
 , yarnBall
+, defaultKey
 -- Operations:
 , meow
 , listen
@@ -73,6 +74,9 @@ enum = mewlix "Enum"
 
 yarnBall :: Text
 yarnBall = mewlix "YarnBall"
+
+defaultKey :: Text
+defaultKey = "main"
 
 {- Operations -}
 --------------------------------------------
