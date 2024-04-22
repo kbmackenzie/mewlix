@@ -23,6 +23,10 @@ x nand x
 "x" if x else "not x"
 look closely at x
 
+mew f = =^oxo^= (x) => x
+mew g = =^oxo^= (x) => x
+mew h = =^oxo^= (x) => x
+
 f :> g
 f :> g :> h
 
