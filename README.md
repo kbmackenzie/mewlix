@@ -22,7 +22,7 @@ do greet
 from std.graphic takes load, draw, init
 
 do load => "my_sprite", "./path/to/sprite.png"
-do init => =^oxo^= () => draw("my_sprite")
+do init => =^oxo^= () => draw("my_sprite", 0, 0)
 ```
 
 Mewlix is similar to C-family languages, with a few key differences. Instead of arrays or lists, Mewlix has a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*. Learn more [here](https://github.com/kbmackenzie/mewlix/wiki/Shelf)!
