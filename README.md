@@ -44,7 +44,7 @@ If you have any questions, be sure to read the [FAQ](https://github.com/kbmacken
 ![Looping animation of a cartoon cat resting on a shelf.](https://github.com/kbmackenzie/mewlix/wiki/imgs/cat-shelf.webp)
 
 ## Installation
-Mewlix's compiler is a self-contained binary executable. It can be run from anywhere, and has no external dependencies.
+Mewlix's compiler is a self-contained binary executable.
 
 The installation guide can be found [here](./INSTALL.md).
 
