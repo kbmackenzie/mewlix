@@ -158,7 +158,7 @@ lambda :: LongSymbol
 lambda = "=^oxo^="
 
 lambdaArrow :: LongSymbol
-lambdaArrow = "=>"
+lambdaArrow = "->"
 
 not :: SimpleKeyword
 not = "not"
