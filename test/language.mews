@@ -23,9 +23,9 @@ x nand x
 "x" if x else "not x"
 look closely at x
 
-mew f = =^oxo^= (x) => x
-mew g = =^oxo^= (x) => x
-mew h = =^oxo^= (x) => x
+mew f = =^oxo^= (x) -> x
+mew g = =^oxo^= (x) -> x
+mew h = =^oxo^= (x) -> x
 
 f :> g
 f :> g :> h
@@ -68,13 +68,13 @@ mew cat = =^-x-^= [
 ]
 
 -- Functions:
-mew sum = =^oxo^= (a, b) => a + b
-mew curry = =^oxo^= (a) => =^oxo^= (b) => =^oxo^= (c) => [a, b, c]
+mew sum = =^oxo^= (a, b) -> a + b
+mew curry = =^oxo^= (a) -> =^oxo^= (b) -> =^oxo^= (c) -> [a, b, c]
 mew curry_ = =^oxo^= (a)
-  => =^oxo^= (b)
-  => =^oxo^= (c)
-  => =^oxo^= (d)
-  => =^oxo^= (e) => [a, b, c, d, e]
+  -> =^oxo^= (b)
+  -> =^oxo^= (c)
+  -> =^oxo^= (d)
+  -> =^oxo^= (e) -> [a, b, c, d, e]
 
 =^.x.^= sumf(a, b)
   bring a + b
@@ -99,10 +99,10 @@ do dummyf["sum"] <- 3, 4
   meow "Number is odd"
 ~meow
 
-mew sumf_ = =^oxo^= () =>
+mew sumf_ = =^oxo^= () ->
   a + b
 mew sumf__ = =^oxo^= ()
-  => a + b
+  -> a + b
 
 =^.x.^= void_func()
 ~meow
