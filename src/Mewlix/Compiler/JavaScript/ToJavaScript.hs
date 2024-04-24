@@ -120,13 +120,6 @@ instance ToJavaScript Expression where
         fb <- asyncLambda <$> toJS right
         return $ asyncCall (Mewlix.boolean "ternary") [ condition, fa, fb ]
 
-    -- Assignment expression:
-    ----------------------------------------------
-    transpileJS _ (Assignment key expr) = do
-        left  <- toJS key
-        right <- toJS expr
-        wrap (left <> " = " <> right)
-
     -- Lambda function:
     ----------------------------------------------
     transpileJS _ (LambdaExpression paramExprs bodyExpr) = do
@@ -339,6 +332,13 @@ instance ToJavaScript Statement where
                 mconcat [ "const ", getKey key, " = ", value, ";" ]
 
         (return . separateLines) (map bind keys)
+
+    -- Assignment statement:
+    ----------------------------------------------
+    transpileJS level (Assignment key expr) = do
+        left  <- toJS key
+        right <- toJS expr
+        return . indentLine level . terminate $ (left <> " = " <> right)
 
     -- Class statement:
     ----------------------------------------------
