@@ -190,7 +190,7 @@ do_ :: SimpleKeyword
 do_ = "do"
 
 doArrow :: LongSymbol
-doArrow = "=>"
+doArrow = "<-"
 
 ternIf :: SimpleKeyword
 ternIf = "if"
