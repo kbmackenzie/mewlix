@@ -41,6 +41,7 @@ module Mewlix.Keywords.LanguageKeywords
 , claw
 , box
 , lambda
+, lambdaArrow
 , not
 , and
 , or
@@ -155,6 +156,9 @@ box = "=^-x-^="
 
 lambda :: LongSymbol
 lambda = "=^oxo^="
+
+lambdaArrow :: LongSymbol
+lambdaArrow = "=>"
 
 not :: SimpleKeyword
 not = "not"
