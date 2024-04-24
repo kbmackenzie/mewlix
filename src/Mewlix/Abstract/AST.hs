@@ -43,7 +43,6 @@ data Expression =
     | TernaryOperation      Expression Expression Expression
     | ListExpression        [Expression]
     | BoxExpression         [(Key, Expression)]
-    | Assignment            Expression Expression
     | AskType               Expression
     | IsInstance            Expression Expression
     | ClawEntries           Expression
@@ -119,6 +118,7 @@ data Statement =
     | FunctionAssignment    Expression MewlixFunction
     | Variable              Key Expression
     | Constant              Key Expression
+    | Assignment            Expression Expression
     | ClassDef              MewlixClass
     | EnumDef               MewlixEnum
     | SuperCall             Arguments
