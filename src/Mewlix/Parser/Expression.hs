@@ -65,11 +65,11 @@ termR = Mega.choice
     , PrimitiveExpr <$> parsePrim
     , Identifier    <$> parseKey  ]
 
-rvalue :: Parser Expression
-rvalue = makeExprParser termL operatorsL <?> "left-hand expression"
-
 lvalue :: Parser Expression
-lvalue = makeExprParser termR operatorsR <?> "right-hand expression"
+lvalue = makeExprParser termL operatorsL <?> "left-hand expression"
+
+rvalue :: Parser Expression
+rvalue = makeExprParser termR operatorsR <?> "right-hand expression"
 
 expression :: Parser Expression
 expression = Mega.choice
@@ -77,7 +77,7 @@ expression = Mega.choice
     , meow
     , listen
     , lambda
-    , lvalue    ]
+    , rvalue    ]
     <?> "expression"
 
 {- Data -}
@@ -218,7 +218,7 @@ lambda = do
 assignment :: Parser Expression
 assignment = do
     key <- Mega.try $ do
-        key <- rvalue
+        key <- lvalue
         lexeme $ do
             (void . MChar.char) '='
             Mega.notFollowedBy (MChar.char '=')
