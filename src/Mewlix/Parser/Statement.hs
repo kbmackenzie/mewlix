@@ -39,6 +39,7 @@ import Mewlix.Parser.Utils
     , symbol
     , brackets
     , repeatChar
+    , lexeme
     )
 import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Keywords.Types (SimpleKeyword(..))
@@ -46,6 +47,7 @@ import Data.List.NonEmpty (NonEmpty((:|)))
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import Text.Megaparsec ((<|>), (<?>))
 import qualified Text.Megaparsec as Mega
+import qualified Text.Megaparsec.Char as MChar
 import Control.Monad (void, unless)
 import Data.Maybe (fromMaybe)
 import qualified Data.List as List
@@ -85,6 +87,7 @@ statement = choose
     , throwException
     , tryCatch
     , rethrow
+    , assignment
     , expressionStm ]
     <?> "statement"
     where choose = Mega.choice . map multiline
@@ -126,6 +129,18 @@ declaration = do
             , return $ PrimitiveExpr MewlixNil        ]
     keyword Keywords.local
     binding <*> value
+
+{- Assignment -}
+------------------------------------------------------------------------------------
+assignment :: Parser Statement
+assignment = do
+    key <- Mega.try $ do
+        key <- lvalue
+        lexeme $ do
+            (void . MChar.char) '='
+            Mega.notFollowedBy (MChar.char '=')
+        return key
+    Assignment key <$> expression
 
 {- While -}
 ------------------------------------------------------------------
@@ -192,9 +207,9 @@ functionDef = FunctionDef <$> function nesting
 
 functionAssign :: Parser Statement
 functionAssign = do
-    let assignment = brackets lvalue
+    let key = brackets lvalue
     let nesting = defineNesting [InFunction]
-    (expr, params, body) <- functionLike assignment nesting
+    (expr, params, body) <- functionLike key nesting
     return . FunctionAssignment expr $ MewlixFunction
         { funcName   = mempty
         , funcBody   = body

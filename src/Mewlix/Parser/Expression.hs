@@ -21,8 +21,7 @@ import Mewlix.Parser.Type
     , NestingFlag(..)
     )
 import Mewlix.Parser.Utils
-    ( lexeme
-    , symbol
+    ( symbol
     , parens
     , brackets
     , parensList
@@ -42,9 +41,8 @@ import Text.Megaparsec ((<?>))
 import Mewlix.Keywords.Types (LongSymbol(..), unwrapKeyword)
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import qualified Text.Megaparsec as Mega
-import qualified Text.Megaparsec.Char as MChar
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
-import Control.Monad (void, unless)
+import Control.Monad (unless)
 import qualified Data.List as List
 
 {- Left-hand, Right-hand -}
@@ -73,11 +71,10 @@ rvalue = makeExprParser termR operatorsR <?> "right-hand expression"
 
 expression :: Parser Expression
 expression = Mega.choice
-    [ assignment
-    , meow
+    [ meow
     , listen
     , lambda
-    , rvalue    ]
+    , rvalue ]
     <?> "expression"
 
 {- Data -}
@@ -212,18 +209,6 @@ lambda = do
     params <- multiline parseParams
     multiline $ keyword Keywords.lambdaArrow
     LambdaExpression params <$> expression
-
-{- Assignment -}
-------------------------------------------------------------------------------------
-assignment :: Parser Expression
-assignment = do
-    key <- Mega.try $ do
-        key <- lvalue
-        lexeme $ do
-            (void . MChar.char) '='
-            Mega.notFollowedBy (MChar.char '=')
-        return key
-    Assignment key <$> expression
 
 {- Operator Tables -}
 ------------------------------------------------------------------------------------
