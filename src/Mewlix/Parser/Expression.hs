@@ -210,7 +210,7 @@ lambda :: Parser Expression
 lambda = do
     keyword Keywords.lambda
     params <- multiline parseParams
-    multiline . keyword $ LongSymbol "=>"
+    multiline $ keyword Keywords.lambdaArrow
     LambdaExpression params <$> expression
 
 {- Assignment -}
