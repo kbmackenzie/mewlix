@@ -94,8 +94,15 @@ box = do
     keyword Keywords.box
     BoxExpression <$> bracketList parsePair <?> "box"
 
+{- Arguments -}
+------------------------------------------------------------------------------------
 arguments :: Parser Arguments
 arguments = Arguments <$> parensList expression
+
+arrowList :: Parser [Expression]
+arrowList = do
+    keyword Keywords.doArrow
+    Mega.sepBy1 expression (symbol ',')
 
 {- 'Do' Action -}
 ------------------------------------------------------------------------------------
@@ -103,9 +110,7 @@ do_ :: Parser Expression
 do_ = do
     keyword Keywords.do_
     key  <- lvalue
-    args <- fmap (maybe mempty Arguments) . Mega.optional $ do
-        keyword Keywords.doArrow
-        Mega.sepBy expression (symbol ',')
+    args <- maybe mempty Arguments <$> Mega.optional arrowList
     return $ FunctionCall key args
 
 {- Composing + Piping -}
@@ -176,7 +181,9 @@ home = do
 new :: Parser Expression
 new = do
     keyword Keywords.new
-    ClowderCreate <$> termR <*> arguments
+    ClowderCreate <$> termR <*> Mega.choice
+        [ Arguments <$> arrowList
+        , arguments               ]
 
 {- Postfixes -}
 ------------------------------------------------------------------------------------
