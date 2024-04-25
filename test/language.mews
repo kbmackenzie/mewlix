@@ -132,6 +132,9 @@ meow (charlie is Cat)
 meow charlie.introduction()
 meow charlie["introduction"]()
 
+mew another_cat = new Cat <- "not charlie"
+meow another_cat.introduction()
+
 -- Cat Trees:
 cat tree Colors
   Pink
