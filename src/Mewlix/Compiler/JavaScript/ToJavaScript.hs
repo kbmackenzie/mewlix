@@ -441,8 +441,9 @@ instance ToJavaScript MewlixFunction where
 instance ToJavaScript MewlixEnum where
     transpileJS _ enum = do
         strings <- mapM (toJS . MewlixString . getKey) (enumKeys enum)
-        let arg = (brackets . sepComma) strings
-        return $ instantiate Mewlix.enum [arg]
+        name <- (toJS . MewlixString . getKey . enumName) enum
+        let keys = (brackets . sepComma) strings
+        return $ instantiate Mewlix.enum [name, keys]
 
 {- Block -}
 -----------------------------------------------------------------
