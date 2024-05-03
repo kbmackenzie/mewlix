@@ -1,5 +1,5 @@
 module Mewlix.Parser.Keyword
-( ParseKeyword(..)
+( Keyword(..)
 , anyKeyword
 ) where
 
@@ -14,19 +14,19 @@ import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import Control.Monad (void)
 
-class ParseKeyword a where
+class Keyword a where
     keyword :: a -> Parser ()
 
-instance ParseKeyword SimpleKeyword where
+instance Keyword SimpleKeyword where
     keyword key = (lexeme . Mega.try) $ do
         (void . MChar.string . unwrapKeyword) key
         Mega.notFollowedBy (Mega.satisfy isKeyChar)
 
-instance ParseKeyword LongSymbol where
+instance Keyword LongSymbol where
     keyword = lexeme . void . MChar.string' . unwrapSymbol
 
-instance ParseKeyword WordSequence where
+instance Keyword WordSequence where
     keyword = Mega.try . mapM_ keyword . unwrapWords
 
-anyKeyword :: (ParseKeyword a) => [a] -> Parser ()
+anyKeyword :: (Keyword a) => [a] -> Parser ()
 anyKeyword = Mega.choice . map keyword
