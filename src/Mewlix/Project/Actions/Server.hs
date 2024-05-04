@@ -42,7 +42,7 @@ runProject projectData = do
         , (showT . getPort) port ]
 
     -- Open browser:
-    let address = concat ["http://127.0.0.1:", (show . getPort) port, "/"]
+    let address = concat ["http://localhost:", (show . getPort) port, "/"]
     (liftIO . void . openBrowser) address
 
     -- Run server:
