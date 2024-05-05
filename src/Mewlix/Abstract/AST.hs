@@ -76,6 +76,7 @@ data BinaryOp =
 
 data UnaryOp =
       Negation
+    | Plus
     | ListPop
     | ListPeek
     | BooleanNot
