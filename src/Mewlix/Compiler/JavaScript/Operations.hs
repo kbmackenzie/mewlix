@@ -41,7 +41,8 @@ binaryOpFunc op = case op of
 
 unaryOpFunc :: UnaryOp -> OperationBuilder
 unaryOpFunc op = case op of
-    Negation        -> syncCall (Mewlix.numbers "negate")
+    Negation        -> syncCall (Mewlix.numbers "minus" )
+    Plus            -> syncCall (Mewlix.numbers "plus"  )
     ListPop         -> syncCall (Mewlix.shelves "pop"   )
     ListPeek        -> syncCall (Mewlix.shelves "peek"  )
     BooleanNot      -> syncCall (Mewlix.boolean "not"   )
