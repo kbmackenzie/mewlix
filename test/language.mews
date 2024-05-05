@@ -8,7 +8,9 @@ from std takes map, filter, fold
 2 + 2.25
 1.000006 + 2e12
 (2 + 2) / 2
-2 * (2 + 2)
+2 * (+2 + -2)
++2 - -2
++-2 + -+2
 true
 false
 mew x = 1
