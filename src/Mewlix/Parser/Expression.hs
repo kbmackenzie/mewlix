@@ -217,6 +217,15 @@ lambda = do
     multiline $ keyword Keywords.lambdaArrow
     LambdaExpression params <$> expression
 
+{- Unary -}
+------------------------------------------------------------------------------------
+plusMinus :: Parser (Expression -> Expression)
+plusMinus = do
+    let ops = Mega.choice . map (fmap UnaryOperation) $
+            [ Plus     <$ symbol '+'
+            , Negation <$ symbol '-' ]
+    foldr1 (.) <$> Mega.some ops
+
 {- Operator Tables -}
 ------------------------------------------------------------------------------------
 type OperatorTable = [[Operator Parser Expression]]
@@ -230,16 +239,16 @@ operatorsR =
         [ Postfix postfixes                                                             ]
     ,   [ Prefix  (AskType                          <$ keyword Keywords.typeOf      )
         , InfixL  (IsInstance                       <$ keyword Keywords.is          )
-        , Prefix  (ClawEntries                      <$ keyword Keywords.claw        )   ]
-    ,   [ Postfix (UnaryOperation LengthLookup      <$ keyword (LongSymbol "...?")  )   ] 
+        , Prefix  (ClawEntries                      <$ keyword Keywords.claw        )
+        , Postfix (UnaryOperation LengthLookup      <$ keyword (LongSymbol "...?")  )   ] 
     ,   [ Prefix  (UnaryOperation ListPeek          <$ keyword Keywords.peek        )
         , Prefix  (UnaryOperation ListPop           <$ keyword Keywords.pop         )
         , InfixL  (BinaryOperation ListPush         <$ keyword Keywords.push        )   ]
     ,   [ InfixL  (BinaryOperation StringConcat     <$ keyword (LongSymbol "..")    )
         , InfixL  (BinaryOperation Contains         <$ keyword Keywords.in_         )   ]
-    ,   [ InfixL  (BinaryOperation Power            <$ symbol '^'                   )   ]
-    ,   [ Prefix  (UnaryOperation Negation          <$ symbol '-'                   )
+    ,   [ Prefix  plusMinus
         , Prefix  (UnaryOperation BooleanNot        <$ keyword Keywords.not         )   ]
+    ,   [ InfixL  (BinaryOperation Power            <$ symbol '^'                   )   ]
     ,   [ InfixL  (BinaryOperation Multiplication   <$ symbol '*'                   )
         , InfixL  (BinaryOperation FloorDivision    <$ keyword (LongSymbol "//")    )
         , InfixL  (BinaryOperation Division         <$ symbol '/'                   )
