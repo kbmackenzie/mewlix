@@ -217,15 +217,6 @@ lambda = do
     multiline $ keyword Keywords.lambdaArrow
     LambdaExpression params <$> expression
 
-{- Unary -}
-------------------------------------------------------------------------------------
-plusMinus :: Parser (Expression -> Expression)
-plusMinus = do
-    let ops = Mega.choice . map (fmap UnaryOperation) $
-            [ Plus  <$ symbol '+'
-            , Minus <$ symbol '-' ]
-    foldr1 (.) <$> Mega.some ops
-
 {- Operator Tables -}
 ------------------------------------------------------------------------------------
 type OperatorTable = [[Operator Parser Expression]]
@@ -246,7 +237,8 @@ operatorsR =
         , InfixL  (BinaryOperation ListPush         <$ keyword Keywords.push        )   ]
     ,   [ InfixL  (BinaryOperation StringConcat     <$ keyword (LongSymbol "..")    )
         , InfixL  (BinaryOperation Contains         <$ keyword Keywords.in_         )   ]
-    ,   [ Prefix  plusMinus
+    ,   [ Prefix  (UnaryOperation Plus              <$ symbol '+'                   )
+        , Prefix  (UnaryOperation Minus             <$ symbol '-'                   )
         , Prefix  (UnaryOperation BooleanNot        <$ keyword Keywords.not         )   ]
     ,   [ InfixL  (BinaryOperation Power            <$ symbol '^'                   )   ]
     ,   [ InfixL  (BinaryOperation Multiplication   <$ symbol '*'                   )
