@@ -75,7 +75,7 @@ data BinaryOp =
     deriving (Eq, Ord, Enum, Bounded, Show)
 
 data UnaryOp =
-      Negation
+      Minus
     | Plus
     | ListPop
     | ListPeek

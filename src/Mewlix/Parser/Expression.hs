@@ -222,8 +222,8 @@ lambda = do
 plusMinus :: Parser (Expression -> Expression)
 plusMinus = do
     let ops = Mega.choice . map (fmap UnaryOperation) $
-            [ Plus     <$ symbol '+'
-            , Negation <$ symbol '-' ]
+            [ Plus  <$ symbol '+'
+            , Minus <$ symbol '-' ]
     foldr1 (.) <$> Mega.some ops
 
 {- Operator Tables -}
