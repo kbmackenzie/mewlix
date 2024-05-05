@@ -237,10 +237,10 @@ operatorsR =
         , InfixL  (BinaryOperation ListPush         <$ keyword Keywords.push        )   ]
     ,   [ InfixL  (BinaryOperation StringConcat     <$ keyword (LongSymbol "..")    )
         , InfixL  (BinaryOperation Contains         <$ keyword Keywords.in_         )   ]
+    ,   [ InfixL  (BinaryOperation Power            <$ symbol '^'                   )   ]
     ,   [ Prefix  (UnaryOperation Plus              <$ symbol '+'                   )
         , Prefix  (UnaryOperation Minus             <$ symbol '-'                   )
         , Prefix  (UnaryOperation BooleanNot        <$ keyword Keywords.not         )   ]
-    ,   [ InfixL  (BinaryOperation Power            <$ symbol '^'                   )   ]
     ,   [ InfixL  (BinaryOperation Multiplication   <$ symbol '*'                   )
         , InfixL  (BinaryOperation FloorDivision    <$ keyword (LongSymbol "//")    )
         , InfixL  (BinaryOperation Division         <$ symbol '/'                   )
