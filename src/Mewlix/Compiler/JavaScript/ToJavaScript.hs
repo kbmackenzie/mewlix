@@ -193,12 +193,6 @@ instance ToJavaScript Expression where
         arg <- stringify <$> toJS expr
         return $ call Mewlix.meow [arg]
 
-    transpileJS _ (ListenExpression expr) = do
-        let stringify = call Mewlix.purrify . List.singleton
-        let nil = toJS MewlixNil
-        arg <- maybe nil (fmap stringify . toJS) expr 
-        return $ call Mewlix.listen [arg]
-
 {- Params -}
 -----------------------------------------------------------------
 instance ToJavaScript Params where

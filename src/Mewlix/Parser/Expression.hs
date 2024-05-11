@@ -72,7 +72,6 @@ rvalue = makeExprParser termR operatorsR <?> "right-hand expression"
 expression :: Parser Expression
 expression = Mega.choice
     [ meow
-    , listen
     , lambda
     , rvalue ]
     <?> "expression"
@@ -162,11 +161,6 @@ meow :: Parser Expression
 meow = do
     keyword Keywords.meow
     MeowExpression <$> expression
-
-listen :: Parser Expression
-listen = do
-    keyword Keywords.listen
-    ListenExpression <$> Mega.optional expression
 
 {- Clowder -}
 ------------------------------------------------------------------------------------

@@ -52,7 +52,6 @@ data Expression =
     | DotExpression         Expression Expression
     | LookupExpression      Expression Expression
     | MeowExpression        Expression
-    | ListenExpression      (Maybe Expression)
     deriving (Show)
 
 data BinaryOp =
