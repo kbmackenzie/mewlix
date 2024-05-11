@@ -9,6 +9,7 @@ module Mewlix.Compiler.Indentation
 , indentMany
 ) where
 
+import Mewlix.Compiler.Transpiler (Transpiler, asks, pretty)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.List as List
@@ -33,8 +34,12 @@ indentSize = 4
 createIndent :: Indentation -> Text
 createIndent = Text.pack . flip List.replicate ' ' . (* indentSize) . getIndent
 
-indentLine :: Indentation -> Text -> Text
-indentLine = mappend . createIndent 
+indentLine :: Indentation -> Text -> Transpiler Text
+indentLine indent text = do
+    prettify <- asks pretty
+    if prettify
+        then return (createIndent indent <> text)
+        else return text
 
-indentMany :: Indentation -> [Text] -> [Text]
+indentMany :: Indentation -> [Text] -> [Transpiler Text]
 indentMany = map . indentLine
