@@ -149,8 +149,7 @@ cat tree Colors
 ~meow
 
 -- IO:
-mew name = listen "What's your name?"
-meow "Your name is: "..name
+meow "meow!"
 
 -- Control Flow:
 mew r = std.random()
