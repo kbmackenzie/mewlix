@@ -18,7 +18,8 @@ import Control.Monad.Reader (MonadReader, Reader, ask, asks, local, runReader)
 
 data TranspilerContext = TranspilerContext
     { specialImports    :: HashMap Key Text
-    , transpilerNoStd   :: Bool             }
+    , transpilerNoStd   :: Bool            
+    , transpilerPretty  :: Bool             }
     deriving (Show);
 
 newtype Transpiler a = Transpiler 
@@ -35,4 +36,5 @@ transpile ctx = flip runReader ctx . runTranspiler;
 emptyContext :: TranspilerContext
 emptyContext = TranspilerContext
     { specialImports    = mempty
-    , transpilerNoStd   = False }
+    , transpilerNoStd   = False
+    , transpilerPretty  = False }
