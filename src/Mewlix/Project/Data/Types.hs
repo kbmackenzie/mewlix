@@ -63,6 +63,8 @@ data ProjectMode =
 ----------------------------------------------------------------
 data ProjectFlag =
       Quiet
+    | Pretty
+    | NoBrowser
     | NoStd
     | NoReadMe
     deriving (Eq, Ord, Show, Read, Enum, Bounded)
