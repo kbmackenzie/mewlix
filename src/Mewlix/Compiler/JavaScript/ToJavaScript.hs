@@ -36,7 +36,7 @@ import Mewlix.Compiler.JavaScript.Utils.Expression
     ( instantiate
     , wrap
     , lambda
-    , syncCall
+    , call
     , asBoolean
     )
 import Mewlix.Compiler.JavaScript.Error (ErrorCode(..), errorInfo, createError)
@@ -82,7 +82,7 @@ instance ToJavaScript Expression where
     transpileJS _ (ListExpression exprs) = do
         items <- mapM toJS exprs
         let array = (brackets . sepComma) items
-        return $ syncCall Mewlix.createShelf [ array ]
+        return $ call Mewlix.createShelf [ array ]
 
     transpileJS _ (BoxExpression pairs) = do
         let makeKey :: Key -> Transpiler Text
@@ -103,12 +103,12 @@ instance ToJavaScript Expression where
     transpileJS _ (BooleanAnd left right) = do
         a  <- toJS left
         fb <- lambda <$> toJS right
-        return $ syncCall (Mewlix.boolean "and") [ a, fb ]
+        return $ call (Mewlix.boolean "and") [ a, fb ]
 
     transpileJS _ (BooleanOr left right) = do
         a  <- toJS left
         fb <- lambda <$> toJS right
-        return $ syncCall (Mewlix.boolean "or") [ a, fb ]
+        return $ call (Mewlix.boolean "or") [ a, fb ]
 
     -- Ternary operator:
     ----------------------------------------------
@@ -116,7 +116,7 @@ instance ToJavaScript Expression where
         condition <- toJS conditionExpr
         fa <- lambda <$> toJS left
         fb <- lambda <$> toJS right
-        return $ syncCall (Mewlix.boolean "ternary") [ condition, fa, fb ]
+        return $ call (Mewlix.boolean "ternary") [ condition, fa, fb ]
 
     -- Lambda function:
     ----------------------------------------------
@@ -142,7 +142,7 @@ instance ToJavaScript Expression where
     -- Lookup expression:
     ----------------------------------------------
     transpileJS _ (LookupExpression objectExpr propertyExpr) = do
-        let stringify = syncCall Mewlix.purrify . List.singleton
+        let stringify = call Mewlix.purrify . List.singleton
         object   <- toJS objectExpr
         property <- stringify <$> toJS propertyExpr
         return (object <> ".box()" <> brackets property)
@@ -172,32 +172,32 @@ instance ToJavaScript Expression where
     ----------------------------------------------
     transpileJS _ (AskType operand) = do
         arg <- toJS operand
-        return $ syncCall (Mewlix.reflection "typeOf") [arg]
+        return $ call (Mewlix.reflection "typeOf") [arg]
 
     -- 'Is' / Instance of:
     ----------------------------------------------
     transpileJS _ (IsInstance a b) = do
         args <- mapM toJS [a, b]
-        return $ syncCall (Mewlix.reflection "instanceOf") args
+        return $ call (Mewlix.reflection "instanceOf") args
 
     -- 'Claw at'/ Box entries:
     ----------------------------------------------
     transpileJS _ (ClawEntries operand) = do
         arg <- toJS operand
-        return $ syncCall (Mewlix.boxes "pairs") [arg]
+        return $ call (Mewlix.boxes "pairs") [arg]
 
     -- IO:
     ----------------------------------------------
     transpileJS _ (MeowExpression expr) = do
-        let stringify = syncCall Mewlix.purrify . List.singleton
+        let stringify = call Mewlix.purrify . List.singleton
         arg <- stringify <$> toJS expr
-        return $ syncCall Mewlix.meow [arg]
+        return $ call Mewlix.meow [arg]
 
     transpileJS _ (ListenExpression expr) = do
-        let stringify = syncCall Mewlix.purrify . List.singleton
+        let stringify = call Mewlix.purrify . List.singleton
         let nil = toJS MewlixNil
         arg <- maybe nil (fmap stringify . toJS) expr 
-        return $ syncCall Mewlix.listen [arg]
+        return $ call Mewlix.listen [arg]
 
 {- Params -}
 -----------------------------------------------------------------
@@ -258,7 +258,7 @@ instance ToJavaScript Statement where
         iterable    <- toJS expr
         body        <- transpileJS level block
 
-        let chase  = syncCall Mewlix.canChase [iterable]
+        let chase  = call Mewlix.canChase [iterable]
         let header = indentLine level $ mconcat
                 [ "for (const ", getKey key, " of ", chase, ") "]
 
@@ -310,8 +310,8 @@ instance ToJavaScript Statement where
             stringKey <- (toJS . MewlixString . getKey) key
             special   <- asks specialImports
             case HashMap.lookup key special of
-                Nothing      -> return $ syncCall Mewlix.getModule [stringKey]
-                (Just value) -> return $ syncCall Mewlix.wrap [value]
+                Nothing      -> return $ call Mewlix.getModule [stringKey]
+                (Just value) -> return $ call Mewlix.wrap [value]
         let declaration = mconcat [ "const ", binding, " = ", importValue, ";" ]
         return (indentLine level declaration)
 
@@ -321,8 +321,8 @@ instance ToJavaScript Statement where
             stringKey <- (toJS . MewlixString . getKey) key
             special   <- asks specialImports
             case HashMap.lookup key special of
-                Nothing      -> return $ syncCall Mewlix.getModule [stringKey]
-                (Just value) -> return $ syncCall Mewlix.wrap [value]
+                Nothing      -> return $ call Mewlix.getModule [stringKey]
+                (Just value) -> return $ call Mewlix.wrap [value]
 
         let bind :: Key -> Text
             bind key = indentLine level $ do
@@ -390,7 +390,7 @@ instance ToJavaScript Statement where
     -- 'Throw' expression:
     ----------------------------------------------
     transpileJS level   (ThrowError expr pos) = do
-        let stringify = syncCall Mewlix.purrify . List.singleton
+        let stringify = call Mewlix.purrify . List.singleton
         arg <- stringify <$> toJS expr
         let err = createError CatOnComputer pos arg
         return . indentLine level . terminate $ ("throw " <> err)
@@ -405,7 +405,7 @@ instance ToJavaScript Statement where
 
         let errorRef = unwrapKeyword Keywords.errorRef
         let defineErrorBox = mconcat
-                [ "const ", errorKey, " = ", syncCall Mewlix.pounceError [errorRef], ";\n" ]
+                [ "const ", errorKey, " = ", call Mewlix.pounceError [errorRef], ";\n" ]
 
         return $ mconcat
             [ indentLine level ("try " <> tryBlock <> "\n")
@@ -421,9 +421,9 @@ instance ToJavaScript Statement where
     -- Assert:
     ----------------------------------------------
     transpileJS level   (Assert expr pos) = do
-        value       <- toJS expr
-        let call = syncCall Mewlix.assert [ value, errorInfo pos ] <> ";"
-        return (indentLine level call)
+        value <- toJS expr
+        let assert = call Mewlix.assert [ value, errorInfo pos ] <> ";"
+        return (indentLine level assert)
 
 {- Function -}
 -----------------------------------------------------------------
@@ -500,7 +500,7 @@ instance ToJavaScript YarnBall where
                 , moduleBindings
                 , "}"                           ]
         
-        let footer = syncCall Mewlix.addModule [keyString, "yarnball"]
+        let footer = call Mewlix.addModule [keyString, "yarnball"]
 
         -- Separate with two line breaks instead of one.
         -- Always end with a newline character.

@@ -5,7 +5,7 @@ module Mewlix.Compiler.JavaScript.Utils.Expression
 , wrap
 , lambda
 , iife
-, syncCall
+, call
 , asBoolean
 ) where
 
@@ -26,8 +26,8 @@ lambda body = "(() => " <> body <> ")"
 iife :: Text -> Text
 iife body = lambda body <> "()"
 
-syncCall :: Text -> [Text] -> Text
-syncCall name args = name <> parens (sepComma args)
+call :: Text -> [Text] -> Text
+call name args = name <> parens (sepComma args)
 
 asBoolean :: Text -> Text
-asBoolean = syncCall (Mewlix.conversion "toBool") . List.singleton
+asBoolean = call (Mewlix.conversion "toBool") . List.singleton

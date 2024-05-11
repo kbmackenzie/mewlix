@@ -7,7 +7,7 @@ module Mewlix.Compiler.JavaScript.Operations
 ) where
 
 import Data.Text (Text)
-import Mewlix.Compiler.JavaScript.Utils.Expression (syncCall)
+import Mewlix.Compiler.JavaScript.Utils.Expression (call)
 import Mewlix.String.Utils (sepComma)
 import qualified Mewlix.Compiler.JavaScript.Constants as Mewlix
 import Mewlix.Abstract.AST (BinaryOp(..), UnaryOp(..))
@@ -16,24 +16,24 @@ type OperationBuilder = ([Text] -> Text)
 
 compareTo :: [Text] -> OperationBuilder
 compareTo comparisons = do
-    let call = syncCall (Mewlix.compare "compare")
+    let comparer = call (Mewlix.compare "compare")
     let isOneOf = ".isOneOf(" <> sepComma comparisons <> ")"
-    \args -> call args <> isOneOf
+    \args -> comparer args <> isOneOf
 
 binaryOpFunc :: BinaryOp -> OperationBuilder
 binaryOpFunc op = case op of 
-    Addition        -> syncCall (Mewlix.numbers "add")
-    Subtraction     -> syncCall (Mewlix.numbers "sub")
-    Multiplication  -> syncCall (Mewlix.numbers "mul")
-    Division        -> syncCall (Mewlix.numbers "div")
-    FloorDivision   -> syncCall (Mewlix.numbers "floordiv")
-    Modulo          -> syncCall (Mewlix.numbers "mod")
-    Power           -> syncCall (Mewlix.numbers "pow")
-    ListPush        -> syncCall (Mewlix.shelves "push")
-    StringConcat    -> syncCall (Mewlix.strings "concat")
-    Contains        -> syncCall (Mewlix.shelves "contains")
-    Equal           -> syncCall (Mewlix.compare "isEqual")
-    NotEqual        -> ("!" <>) . syncCall (Mewlix.compare "isEqual")
+    Addition        -> call (Mewlix.numbers "add")
+    Subtraction     -> call (Mewlix.numbers "sub")
+    Multiplication  -> call (Mewlix.numbers "mul")
+    Division        -> call (Mewlix.numbers "div")
+    FloorDivision   -> call (Mewlix.numbers "floordiv")
+    Modulo          -> call (Mewlix.numbers "mod")
+    Power           -> call (Mewlix.numbers "pow")
+    ListPush        -> call (Mewlix.shelves "push")
+    StringConcat    -> call (Mewlix.strings "concat")
+    Contains        -> call (Mewlix.shelves "contains")
+    Equal           -> call (Mewlix.compare "isEqual")
+    NotEqual        -> ("!" <>) . call (Mewlix.compare "isEqual")
     LessThan        -> compareTo [Mewlix.lessThan] 
     GreaterThan     -> compareTo [Mewlix.greaterThan] 
     LesserOrEqual   -> compareTo [Mewlix.lessThan, Mewlix.equalTo] 
@@ -41,9 +41,9 @@ binaryOpFunc op = case op of
 
 unaryOpFunc :: UnaryOp -> OperationBuilder
 unaryOpFunc op = case op of
-    Minus           -> syncCall (Mewlix.numbers "minus" )
-    Plus            -> syncCall (Mewlix.numbers "plus"  )
-    ListPop         -> syncCall (Mewlix.shelves "pop"   )
-    ListPeek        -> syncCall (Mewlix.shelves "peek"  )
-    BooleanNot      -> syncCall (Mewlix.boolean "not"   )
-    LengthLookup    -> syncCall (Mewlix.shelves "length")
+    Minus           -> call (Mewlix.numbers "minus" )
+    Plus            -> call (Mewlix.numbers "plus"  )
+    ListPop         -> call (Mewlix.shelves "pop"   )
+    ListPeek        -> call (Mewlix.shelves "peek"  )
+    BooleanNot      -> call (Mewlix.boolean "not"   )
+    LengthLookup    -> call (Mewlix.shelves "length")
