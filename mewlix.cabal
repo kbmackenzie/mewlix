@@ -46,6 +46,7 @@ library
       Mewlix.Compiler.JavaScript.Utils.Statement
       Mewlix.Compiler.Run
       Mewlix.Compiler.Transpiler
+      Mewlix.Compiler.Whitespace
       Mewlix.Keywords.LanguageKeywords
       Mewlix.Keywords.Types
       Mewlix.Logger
