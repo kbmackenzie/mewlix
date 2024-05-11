@@ -13,7 +13,6 @@ module Mewlix.Keywords.LanguageKeywords
 , false
 , nil
 , meow
-, listen
 , end
 , ret
 , earlyRet
@@ -187,9 +186,6 @@ pop = ["knock", "over"]
 meow :: SimpleKeyword
 meow = "meow"
 
-listen :: SimpleKeyword
-listen = "listen"
-
 do_ :: SimpleKeyword
 do_ = "do"
 
@@ -277,7 +273,6 @@ reserved = HashSet.fromList
     , false
     , nil
     , meow
-    , listen
     , do_
     , composeRef
     , ternIf
