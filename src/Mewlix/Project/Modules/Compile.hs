@@ -24,9 +24,9 @@ createContext projectData = do
     let flags = projectFlags projectData
 
     return TranspilerContext
-        { specialImports    = createImportMap projectData
-        , transpilerNoStd   = Set.member NoStd flags
-        , transpilerPretty  = False {- todo! -}           }
+        { imports = createImportMap projectData
+        , noStd   = Set.member NoStd flags
+        , pretty  = False {- todo! -}           }
 
 compileModules :: ProjectData -> ProjectMaker [FilePath]
 compileModules projectData = do

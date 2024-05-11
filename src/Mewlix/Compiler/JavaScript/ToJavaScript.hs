@@ -302,7 +302,7 @@ instance ToJavaScript Statement where
         importValue <- do
             let key = (Key . joinKey . moduleKey) moduleData
             stringKey <- (toJS . MewlixString . getKey) key
-            special   <- asks specialImports
+            special   <- asks imports
             case HashMap.lookup key special of
                 Nothing      -> return $ call Mewlix.getModule [stringKey]
                 (Just value) -> return $ call Mewlix.wrap [value]
@@ -313,7 +313,7 @@ instance ToJavaScript Statement where
         importValue <- do
             let key = (Key . joinKey . moduleKey) moduleData
             stringKey <- (toJS . MewlixString . getKey) key
-            special   <- asks specialImports
+            special   <- asks imports
             case HashMap.lookup key special of
                 Nothing      -> return $ call Mewlix.getModule [stringKey]
                 (Just value) -> return $ call Mewlix.wrap [value]
@@ -469,8 +469,8 @@ instance ToJavaScript YarnBall where
 
             -- The standard library import.
 
-            noStd <- asks transpilerNoStd
-            let stdLibrary = if noStd
+            shouldntAddStd <- asks noStd
+            let stdLibrary = if shouldntAddStd
                 then mempty
                 else indentLine moduleLevel "const std = Mewlix.Base;\n"
 

@@ -17,9 +17,9 @@ import Data.HashMap.Strict (HashMap)
 import Control.Monad.Reader (MonadReader, Reader, ask, asks, local, runReader)
 
 data TranspilerContext = TranspilerContext
-    { specialImports    :: HashMap Key Text
-    , transpilerNoStd   :: Bool            
-    , transpilerPretty  :: Bool             }
+    { imports :: HashMap Key Text
+    , noStd   :: Bool            
+    , pretty  :: Bool             }
     deriving (Show);
 
 newtype Transpiler a = Transpiler 
@@ -35,6 +35,6 @@ transpile ctx = flip runReader ctx . runTranspiler;
 
 emptyContext :: TranspilerContext
 emptyContext = TranspilerContext
-    { specialImports    = mempty
-    , transpilerNoStd   = False
-    , transpilerPretty  = False }
+    { imports = mempty
+    , noStd   = False
+    , pretty  = False }
