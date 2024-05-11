@@ -36,9 +36,7 @@ import Mewlix.Compiler.JavaScript.Utils.Expression
     ( instantiate
     , wrap
     , lambda
-    , asyncLambda
     , syncCall
-    , asyncCall
     , asBoolean
     )
 import Mewlix.Compiler.JavaScript.Error (ErrorCode(..), errorInfo, createError)
@@ -104,35 +102,35 @@ instance ToJavaScript Expression where
     ----------------------------------------------
     transpileJS _ (BooleanAnd left right) = do
         a  <- toJS left
-        fb <- asyncLambda <$> toJS right
-        return $ asyncCall (Mewlix.boolean "and") [ a, fb ]
+        fb <- lambda <$> toJS right
+        return $ syncCall (Mewlix.boolean "and") [ a, fb ]
 
     transpileJS _ (BooleanOr left right) = do
         a  <- toJS left
-        fb <- asyncLambda <$> toJS right
-        return $ asyncCall (Mewlix.boolean "or") [ a, fb ]
+        fb <- lambda <$> toJS right
+        return $ syncCall (Mewlix.boolean "or") [ a, fb ]
 
     -- Ternary operator:
     ----------------------------------------------
     transpileJS _ (TernaryOperation conditionExpr left right) = do
         condition <- toJS conditionExpr
-        fa <- asyncLambda <$> toJS left
-        fb <- asyncLambda <$> toJS right
-        return $ asyncCall (Mewlix.boolean "ternary") [ condition, fa, fb ]
+        fa <- lambda <$> toJS left
+        fb <- lambda <$> toJS right
+        return $ syncCall (Mewlix.boolean "ternary") [ condition, fa, fb ]
 
     -- Lambda function:
     ----------------------------------------------
     transpileJS _ (LambdaExpression paramExprs bodyExpr) = do
         body   <- toJS bodyExpr
         params <- toJS paramExprs
-        wrap ("async " <> params <> " => " <> body)
+        wrap (params <> " => " <> body)
 
     -- Function calls:
     ----------------------------------------------
     transpileJS _ (FunctionCall expr argExprs) = do
         args <- toJS argExprs
         func <- toJS expr
-        wrap ("await " <> func <> args)
+        return (func <> args)
 
     -- Dot expression:
     ----------------------------------------------
@@ -154,7 +152,7 @@ instance ToJavaScript Expression where
     transpileJS _ (ClowderCreate clowderExpr argExprs) = do
         clowder <- toJS clowderExpr
         args    <- toJS argExprs
-        wrap $ mconcat ["await new ", clowder, "()[", Mewlix.wake, "]", args]
+        wrap $ mconcat ["new ", clowder, "()[", Mewlix.wake, "]", args]
 
     -- Binary operations:
     ----------------------------------------------
@@ -193,13 +191,13 @@ instance ToJavaScript Expression where
     transpileJS _ (MeowExpression expr) = do
         let stringify = syncCall Mewlix.purrify . List.singleton
         arg <- stringify <$> toJS expr
-        return $ asyncCall Mewlix.meow [arg]
+        return $ syncCall Mewlix.meow [arg]
 
     transpileJS _ (ListenExpression expr) = do
         let stringify = syncCall Mewlix.purrify . List.singleton
         let nil = toJS MewlixNil
         arg <- maybe nil (fmap stringify . toJS) expr 
-        return $ asyncCall Mewlix.listen [arg]
+        return $ syncCall Mewlix.listen [arg]
 
 {- Params -}
 -----------------------------------------------------------------
@@ -312,7 +310,7 @@ instance ToJavaScript Statement where
             stringKey <- (toJS . MewlixString . getKey) key
             special   <- asks specialImports
             case HashMap.lookup key special of
-                Nothing      -> return $ asyncCall Mewlix.getModule [stringKey]
+                Nothing      -> return $ syncCall Mewlix.getModule [stringKey]
                 (Just value) -> return $ syncCall Mewlix.wrap [value]
         let declaration = mconcat [ "const ", binding, " = ", importValue, ";" ]
         return (indentLine level declaration)
@@ -323,7 +321,7 @@ instance ToJavaScript Statement where
             stringKey <- (toJS . MewlixString . getKey) key
             special   <- asks specialImports
             case HashMap.lookup key special of
-                Nothing      -> return $ asyncCall Mewlix.getModule [stringKey]
+                Nothing      -> return $ syncCall Mewlix.getModule [stringKey]
                 (Just value) -> return $ syncCall Mewlix.wrap [value]
 
         let bind :: Key -> Text
@@ -380,7 +378,7 @@ instance ToJavaScript Statement where
     transpileJS level   (SuperCall argExprs) = do
         let superRef = unwrapKeyword Keywords.superRef
         args <- toJS argExprs
-        return . indentLine level . terminate $ ("await " <> superRef <> args)
+        return . indentLine level . terminate $ (superRef <> args)
 
     -- Enum statement:
     ----------------------------------------------
@@ -434,7 +432,7 @@ instance ToJavaScript MewlixFunction where
         let name = (getKey . funcName) func
         params  <- toJS (funcParams func)
         body    <- transpileJS level (funcBody func)
-        return $ mconcat [ "(async function ", name, params, " ", body, ").bind(this)" ]
+        return $ mconcat [ "(function ", name, params, " ", body, ").bind(this)" ]
 
 {- Function -}
 -----------------------------------------------------------------
@@ -496,7 +494,7 @@ instance ToJavaScript YarnBall where
                 return $ indentLine moduleLevel returnStatement
 
             return $ separateLines
-                [ "const yarnball = async function yarnball() {"
+                [ "const yarnball = function yarnball() {"
                 , stdLibrary
                 , separateLines transpiled
                 , moduleBindings
