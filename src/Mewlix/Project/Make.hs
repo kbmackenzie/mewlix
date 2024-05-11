@@ -25,7 +25,7 @@ import Mewlix.Project.Actions.Build (buildProject)
 import Mewlix.Project.Actions.Clean (cleanProject)
 import Mewlix.Project.Actions.Package (packageProject)
 import Mewlix.Project.Actions.Create (createProject)
-import Mewlix.Project.Actions.Server (runProject)
+import Mewlix.Project.Actions.Run (runProject)
 -- Assorted:
 import Mewlix.Project.Data.Read (readProject)
 import Mewlix.Logger (LogType(..), logger);
