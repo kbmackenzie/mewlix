@@ -4,10 +4,8 @@ module Mewlix.Compiler.JavaScript.Utils.Expression
 ( instantiate
 , wrap
 , lambda
-, asyncLambda
 , iife
 , syncCall
-, asyncCall
 , asBoolean
 ) where
 
@@ -25,17 +23,11 @@ wrap = return . parens
 lambda :: Text -> Text
 lambda body = "(() => " <> body <> ")"
 
-asyncLambda :: Text -> Text
-asyncLambda body = "(async () => " <> body <> ")"
-
 iife :: Text -> Text
 iife body = lambda body <> "()"
 
 syncCall :: Text -> [Text] -> Text
 syncCall name args = name <> parens (sepComma args)
-
-asyncCall :: Text -> [Text] -> Text
-asyncCall name args = "await " <> name <> parens (sepComma args)
 
 asBoolean :: Text -> Text
 asBoolean = syncCall (Mewlix.conversion "toBool") . List.singleton
