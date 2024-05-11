@@ -6,6 +6,8 @@ import Mewlix.Project.Maker (ProjectMaker, liftIO)
 import Mewlix.Project.Folder (outputFolder)
 import Mewlix.Project.Data.Types (ProjectData(..), ProjectMode(..))
 import Mewlix.Project.Actions.Build (buildProject)
+import Mewlix.Project.Actions.Server (serve)
+import Mewlix.Project.Actions.Node (node)
 import Control.Monad (unless)
 import System.Directory (doesDirectoryExist)
 
@@ -16,6 +18,6 @@ runProject projectData = do
         buildProject projectData
 
     case projectMode projectData of
-        Console -> undefined
-        Graphic -> undefined
-        Library -> undefined
+        Console -> serve projectData
+        Graphic -> serve projectData
+        Library -> node projectData
