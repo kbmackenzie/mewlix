@@ -39,7 +39,11 @@ transform (Just a) f  = f a
 
 fromOptions :: ProjectOptions -> [ProjectTransform]
 fromOptions ProjectOptions
-    { filesOpt = files, nameOpt = name, entryOpt = entry, modeOpt = mode, assetsOpt = assets } =
+    { filesOpt = files
+    , nameOpt = name
+    , entryOpt = entry
+    , modeOpt = mode
+    , assetsOpt = assets } =
         [ projectSourceFilesL %~ (files ++)
         , projectAssetsL %~ (assets ++)
         , transform name  (set projectNameL . Text.pack)
@@ -47,15 +51,20 @@ fromOptions ProjectOptions
         , transform mode  (set projectModeL)                    ]
 
 fromFlags :: FlagOptions -> ProjectTransform
-fromFlags FlagOptions { quietFlag = quiet, noStdFlag = noStd, noReadMeFlag = noReadMe } = do
-    let fromBool :: Bool -> ProjectFlag -> Maybe ProjectFlag
-        fromBool bool flag = if bool then Just flag else Nothing
+fromFlags FlagOptions
+    { quietFlag = quiet
+    , prettyFlag = pretty
+    , noStdFlag = noStd
+    , noReadMeFlag = noReadMe } = do
+        let fromBool :: Bool -> ProjectFlag -> Maybe ProjectFlag
+            fromBool bool flag = if bool then Just flag else Nothing
 
-    let flagList = catMaybes
-            [ fromBool quiet    Quiet
-            , fromBool noStd    NoStd
-            , fromBool noReadMe NoReadMe ]
-    projectFlagsL %~ mappend (Set.fromList flagList)
+        let flagList = catMaybes
+                [ fromBool quiet    Quiet
+                , fromBool pretty   Pretty
+                , fromBool noStd    NoStd
+                , fromBool noReadMe NoReadMe ]
+        projectFlagsL %~ mappend (Set.fromList flagList)
 
 runOption :: Language -> MewlixOptions -> IO ()
 runOption language = \case

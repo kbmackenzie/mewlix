@@ -46,6 +46,7 @@ data ProjectOptions = ProjectOptions
 
 data FlagOptions = FlagOptions
     { quietFlag    :: Bool
+    , prettyFlag   :: Bool
     , noStdFlag    :: Bool
     , noReadMeFlag :: Bool }
     deriving (Show)
@@ -80,13 +81,18 @@ projectMode = console <|> graphic <|> library
             <> help "No template" )
 
 flagOptions :: Parser FlagOptions
-flagOptions = FlagOptions <$> quiet <*> noStd <*> noReadMe
+flagOptions = FlagOptions <$> quiet <*> pretty <*> noStd <*> noReadMe
     where
         quiet :: Parser Bool
         quiet = switch
              ( long "quiet"
             <> short 'q'
             <> help "Silence compiler messages" )
+
+        pretty = switch
+             ( long "pretty"
+            <> short 'p'
+            <> help "Prettify compiler output" )
 
         noStd :: Parser Bool
         noStd = switch
@@ -135,7 +141,6 @@ projectOptions = options
 port :: Parser Port
 port = Port <$> option auto
      ( long "port"
-    <> short 'p'
     <> metavar "INT"
     <> help "Port number to use when running the project" )
 
