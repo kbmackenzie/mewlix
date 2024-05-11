@@ -1,20 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Mewlix.Project.Actions.Server
-( runProject
+( serve
 ) where
 
 import Mewlix.Project.Maker (ProjectMaker)
 import Mewlix.Project.Folder (outputFolder)
 import Mewlix.Project.Data.Types (ProjectData(..), Port(..))
-import Mewlix.Project.Actions.Build (buildProject)
 import Mewlix.Project.Log (projectLog)
 import Web.Scotty (scottyApp, middleware, get, file, addHeader)
 import qualified Network.Wai.Handler.Warp as Warp
 import Network.Wai.Middleware.Static (staticPolicy, addBase)
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import Control.Monad (unless, void)
-import System.Directory (doesDirectoryExist)
+import Control.Monad (void)
 import Mewlix.Utils.Show (showT)
 import System.FilePath ((</>))
 import Web.Browser (openBrowser)
@@ -28,11 +26,8 @@ runServer port = run (getPort port) $ do
         file (outputFolder </> "index.html")
     where run p s = liftIO (Warp.run p =<< scottyApp s)
 
-runProject :: ProjectData -> ProjectMaker ()
-runProject projectData = do
-    exists <- liftIO (doesDirectoryExist outputFolder)
-    unless exists $
-        buildProject projectData
+serve :: ProjectData -> ProjectMaker ()
+serve projectData = do
     let port = projectPort projectData
 
     projectLog projectData $ mconcat
