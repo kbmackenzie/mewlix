@@ -111,6 +111,7 @@ library
     , parser-combinators ==1.3.*
     , scotty ==0.12.*
     , text ==2.0.*
+    , typed-process ==0.2.*
     , unordered-containers ==0.2.*
     , utf8-string ==1.0.*
     , wai ==3.2.*
@@ -146,6 +147,7 @@ executable mewlix
     , parser-combinators ==1.3.*
     , scotty ==0.12.*
     , text ==2.0.*
+    , typed-process ==0.2.*
     , unordered-containers ==0.2.*
     , utf8-string ==1.0.*
     , wai ==3.2.*
@@ -183,6 +185,7 @@ test-suite mewlix-test
     , parser-combinators ==1.3.*
     , scotty ==0.12.*
     , text ==2.0.*
+    , typed-process ==0.2.*
     , unordered-containers ==0.2.*
     , utf8-string ==1.0.*
     , wai ==3.2.*

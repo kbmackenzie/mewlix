@@ -37,6 +37,7 @@ dependencies:
 - wai-middleware-static >= 0.9 && < 1.0
 - optparse-applicative >= 0.17 && < 0.18
 - open-browser >= 0.2 && < 0.3
+- typed-process >= 0.2 && < 0.3
 
 ghc-options:
 - -O2
