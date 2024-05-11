@@ -8,7 +8,7 @@ module Test.Compiler
 
 import Data.Text (Text)
 import Mewlix.Compiler.Run (compileJS)
-import Mewlix.Compiler.Transpiler (specialImports, emptyContext)
+import Mewlix.Compiler.Transpiler (TranspilerContext(..), emptyContext)
 import Mewlix.Project.Maker (Language(..))
 import Mewlix.Project.Data.Types (ProjectMode(..))
 import Mewlix.Project.Modules.StandardLibrary (addLibraries)
@@ -28,7 +28,7 @@ compileFile path = do
         (Right a)   -> return a
 
     let libs = addLibraries JavaScript Library mempty
-    let context = emptyContext { specialImports = libs }
+    let context = emptyContext { imports = libs, pretty = True }
 
     case compileJS context path contents of
         (Left e)    -> do
