@@ -64,7 +64,9 @@ library
       Mewlix.Project.Actions.Build
       Mewlix.Project.Actions.Clean
       Mewlix.Project.Actions.Create
+      Mewlix.Project.Actions.Node
       Mewlix.Project.Actions.Package
+      Mewlix.Project.Actions.Run
       Mewlix.Project.Actions.Server
       Mewlix.Project.Assets.Copy
       Mewlix.Project.Assets.Find
