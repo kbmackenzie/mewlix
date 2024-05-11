@@ -21,10 +21,12 @@ createContext projectData = do
     language <- asks projectLanguage
     let projectLibs = addLibraries language (projectMode projectData)
     let createImportMap = projectLibs . mapKeys Key . projectSpecialImports
+    let flags = projectFlags projectData
 
     return TranspilerContext
-        { specialImports  = createImportMap projectData
-        , transpilerNoStd = Set.member NoStd (projectFlags projectData) }
+        { specialImports    = createImportMap projectData
+        , transpilerNoStd   = Set.member NoStd flags
+        , transpilerPretty  = False {- todo! -}           }
 
 compileModules :: ProjectData -> ProjectMaker [FilePath]
 compileModules projectData = do
