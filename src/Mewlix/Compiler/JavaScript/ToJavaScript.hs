@@ -225,7 +225,7 @@ instance ToJavaScript Statement where
                 return (header <> body)
 
         lookIf <- transpileConditional (NonEmpty.head conditionals)
-        orIfs  <- mapM transpileConditional (NonEmpty.tail conditionals)
+        orIfs  <- map ("else " <>) <$> mapM transpileConditional (NonEmpty.tail conditionals)
 
         elseBlock <- case else_ of
             Nothing      -> return Text.empty
@@ -233,10 +233,10 @@ instance ToJavaScript Statement where
                 body <- transpileJS level block
                 return ("else " <> body)
 
-        joinLines
-            [ indentLine level lookIf
-            , (joinLines . indentMany level . map ("else " <>)) orIfs
-            , indentLine level elseBlock                               ]
+        joinLines . foldr ($) [] $
+            [ (:) (indentLine level lookIf)
+            , if null orIfs then id else (:) ((joinLines . indentMany level) orIfs)
+            , if Text.null elseBlock then id else (:) (indentLine level elseBlock)  ]
 
     -- While loop:
     ----------------------------------------------
