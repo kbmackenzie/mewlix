@@ -42,9 +42,9 @@ compileFile path = do
         handleError e = do
             hPutStrLn stderr e
             throwIO . ParseException . concat $
-                [ "Couldn't parse file ", show path, "!" ]
+                [ "Couldn't parse file '", path, "'!" ]
 
-    putStrLn ("Compiling: " ++ show path)
+    putStrLn ("\nCompiling: " ++ show path)
     either handleError return (compileJS context path contents)
 
 findTests :: IO [FilePath]
