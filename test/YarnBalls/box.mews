@@ -1,0 +1,13 @@
+-- mewlix: boxes!
+yarn ball test.box
+
+-- Box literal:
+mew charlie = =^-x-^= [
+  name: "Charlie",
+  coat: "tabby",
+  hobbies: ["eating", "sleeping"]
+]
+
+-- Property lookup:
+meow "Name: " .. charlie.name
+meow "Hobbies: " .. charlie["hobbies"]

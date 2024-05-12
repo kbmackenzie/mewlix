@@ -1,0 +1,14 @@
+-- mewlix: comment types
+yarn ball test.comments
+
+-- line comment
+
+~( ^.x.^)> 
+  Block comment!
+<(^.x.^ )~
+
+~( ^.x.^)> This is okay too! <(^.x.^ )~
+
+-- Nesting! ~( ^.x.^)>
+
+~( ^.x.^)> -- More nesting! <(^.x.^ )~

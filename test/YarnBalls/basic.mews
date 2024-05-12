@@ -1,0 +1,26 @@
+-- mewlix: all basic operations
+yarn ball test.basic
+
+-- numbers:
+2 + 2 * 2 / 2 // 2
+2 + 2.25
+1.000006 + 2e12
+(2 + 2) / 2
+2 * (+2 + -2)
++2 - -2
+-2 + +2
+2 + 2 / 2 ^ 2
+
+-- booleans:
+not true
+true or false
+true and false
+true nor false
+true nand false
+
+-- conditionals:
+mew x = true
+"x" if x else "not x"
+
+-- inspect type of value:
+look closely at x

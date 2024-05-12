@@ -1,0 +1,31 @@
+-- mewlix: clowders!
+yarn ball test.clowders
+
+-- A simple clowder:
+clowder Cat
+  =^.x.^= wake(name)
+    home.name = name
+  ~meow
+
+  =^.x.^= introduction()
+    bring "meow, i'm " .. home.name
+  ~meow
+~meow
+
+-- A subclowder:
+clowder Charlie is Cat
+  =^.x.^= wake()
+    look outside("charlie")
+  ~meow
+~meow
+
+-- Instantiation:
+mew charlie = new Charlie()
+assert charlie is Cat
+
+-- Method calls:
+meow charlie.introduction()
+meow charlie["introduction"]()
+
+-- Instantiation (alternative syntax):
+mew another_cat = new Cat <- "not charlie"

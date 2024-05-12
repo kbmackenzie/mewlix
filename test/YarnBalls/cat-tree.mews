@@ -1,0 +1,22 @@
+-- mewlix: cat trees!
+yarn ball cat_tree
+
+-- Cat trees are like 'enums' in C-family languages!
+cat tree Colors
+  Pink
+  Red
+  Orange
+  Yellow
+  Green
+  Cyen
+  Magenta
+~meow
+
+-- Look up constants:
+meow Colors.Pink
+
+-- Get string key for a constant:
+meow Colors.Pink.key
+
+-- Get numeric value for a constant:
+meow Colors.Pink.value

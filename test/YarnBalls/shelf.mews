@@ -1,0 +1,16 @@
+-- mewlix: shelves!
+yarn ball test.shelf
+
+-- Shelf literal:
+mew kitties! = ["Charlie", "Jake", "Princess"]
+
+-- Length:
+meow "Kitty count: " .. kitties...?
+
+-- Shelf operations:
+"Scourge" push kitties
+paw at kitties
+knock over kitties
+
+-- See if value is in a shelf. Note: O(n)!
+assert "Charlie" in kitties

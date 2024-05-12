@@ -1,0 +1,11 @@
+-- mewlix: imports
+yarn ball test.imports
+
+-- A simple import:
+takes example
+
+-- Alias:
+takes example as ex
+
+-- Importing fields:
+from std takes map, filter, fold

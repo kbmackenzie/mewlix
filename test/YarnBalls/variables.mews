@@ -1,0 +1,14 @@
+-- mewlix: values and bindings
+yarn ball test.variables
+
+-- constants:
+mew PI! = 3.14159265358
+
+-- variables:
+mew x = PI
+x = x + 1  -- mutable!
+
+-- empty declarations:
+mew empty            -- initialized as 'nothing'.
+mew empty_ = nothing -- same thing!
+assert empty == empty_

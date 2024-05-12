@@ -1,0 +1,44 @@
+-- mewlix: assorted statements!
+yarn ball test.statements
+
+-- Binding:
+mew x = std.random()
+
+-- If/else if/else:
+look if x == 0
+  meow "extremely unlikely."
+or if x == 1
+  meow "impossible by design."
+else just
+  meow "hello! this is the most common case by a very, very, very big margin!"
+~meow
+
+-- White loops:
+stare while true 
+  meow ":3"
+  escape
+  meow "This will never run!"
+~meow
+
+-- For-each loops:
+mew numbers! = [1, 2, 3]
+
+chase after number in numbers!!!
+  meow number
+  catnap
+  meow "This will never run!"
+~meow
+
+-- Assertions:
+assert 2 == 2
+
+-- Exceptions:
+throw "hello c:"
+
+-- Try/Catch:
+watch attentively
+  throw "!!"
+pounce on error
+  meow :3"Caught: [error]!"
+  rethrow
+~meow

@@ -1,0 +1,15 @@
+-- mewlix: strings!
+yarn ball test.string
+
+-- String literal:
+meow "hello world!"
+
+-- Multiline string:
+meow """
+this is a multiline string!
+"""
+
+-- Yarn strings (string interpolation):
+:3"Your number is [std.random_int(0, 10)]!"
+:3"[std.random()]"
+:3"Yarn strings with no expressions are valid, too!"
