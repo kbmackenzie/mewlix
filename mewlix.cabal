@@ -79,7 +79,6 @@ library
       Mewlix.Project.Maker
       Mewlix.Project.Modules.Compile
       Mewlix.Project.Modules.FileSearch
-      Mewlix.Project.Modules.ModuleWriter
       Mewlix.Project.Modules.StandardLibrary
       Mewlix.Project.Templates.Constants
       Mewlix.Project.Templates.Create
