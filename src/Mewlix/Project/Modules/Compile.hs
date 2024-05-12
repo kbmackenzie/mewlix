@@ -41,7 +41,7 @@ createContext projectData = do
     return TranspilerContext
         { imports = createImportMap projectData
         , noStd   = Set.member NoStd flags
-        , pretty  = False {- todo! -}           }
+        , pretty  = Set.member Pretty flags     }
 
 -- Compile all yarn balls, writing the compilation output to a handle.
 compileModules :: ProjectData -> Handle -> ProjectMaker ()
