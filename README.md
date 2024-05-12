@@ -1,6 +1,6 @@
 <img align="left" width="256" height="256" src="logo.svg" alt="Mewlix logo">
 
-**Mewlix** is a cat-themed [esoteric programming language](https://en.wikipedia.org/wiki/Esoteric_programming_language) that compiles to asynchronous vanilla JavaScript. It comes with templates for making little HTML5 games!
+**Mewlix** is a cat-themed [esoteric programming language](https://en.wikipedia.org/wiki/Esoteric_programming_language) that compiles to vanilla JavaScript. It comes with templates for making little HTML5 games!
 
 Mewlix's compiler is written in pure Haskell, and is a self-contained binary executable. It can build projects, run them in a simple HTTP server, and package the build output neatly into a `.zip` file for upload in websites like [itch.io](https://itch.io/).
 
@@ -10,12 +10,14 @@ meow "Hello world!"
 ```
 A simple `greet` program:
 ```mewlix
-=^.x.^= greet()
-  mew name = listen "What's your name?"
+from std.console takes run
+
+=^.x.^= greet(name)
   meow :3"Hello, [name]!"
 ~meow
 
-do greet
+meow "What's your name?"
+do run <- greet
 ```
 *And* a simple example of how to draw a sprite on the canvas using the `graphic` project mode:
 ```mewlix
