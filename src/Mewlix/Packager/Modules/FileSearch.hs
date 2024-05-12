@@ -19,7 +19,8 @@ import System.Directory
     ( doesDirectoryExist
     , doesFileExist
     , makeRelativeToCurrentDirectory
-    , canonicalizePath)
+    , canonicalizePath
+    )
 import Mewlix.Packager.Maker (PackageMaker, throwError, liftIO)
 
 findSources :: FilePath -> IO [FilePath]
