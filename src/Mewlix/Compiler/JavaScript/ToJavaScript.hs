@@ -493,7 +493,7 @@ instance ToJavaScript YarnBall where
             catYarnBall text  = do
                 prettify <- asks pretty
                 let cat = if prettify
-                    then (`mappend` "\n") . Text.intercalate "\n\n"
+                    then Text.intercalate "\n\n"
                     else mconcat
                 joinLines . map return $ [ "(function() {" , cat text , "})()" ]
 
