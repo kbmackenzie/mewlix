@@ -78,7 +78,7 @@ projectMode = console <|> graphic <|> library
         library = flag' Library
              ( long "library"
             <> short 'l'
-            <> help "No template" )
+            <> help "Library template" )
 
 flagOptions :: Parser FlagOptions
 flagOptions = FlagOptions <$> quiet <*> pretty <*> noStd <*> noReadMe
@@ -142,7 +142,7 @@ port :: Parser Port
 port = Port <$> option auto
      ( long "port"
     <> metavar "INT"
-    <> help "Port number to use when running the project" )
+    <> help "Port number to use when running project" )
 
 standalone :: Parser Bool
 standalone = switch
