@@ -4,17 +4,17 @@ module Mewlix.Project.Actions.Build
 ( buildProject
 ) where
 
-import Mewlix.Project.Maker (ProjectMaker)
+import Mewlix.Project.Maker (ProjectMaker, liftIO)
 import Mewlix.Project.Data.Types (ProjectData(..))
-import Mewlix.Project.Modules.Compile (compileModules)
+import Mewlix.Project.Modules.Bundle (bundleModules)
 import Mewlix.Project.Folder (coreFolder)
 import Mewlix.Project.Templates.Create (createFromTemplate)
 import Mewlix.Project.Templates.ReadMe (createReadme)
 import Mewlix.Project.Assets.Copy (copyAssets)
 import Mewlix.Project.Log (projectLog)
 import System.FilePath ((</>))
-import Mewlix.Utils.FileIO (writeBytesLazy)
 import Data.Aeson (object, (.=), encode)
+import qualified Data.ByteString.Lazy as LazyByteString
 
 buildProject :: ProjectData -> ProjectMaker ()
 buildProject projectData = do
@@ -26,7 +26,7 @@ buildProject projectData = do
     createFromTemplate (projectMode projectData)
 
     -- Modules:
-    compileModules projectData
+    bundleModules projectData
     copyAssets projectData
     scriptList projectData
     createReadme projectData
@@ -42,4 +42,4 @@ scriptList projectData = do
             , "entrypoint" .= entrypoint ]
 
     let contents = mappend (encode json) "\n"
-    writeBytesLazy targetPath contents
+    liftIO $ LazyByteString.writeFile targetPath contents
