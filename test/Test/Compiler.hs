@@ -3,6 +3,7 @@
 module Test.Compiler 
 ( ParseException(..)
 , compileFile
+, compileTests
 ) where
 
 import Data.Text (Text)
@@ -14,6 +15,16 @@ import Mewlix.Packager.Modules.StandardLibrary (addLibraries)
 import Mewlix.Utils.FileIO (readText)
 import System.IO (stderr, hPutStrLn)
 import Control.Exception (throwIO, Exception(..))
+import Conduit
+    ( (.|)
+    , runConduitRes
+    , sourceDirectoryDeep
+    , filterC
+    , sinkList
+    )
+import System.FilePath (isExtensionOf)
+import Control.Monad ((>=>))
+import qualified Data.Text.IO as TextIO
 
 newtype ParseException = ParseException String
     deriving (Show)
@@ -35,3 +46,14 @@ compileFile path = do
 
     putStrLn ("Compiling: " ++ show path)
     either handleError return (compileJS context path contents)
+
+findTests :: IO [FilePath]
+findTests = runConduitRes
+     $ sourceDirectoryDeep True "./test/YarnBalls/"
+    .| filterC (isExtensionOf ".mews")
+    .| sinkList
+
+compileTests :: IO ()
+compileTests = do
+    tests <- findTests
+    mapM_ (compileFile >=> TextIO.putStrLn) tests
