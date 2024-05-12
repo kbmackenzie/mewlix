@@ -13,7 +13,7 @@ A simple `greet` program:
 from std.console takes run
 
 =^.x.^= greet(name)
-  meow :3"Hello, [name]!"
+  bring :3"Hello, [name]!"
 ~meow
 
 meow "What's your name?"
@@ -24,7 +24,12 @@ do run <- greet
 from std.graphic takes load, draw, init
 
 do load <- "my_sprite", "./sprite.jpg"
-do init <- =^oxo^= () -> draw("my_sprite")
+
+=^.x.^= draw_sprite()
+  do draw <- "my-sprite", 0, 0
+~meow
+
+do init <- draw_sprite
 ```
 
 Mewlix is similar to C-family languages, with a few key differences. Instead of arrays or lists, Mewlix has a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*. Learn more [here](https://github.com/kbmackenzie/mewlix/wiki/Shelf)!
