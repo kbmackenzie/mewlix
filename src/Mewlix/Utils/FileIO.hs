@@ -1,14 +1,14 @@
 module Mewlix.Utils.FileIO
-( readFileT
-, readFileB
-, writeFileT
+( readFileB
 , writeFileB
 , writeFileS
 , writeFileBL
+, readFileT
+, writeFileT
+, appendFileT
 , readDataFile
 , copyFile
 , copyDataFile
-, appendFileT
 , extractZip
 , extractDataFile
 ) where
@@ -34,14 +34,8 @@ import Conduit
     )
 import Codec.Archive.Zip (withArchive, unpackInto)
 
-readFileT :: (MonadIO m) => FilePath -> m (Either UnicodeException Text)
-readFileT = liftIO . fmap ByteEncoding.decodeUtf8' . ByteString.readFile
-
 readFileB :: (MonadIO m) => FilePath -> m ByteString
 readFileB = liftIO . ByteString.readFile
-
-writeFileT :: (MonadIO m) => FilePath -> Text -> m ()
-writeFileT path = liftIO . ByteString.writeFile path . ByteEncoding.encodeUtf8
 
 writeFileB :: (MonadIO m) => FilePath -> ByteString -> m ()
 writeFileB = (liftIO .) . ByteString.writeFile
@@ -51,6 +45,15 @@ writeFileS path = liftIO . ByteString.writeFile path . ByteUTF8.fromString
 
 writeFileBL :: (MonadIO m) => FilePath -> ByteStringL.ByteString -> m ()
 writeFileBL = (liftIO .) . ByteStringL.writeFile
+
+readFileT :: (MonadIO m) => FilePath -> m (Either UnicodeException Text)
+readFileT = liftIO . fmap ByteEncoding.decodeUtf8' . ByteString.readFile
+
+writeFileT :: (MonadIO m) => FilePath -> Text -> m ()
+writeFileT path = liftIO . ByteString.writeFile path . ByteEncoding.encodeUtf8
+
+appendFileT :: (MonadIO m) => FilePath -> Text -> m ()
+appendFileT path = liftIO . ByteString.appendFile path . ByteEncoding.encodeUtf8
 
 readDataFile :: (MonadIO m) => FilePath -> m ByteString
 readDataFile = liftIO . getDataFileName >=> liftIO . ByteString.readFile
@@ -64,9 +67,6 @@ copyDataFile :: (MonadIO m) => FilePath -> FilePath -> m ()
 copyDataFile dataFile targetPath = do
     dataPath <- liftIO (getDataFileName dataFile)
     copyFile dataPath targetPath
-
-appendFileT :: (MonadIO m) => FilePath -> Text -> m ()
-appendFileT path = liftIO . ByteString.appendFile path . ByteEncoding.encodeUtf8
 
 extractZip :: (MonadIO m) => FilePath -> FilePath -> m ()
 extractZip zipPath = withArchive zipPath . unpackInto
