@@ -12,7 +12,7 @@ import Mewlix.Compiler.Transpiler (TranspilerContext(..), emptyContext)
 import Mewlix.Project.Maker (Language(..))
 import Mewlix.Project.Data.Types (ProjectMode(..))
 import Mewlix.Project.Modules.StandardLibrary (addLibraries)
-import Mewlix.Utils.FileIO (readFileT)
+import Mewlix.Utils.FileIO (readText)
 import System.IO (stderr, hPutStrLn)
 import Control.Exception (throwIO, Exception(..))
 
@@ -23,7 +23,7 @@ instance Exception ParseException where
 
 compileFile :: FilePath -> IO Text
 compileFile path = do
-    contents <- readFileT path >>= \case
+    contents <- readText path >>= \case
         (Left e)    -> throwIO e
         (Right a)   -> return a
 
