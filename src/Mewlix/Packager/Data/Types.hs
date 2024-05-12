@@ -64,9 +64,9 @@ data ProjectMode =
 data ProjectFlag =
       Quiet
     | Pretty
-    | NoBrowser
     | NoStd
     | NoReadMe
+    | NoBrowser
     deriving (Eq, Ord, Show, Read, Enum, Bounded)
 
 {- Project Data -}
@@ -186,10 +186,12 @@ instance FromJSON Port where
 ----------------------------------------------------------------
 parseFlag :: Text -> Maybe ProjectFlag
 parseFlag key = case parse key of
-    "quiet"     -> return Quiet
-    "no-std"    -> return NoStd
-    "no-readme" -> return NoReadMe
-    _           -> Nothing
+    "quiet"      -> return Quiet
+    "pretty"     -> return Pretty
+    "no-std"     -> return NoStd
+    "no-readme"  -> return NoReadMe
+    "no-browser" -> return NoBrowser
+    _            -> Nothing
     where parse = Text.dropWhile (== '-')
 
 readFlag :: (MonadFail m) => Text -> m ProjectFlag
