@@ -6,13 +6,13 @@ module Mewlix.Project.Actions.Build
 
 import Mewlix.Project.Maker (ProjectMaker)
 import Mewlix.Project.Data.Types (ProjectData(..))
-import Mewlix.Project.Folder (coreFolder, outputFolder)
 import Mewlix.Project.Modules.Compile (compileModules)
+import Mewlix.Project.Folder (coreFolder)
 import Mewlix.Project.Templates.Create (createFromTemplate)
 import Mewlix.Project.Templates.ReadMe (createReadme)
 import Mewlix.Project.Assets.Copy (copyAssets)
 import Mewlix.Project.Log (projectLog)
-import System.FilePath ((</>), makeRelative)
+import System.FilePath ((</>))
 import Mewlix.Utils.FileIO (writeFileBL)
 import Data.Aeson (object, (.=), encode)
 
@@ -26,25 +26,20 @@ buildProject projectData = do
     createFromTemplate (projectMode projectData)
 
     -- Modules:
-    compiledModules <- compileModules projectData
+    compileModules projectData
     copyAssets projectData
+    scriptList projectData
     createReadme projectData
-    scriptList projectData compiledModules
 
-scriptList :: ProjectData -> [FilePath] -> ProjectMaker ()
-scriptList projectData paths = do
-    let relative :: FilePath -> FilePath
-        relative = ("." </>) . makeRelative outputFolder
-
+scriptList :: ProjectData -> ProjectMaker ()
+scriptList projectData = do
     let targetPath = coreFolder </> "script-list.json"
     let title = projectName projectData
     let entrypoint = projectEntrypoint projectData
-    let relativePaths = map relative paths
 
     let json = object
             [ "title"      .= title
-            , "entrypoint" .= entrypoint
-            , "scripts"    .= relativePaths ]
+            , "entrypoint" .= entrypoint ]
 
     let contents = mappend (encode json) "\n"
     writeFileBL targetPath contents
