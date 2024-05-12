@@ -5,7 +5,7 @@ module Mewlix.Packager.Modules.Bundle
 ) where
 
 import Mewlix.Packager.Maker
-    ( ProjectMaker
+    ( PackageMaker
     , throwError
     , catchError
     , liftIO
@@ -27,7 +27,7 @@ metaComment = Text.intercalate "\n"
 
 -- Compile and bundle all modules into a single .js file.
 -- It's simpler this way!
-bundleModules :: ProjectData -> ProjectMaker ()
+bundleModules :: ProjectData -> PackageMaker ()
 bundleModules projectData = do
     let outputPath = moduleFolder </> "yarnballs.js"
     
@@ -35,19 +35,19 @@ bundleModules projectData = do
         createDirectoryIfMissing False moduleFolder
         openFile outputPath WriteMode
 
-    let write :: Text -> ProjectMaker ()
+    let write :: Text -> PackageMaker ()
         write = liftIO . TextIO.hPutStr handle
 
     write metaComment 
     write "\n\n"
 
-    let close :: ProjectMaker ()
+    let close :: PackageMaker ()
         close = liftIO (hClose handle)
 
-    let compile :: ProjectMaker () 
+    let compile :: PackageMaker () 
         compile = compileModules projectData handle >> close
 
-    let closeOnError :: String -> ProjectMaker ()
+    let closeOnError :: String -> PackageMaker ()
         closeOnError e = close >> throwError e
 
     compile `catchError` closeOnError 

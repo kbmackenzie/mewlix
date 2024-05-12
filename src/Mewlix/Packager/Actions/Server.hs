@@ -4,7 +4,7 @@ module Mewlix.Packager.Actions.Server
 ( serve
 ) where
 
-import Mewlix.Packager.Maker (ProjectMaker)
+import Mewlix.Packager.Maker (PackageMaker)
 import Mewlix.Packager.Folder (outputFolder)
 import Mewlix.Packager.Data.Types (ProjectData(..), Port(..))
 import Mewlix.Packager.Log (projectLog)
@@ -26,7 +26,7 @@ runServer port = run (getPort port) $ do
         file (outputFolder </> "index.html")
     where run p s = liftIO (Warp.run p =<< scottyApp s)
 
-serve :: ProjectData -> ProjectMaker ()
+serve :: ProjectData -> PackageMaker ()
 serve projectData = do
     let port = projectPort projectData
 

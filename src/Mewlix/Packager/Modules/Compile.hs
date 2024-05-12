@@ -6,8 +6,8 @@ module Mewlix.Packager.Modules.Compile
 ) where
 
 import Mewlix.Packager.Maker
-    ( ProjectMaker
-    , ProjectContext(..)
+    ( PackageMaker
+    , PackageContext(..)
     , asks
     , throwError
     , liftIO
@@ -31,7 +31,7 @@ import Data.Text (Text)
 import qualified Data.Text.IO as TextIO
 
 -- Creates the transpiler context.
-createContext :: ProjectData -> ProjectMaker TranspilerContext
+createContext :: ProjectData -> PackageMaker TranspilerContext
 createContext projectData = do
     language <- asks projectLanguage
     let projectLibs = addLibraries language (projectMode projectData)
@@ -44,7 +44,7 @@ createContext projectData = do
         , pretty  = Set.member Pretty flags     }
 
 -- Compile all yarn balls, writing the compilation output to a handle.
-compileModules :: ProjectData -> Handle -> ProjectMaker ()
+compileModules :: ProjectData -> Handle -> PackageMaker ()
 compileModules projectData handle = do
     sources <- processSources (projectSourceFiles projectData)
     validateSources sources
@@ -58,10 +58,10 @@ compileModules projectData handle = do
     context  <- createContext projectData
     compiler <- asks projectCompiler
 
-    let write :: Text -> ProjectMaker ()
+    let write :: Text -> PackageMaker ()
         write = liftIO . TextIO.hPutStrLn handle
 
-    let compile :: FilePath -> ProjectMaker ()
+    let compile :: FilePath -> PackageMaker ()
         compile path = do
             projectLog projectData ("Compiling yarn ball " <> showT path)
             yarnball <- runCompiler compiler context path
@@ -70,7 +70,7 @@ compileModules projectData handle = do
     mapM_ compile sources
 
 -- Runs a compiler function on text content read from a file.
-runCompiler :: CompilerFunc -> TranspilerContext -> FilePath -> ProjectMaker CompilerOutput
+runCompiler :: CompilerFunc -> TranspilerContext -> FilePath -> PackageMaker CompilerOutput
 runCompiler compile context path = readText path >>= \case
     (Left err)       -> throwError . concat $ [ "Couldn't read file ", show path, ": ", show err ]
     (Right contents) -> case compile context path contents of

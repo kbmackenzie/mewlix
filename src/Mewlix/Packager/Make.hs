@@ -10,9 +10,9 @@ module Mewlix.Packager.Make
 ) where
 
 import Mewlix.Packager.Maker
-    ( ProjectMaker(..)
+    ( PackageMaker(..)
     , Language(..)
-    , projectMakeJS
+    , packageMakeJS
     )
 import Mewlix.Packager.Data.Types
     ( ProjectData(..)
@@ -39,11 +39,11 @@ data Action =
     | Run
     deriving (Eq, Ord, Show, Enum, Bounded)
 
-type ActionFunc  = ProjectData -> ProjectMaker ()
-type ProjectFunc = ProjectMaker () -> IO (Either String ())
+type ActionFunc  = ProjectData -> PackageMaker ()
+type ProjectFunc = PackageMaker () -> IO (Either String ())
 
 language :: Language -> ProjectFunc
-language JavaScript = projectMakeJS
+language JavaScript = packageMakeJS
 
 action :: Action -> ActionFunc
 action Build    = buildProject

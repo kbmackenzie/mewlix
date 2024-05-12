@@ -17,7 +17,7 @@ import System.Directory
     , makeRelativeToCurrentDirectory
     , canonicalizePath
     )
-import Mewlix.Packager.Maker (ProjectMaker, throwError, liftIO)
+import Mewlix.Packager.Maker (PackageMaker, throwError, liftIO)
 import Control.Monad.IO.Class (MonadIO)
 
 findAssets :: (MonadIO m) => FilePath -> m [FilePath]
@@ -39,11 +39,11 @@ processAssets paths = do
     assets      <- mapM makeLocal (concat assetBundle)
     (return . nubOrd) assets
 
-validateAsset :: FilePath -> ProjectMaker ()
+validateAsset :: FilePath -> PackageMaker ()
 validateAsset path = do
     fileExists <- liftIO (doesFileExist path)
     unless fileExists $
         throwError $ concat [ "Couldn't find asset ", show path, "!" ]
 
-validateAssets :: [FilePath] -> ProjectMaker ()
+validateAssets :: [FilePath] -> PackageMaker ()
 validateAssets = mapM_ validateAsset

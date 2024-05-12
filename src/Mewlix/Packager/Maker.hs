@@ -1,14 +1,14 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Mewlix.Packager.Maker
-( ProjectContext(..)
+( PackageContext(..)
 , Language(..)
-, ProjectMaker(..)
-, projectMake
-, projectMakeJS
+, PackageMaker(..)
+, packageMake
+, packageMakeJS
 , langExtension
 , defaultLanguage
-, projectContextEmpty
+, packageContextEmpty
 -- Re-exports:
 , liftIO
 , asks
@@ -21,30 +21,30 @@ import Control.Monad.Reader (ReaderT, MonadReader, asks, runReaderT)
 import Control.Monad.Except (ExceptT, MonadError(throwError, catchError), runExceptT)
 import Control.Monad.IO.Class (MonadIO(liftIO))
 
-data ProjectContext = ProjectContext
+data PackageContext = PackageContext
     { projectCompiler  :: CompilerFunc
-    , projectLanguage  :: Language    }
+    , projectLanguage  :: Language     }
 
 -- I might add another language option in the future, which is why this data type exists.
 -- If I do, this data type guarantees the process will be much easier.
 data Language = JavaScript
     deriving (Eq, Ord, Show, Enum, Bounded)
 
-newtype ProjectMaker a = ProjectMaker
-    { runProjectMaker :: ReaderT ProjectContext (ExceptT String IO) a }
+newtype PackageMaker a = PackageMaker
+    { runPackageMaker :: ReaderT PackageContext (ExceptT String IO) a }
     deriving ( Functor
              , Applicative
              , Monad
              , MonadIO
              , MonadError String
-             , MonadReader ProjectContext
+             , MonadReader PackageContext
              )
 
-projectMake :: ProjectContext -> ProjectMaker a -> IO (Either String a)
-projectMake ctx = runExceptT . flip runReaderT ctx . runProjectMaker
+packageMake :: PackageContext -> PackageMaker a -> IO (Either String a)
+packageMake ctx = runExceptT . flip runReaderT ctx . runPackageMaker
 
-projectMakeJS :: ProjectMaker a -> IO (Either String a)
-projectMakeJS = projectMake ProjectContext
+packageMakeJS :: PackageMaker a -> IO (Either String a)
+packageMakeJS = packageMake PackageContext
     { projectCompiler  = compileJS
     , projectLanguage  = JavaScript }
 
@@ -54,7 +54,7 @@ langExtension JavaScript = "js"
 defaultLanguage :: Language
 defaultLanguage = JavaScript
 
-projectContextEmpty :: ProjectContext
-projectContextEmpty = ProjectContext
+packageContextEmpty :: PackageContext
+packageContextEmpty = PackageContext
     { projectCompiler  = \_ _ _ -> Left "No compilter specified!"
     , projectLanguage  = JavaScript }
