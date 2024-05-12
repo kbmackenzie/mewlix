@@ -43,7 +43,7 @@ mew operations = =^-x-^= []
 ~meow
 
 -- Void function:
-=^.x.^= void()
+=^.x.^= void_()
 ~meow
 
 -- Stylish lambdas:
