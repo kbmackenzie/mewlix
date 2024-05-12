@@ -182,9 +182,9 @@ ifelse = do
 
 {- Functions -}
 ------------------------------------------------------------------
-functionLike :: Parser k -> (Nesting -> Nesting) -> Parser (k, Params, Block)
-functionLike parseK nesting = do
-    let funcKey = Mega.try (keyword Keywords.function >> parseK)
+functionLike :: Parser () -> Parser k -> (Nesting -> Nesting) -> Parser (k, Params, Block)
+functionLike opener funcKey nesting = do
+    opener
     (key, params) <- open $ do
         key    <- funcKey
         params <- parseParams
@@ -195,7 +195,10 @@ functionLike parseK nesting = do
 
 function :: (Nesting -> Nesting) -> Parser MewlixFunction
 function nesting = do
-    (key, params, body) <- functionLike parseKey nesting
+    let opener = Mega.try $ do
+            keyword Keywords.function
+            Mega.notFollowedBy (symbol '[')
+    (key, params, body) <- functionLike opener parseKey nesting
     return $ MewlixFunction
         { funcName   = key
         , funcBody   = body
@@ -208,8 +211,9 @@ functionDef = FunctionDef <$> function nesting
 functionAssign :: Parser Statement
 functionAssign = do
     let key = brackets lvalue
+    let opener = keyword Keywords.function
     let nesting = defineNesting [InFunction]
-    (expr, params, body) <- functionLike key nesting
+    (expr, params, body) <- functionLike opener key nesting
     return . FunctionAssignment expr $ MewlixFunction
         { funcName   = mempty
         , funcBody   = body
