@@ -129,7 +129,7 @@ instance FromJSON ProjectFlag where
     parseJSON = withText "ProjectFlag" readFlag
 
 instance ToJSON ProjectFlag where
-    toJSON = toJSON . map toLower . show
+    toJSON = toJSON . flagToString
 
 ----------------------------------------------------------------
 instance FromJSON ProjectData where
@@ -200,6 +200,13 @@ readFlag str = case parse str of
     Nothing     -> fail $ mconcat
         [ "Couldn't parse ", show str, " as a valid project flag!" ]
     where parse = parseFlag . Text.toLower . Text.strip
+
+flagToString :: ProjectFlag -> String
+flagToString flag = case flag of
+    NoStd     -> "no-std"
+    NoReadMe  -> "no-readme"
+    NoBrowser -> "no-browser"
+    _         -> (map toLower . show) flag
 
 {- Mode Utils -}
 ----------------------------------------------------------------
