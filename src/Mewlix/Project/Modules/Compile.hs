@@ -28,7 +28,7 @@ createContext projectData = do
         , noStd   = Set.member NoStd flags
         , pretty  = False {- todo! -}           }
 
-compileModules :: ProjectData -> ProjectMaker [FilePath]
+compileModules :: ProjectData -> ProjectMaker ()
 compileModules projectData = do
     sources <- processSources (projectSourceFiles projectData)
     validateSources sources
@@ -38,9 +38,9 @@ compileModules projectData = do
 
     context <- createContext projectData
 
-    let compile :: FilePath -> ProjectMaker FilePath
+    let compile :: FilePath -> ProjectMaker ()
         compile source = do
             projectLog projectData ("Compiling yarn ball " <> showT source)
             writeModule context source
 
-    mapM compile sources
+    mapM_ compile sources

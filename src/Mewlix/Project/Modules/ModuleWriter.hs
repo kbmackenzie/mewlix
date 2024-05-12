@@ -11,38 +11,30 @@ import Mewlix.Project.Maker
     , liftIO
     , throwError
     )
-import Mewlix.Project.Folder (moduleFolder)
+import Mewlix.Project.Folder (outputFolder)
 import Mewlix.Compiler (TranspilerContext, CompilerFunc, CompilerOutput)
-import Mewlix.Utils.FileIO (readFileT, writeFileT)
-import System.FilePath ((</>), takeDirectory, isRelative, replaceExtension)
+import Mewlix.Utils.FileIO (readFileT, appendFileT)
+import System.FilePath ((</>), takeDirectory)
 import System.Directory (createDirectoryIfMissing)
 
-compileModule :: CompilerFunc -> TranspilerContext -> FilePath -> ProjectMaker CompilerOutput
-compileModule compile context path = readFileT path >>= \case
-    (Left err)       -> throwError $ concat [ "Couldn't read file ", show path, ": ", show err ]
+runCompiler :: CompilerFunc -> TranspilerContext -> FilePath -> ProjectMaker CompilerOutput
+runCompiler compile context path = readFileT path >>= \case
+    (Left err)       -> throwError . concat $ [ "Couldn't read file ", show path, ": ", show err ]
     (Right contents) -> case compile context path contents of
-        (Left err)       -> throwError $ concat [ "Mewlix syntax error in file ", show path, ":\n", err ]
+        (Left err)       -> throwError . concat $ [ "Mewlix syntax error in file ", show path, ":\n", err ]
         (Right yarnball) -> return yarnball
 
 -- Compile a Mewlix module and write the output to a new file in the project folder.
 -- The function returns the path to the new file.
-writeModule :: TranspilerContext -> FilePath -> ProjectMaker FilePath
+writeModule :: TranspilerContext -> FilePath -> ProjectMaker ()
 writeModule context inputPath = do
     let prepareDirectory :: FilePath -> ProjectMaker ()
         prepareDirectory = liftIO . createDirectoryIfMissing True . takeDirectory
 
-    outputPath <- if isRelative inputPath
-        then do
-            let transform = flip replaceExtension "js" . (moduleFolder </>)
-            return (transform inputPath)
-        else throwError $ concat
-            [ "Source file path cannot be made relative to current directory: "
-            , show inputPath
-            , "!\nPlease use relative paths without indirections!" ]
-
+    let outputPath = outputFolder </> "yarnball.js"
     prepareDirectory outputPath
-    compiler <- asks projectCompiler
-    yarnball <- compileModule compiler context inputPath
 
-    writeFileT outputPath yarnball
-    return outputPath
+    compiler <- asks projectCompiler
+    yarnball <- runCompiler compiler context inputPath
+
+    appendFileT outputPath yarnball
