@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE LambdaCase #-}
 
 module Test.Compiler 
 ( ParseException(..)
@@ -23,16 +22,16 @@ instance Exception ParseException where
 
 compileFile :: FilePath -> IO Text
 compileFile path = do
-    contents <- readText path >>= \case
-        (Left e)    -> throwIO e
-        (Right a)   -> return a
+    contents <- either throwIO return =<< readText path
 
     let libs = addLibraries JavaScript Library mempty
     let context = emptyContext { imports = libs, pretty = True }
 
-    case compileJS context path contents of
-        (Left e)    -> do
+    let handleError :: String -> IO a
+        handleError e = do
             hPutStrLn stderr e
-            (throwIO . ParseException . concat)
-                    [ "Couldn't parse file ", show path, "!" ]
-        (Right a)   -> return a
+            throwIO . ParseException . concat $
+                [ "Couldn't parse file ", show path, "!" ]
+
+    putStrLn ("Compiling: " ++ show path)
+    either handleError return (compileJS context path contents)
