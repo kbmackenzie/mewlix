@@ -1,10 +1,8 @@
 module Mewlix.Utils.FileIO
-( readBytes
-, writeBytes
-, writeBytesLazy
-, readText
+( readText
 , writeText
-, appendText
+, readBytes
+, writeBytes
 , readDataFile
 , copyFile
 , copyDataFile
@@ -18,7 +16,6 @@ import Prelude hiding (readFile, writeFile)
 import Data.Text (Text)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
-import qualified Data.ByteString.Lazy as ByteStringL
 import qualified Data.Text.Encoding as ByteEncoding
 import Data.Text.Encoding.Error (UnicodeException)
 import Control.Monad.IO.Class (MonadIO, liftIO)
@@ -32,23 +29,17 @@ import Conduit
     )
 import Codec.Archive.Zip (withArchive, unpackInto)
 
-readBytes :: (MonadIO m) => FilePath -> m ByteString
-readBytes = liftIO . ByteString.readFile
-
-writeBytes :: (MonadIO m) => FilePath -> ByteString -> m ()
-writeBytes = (liftIO .) . ByteString.writeFile
-
-writeBytesLazy :: (MonadIO m) => FilePath -> ByteStringL.ByteString -> m ()
-writeBytesLazy = (liftIO .) . ByteStringL.writeFile
-
 readText :: (MonadIO m) => FilePath -> m (Either UnicodeException Text)
 readText = liftIO . fmap ByteEncoding.decodeUtf8' . ByteString.readFile
 
 writeText :: (MonadIO m) => FilePath -> Text -> m ()
 writeText path = liftIO . ByteString.writeFile path . ByteEncoding.encodeUtf8
 
-appendText :: (MonadIO m) => FilePath -> Text -> m ()
-appendText path = liftIO . ByteString.appendFile path . ByteEncoding.encodeUtf8
+readBytes :: (MonadIO m) => FilePath -> m ByteString
+readBytes = liftIO . ByteString.readFile
+
+writeBytes :: (MonadIO m) => FilePath -> ByteString -> m ()
+writeBytes path = liftIO . ByteString.writeFile path
 
 readDataFile :: (MonadIO m) => FilePath -> m ByteString
 readDataFile = liftIO . getDataFileName >=> liftIO . ByteString.readFile
