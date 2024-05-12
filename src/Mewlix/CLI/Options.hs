@@ -171,7 +171,7 @@ parseOptions = options
                     <*> standalone
 
         run :: Mod CommandFields MewlixOptions
-        run = command "run" $ makeInfo parser "Run project in a local HTTP server"
+        run = command "run" $ makeInfo parser "Run project. Its behavior depends on project mode."
             where parser = RunOpt
                     <$> projectOptions
                     <*> flagOptions
