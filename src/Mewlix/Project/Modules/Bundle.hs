@@ -15,6 +15,7 @@ import Mewlix.Project.Modules.Compile (compileModules)
 import Mewlix.Project.Folder (moduleFolder)
 import System.IO (IOMode(..), openFile, hClose)
 import System.FilePath ((</>))
+import System.Directory (createDirectoryIfMissing)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
@@ -29,7 +30,10 @@ metaComment = Text.intercalate "\n"
 bundleModules :: ProjectData -> ProjectMaker ()
 bundleModules projectData = do
     let outputPath = moduleFolder </> "yarnballs.js"
-    handle <- liftIO (openFile outputPath WriteMode)
+    
+    handle <- liftIO $ do
+        createDirectoryIfMissing False moduleFolder
+        openFile outputPath WriteMode
 
     let write :: Text -> ProjectMaker ()
         write = liftIO . TextIO.hPutStr handle
