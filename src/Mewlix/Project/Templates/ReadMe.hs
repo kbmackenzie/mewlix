@@ -6,7 +6,7 @@ module Mewlix.Project.Templates.ReadMe
 
 import Mewlix.Project.Data.Types (ProjectData(..), ProjectFlag(..))
 import Mewlix.Project.Folder (outputFolder)
-import Mewlix.Utils.FileIO (writeFileT)
+import Mewlix.Utils.FileIO (writeText)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import Control.Monad.IO.Class (MonadIO, liftIO)
@@ -22,4 +22,4 @@ createReadme projectData = do
                 [ "# " <> projectName projectData 
                 , mempty
                 , projectDescription projectData  ]
-        liftIO (writeFileT path contents)
+        liftIO (writeText path contents)

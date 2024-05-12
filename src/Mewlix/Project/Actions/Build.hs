@@ -13,7 +13,7 @@ import Mewlix.Project.Templates.ReadMe (createReadme)
 import Mewlix.Project.Assets.Copy (copyAssets)
 import Mewlix.Project.Log (projectLog)
 import System.FilePath ((</>))
-import Mewlix.Utils.FileIO (writeFileBL)
+import Mewlix.Utils.FileIO (writeBytesLazy)
 import Data.Aeson (object, (.=), encode)
 
 buildProject :: ProjectData -> ProjectMaker ()
@@ -42,4 +42,4 @@ scriptList projectData = do
             , "entrypoint" .= entrypoint ]
 
     let contents = mappend (encode json) "\n"
-    writeFileBL targetPath contents
+    writeBytesLazy targetPath contents

@@ -5,7 +5,7 @@ module Mewlix.Project.Data.Read
 import Mewlix.Project.Maker (ProjectMaker, liftIO, throwError)
 import Mewlix.Project.Folder (projectFile)
 import Mewlix.Project.Data.Types (ProjectData(..))
-import Mewlix.Utils.FileIO (readFileB)
+import Mewlix.Utils.FileIO (readBytes)
 import Mewlix.Utils.Yaml (readYaml)
 import System.FilePath (takeFileName)
 import System.Directory (doesFileExist)
@@ -19,6 +19,6 @@ readProject = do
     unless hasProject $
         (throwError . concat) [ "Couldn't find a ", show projectFileName, " file in the current directory!" ]
 
-    readFileB projectFile >>= \contents -> case readYaml contents of
+    readBytes projectFile >>= \contents -> case readYaml contents of
         (Left err)  -> (throwError . concat) [ "Couldn't parse ", show projectFileName, " file: ", err ]
         (Right dat) -> return dat

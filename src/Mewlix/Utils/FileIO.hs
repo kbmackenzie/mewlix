@@ -1,11 +1,10 @@
 module Mewlix.Utils.FileIO
-( readFileB
-, writeFileB
-, writeFileS
-, writeFileBL
-, readFileT
-, writeFileT
-, appendFileT
+( readBytes
+, writeBytes
+, writeBytesLazy
+, readText
+, writeText
+, appendText
 , readDataFile
 , copyFile
 , copyDataFile
@@ -20,7 +19,6 @@ import Data.Text (Text)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as ByteStringL
-import qualified Data.ByteString.UTF8 as ByteUTF8
 import qualified Data.Text.Encoding as ByteEncoding
 import Data.Text.Encoding.Error (UnicodeException)
 import Control.Monad.IO.Class (MonadIO, liftIO)
@@ -34,26 +32,23 @@ import Conduit
     )
 import Codec.Archive.Zip (withArchive, unpackInto)
 
-readFileB :: (MonadIO m) => FilePath -> m ByteString
-readFileB = liftIO . ByteString.readFile
+readBytes :: (MonadIO m) => FilePath -> m ByteString
+readBytes = liftIO . ByteString.readFile
 
-writeFileB :: (MonadIO m) => FilePath -> ByteString -> m ()
-writeFileB = (liftIO .) . ByteString.writeFile
+writeBytes :: (MonadIO m) => FilePath -> ByteString -> m ()
+writeBytes = (liftIO .) . ByteString.writeFile
 
-writeFileS :: (MonadIO m) => FilePath -> String -> m ()
-writeFileS path = liftIO . ByteString.writeFile path . ByteUTF8.fromString
+writeBytesLazy :: (MonadIO m) => FilePath -> ByteStringL.ByteString -> m ()
+writeBytesLazy = (liftIO .) . ByteStringL.writeFile
 
-writeFileBL :: (MonadIO m) => FilePath -> ByteStringL.ByteString -> m ()
-writeFileBL = (liftIO .) . ByteStringL.writeFile
+readText :: (MonadIO m) => FilePath -> m (Either UnicodeException Text)
+readText = liftIO . fmap ByteEncoding.decodeUtf8' . ByteString.readFile
 
-readFileT :: (MonadIO m) => FilePath -> m (Either UnicodeException Text)
-readFileT = liftIO . fmap ByteEncoding.decodeUtf8' . ByteString.readFile
+writeText :: (MonadIO m) => FilePath -> Text -> m ()
+writeText path = liftIO . ByteString.writeFile path . ByteEncoding.encodeUtf8
 
-writeFileT :: (MonadIO m) => FilePath -> Text -> m ()
-writeFileT path = liftIO . ByteString.writeFile path . ByteEncoding.encodeUtf8
-
-appendFileT :: (MonadIO m) => FilePath -> Text -> m ()
-appendFileT path = liftIO . ByteString.appendFile path . ByteEncoding.encodeUtf8
+appendText :: (MonadIO m) => FilePath -> Text -> m ()
+appendText path = liftIO . ByteString.appendFile path . ByteEncoding.encodeUtf8
 
 readDataFile :: (MonadIO m) => FilePath -> m ByteString
 readDataFile = liftIO . getDataFileName >=> liftIO . ByteString.readFile

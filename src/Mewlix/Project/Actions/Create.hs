@@ -8,7 +8,7 @@ import Mewlix.Project.Data.Types (ProjectData(..), projectFieldOrder, projectSou
 import Mewlix.Project.Log (projectLog)
 import Mewlix.Project.Folder (projectFile)
 import Mewlix.Utils.Yaml (prettyYaml)
-import Mewlix.Utils.FileIO (writeFileB)
+import Mewlix.Utils.FileIO (writeBytes)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import System.Directory (createDirectoryIfMissing)
 import Lens.Micro.Platform ((%~))
@@ -23,10 +23,10 @@ createProject = (. includeSrc) $ \projectData -> do
 
     -- Create project file:
     let contents = prettyYaml projectFieldOrder projectData
-    writeFileB projectFile contents
+    writeBytes projectFile contents
 
     -- Create 'src' directory:
     liftIO (createDirectoryIfMissing False "./src")
 
     -- Create .gitignore
-    writeFileB "./.gitignore" "output/\n"
+    writeBytes "./.gitignore" "output/\n"
