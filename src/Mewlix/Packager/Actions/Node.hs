@@ -1,14 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Mewlix.Project.Actions.Node
+module Mewlix.Packager.Actions.Node
 ( node
 ) where
 
-import Mewlix.Project.Maker (ProjectMaker, throwError)
-import Mewlix.Project.Folder (outputFolder)
-import Mewlix.Project.Data.Types (ProjectData(..))
-import Mewlix.Project.Log (projectLog)
+import Mewlix.Packager.Maker (ProjectMaker, throwError)
+import Mewlix.Packager.Folder (outputFolder)
+import Mewlix.Packager.Data.Types (ProjectData(..))
+import Mewlix.Packager.Log (projectLog)
 import System.FilePath ((</>))
 import System.Process.Typed (runProcess, proc, ExitCode(..))
 

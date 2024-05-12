@@ -1,17 +1,17 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Project.Actions.Build
+module Mewlix.Packager.Actions.Build
 ( buildProject
 ) where
 
-import Mewlix.Project.Maker (ProjectMaker, liftIO)
-import Mewlix.Project.Data.Types (ProjectData(..))
-import Mewlix.Project.Modules.Bundle (bundleModules)
-import Mewlix.Project.Folder (coreFolder)
-import Mewlix.Project.Templates.Create (createFromTemplate)
-import Mewlix.Project.Templates.ReadMe (createReadme)
-import Mewlix.Project.Assets.Copy (copyAssets)
-import Mewlix.Project.Log (projectLog)
+import Mewlix.Packager.Maker (ProjectMaker, liftIO)
+import Mewlix.Packager.Data.Types (ProjectData(..))
+import Mewlix.Packager.Modules.Bundle (bundleModules)
+import Mewlix.Packager.Folder (coreFolder)
+import Mewlix.Packager.Templates.Create (createFromTemplate)
+import Mewlix.Packager.Templates.ReadMe (createReadme)
+import Mewlix.Packager.Assets.Copy (copyAssets)
+import Mewlix.Packager.Log (projectLog)
 import System.FilePath ((</>))
 import Data.Aeson (object, (.=), encode, Value)
 import qualified Data.ByteString.Lazy as LB

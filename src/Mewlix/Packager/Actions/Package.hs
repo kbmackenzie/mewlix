@@ -1,14 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Project.Actions.Package
+module Mewlix.Packager.Actions.Package
 ( packageProject
 ) where
 
-import Mewlix.Project.Data.Types (ProjectData(..))
-import Mewlix.Project.Maker (ProjectMaker)
-import Mewlix.Project.Actions.Build (buildProject)
-import Mewlix.Project.Folder (outputFolder)
-import Mewlix.Project.Log (projectLog)
+import Mewlix.Packager.Data.Types (ProjectData(..))
+import Mewlix.Packager.Maker (ProjectMaker)
+import Mewlix.Packager.Actions.Build (buildProject)
+import Mewlix.Packager.Folder (outputFolder)
+import Mewlix.Packager.Log (projectLog)
 import System.Directory (doesDirectoryExist)
 import Codec.Archive.Zip
     ( ZipArchive

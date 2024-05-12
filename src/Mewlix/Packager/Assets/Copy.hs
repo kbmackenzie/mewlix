@@ -1,11 +1,11 @@
-module Mewlix.Project.Assets.Copy
+module Mewlix.Packager.Assets.Copy
 ( copyAssets
 ) where
 
-import Mewlix.Project.Data.Types (ProjectData(..))
-import Mewlix.Project.Folder (outputFolder)
-import Mewlix.Project.Maker (ProjectMaker, throwError, liftIO)
-import Mewlix.Project.Assets.Find (processAssets, validateAssets)
+import Mewlix.Packager.Data.Types (ProjectData(..))
+import Mewlix.Packager.Folder (outputFolder)
+import Mewlix.Packager.Maker (ProjectMaker, throwError, liftIO)
+import Mewlix.Packager.Assets.Find (processAssets, validateAssets)
 import Mewlix.Utils.FileIO (copyFile)
 import System.Directory (createDirectoryIfMissing)
 import System.FilePath

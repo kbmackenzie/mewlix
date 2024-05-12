@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Mewlix.Project.Modules.Compile
+module Mewlix.Packager.Modules.Compile
 ( compileModules
 ) where
 
-import Mewlix.Project.Maker
+import Mewlix.Packager.Maker
     ( ProjectMaker
     , ProjectContext(..)
     , asks
@@ -17,10 +17,10 @@ import Mewlix.Compiler
     , CompilerFunc
     , CompilerOutput
     )
-import Mewlix.Project.Data.Types (ProjectData(..), ProjectFlag(..))
-import Mewlix.Project.Modules.StandardLibrary (addLibraries)
-import Mewlix.Project.Modules.FileSearch (processSources, validateSources)
-import Mewlix.Project.Log (projectLog)
+import Mewlix.Packager.Data.Types (ProjectData(..), ProjectFlag(..))
+import Mewlix.Packager.Modules.StandardLibrary (addLibraries)
+import Mewlix.Packager.Modules.FileSearch (processSources, validateSources)
+import Mewlix.Packager.Log (projectLog)
 import Mewlix.Utils.Show (showT)
 import Mewlix.Utils.FileIO (readText)
 import Mewlix.Abstract.Key (Key(..))

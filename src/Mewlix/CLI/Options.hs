@@ -5,7 +5,7 @@ module Mewlix.CLI.Options
 , getOptions
 ) where
 
-import Mewlix.Project (ProjectMode(..), Port(..))
+import Mewlix.Packager (ProjectMode(..), Port(..))
 import Options.Applicative
     ( Parser
     , ParserInfo

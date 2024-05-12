@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Project.Templates.ReadMe
+module Mewlix.Packager.Templates.ReadMe
 ( createReadme
 ) where
 
-import Mewlix.Project.Data.Types (ProjectData(..), ProjectFlag(..))
-import Mewlix.Project.Folder (outputFolder)
+import Mewlix.Packager.Data.Types (ProjectData(..), ProjectFlag(..))
+import Mewlix.Packager.Folder (outputFolder)
 import Mewlix.Utils.FileIO (writeText)
 import qualified Data.Set as Set
 import qualified Data.Text as Text

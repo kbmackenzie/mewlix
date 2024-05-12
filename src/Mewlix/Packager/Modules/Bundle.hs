@@ -1,18 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Project.Modules.Bundle
+module Mewlix.Packager.Modules.Bundle
 ( bundleModules
 ) where
 
-import Mewlix.Project.Maker
+import Mewlix.Packager.Maker
     ( ProjectMaker
     , throwError
     , catchError
     , liftIO
     )
-import Mewlix.Project.Data.Types (ProjectData(..))
-import Mewlix.Project.Modules.Compile (compileModules)
-import Mewlix.Project.Folder (moduleFolder)
+import Mewlix.Packager.Data.Types (ProjectData(..))
+import Mewlix.Packager.Modules.Compile (compileModules)
+import Mewlix.Packager.Folder (moduleFolder)
 import System.IO (IOMode(..), openFile, hClose)
 import System.FilePath ((</>))
 import System.Directory (createDirectoryIfMissing)

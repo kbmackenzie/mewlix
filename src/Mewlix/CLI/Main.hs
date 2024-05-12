@@ -4,7 +4,7 @@ module Mewlix.CLI.Main
 ( run
 ) where
 
-import Mewlix.Project
+import Mewlix.Packager
     ( Language(..)
     , Action(..)
     , ProjectFlag(..)

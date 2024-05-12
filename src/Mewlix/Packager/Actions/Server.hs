@@ -1,13 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Project.Actions.Server
+module Mewlix.Packager.Actions.Server
 ( serve
 ) where
 
-import Mewlix.Project.Maker (ProjectMaker)
-import Mewlix.Project.Folder (outputFolder)
-import Mewlix.Project.Data.Types (ProjectData(..), Port(..))
-import Mewlix.Project.Log (projectLog)
+import Mewlix.Packager.Maker (ProjectMaker)
+import Mewlix.Packager.Folder (outputFolder)
+import Mewlix.Packager.Data.Types (ProjectData(..), Port(..))
+import Mewlix.Packager.Log (projectLog)
 import Web.Scotty (scottyApp, middleware, get, file, addHeader)
 import qualified Network.Wai.Handler.Warp as Warp
 import Network.Wai.Middleware.Static (staticPolicy, addBase)

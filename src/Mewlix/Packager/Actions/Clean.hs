@@ -1,13 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Project.Actions.Clean
+module Mewlix.Packager.Actions.Clean
 ( cleanProject
 ) where
 
-import Mewlix.Project.Maker (ProjectMaker, liftIO, throwError)
-import Mewlix.Project.Folder (outputFolder)
-import Mewlix.Project.Data.Types (ProjectData)
-import Mewlix.Project.Log (projectLog)
+import Mewlix.Packager.Maker (ProjectMaker, liftIO, throwError)
+import Mewlix.Packager.Folder (outputFolder)
+import Mewlix.Packager.Data.Types (ProjectData)
+import Mewlix.Packager.Log (projectLog)
 import System.Directory (removeDirectoryRecursive, doesDirectoryExist)
 import Control.Monad (when)
 

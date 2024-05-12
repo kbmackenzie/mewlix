@@ -1,4 +1,4 @@
-module Mewlix.Project.Assets.Find
+module Mewlix.Packager.Assets.Find
 ( processAssets
 , validateAssets
 ) where
@@ -17,7 +17,7 @@ import System.Directory
     , makeRelativeToCurrentDirectory
     , canonicalizePath
     )
-import Mewlix.Project.Maker (ProjectMaker, throwError, liftIO)
+import Mewlix.Packager.Maker (ProjectMaker, throwError, liftIO)
 import Control.Monad.IO.Class (MonadIO)
 
 findAssets :: (MonadIO m) => FilePath -> m [FilePath]

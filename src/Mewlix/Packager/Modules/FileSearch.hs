@@ -1,4 +1,4 @@
-module Mewlix.Project.Modules.FileSearch
+module Mewlix.Packager.Modules.FileSearch
 ( processSources
 , processSource
 , validateSource
@@ -20,7 +20,7 @@ import System.Directory
     , doesFileExist
     , makeRelativeToCurrentDirectory
     , canonicalizePath)
-import Mewlix.Project.Maker (ProjectMaker, throwError, liftIO)
+import Mewlix.Packager.Maker (ProjectMaker, throwError, liftIO)
 
 findSources :: FilePath -> IO [FilePath]
 findSources dir = runConduitRes

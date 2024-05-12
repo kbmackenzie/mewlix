@@ -1,12 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Project.Actions.Create
+module Mewlix.Packager.Actions.Create
 ( createProject
 ) where
 
-import Mewlix.Project.Data.Types (ProjectData(..), projectFieldOrder, projectSourceFilesL)
-import Mewlix.Project.Log (projectLog)
-import Mewlix.Project.Folder (projectFile)
+import Mewlix.Packager.Data.Types (ProjectData(..), projectFieldOrder, projectSourceFilesL)
+import Mewlix.Packager.Log (projectLog)
+import Mewlix.Packager.Folder (projectFile)
 import Mewlix.Utils.Yaml (prettyYaml)
 import Mewlix.Utils.FileIO (writeBytes)
 import Control.Monad.IO.Class (MonadIO, liftIO)

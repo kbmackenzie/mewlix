@@ -1,13 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Mewlix.Project.Modules.StandardLibrary
+module Mewlix.Packager.Modules.StandardLibrary
 ( addLibraries
 ) where
 
-import Mewlix.Project.Data.Types (ProjectMode(..))
+import Mewlix.Packager.Data.Types (ProjectMode(..))
 import Mewlix.Abstract.Key (Key(..))
-import Mewlix.Project.Maker (Language(..))
+import Mewlix.Packager.Maker (Language(..))
 import Data.Text (Text)
 import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap

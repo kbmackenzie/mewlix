@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Mewlix.Project.Log
+module Mewlix.Packager.Log
 ( projectLog
 , projectLogError
 ) where
 
-import Mewlix.Project.Data.Types (ProjectData(..), ProjectFlag(..))
+import Mewlix.Packager.Data.Types (ProjectData(..), ProjectFlag(..))
 import Mewlix.Logger (LogType(..), logger);
 import Data.Text (Text)
 import qualified Data.Set as Set

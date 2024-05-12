@@ -1,4 +1,4 @@
-module Mewlix.Project
+module Mewlix.Packager
 ( Language(..)
 , Action(..)
 , ProjectData(..)
@@ -27,7 +27,7 @@ module Mewlix.Project
 , projectFlagsL
 ) where
 
-import Mewlix.Project.Data.Types
+import Mewlix.Packager.Data.Types
     ( ProjectData(..)
     , ProjectMode(..)
     , ProjectFlag(..)
@@ -49,4 +49,4 @@ import Mewlix.Project.Data.Types
     , projectSpecialImportsL
     , projectFlagsL
     )
-import Mewlix.Project.Make (Language(..), Action(..), make, make')
+import Mewlix.Packager.Make (Language(..), Action(..), make, make')

@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Mewlix.Project.Make
+module Mewlix.Packager.Make
 ( Action(..)
 , make
 , make'
@@ -9,25 +9,25 @@ module Mewlix.Project.Make
 , Language(..)
 ) where
 
-import Mewlix.Project.Maker
+import Mewlix.Packager.Maker
     ( ProjectMaker(..)
     , Language(..)
     , projectMakeJS
     )
-import Mewlix.Project.Data.Types
+import Mewlix.Packager.Data.Types
     ( ProjectData(..)
     , ProjectTransform
     , transformProject
     , defaultProject
     )
 -- Actions:
-import Mewlix.Project.Actions.Build (buildProject)
-import Mewlix.Project.Actions.Clean (cleanProject)
-import Mewlix.Project.Actions.Package (packageProject)
-import Mewlix.Project.Actions.Create (createProject)
-import Mewlix.Project.Actions.Run (runProject)
+import Mewlix.Packager.Actions.Build (buildProject)
+import Mewlix.Packager.Actions.Clean (cleanProject)
+import Mewlix.Packager.Actions.Package (packageProject)
+import Mewlix.Packager.Actions.Create (createProject)
+import Mewlix.Packager.Actions.Run (runProject)
 -- Assorted:
-import Mewlix.Project.Data.Read (readProject)
+import Mewlix.Packager.Data.Read (readProject)
 import Mewlix.Logger (LogType(..), logger);
 import qualified Data.Text as Text
 

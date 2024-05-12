@@ -1,13 +1,13 @@
-module Mewlix.Project.Actions.Run
+module Mewlix.Packager.Actions.Run
 ( runProject
 ) where
 
-import Mewlix.Project.Maker (ProjectMaker, liftIO)
-import Mewlix.Project.Folder (outputFolder)
-import Mewlix.Project.Data.Types (ProjectData(..), ProjectMode(..))
-import Mewlix.Project.Actions.Build (buildProject)
-import Mewlix.Project.Actions.Server (serve)
-import Mewlix.Project.Actions.Node (node)
+import Mewlix.Packager.Maker (ProjectMaker, liftIO)
+import Mewlix.Packager.Folder (outputFolder)
+import Mewlix.Packager.Data.Types (ProjectData(..), ProjectMode(..))
+import Mewlix.Packager.Actions.Build (buildProject)
+import Mewlix.Packager.Actions.Server (serve)
+import Mewlix.Packager.Actions.Node (node)
 import Control.Monad (unless)
 import System.Directory (doesDirectoryExist)
 

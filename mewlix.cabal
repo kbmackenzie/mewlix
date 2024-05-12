@@ -50,6 +50,29 @@ library
       Mewlix.Keywords.LanguageKeywords
       Mewlix.Keywords.Types
       Mewlix.Logger
+      Mewlix.Packager
+      Mewlix.Packager.Actions.Build
+      Mewlix.Packager.Actions.Clean
+      Mewlix.Packager.Actions.Create
+      Mewlix.Packager.Actions.Node
+      Mewlix.Packager.Actions.Package
+      Mewlix.Packager.Actions.Run
+      Mewlix.Packager.Actions.Server
+      Mewlix.Packager.Assets.Copy
+      Mewlix.Packager.Assets.Find
+      Mewlix.Packager.Data.Read
+      Mewlix.Packager.Data.Types
+      Mewlix.Packager.Folder
+      Mewlix.Packager.Log
+      Mewlix.Packager.Make
+      Mewlix.Packager.Maker
+      Mewlix.Packager.Modules.Bundle
+      Mewlix.Packager.Modules.Compile
+      Mewlix.Packager.Modules.FileSearch
+      Mewlix.Packager.Modules.StandardLibrary
+      Mewlix.Packager.Templates.Constants
+      Mewlix.Packager.Templates.Create
+      Mewlix.Packager.Templates.ReadMe
       Mewlix.Parser
       Mewlix.Parser.Expression
       Mewlix.Parser.Keyword
@@ -61,29 +84,6 @@ library
       Mewlix.Parser.String
       Mewlix.Parser.Type
       Mewlix.Parser.Utils
-      Mewlix.Project
-      Mewlix.Project.Actions.Build
-      Mewlix.Project.Actions.Clean
-      Mewlix.Project.Actions.Create
-      Mewlix.Project.Actions.Node
-      Mewlix.Project.Actions.Package
-      Mewlix.Project.Actions.Run
-      Mewlix.Project.Actions.Server
-      Mewlix.Project.Assets.Copy
-      Mewlix.Project.Assets.Find
-      Mewlix.Project.Data.Read
-      Mewlix.Project.Data.Types
-      Mewlix.Project.Folder
-      Mewlix.Project.Log
-      Mewlix.Project.Make
-      Mewlix.Project.Maker
-      Mewlix.Project.Modules.Bundle
-      Mewlix.Project.Modules.Compile
-      Mewlix.Project.Modules.FileSearch
-      Mewlix.Project.Modules.StandardLibrary
-      Mewlix.Project.Templates.Constants
-      Mewlix.Project.Templates.Create
-      Mewlix.Project.Templates.ReadMe
       Mewlix.String.Escape
       Mewlix.String.Utils
       Mewlix.Utils.FileIO

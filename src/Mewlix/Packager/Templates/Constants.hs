@@ -1,12 +1,12 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Mewlix.Project.Templates.Constants
+module Mewlix.Packager.Templates.Constants
 ( getTemplate
 , template
 ) where
 
-import Mewlix.Project.Maker (Language(..))
-import Mewlix.Project.Data.Types (ProjectMode(..))
+import Mewlix.Packager.Maker (Language(..))
+import Mewlix.Packager.Data.Types (ProjectMode(..))
 import System.FilePath ((</>))
 
 newtype Template = Template { getTemplate :: FilePath }
