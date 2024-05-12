@@ -13,8 +13,8 @@ import Mewlix.Project.Templates.ReadMe (createReadme)
 import Mewlix.Project.Assets.Copy (copyAssets)
 import Mewlix.Project.Log (projectLog)
 import System.FilePath ((</>))
-import Data.Aeson (object, (.=), encode)
-import qualified Data.ByteString.Lazy as LazyByteString
+import Data.Aeson (object, (.=), encode, Value)
+import qualified Data.ByteString.Lazy as LB
 
 buildProject :: ProjectData -> ProjectMaker ()
 buildProject projectData = do
@@ -28,12 +28,12 @@ buildProject projectData = do
     -- Modules:
     bundleModules projectData
     copyAssets projectData
-    scriptList projectData
+    metaData projectData
     createReadme projectData
 
-scriptList :: ProjectData -> ProjectMaker ()
-scriptList projectData = do
-    let targetPath = coreFolder </> "script-list.json"
+metaData :: ProjectData -> ProjectMaker ()
+metaData projectData = do
+    let targetPath = coreFolder </> "meta.json"
     let title = projectName projectData
     let entrypoint = projectEntrypoint projectData
 
@@ -41,5 +41,7 @@ scriptList projectData = do
             [ "title"      .= title
             , "entrypoint" .= entrypoint ]
 
-    let contents = mappend (encode json) "\n"
-    liftIO $ LazyByteString.writeFile targetPath contents
+    let write :: Value -> ProjectMaker ()
+        write = liftIO . LB.writeFile targetPath . (<> "\n") . encode
+
+    write json
