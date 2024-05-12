@@ -303,7 +303,7 @@ instance ToJavaScript Statement where
             special   <- asks imports
             case HashMap.lookup key special of
                 Nothing      -> return $ call Mewlix.getModule [stringKey]
-                (Just value) -> return $ call Mewlix.wrap [value]
+                (Just value) -> return value
         let declaration = mconcat [ "const ", binding, " = ", importValue, ";" ]
         indentLine level declaration
 
@@ -314,7 +314,7 @@ instance ToJavaScript Statement where
             special   <- asks imports
             case HashMap.lookup key special of
                 Nothing      -> return $ call Mewlix.getModule [stringKey]
-                (Just value) -> return $ call Mewlix.wrap [value]
+                (Just value) -> return value
 
         let bind :: Key -> Transpiler Text
             bind key = indentLine level $ do
