@@ -72,9 +72,12 @@ runOption language = \case
         let transforms = fromFlags flags : fromOptions options
         make (not standalone) transforms language Build
 
-    (RunOpt options flags standalone port) -> do
+    (RunOpt options flags standalone port noBrowser) -> do
         let portFunc = maybe id (set projectPortL) port
-        let transforms = portFunc : fromFlags flags : fromOptions options
+        let browser = if noBrowser
+            then projectFlagsL %~ Set.insert NoBrowser
+            else id
+        let transforms = browser : portFunc : fromFlags flags : fromOptions options
         make (not standalone) transforms language Run
 
     (PackageOpt options flags standalone) -> do

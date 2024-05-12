@@ -53,7 +53,7 @@ data FlagOptions = FlagOptions
 
 data MewlixOptions =
       BuildOpt      ProjectOptions FlagOptions Bool
-    | RunOpt        ProjectOptions FlagOptions Bool (Maybe Port)
+    | RunOpt        ProjectOptions FlagOptions Bool (Maybe Port) Bool
     | PackageOpt    ProjectOptions FlagOptions Bool
     | NewOpt        (Maybe String) (Maybe ProjectMode)
     | CleanOpt      Bool
@@ -150,6 +150,11 @@ standalone = switch
     <> short 's'
     <> help "Ignore project file, use project defaults" )
 
+noBrowser :: Parser Bool
+noBrowser = switch
+     ( long "no-browser"
+    <> help "Don't launch web browser when running project" )
+
 makeInfo :: Parser a -> String -> ParserInfo a
 makeInfo parser desc = info (parser <**> helper) (fullDesc <> progDesc desc)
 
@@ -172,6 +177,7 @@ parseOptions = options
                     <*> flagOptions
                     <*> standalone
                     <*> optional port
+                    <*> noBrowser
 
         package :: Mod CommandFields MewlixOptions
         package = command "package" $ makeInfo parser "Package project's build output into a .zip archive"
