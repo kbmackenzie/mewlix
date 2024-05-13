@@ -193,7 +193,7 @@ parseOptions = options
                     <*> optional projectMode
 
         clean :: Mod CommandFields MewlixOptions
-        clean = command "clean" $ makeInfo parser "Clean project directory, removing 'output' folder"
+        clean = command "clean" $ makeInfo parser "Clean project directory, removing build folder"
             where parser = CleanOpt <$> standalone
 
 getOptions :: IO MewlixOptions
