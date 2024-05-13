@@ -8,6 +8,7 @@ module Mewlix.Utils.FileIO
 , copyDataFile
 , extractZip
 , extractDataFile
+, removeIfExists
 ) where
 
 -- This module should always be imported qualified!
@@ -28,6 +29,9 @@ import Conduit
     , (.|)
     )
 import Codec.Archive.Zip (withArchive, unpackInto)
+import System.Directory (removeFile)
+import Control.Exception (throwIO, catch)
+import System.IO.Error (isDoesNotExistError)
 
 readText :: (MonadIO m) => FilePath -> m (Either UnicodeException Text)
 readText = liftIO . fmap ByteEncoding.decodeUtf8' . ByteString.readFile
@@ -61,3 +65,9 @@ extractDataFile :: (MonadIO m) => FilePath -> FilePath -> m ()
 extractDataFile dataFile targetPath = do
     zipPath <- liftIO (getDataFileName dataFile)
     extractZip zipPath targetPath
+
+removeIfExists :: (MonadIO m) => FilePath -> m ()
+removeIfExists path = liftIO $
+    removeFile path `catch` \e -> if isDoesNotExistError e
+        then return ()
+        else throwIO e
