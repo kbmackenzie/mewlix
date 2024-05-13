@@ -8,7 +8,7 @@ module Mewlix.Packager.Folder
 import System.FilePath ((</>))
 
 outputFolder :: FilePath
-outputFolder = "output"
+outputFolder = "build"
 
 coreFolder :: FilePath
 coreFolder = outputFolder </> "core"
