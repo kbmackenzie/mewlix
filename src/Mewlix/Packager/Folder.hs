@@ -14,7 +14,7 @@ coreFolder :: FilePath
 coreFolder = outputFolder </> "core"
 
 moduleFolder :: FilePath
-moduleFolder = outputFolder </> "yarnballs"
+moduleFolder = outputFolder </> "yarnball"
 
 projectFile :: FilePath
 projectFile = "./mewlix.yaml"

@@ -29,7 +29,7 @@ metaComment = Text.intercalate "\n"
 -- It's simpler this way!
 bundleModules :: ProjectData -> PackageMaker ()
 bundleModules projectData = do
-    let outputPath = moduleFolder </> "yarnballs.js"
+    let outputPath = moduleFolder </> "yarnball.js"
     
     handle <- liftIO $ do
         createDirectoryIfMissing False moduleFolder
