@@ -29,7 +29,7 @@ zeroIndent :: Indentation
 zeroIndent = Indentation 0
 
 indentSize :: Int
-indentSize = 4
+indentSize = 2
 
 createIndent :: Indentation -> Text
 createIndent = Text.pack . flip List.replicate ' ' . (* indentSize) . getIndent
