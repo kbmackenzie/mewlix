@@ -67,7 +67,9 @@ compileModules projectData handle = do
             yarnball <- runCompiler compiler context path
             write yarnball
 
+    write "export default function() {\n"
     mapM_ compile sources
+    write "}\n"
 
 -- Runs a compiler function on text content read from a file.
 runCompiler :: CompilerFunc -> TranspilerContext -> FilePath -> PackageMaker CompilerOutput
