@@ -22,5 +22,5 @@ node :: ProjectData -> PackageMaker ()
 node projectData = do
     projectLog projectData "Running project with 'node':"
 
-    let script = outputFolder </> "index.js"
+    let script = outputFolder </> "auto.js"
     runNode script
