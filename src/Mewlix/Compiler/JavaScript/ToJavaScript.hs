@@ -495,7 +495,7 @@ instance ToJavaScript YarnBall where
                 let cat = if prettify
                     then Text.intercalate "\n\n"
                     else mconcat
-                joinLines . map return $ [ "(function() {" , cat text , "})()" ]
+                joinLines . map return $ [ "(function() {" , cat text , "})();" ]
 
         footer <- indentLine topLevel . terminate $ call Mewlix.addModule [keyString, "yarnball"]
 
