@@ -487,7 +487,7 @@ instance ToJavaScript YarnBall where
                 , stdLibrary
                 , joinLines body
                 , moduleBindings
-                , indentLine topLevel "}" ]
+                , indentLine topLevel "};" ]
         
         let catYarnBall :: [Text] -> Transpiler Text
             catYarnBall text  = do
