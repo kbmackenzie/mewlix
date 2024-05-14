@@ -360,12 +360,12 @@ instance ToJavaScript Statement where
                 , indentLine methodLevel "super();"
                 , indentLine methodLevel defineSuper
                 , joinLines (indentMany methodLevel methods)
-                , indentLine classLevel "}"                     ]
+                , indentLine classLevel "};"                 ]
 
         joinLines
             [ indentLine level header
             , constructor
-            , indentLine level "}"    ]
+            , indentLine level "};"   ]
 
     transpileJS level   (SuperCall argExprs) = do
         let superRef = unwrapKeyword Keywords.superRef
