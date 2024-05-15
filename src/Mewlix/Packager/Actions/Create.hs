@@ -6,12 +6,14 @@ module Mewlix.Packager.Actions.Create
 
 import Mewlix.Packager.Data.Types (ProjectData(..), projectFieldOrder, projectSourceFilesL)
 import Mewlix.Packager.Log (projectLog)
-import Mewlix.Packager.Folder (projectFile)
+import Mewlix.Packager.Folder (projectFile, outputFolder)
 import Mewlix.Utils.Yaml (prettyYaml)
 import Mewlix.Utils.FileIO (writeBytes)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import System.Directory (createDirectoryIfMissing)
 import Lens.Micro.Platform ((%~))
+import System.FilePath (addTrailingPathSeparator)
+import qualified Data.ByteString.Char8 as ByteString
 
 includeSrc :: ProjectData -> ProjectData
 includeSrc = projectSourceFilesL %~ ("src/" :)
@@ -29,4 +31,5 @@ createProject = (. includeSrc) $ \projectData -> do
     liftIO (createDirectoryIfMissing False "./src")
 
     -- Create .gitignore
-    writeBytes "./.gitignore" "output/\n"
+    let ignorePath = addTrailingPathSeparator outputFolder ++ "\n"
+    writeBytes "./.gitignore" (ByteString.pack ignorePath)
