@@ -44,7 +44,7 @@ type CharacterParser a = (Char -> Bool) -> Parser a
 withQuotes :: [QuoteType] -> CharacterParser a -> Parser a
 withQuotes quotes parse = do
     let chooseQuoteType :: Parser QuoteType
-        chooseQuoteType = Mega.choice . flip map quotes $ \x -> x <$ open x
+        chooseQuoteType = Mega.choice . flip map quotes $ \q -> q <$ open q
 
     quote <- chooseQuoteType
     parse (predicate quote) <* lexeme (close quote)
