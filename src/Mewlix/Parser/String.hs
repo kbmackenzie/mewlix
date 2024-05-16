@@ -15,7 +15,7 @@ import Mewlix.Abstract.AST
 import Mewlix.Parser.Utils (lexeme)
 import Data.Text (Text)
 import qualified Data.Text as Text
-import Text.Megaparsec ((<?>))
+import Text.Megaparsec ((<?>), label)
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import Control.Monad (void)
@@ -41,7 +41,7 @@ stringChar = Mega.choice
     , Mega.satisfy (/= '"')                             ]
 
 parseString :: Parser Text
-parseString = (<?> "string") $ do
+parseString = label "string" $ do
     let quotation :: Parser ()
         quotation = (void . MChar.char) '"' <?> "quotation mark"
 
@@ -58,7 +58,7 @@ stringCharM = Mega.choice
     , Mega.satisfy (/= '"')                             ]
 
 parseStringM :: Parser Text
-parseStringM = (<?> "multiline string") $ do
+parseStringM = label "multiline string" $ do
     let quotations :: Parser ()
         quotations = (void . MChar.string) "\"\"\"" <?> "triple quotes"
 
@@ -83,7 +83,7 @@ stringCharI = Mega.choice
     , Mega.satisfy (\x -> x /= '"' && x /= '[')        ]
 
 parseYarnString :: Parser Expression -> Parser Expression
-parseYarnString expression = (<?> "yarn string") $ do
+parseYarnString expression = label "yarn string" $ do
     let quotation :: Parser ()
         quotation = (void . MChar.char) '"' <?> "quotation mark"
 

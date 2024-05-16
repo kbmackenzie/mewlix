@@ -45,7 +45,7 @@ import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Keywords.Types (SimpleKeyword(..))
 import Data.List.NonEmpty (NonEmpty((:|)))
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
-import Text.Megaparsec ((<|>), (<?>))
+import Text.Megaparsec ((<|>), (<?>), label)
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import Control.Monad (void, unless)
@@ -58,7 +58,7 @@ root = Mega.between skipLines Mega.eof yarnBall
 
 yarnBall :: Parser YarnBall
 yarnBall = do
-    key  <- (<?> "yarn ball") . Mega.optional $ do
+    key  <- label "yarn ball" . Mega.optional $ do
         keyword Keywords.yarnball <|> keyword Keywords.yarnball'
         parseModuleKey <* linebreak
     body <- Block <$> Mega.many statement

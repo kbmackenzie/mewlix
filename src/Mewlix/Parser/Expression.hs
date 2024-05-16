@@ -37,7 +37,7 @@ import Mewlix.Parser.Primitive
     , parseKey
     , parseParams
     )
-import Text.Megaparsec ((<?>), hidden)
+import Text.Megaparsec ((<?>), label, hidden)
 import Mewlix.Keywords.Types (LongSymbol(..), unwrapKeyword)
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import qualified Text.Megaparsec as Mega
@@ -212,7 +212,7 @@ postfixes = foldr1 (flip (.)) <$> Mega.some (Mega.choice [ dot, lookup_, call ])
 {- Lambda -}
 ------------------------------------------------------------------------------------
 lambda :: Parser Expression
-lambda = (<?> "lambda") $ do
+lambda = label "lambda" $ do
     keyword Keywords.lambda
     params <- multiline parseParams
     multiline $ keyword Keywords.lambdaArrow
