@@ -15,7 +15,7 @@ import Mewlix.Abstract.AST
 import Mewlix.Parser.Utils (lexeme)
 import Data.Text (Text)
 import qualified Data.Text as Text
-import Text.Megaparsec ((<?>), label)
+import Text.Megaparsec (label)
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
 import Control.Monad (void)
@@ -120,12 +120,12 @@ stringCharY allowed = Mega.choice
 stringQuotesY :: [QuoteType]
 stringQuotesY =
     [ QuoteType
-        { open = string ":3\""
+        { open  = string ":3\""
         , close = char '"'
         , predicate = \c -> c /= '"' && c /= '['
         }
     , QuoteType
-        { open = string ":3'"
+        { open  = string ":3'"
         , close = char '\''
         , predicate = \c -> c /= '\'' && c /= '['
         }
