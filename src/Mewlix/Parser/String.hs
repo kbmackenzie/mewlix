@@ -32,23 +32,49 @@ escapeChar c = case c of
     'v'     -> '\v'
     other   -> other
 
+{- String quotations: -}
+----------------------------------------------------------------
+data QuoteType = QuoteType
+    { open      :: Parser ()
+    , close     :: Parser ()
+    , predicate :: Char -> Bool }
+
+type CharacterParser a = (Char -> Bool) -> Parser a
+
+withQuotes :: [QuoteType] -> CharacterParser a -> Parser a
+withQuotes quotes parse = do
+    let chooseQuoteType :: Parser QuoteType
+        chooseQuoteType = Mega.choice . flip map quotes $ \x -> x <$ open x
+
+    quote <- chooseQuoteType
+    parse (predicate quote) <* lexeme (close quote)
+
 {- Single-line strings: -}
 ----------------------------------------------------------------
-stringChar :: Parser Char
-stringChar = Mega.choice
+stringChar :: (Char -> Bool) -> Parser Char
+stringChar allowed = Mega.choice
     [ MChar.char '\\' >> fmap escapeChar Mega.anySingle
     , MChar.newline >> fail "Linebreak in string!"
-    , Mega.satisfy (/= '"')                             ]
+    , Mega.satisfy allowed                              ]
+
+stringQuotes :: [QuoteType]
+stringQuotes =
+    [ QuoteType
+        { open  = char '"'
+        , close = char '"'
+        , predicate = (/= '"')
+        }
+    , QuoteType
+        { open  = char '\''
+        , close = char '\''
+        , predicate = (/= '\'')
+        }
+    ]
+    where char = void . MChar.char
 
 parseString :: Parser Text
-parseString = label "string" $ do
-    let quotation :: Parser ()
-        quotation = (void . MChar.char) '"' <?> "quotation mark"
-
-    quotation
-    text <- Text.pack <$> Mega.many stringChar
-    lexeme quotation
-    return text
+parseString = label "string" . withQuotes stringQuotes $
+    fmap Text.pack . Mega.many . stringChar
 
 {- Multi-line strings: -}
 ----------------------------------------------------------------
