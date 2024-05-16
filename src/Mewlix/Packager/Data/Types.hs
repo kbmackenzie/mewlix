@@ -105,7 +105,7 @@ $(makeLensesFor
 {- Defaults -}
 ----------------------------------------------------------------
 defaultMode :: ProjectMode
-defaultMode = Console
+defaultMode = Graphic
 
 defaultPort :: Port
 defaultPort = Port 8143
