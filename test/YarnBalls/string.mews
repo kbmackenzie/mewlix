@@ -3,13 +3,37 @@ yarn ball test.string
 
 -- String literal:
 meow "hello world!"
+meow 'single quotes are okay too!'
 
 -- Multiline string:
 meow """
 this is a multiline string!
 """
 
+meow '''
+once again, single quotes are okay too!
+'''
+
 -- Yarn strings (string interpolation):
 :3"Your number is [std.random_int(0, 10)]!"
-:3"[std.random()]"
 :3"Yarn strings with no expressions are valid, too!"
+:3"[do std.repeat <- 100, =^oxo^= () -> meow "... miaou"]"
+
+:3'And, again, single quotes are okay too!'
+:3'Your number is... [std.random_int(0, 10)]!'
+:3'[do std.repeat <- 100, =^oxo^= () -> meow "... miaou"]'
+
+-- Escape sequences:
+"In double quotes, you need to escape... double quotes. \"Like this\"!"
+'Similarly, in single quotes, escape single quotes, \'like this\'!'
+
+"""
+The single-quote and double-quote rules apply to multiline strings and yarn strings.
+Double-quote multine strings with escape double quotes. (\")
+"""
+
+'''
+... And single-quote multiline strings escape single quotes. (\')
+'''
+
+:3"In yarn strings, escape \[square brackets\] too!"
