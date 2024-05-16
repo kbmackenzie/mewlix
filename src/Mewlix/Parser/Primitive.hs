@@ -31,24 +31,24 @@ parsePrim :: Parser Primitive
 parsePrim = Mega.choice
     [ MewlixString  <$> parseStringM
     , MewlixString  <$> parseString
-    , MewlixFloat   <$> parseFloat
-    , MewlixInt     <$> parseInt
-    , MewlixBool    <$> parseBool
-    , MewlixNil     <$  keyword Keywords.nil
-    , MewlixHome    <$  keyword Keywords.home ]
+    , MewlixFloat   <$> parseFloat  <?> "number"
+    , MewlixInt     <$> parseInt    <?> "number"
+    , MewlixBool    <$> parseBool   <?> "boolean"
+    , MewlixNil     <$  keyword Keywords.nil  <?> "nothing"
+    , MewlixHome    <$  keyword Keywords.home <?> "home"    ]
 
 {- Numbers and constants: -}
 ----------------------------------------------------------------
 parseInt :: Parser Int
-parseInt = lexeme (Lexer.signed whitespace Lexer.decimal) <?> "int"
+parseInt = lexeme (Lexer.signed whitespace Lexer.decimal)
 
 parseFloat :: Parser Double
-parseFloat = Mega.try (lexeme (Lexer.signed whitespace Lexer.float)) <?> "float"
+parseFloat = (Mega.try . lexeme) (Lexer.signed whitespace Lexer.float)
 
 parseBool :: Parser Bool
 parseBool = Mega.choice
     [ True  <$ keyword Keywords.true
-    , False <$ keyword Keywords.false ] <?> "boolean"
+    , False <$ keyword Keywords.false ]
 
 {- Keys + identifers: -}
 ----------------------------------------------------------------
