@@ -2,9 +2,6 @@
 
 module Mewlix.Parser.Primitive
 ( parsePrim
-, parseString
-, parseStringM
-, parseKeyText
 , parseKey
 , parseParams
 ) where
