@@ -14,6 +14,7 @@ module Mewlix.Parser.Utils
 , isKeyChar
 , symbol
 , repeatChar
+, betweenChoice
 ) where
 
 import Mewlix.Parser.Type (Parser)
@@ -126,3 +127,13 @@ symbol = lexeme . void . MChar.char
 
 repeatChar :: Char -> Parser ()
 repeatChar = Mega.skipSome . symbol
+
+{- Extra -}
+----------------------------------------------------------------
+betweenChoice :: [(Parser (), Parser ())] -> Parser a -> Parser a
+betweenChoice pairs parse = do
+    let open :: [(Parser (), Parser ())] -> Parser (Parser ())
+        open = Mega.choice . map (uncurry (<$))
+
+    close <- open pairs
+    parse <* close
