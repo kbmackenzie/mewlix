@@ -78,20 +78,29 @@ parseString = label "string" . withQuotes stringQuotes $
 
 {- Multi-line strings: -}
 ----------------------------------------------------------------
-stringCharM :: Parser Char
-stringCharM = Mega.choice
+stringCharM :: (Char -> Bool) -> Parser Char
+stringCharM allowed = Mega.choice
     [ MChar.char '\\' >> fmap escapeChar Mega.anySingle
-    , Mega.satisfy (/= '"')                             ]
+    , Mega.satisfy allowed                              ]
+
+stringQuotesM :: [QuoteType]
+stringQuotesM =
+    [ QuoteType
+        { open  = string "\"\"\""
+        , close = string "\"\"\""
+        , predicate = (/= '"')
+        }
+    , QuoteType
+        { open  = string "'''"
+        , close = string "'''"
+        , predicate = (/= '\'')
+        }
+    ]
+    where string = void . MChar.string
 
 parseStringM :: Parser Text
-parseStringM = label "multiline string" $ do
-    let quotations :: Parser ()
-        quotations = (void . MChar.string) "\"\"\"" <?> "triple quotes"
-
-    quotations
-    text <- Text.pack <$> Mega.many stringCharM
-    lexeme quotations
-    return text
+parseStringM = label "multiline string" . withQuotes stringQuotesM $
+    fmap Text.pack . Mega.many . stringCharM
 
 {- String interpolation ('yarn string'): -}
 ----------------------------------------------------------------
