@@ -55,10 +55,10 @@ termL = Mega.choice
 termR :: Parser Expression
 termR = Mega.choice
     [ parens expression
-    , new
-    , box
-    , shelf
-    , do_
+    , new       <?> "new"
+    , box       <?> "box"
+    , shelf     <?> "shelf"
+    , do_       <?> "do"
     , parseYarnString expression
     , PrimitiveExpr <$> parsePrim
     , Identifier    <$> parseKey  ]
@@ -79,7 +79,7 @@ expression = Mega.choice
 {- Data -}
 ------------------------------------------------------------------------------------
 shelf :: Parser Expression
-shelf = ListExpression <$> bracketList expression <?> "list"
+shelf = ListExpression <$> bracketList expression
 
 box :: Parser Expression
 box = do
@@ -91,7 +91,7 @@ box = do
             return (key, value)
 
     keyword Keywords.box
-    BoxExpression <$> bracketList parsePair <?> "box"
+    BoxExpression <$> bracketList parsePair
 
 {- Arguments -}
 ------------------------------------------------------------------------------------
@@ -205,7 +205,7 @@ postfixes = foldr1 (flip (.)) <$> Mega.some (Mega.choice [ dot, lookup_, call ])
 {- Lambda -}
 ------------------------------------------------------------------------------------
 lambda :: Parser Expression
-lambda = do
+lambda = (<?> "lambda") $ do
     keyword Keywords.lambda
     params <- multiline parseParams
     multiline $ keyword Keywords.lambdaArrow
