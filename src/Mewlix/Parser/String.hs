@@ -111,29 +111,42 @@ interpolate :: [Expression] -> Expression
 interpolate = foldl (BinaryOperation StringConcat) emptyString
     where emptyString = stringToExpr mempty
 
-stringCharI :: Parser Char
-stringCharI = Mega.choice
+stringCharY :: (Char -> Bool) -> Parser Char
+stringCharY allowed = Mega.choice
     [ MChar.char '\\' >> fmap escapeChar Mega.anySingle
     , MChar.newline >> fail "Linebreak in string!"
-    , Mega.satisfy (\x -> x /= '"' && x /= '[')        ]
+    , Mega.satisfy allowed                              ]
+
+stringQuotesY :: [QuoteType]
+stringQuotesY =
+    [ QuoteType
+        { open = string ":3\""
+        , close = char '"'
+        , predicate = \c -> c /= '"' && c /= '['
+        }
+    , QuoteType
+        { open = string ":3'"
+        , close = char '\''
+        , predicate = \c -> c /= '\'' && c /= '['
+        }
+    ]
+    where
+        string = void . MChar.string
+        char = void . MChar.char
 
 parseYarnString :: Parser Expression -> Parser Expression
-parseYarnString expression = label "yarn string" $ do
-    let quotation :: Parser ()
-        quotation = (void . MChar.char) '"' <?> "quotation mark"
+parseYarnString expression = label "yarn string" . withQuotes stringQuotesY $
+    \allowed -> do
+        let brackets :: Parser a -> Parser a
+            brackets p = (lexeme . MChar.char) '[' *> p <* MChar.char ']'
 
-    let yarnMeow :: Parser ()
-        yarnMeow = void (MChar.string' ":3\"" <?> "yarn string")
+        let stringText :: Parser Text
+            stringText = (fmap Text.pack . Mega.some) (stringCharY allowed)
 
-    let brackets :: Parser a -> Parser a
-        brackets p = (lexeme . MChar.char) '[' *> p <* MChar.char ']'
+        let stringPiece :: Parser Expression
+            stringPiece = Mega.choice
+                [ stringToExpr <$> stringText
+                , brackets expression         ]
 
-    let stringPiece :: Parser Expression
-        stringPiece = Mega.choice
-            [ stringToExpr . Text.pack <$> Mega.some stringCharI
-            , brackets expression                               ]
-
-    yarnMeow
-    pieces <- Mega.many stringPiece 
-    quotation
-    return (interpolate pieces)
+        pieces <- Mega.many stringPiece 
+        return (interpolate pieces)
