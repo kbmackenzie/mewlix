@@ -9,7 +9,7 @@ module Mewlix.Compiler.JavaScript.Error
 import Data.Text (Text)
 import Mewlix.String.Escape (escapeString)
 import Mewlix.String.Utils (quotes, parens)
-import Mewlix.Compiler.JavaScript.Constants (mewlix)
+import Mewlix.Compiler.JavaScript.Constants (mewlix')
 import Mewlix.Utils.Show (showT)
 import Text.Megaparsec.Pos (SourcePos(..), unPos)
 
@@ -26,10 +26,10 @@ data ErrorCode =
     deriving (Eq, Ord, Show, Read, Enum, Bounded)
 
 mewlixError :: Text
-mewlixError = mewlix "MewlixError"
+mewlixError = mewlix' "MewlixError"
 
 errorCode :: ErrorCode -> Text
-errorCode = (mewlix "ErrorCode." <>) . showT
+errorCode = (mewlix' "ErrorCode." <>) . showT
 
 errorInfo :: SourcePos -> Text
 errorInfo pos = (quotes . escapeString . mconcat)
