@@ -5,7 +5,6 @@ module Mewlix.Packager.Make
 ( Action(..)
 , make
 , make'
--- Re-exports:
 ) where
 
 import Mewlix.Packager.Maker (PackageMaker(..), packageMake)
