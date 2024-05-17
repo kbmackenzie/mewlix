@@ -15,7 +15,6 @@ module Mewlix.Compiler.JavaScript.Constants
 , defaultKey
 -- Operations:
 , meow
-, listen
 , numbers
 , boolean
 , compare
@@ -81,9 +80,6 @@ defaultKey = "main"
 --------------------------------------------
 meow :: Text
 meow = mewlix "meow"
-
-listen :: Text
-listen = mewlix "listen"
 
 numbers :: Text -> Text
 numbers = mewlix . ("Numbers." <>)
