@@ -7,7 +7,6 @@ module Mewlix.Packager.Modules.StandardLibrary
 
 import Mewlix.Packager.Data.Types (ProjectMode(..))
 import Mewlix.Abstract.Key (Key(..))
-import Mewlix.Packager.Maker (Language(..))
 import Data.Text (Text)
 import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
@@ -17,13 +16,13 @@ type Library = HashMap Key Text
 library :: [(Text, Text)] -> Library
 library = HashMap.mapKeys Key . HashMap.fromList
 
-baseLibrary :: Language -> Library
-baseLibrary JavaScript = library
+baseLibrary :: Library
+baseLibrary = library
     [ ("std"       , "Mewlix.Base"      )
     , ("std.curry" , "Mewlix.BaseCurry" ) ]
 
-templateLibraries :: Language -> ProjectMode -> Library
-templateLibraries JavaScript = \case
+templateLibraries :: ProjectMode -> Library
+templateLibraries = \case
     Console -> library
         [ ("std.console"        , "Mewlix.Console"      )
         , ("std.console.curry"  , "Mewlix.ConsoleCurry" ) ]
@@ -32,7 +31,6 @@ templateLibraries JavaScript = \case
         , ("std.graphic.curry"  , "Mewlix.GraphicCurry" ) ]
     Library -> mempty
 
-addLibraries :: Language -> ProjectMode -> (Library -> Library)
-addLibraries language mode = mappend template . mappend base
-    where base = baseLibrary language
-          template = templateLibraries language mode
+addLibraries :: ProjectMode -> (Library -> Library)
+addLibraries mode = mappend template . mappend baseLibrary
+    where template = templateLibraries mode

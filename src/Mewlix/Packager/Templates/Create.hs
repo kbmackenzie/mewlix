@@ -2,7 +2,7 @@ module Mewlix.Packager.Templates.Create
 ( createFromTemplate
 ) where
 
-import Mewlix.Packager.Maker (PackageMaker, PackageContext(..), asks, liftIO)
+import Mewlix.Packager.Maker (PackageMaker, liftIO)
 import Mewlix.Packager.Data.Types (ProjectMode(..))
 import Mewlix.Packager.Templates.Constants (getTemplate, template)
 import Mewlix.Packager.Folder (outputFolder)
@@ -11,9 +11,8 @@ import System.Directory (createDirectoryIfMissing)
 
 createFromTemplate :: ProjectMode -> PackageMaker ()
 createFromTemplate mode = do
-    language <- asks projectLanguage
     let folder = outputFolder
-    let projectTemplate = template language mode
+    let projectTemplate = template mode
 
     liftIO (createDirectoryIfMissing True folder)
     extractDataFile (getTemplate projectTemplate) folder

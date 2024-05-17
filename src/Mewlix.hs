@@ -5,7 +5,7 @@ module Mewlix
 ) where
 
 import Mewlix.CLI.Main (run)
-import Mewlix.Packager.Make (Action(..), make', Language(..))
+import Mewlix.Packager.Make (Action(..), make')
 
 make :: Action -> IO ()
-make = make' JavaScript
+make = make'

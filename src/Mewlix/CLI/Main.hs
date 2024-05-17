@@ -5,8 +5,7 @@ module Mewlix.CLI.Main
 ) where
 
 import Mewlix.Packager
-    ( Language(..)
-    , Action(..)
+    ( Action(..)
     , ProjectFlag(..)
     , make
     , ProjectTransform
@@ -31,7 +30,7 @@ import qualified Data.Set as Set
 import Data.Maybe (catMaybes)
 
 run :: IO ()
-run = getOptions >>= runOption JavaScript
+run = getOptions >>= runOption
 
 transform :: Maybe a -> (a -> ProjectTransform) -> ProjectTransform
 transform Nothing  _  = id
@@ -66,11 +65,11 @@ fromFlags FlagOptions
                 , fromBool noReadMe NoReadMe ]
         projectFlagsL %~ mappend (Set.fromList flagList)
 
-runOption :: Language -> MewlixOptions -> IO ()
-runOption language = \case
+runOption :: MewlixOptions -> IO ()
+runOption = \case
     (BuildOpt options flags standalone) -> do
         let transforms = fromFlags flags : fromOptions options
-        make (not standalone) transforms language Build
+        make (not standalone) transforms Build
 
     (RunOpt options flags standalone port noBrowser) -> do
         let portFunc = maybe id (set projectPortL) port
@@ -78,17 +77,17 @@ runOption language = \case
             then projectFlagsL %~ Set.insert NoBrowser
             else id
         let transforms = browser : portFunc : fromFlags flags : fromOptions options
-        make (not standalone) transforms language Run
+        make (not standalone) transforms Run
 
     (PackageOpt options flags standalone) -> do
         let transforms = fromFlags flags : fromOptions options
-        make (not standalone) transforms language Package
+        make (not standalone) transforms Package
 
     (NewOpt name mode) -> do
         let transforms =
                 [ transform name (set projectNameL . Text.pack)
                 , transform mode (set projectModeL)             ]
-        make False transforms language Create
+        make False transforms Create
 
     (CleanOpt standalone) -> do
-        make (not standalone) mempty language Clean
+        make (not standalone) mempty Clean

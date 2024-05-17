@@ -1,12 +1,11 @@
 module Mewlix.Packager
-( Language(..)
-, Action(..)
+( Action(..)
+, make
+, make'
 , ProjectData(..)
 , ProjectFlag(..)
 , ProjectMode(..)
 , Port(..)
-, make
-, make'
 -- Project utils:
 , ProjectTransform
 , transformProject
@@ -27,6 +26,7 @@ module Mewlix.Packager
 , projectFlagsL
 ) where
 
+import Mewlix.Packager.Make (Action(..), make, make')
 import Mewlix.Packager.Data.Types
     ( ProjectData(..)
     , ProjectMode(..)
@@ -49,4 +49,3 @@ import Mewlix.Packager.Data.Types
     , projectSpecialImportsL
     , projectFlagsL
     )
-import Mewlix.Packager.Make (Language(..), Action(..), make, make')

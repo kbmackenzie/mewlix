@@ -5,7 +5,6 @@ module Mewlix.Packager.Templates.Constants
 , template
 ) where
 
-import Mewlix.Packager.Maker (Language(..))
 import Mewlix.Packager.Data.Types (ProjectMode(..))
 import System.FilePath ((</>))
 
@@ -15,8 +14,8 @@ newtype Template = Template { getTemplate :: FilePath }
 templatePath :: FilePath -> FilePath
 templatePath = ("templates" </>)
 
-template :: Language -> ProjectMode -> Template
-template JavaScript = \case
+template :: ProjectMode -> Template
+template = \case
     Console -> Template { getTemplate = templatePath "js/console.zip" }
     Graphic -> Template { getTemplate = templatePath "js/graphic.zip" }
     Library -> Template { getTemplate = templatePath "js/library.zip" }

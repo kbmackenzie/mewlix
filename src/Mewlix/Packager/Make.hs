@@ -6,14 +6,9 @@ module Mewlix.Packager.Make
 , make
 , make'
 -- Re-exports:
-, Language(..)
 ) where
 
-import Mewlix.Packager.Maker
-    ( PackageMaker(..)
-    , Language(..)
-    , packageMakeJS
-    )
+import Mewlix.Packager.Maker (PackageMaker(..), packageMake)
 import Mewlix.Packager.Data.Types
     ( ProjectData(..)
     , ProjectTransform
@@ -40,10 +35,6 @@ data Action =
     deriving (Eq, Ord, Show, Enum, Bounded)
 
 type ActionFunc  = ProjectData -> PackageMaker ()
-type ProjectFunc = PackageMaker () -> IO (Either String ())
-
-language :: Language -> ProjectFunc
-language JavaScript = packageMakeJS
 
 action :: Action -> ActionFunc
 action Build    = buildProject
@@ -52,20 +43,19 @@ action Create   = createProject
 action Package  = packageProject
 action Run      = runProject
 
-make :: Bool -> [ProjectTransform] -> Language -> Action -> IO ()
-make readProjectFile transforms langOption actOption = execute
+make :: Bool -> [ProjectTransform] -> Action -> IO ()
+make readProjectFile transforms actOption = execute
     readProjectFile
-    (language langOption)
     (action actOption . transformProject transforms)
 
-make' :: Language -> Action -> IO ()
+make' :: Action -> IO ()
 make' = make True []
 
-execute :: Bool -> ProjectFunc -> ActionFunc -> IO ()
-execute readProjectFile languageFunc actionFunc = do
-    languageFunc (project >>= actionFunc) >>= \case
+execute :: Bool -> ActionFunc -> IO ()
+execute useProjectFile actionFunc = do
+    packageMake (project >>= actionFunc) >>= \case
         (Left err) -> logger Error ("[mewlix] " <> Text.pack err)
         (Right _ ) -> return ()
-    where project = if readProjectFile
+    where project = if useProjectFile
             then readProject
             else return defaultProject
