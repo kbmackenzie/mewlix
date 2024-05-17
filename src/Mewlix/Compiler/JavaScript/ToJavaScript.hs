@@ -464,7 +464,8 @@ instance ToJavaScript YarnBall where
             noStdBind <- asks noStd
             let stdLibrary = if noStdBind
                 then return mempty
-                else indentLine moduleLevel "const std = Mewlix.Base;"
+                else indentLine moduleLevel . mconcat $
+                    [ "const std = ", Mewlix.mewlix "Base", ";" ]
 
             -- The module bindings to be exported:
             moduleBindings <- do
