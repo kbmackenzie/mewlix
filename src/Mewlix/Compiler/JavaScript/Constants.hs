@@ -43,7 +43,7 @@ import Prelude hiding (compare)
 import Data.Text (Text)
 
 mewlix :: Text -> Text
-mewlix = ("Mewlix." <>)
+mewlix = ("mewlix." <>)
 
 purrify :: Text
 purrify = mewlix "purrify"
