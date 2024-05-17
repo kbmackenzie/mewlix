@@ -62,7 +62,7 @@ compileModules projectData handle = do
             yarnball <- runCompiler context path
             write yarnball
 
-    write "export default function() {\n"
+    write "export default function(mewlix) {\n"
     mapM_ compile sources
     write "}\n"
 
