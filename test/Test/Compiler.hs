@@ -9,7 +9,6 @@ module Test.Compiler
 import Data.Text (Text)
 import Mewlix.Compiler.Run (compileJS)
 import Mewlix.Compiler.Transpiler (TranspilerContext(..), emptyContext)
-import Mewlix.Packager.Maker (Language(..))
 import Mewlix.Packager.Data.Types (ProjectMode(..))
 import Mewlix.Packager.Modules.StandardLibrary (addLibraries)
 import Mewlix.Utils.FileIO (readText)
@@ -35,7 +34,7 @@ compileFile :: FilePath -> IO Text
 compileFile path = do
     contents <- either throwIO return =<< readText path
 
-    let libs = addLibraries JavaScript Library mempty
+    let libs = addLibraries Library mempty
     let context = emptyContext { imports = libs, pretty = True }
 
     let handleError :: String -> IO a
