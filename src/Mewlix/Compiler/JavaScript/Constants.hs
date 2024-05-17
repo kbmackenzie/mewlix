@@ -2,7 +2,6 @@
 
 module Mewlix.Compiler.JavaScript.Constants
 ( mewlix
-, mewlix'
 , purrify
 -- Data:
 , box
@@ -42,40 +41,37 @@ module Mewlix.Compiler.JavaScript.Constants
 import Prelude hiding (compare)
 import Data.Text (Text)
 
-mewlix :: Text
-mewlix = "mewlix"
-
-mewlix' :: Text -> Text
-mewlix' = ("mewlix." <>)
+mewlix :: Text -> Text
+mewlix = ("mewlix." <>)
 
 purrify :: Text
-purrify = mewlix' "purrify"
+purrify = mewlix "purrify"
 
 {- Data -}
 --------------------------------------------
 box :: Text
-box = mewlix' "Box"
+box = mewlix "Box"
 
 shelfNode :: Text
-shelfNode = mewlix' "ShelfNode"
+shelfNode = mewlix "ShelfNode"
 
 shelfBottom :: Text
-shelfBottom = mewlix' "ShelfBottom"
+shelfBottom = mewlix "ShelfBottom"
 
 createShelf :: Text
-createShelf = mewlix' "Shelf.fromArray"
+createShelf = mewlix "Shelf.fromArray"
 
 clowder :: Text
-clowder = mewlix' "Clowder"
+clowder = mewlix "Clowder"
 
 wake :: Text
-wake = mewlix' "wake"
+wake = mewlix "wake"
 
 enum :: Text
-enum = mewlix' "Enum"
+enum = mewlix "Enum"
 
 yarnBall :: Text
-yarnBall = mewlix' "YarnBall"
+yarnBall = mewlix "YarnBall"
 
 defaultKey :: Text
 defaultKey = "main"
@@ -83,36 +79,36 @@ defaultKey = "main"
 {- Operations -}
 --------------------------------------------
 meow :: Text
-meow = mewlix' "meow"
+meow = mewlix "meow"
 
 numbers :: Text -> Text
-numbers = mewlix' . ("Numbers." <>)
+numbers = mewlix . ("Numbers." <>)
 
 boolean :: Text -> Text
-boolean = mewlix' . ("Boolean." <>)
+boolean = mewlix . ("Boolean." <>)
 
 compare :: Text -> Text
-compare = mewlix' . ("Compare." <>)
+compare = mewlix . ("Compare." <>)
 
 strings :: Text -> Text
-strings = mewlix' . ("Strings." <>)
+strings = mewlix . ("Strings." <>)
 
 shelves :: Text -> Text
-shelves = mewlix' . ("Shelves." <>)
+shelves = mewlix . ("Shelves." <>)
 
 reflection :: Text -> Text
-reflection = mewlix' . ("Reflection." <>)
+reflection = mewlix . ("Reflection." <>)
 
 boxes :: Text -> Text
-boxes = mewlix' . ("Boxes." <>)
+boxes = mewlix . ("Boxes." <>)
 
 conversion :: Text -> Text
-conversion = mewlix' . ("Conversion." <>)
+conversion = mewlix . ("Conversion." <>)
 
 {- Modules: -}
 --------------------------------------------
 modules :: Text -> Text
-modules = mewlix' . ("Modules." <>)
+modules = mewlix . ("Modules." <>)
 
 addModule :: Text
 addModule = modules "addModule"
@@ -123,7 +119,7 @@ getModule = modules "getModule"
 {- Comparisons: -}
 --------------------------------------------
 comparison :: Text -> Text
-comparison = mewlix' . ("Comparison." <>)
+comparison = mewlix . ("Comparison." <>)
 
 equalTo :: Text
 equalTo = comparison "EqualTo"
@@ -137,7 +133,7 @@ greaterThan = comparison "GreaterThan"
 {- Statement Utils: -}
 --------------------------------------------
 internal :: Text -> Text
-internal = mewlix' . ("Internal." <>)
+internal = mewlix . ("Internal." <>)
 
 canChase :: Text
 canChase = internal "canChase"
