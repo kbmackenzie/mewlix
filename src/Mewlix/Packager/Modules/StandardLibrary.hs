@@ -18,17 +18,17 @@ library = HashMap.mapKeys Key . HashMap.fromList
 
 baseLibrary :: Library
 baseLibrary = library
-    [ ("std"       , "Mewlix.Base"      )
-    , ("std.curry" , "Mewlix.BaseCurry" ) ]
+    [ ("std"       , "mewlix.Base"      )
+    , ("std.curry" , "mewlix.BaseCurry" ) ]
 
 templateLibraries :: ProjectMode -> Library
 templateLibraries = \case
     Console -> library
-        [ ("std.console"        , "Mewlix.Console"      )
-        , ("std.console.curry"  , "Mewlix.ConsoleCurry" ) ]
+        [ ("std.console"        , "mewlix.Console"      )
+        , ("std.console.curry"  , "mewlix.ConsoleCurry" ) ]
     Graphic -> library
-        [ ("std.graphic"        , "Mewlix.Graphic"      )
-        , ("std.graphic.curry"  , "Mewlix.GraphicCurry" ) ]
+        [ ("std.graphic"        , "mewlix.Graphic"      )
+        , ("std.graphic.curry"  , "mewlix.GraphicCurry" ) ]
     Library -> mempty
 
 addLibraries :: ProjectMode -> (Library -> Library)
