@@ -49,6 +49,12 @@ If you have any questions, be sure to read the [FAQ](https://github.com/kbmacken
 
 ![Looping animation of a cartoon cat resting on a shelf.](https://github.com/kbmackenzie/mewlix/wiki/imgs/cat-shelf.webp)
 
+## Examples
+
+An assortment of small programs + small games written in Mewlix can be found [here](https://github.com/kbmackenzie/mewlix-examples).
+
+<img width="500" height="500" src="https://github.com/kbmackenzie/mewlix-examples/raw/main/previews/mewlix-snake.webp" alt="Snake game example.">
+
 ## Installation
 Mewlix's compiler is a self-contained binary executable.
 
