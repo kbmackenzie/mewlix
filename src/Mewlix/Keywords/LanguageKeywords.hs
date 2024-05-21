@@ -303,11 +303,10 @@ reserved = HashSet.fromList
     , superRef
     , errorRef
     -- Internal:
-    , "box"
     , "valueOf"
     , "toString"
     , "globalThis"
-    , "window"
+    , "mewlix"
     -- JavaScript:
     , "break"
     , "case"
