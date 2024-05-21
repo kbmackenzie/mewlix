@@ -23,8 +23,8 @@ do init <- draw_cat
 It has...
  
 - Cat-themed syntax!
-- String interpolation—`:3"like [this]!`—affectionately nicknamed *'yarn strings'*.
 - A stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*.
+- String interpolation—`:3"like [this]!`—affectionately nicknamed *'yarn strings'*.
 - Lambda functions, defined like this: `=^oxo^= (a, b) -> a + b`
 - Classes, affectionately nicknamed *'clowders'*.
 - A [function composition](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-composition-) operator (`:>`) and a [function application](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-pipes-) operator (`|>`)!
