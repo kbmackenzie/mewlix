@@ -19,17 +19,16 @@ from std.console takes run
 meow "What's your name?"
 do run <- greet
 ```
-*And* a simple example of how to draw a sprite on the canvas using the `graphic` project mode:
+*And* an example drawing a sprite (using `graphic` mode):
 ```mewlix
 from std.graphic takes load, draw, init
 
-do load <- "my_sprite", "./sprite.jpg"
-
-=^.x.^= draw_sprite()
-  do draw <- "my-sprite", 0, 0
+=^.x.^= draw_cat()
+  do draw <- "cat", 0, 0
 ~meow
 
-do init <- draw_sprite
+do load <- "cat", "path/to/cat.png"
+do init <- draw_cat
 ```
 
 Mewlix is similar to C-family languages, with a few key differences. Instead of arrays or lists, Mewlix has a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*. Learn more [here](https://github.com/kbmackenzie/mewlix/wiki/Shelf)!
@@ -40,7 +39,7 @@ Additionally, it has:
 - Lambda functions, defined like this: `=^oxo^= (a, b) -> a + b`
 - Classes, affectionately nicknamed [clowders](https://github.com/kbmackenzie/mewlix/wiki/Clowders)!
 - A [function composition](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-composition-) operator (`:>`) and a [function application](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-pipes-) operator (`|>`)
-- `nand` and `nor` operators, for pessimistic boolean expressions
+- `nand` and `nor` operators, for picky boolean expressions
 - *Feline-oriented programming capabilities!*
 
 ## Documentation
