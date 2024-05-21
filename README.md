@@ -8,17 +8,6 @@ As is tradition for all languages, here's a simple `'hello world'` program in Me
 ```mewlix
 meow "Hello world!"
 ```
-A simple `greet` program:
-```mewlix
-from std.console takes run
-
-=^.x.^= greet(name)
-  bring :3"Hello, [name]!"
-~meow
-
-meow "What's your name?"
-do run <- greet
-```
 *And* how to draw a sprite to the canvas in `graphic` mode:
 ```mewlix
 from std.graphic takes load, draw, init
@@ -31,16 +20,16 @@ do load <- "cat", "path/to/cat.png"
 do init <- draw_cat
 ```
 
-Mewlix is similar to C-family languages, with a few key differences. Instead of arrays or lists, Mewlix has a stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*. Learn more [here](https://github.com/kbmackenzie/mewlix/wiki/Shelf)!
-
-Additionally, it has:
+It has...
+ 
 - Cat-themed syntax!
 - String interpolation with [yarn strings](https://github.com/kbmackenzie/mewlix/wiki/Expressions#yarn-strings), `:3"like [this]!`
+- A stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*.
 - Lambda functions, defined like this: `=^oxo^= (a, b) -> a + b`
 - Classes, affectionately nicknamed [clowders](https://github.com/kbmackenzie/mewlix/wiki/Clowders)!
-- A [function composition](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-composition-) operator (`:>`) and a [function application](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-pipes-) operator (`|>`)
-- `nand` and `nor` operators, for picky boolean expressions
-- *Feline-oriented programming capabilities!*
+- A [function composition](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-composition-) operator (`:>`) and a [function application](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-pipes-) operator (`|>`)!
+- `nand` and `nor` operators, for picky boolean expressions.
+- Feline-oriented programming capabilities.
 
 ## Documentation
 All of the documentation for Mewlix can be found in the [wiki](https://github.com/kbmackenzie/mewlix/wiki).
