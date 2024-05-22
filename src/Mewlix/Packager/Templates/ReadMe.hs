@@ -15,11 +15,12 @@ import Control.Monad (unless)
 
 createReadme :: (MonadIO m) => ProjectData -> m ()
 createReadme projectData = do
-    let noReadMe = Set.member NoReadMe (projectFlags projectData)
+    let description = projectDescription projectData
+    let flags = projectFlags projectData
+    let noReadMe = Text.null description || Set.member NoReadMe flags
+
     unless noReadMe $ do
         let path = outputFolder </> "README.md"
-        let contents = Text.unlines
-                [ "# " <> projectName projectData 
-                , mempty
-                , projectDescription projectData  ]
+        let contents = Text.concat
+                [ "# ", projectName projectData, "\n\n", description, "\n" ]
         liftIO (writeText path contents)
