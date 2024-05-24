@@ -40,9 +40,14 @@ If you have any questions, be sure to read the [FAQ](https://github.com/kbmacken
 
 ## Examples
 
-An assortment of small programs + small games written in Mewlix can be found [here](https://github.com/kbmackenzie/mewlix-examples).
+An assortment of little example projects written in Mewlix can be found [here](https://github.com/kbmackenzie/mewlix-examples).
 
-<img width="500" height="500" src="https://github.com/kbmackenzie/mewlix-examples/raw/main/previews/mewlix-snake.webp" alt="Snake game example.">
+<p float="left">
+  <img width="300" height="300" src="https://github.com/kbmackenzie/mewlix-examples/raw/main/previews/mewlix-snake.webp" alt="Snake game example.">
+  <img width="300" height="300" src="https://github.com/kbmackenzie/mewlix-examples/raw/main/previews/mewlix-anim-ui.webp" alt="Animation example.">
+  <img width="300" height="300" src="https://github.com/kbmackenzie/mewlix-examples/raw/main/previews/mewly-anim-static.webp" alt="Animation example.">
+  <img width="300" height="300" src="https://github.com/kbmackenzie/mewlix-examples/raw/main/previews/play-sound.webp" alt="Button example.">
+</p>
 
 ## Installation
 Mewlix's compiler is a self-contained binary executable.
