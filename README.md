@@ -43,11 +43,20 @@ If you have any questions, be sure to read the [FAQ](https://github.com/kbmacken
 An assortment of little example projects written in Mewlix can be found [here](https://github.com/kbmackenzie/mewlix-examples).
 
 <p float="left">
-  <img width="300" height="300" src="https://github.com/kbmackenzie/mewlix-examples/raw/main/previews/mewlix-snake.webp" alt="Snake game example.">
-  <img width="300" height="300" src="https://github.com/kbmackenzie/mewlix-examples/raw/main/previews/mewlix-anim-ui.webp" alt="Animation example.">
-  <img width="300" height="300" src="https://github.com/kbmackenzie/mewlix-examples/raw/main/previews/mewly-anim-static.webp" alt="Animation example.">
-  <img width="300" height="300" src="https://github.com/kbmackenzie/mewlix-examples/raw/main/previews/play-sound.webp" alt="Button example.">
+  <a href="https://github.com/kbmackenzie/mewlix-examples/tree/main/08%20-%20snake%20game">
+    <img width="300" height="300" src="https://github.com/kbmackenzie/mewlix-examples/raw/main/previews/mewlix-snake.webp" alt="Snake game example.">
+  </a>
+  <a href="https://github.com/kbmackenzie/mewlix-examples/tree/main/09%20-%20animation%20%2B%20ui">
+    <img width="300" height="300" src="https://github.com/kbmackenzie/mewlix-examples/raw/main/previews/mewlix-anim-ui.webp" alt="Animation + UI example.">
+  </a>
+  <a href="https://github.com/kbmackenzie/mewlix-examples/tree/main/03%20-%20animation">
+    <img width="300" height="300" src="https://github.com/kbmackenzie/mewlix-examples/raw/main/previews/mewly-anim-static.webp" alt="Animation example.">
+  </a>
+  <a href="https://github.com/kbmackenzie/mewlix-examples/tree/main/05%20-%20playing%20sound">
+    <img width="300" height="300" src="https://github.com/kbmackenzie/mewlix-examples/raw/main/previews/play-sound.webp" alt="Button example.">
+  </a>
 </p>
+
 
 ## Installation
 Mewlix's compiler is a self-contained binary executable.
