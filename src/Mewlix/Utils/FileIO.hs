@@ -1,9 +1,5 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Mewlix.Utils.FileIO
-( DecodeFunc
-, decode
-, readText
+( readText
 , writeText
 , readBytes
 , writeBytes
@@ -22,9 +18,10 @@ import Data.Text (Text)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
 import qualified Data.Text.Encoding as Encoding
-import Data.Text.Encoding.Error (UnicodeException, OnDecodeError, strictDecode)
+import Data.Text.Encoding.Error (UnicodeException)
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import Control.Monad ((>=>), foldM)
+import Control.Monad ((>=>))
+import Data.Bifunctor (first)
 import Paths_mewlix (getDataFileName)
 import Conduit
     ( runConduitRes
@@ -34,38 +31,18 @@ import Conduit
     )
 import Codec.Archive.Zip (withArchive, unpackInto)
 import System.Directory (removeFile)
-import Control.Exception (throwIO, try, catch, evaluate)
+import Control.Exception (throwIO, catch)
 import System.IO.Error (isDoesNotExistError)
-import Mewlix.Utils.Maybe (hush)
-
-type DecodeFunc = OnDecodeError -> ByteString -> Text
-
-decoders :: [DecodeFunc]
-decoders =
-    [ Encoding.decodeUtf8With
-    , Encoding.decodeUtf16LEWith
-    , Encoding.decodeUtf16BEWith
-    , Encoding.decodeUtf32LEWith
-    , Encoding.decodeUtf32BEWith ]
-
-decode :: (MonadIO m) => DecodeFunc -> ByteString -> m (Either UnicodeException Text)
-decode dec = liftIO . try . evaluate . dec strictDecode
-
-decode_ :: (MonadIO m) => DecodeFunc -> ByteString -> m (Maybe Text)
-decode_ = (fmap hush .) . decode
-
-tryDecode :: (MonadIO m) => ByteString -> m (Either String Text)
-tryDecode str = do
-    let run :: (MonadIO m) => Maybe Text -> DecodeFunc -> m (Maybe Text)
-        run (Just x) _    = return (Just x)
-        run _        func = decode_ func str
-
-    foldM run mempty decoders >>= \case
-        (Just x) -> return (Right x)
-        Nothing  -> return . Left $ "Couldn't decode string!"
 
 readText :: (MonadIO m) => FilePath -> m (Either String Text)
-readText = liftIO . ByteString.readFile >=> tryDecode
+readText = do
+    let read_ :: (MonadIO m) => FilePath -> m (Either UnicodeException Text)
+        read_ = liftIO . fmap Encoding.decodeUtf8' . ByteString.readFile
+
+    let prettify :: UnicodeException -> String
+        prettify e = "Couldn't decode string as UTF-8: " ++ show e
+
+    fmap (first prettify) . read_
 
 writeText :: (MonadIO m) => FilePath -> Text -> m ()
 writeText path = liftIO . ByteString.writeFile path . Encoding.encodeUtf8
