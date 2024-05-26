@@ -47,9 +47,12 @@ escapeNewline = Mega.try (MChar.char '\\' >> void MChar.newline)
 
 {- Single-line spaces: -}
 ----------------------------------------------------------------
+isNonLineSpace :: Char -> Bool
+isNonLineSpace c = isSpace c && c /= '\n'
+
 spaceChar :: Parser ()
 spaceChar = (void . Mega.choice)
-    [ (void . Mega.choice . map MChar.char) [ ' ', '\t' ]
+    [ void (Mega.satisfy isNonLineSpace)
     , escapeNewline ]
 
 whitespace :: Parser ()
