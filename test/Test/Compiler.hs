@@ -32,7 +32,7 @@ instance Exception ParseException where
 
 compileFile :: FilePath -> IO Text
 compileFile path = do
-    contents <- either throwIO return =<< readText path
+    contents <- either (throwIO . ParseException) return =<< readText path
 
     let libs = addLibraries Library mempty
     let context = emptyContext { imports = libs, pretty = True }
