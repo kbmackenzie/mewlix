@@ -69,7 +69,7 @@ compileModules projectData handle = do
 -- Runs compiler on text content read from a file.
 runCompiler :: TranspilerContext -> FilePath -> PackageMaker CompilerOutput
 runCompiler context path = readText path >>= \case
-    (Left err)       -> throwError . concat $ [ "Couldn't read file ", show path, ": ", show err ]
+    (Left err)       -> throwError . concat $ [ "Couldn't read file ", show path, ": ", err ]
     (Right contents) -> case compileJS context path contents of
         (Left err)       -> throwError . concat $ [ "Mewlix syntax error in file ", show path, ":\n", err ]
         (Right yarnball) -> return yarnball
