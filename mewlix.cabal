@@ -89,6 +89,7 @@ library
       Mewlix.Utils.FileIO
       Mewlix.Utils.Json
       Mewlix.Utils.Logging
+      Mewlix.Utils.Maybe
       Mewlix.Utils.Show
       Mewlix.Utils.Yaml
   other-modules:
