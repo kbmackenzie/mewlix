@@ -1,19 +1,19 @@
 -- mewlix: function tests
 yarn ball test.functions
 
-=^.x.^= sum(a, b)
+😺 sum(a, b)
   bring a + b
 ~meow
 
 -- Same as:
-=^.x.^= sum_(a, b); bring a + b; ~meow
+😺 sum_(a, b); bring a + b; ~meow
 
 -- Lambdas work too:
-mew sum! = =^oxo^= (a, b) -> a + b
+mew sum! = 🐈 (a, b) -> a + b
 
-mew f = =^oxo^= (x) -> x
-mew g = =^oxo^= (x) -> x
-mew h = =^oxo^= (x) -> x
+mew f = 🐈 (x) -> x
+mew g = 🐈 (x) -> x
+mew h = 🐈 (x) -> x
 
 -- Function composition!
 f :> g
@@ -28,33 +28,33 @@ sum(1, 2)
 do sum <- 1, 2
 
 -- Currying!
-mew curried  = =^oxo^= (a) -> =^oxo^= (b) -> =^oxo^= (c) -> [a, b, c]
-mew curried_ = =^oxo^= (a)
-  -> =^oxo^= (b)
-  -> =^oxo^= (c)
-  -> =^oxo^= (d)
-  -> =^oxo^= (e) -> [a, b, c, d, e]
+mew curried  = 🐈 (a) -> 🐈 (b) -> 🐈 (c) -> [a, b, c]
+mew curried_ = 🐈 (a)
+  -> 🐈 (b)
+  -> 🐈 (c)
+  -> 🐈 (d)
+  -> 🐈 (e) -> [a, b, c, d, e]
 
 -- Box binding!
 mew operations = =^-x-^= []
 
-=^.x.^= [operations.sum](a, b)
+😺 [operations.sum](a, b)
   bring a + b
 ~meow
 
 -- Void function:
-=^.x.^= void_()
+😺 void_()
 ~meow
 
 -- Stylish lambdas:
-mew sum1 = =^oxo^= (a, b) ->
+mew sum1 = 🐈 (a, b) ->
   a + b
 
-mew sum2 = =^oxo^= (a, b)
+mew sum2 = 🐈 (a, b)
   -> a + b
 
 -- Early return (no value):
-=^.x.^= print_is_even(n)
+😺 print_is_even(n)
   look if n % 2 == 0
     meow "Number is even"
     run away -- Same as 'bring nothing'!

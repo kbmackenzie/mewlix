@@ -17,11 +17,11 @@ once again, single quotes are okay too!
 -- Yarn strings (string interpolation):
 :3"Your number is [std.random_int(0, 10)]!"
 :3"Yarn strings with no expressions are valid, too!"
-:3"[do std.repeat <- 100, =^oxo^= () -> meow "... miaou"]"
+:3"[do std.repeat <- 100, 🐈 () -> meow "... miaou"]"
 
 :3'And, again, single quotes are okay too!'
 :3'Your number is... [std.random_int(0, 10)]!'
-:3'[do std.repeat <- 100, =^oxo^= () -> meow "... miaou"]'
+:3'[do std.repeat <- 100, 🐈 () -> meow "... miaou"]'
 
 -- Escape sequences:
 "In double quotes, you need to escape... double quotes. \"Like this\"!"
