@@ -6,6 +6,7 @@ module Mewlix.Keywords.Types
 ( SimpleKeyword(..)
 , LongSymbol(..)
 , WordSequence(..)
+, SymbolOptions(..)
 , joinWords
 , firstWord
 ) where
@@ -29,10 +30,19 @@ newtype LongSymbol = LongSymbol { unwrapSymbol :: Text }
 newtype WordSequence = WordSequence { unwrapWords :: [SimpleKeyword] }
     deriving (Eq, Show, Semigroup, Monoid)
 
+-- A number of options for symbols.
+newtype SymbolOptions = SymbolOptions { unwrapSymbols :: [LongSymbol] }
+    deriving (Eq, Show, Semigroup, Monoid)
+
 instance IsList WordSequence where
     type Item WordSequence = SimpleKeyword
     fromList = WordSequence
     toList = unwrapWords
+
+instance IsList SymbolOptions where
+    type Item SymbolOptions = LongSymbol
+    fromList = SymbolOptions
+    toList = unwrapSymbols
 
 joinWords :: WordSequence -> Text
 joinWords = Text.intercalate " " . map unwrapKeyword . unwrapWords
