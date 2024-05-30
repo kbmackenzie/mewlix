@@ -12,7 +12,7 @@ meow "Hello world!"
 ```mewlix
 from std.graphic takes load, draw, init
 
-=^.x.^= draw_cat()
+🐱 draw_cat()
   do draw <- "cat", 0, 0
 ~meow
 
@@ -25,7 +25,7 @@ It has...
 - Cat-themed syntax!
 - A stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*.
 - String interpolation—`:3"like [this]!"`—affectionately nicknamed *'yarn strings'*.
-- Lambda functions, defined like this: `=^oxo^= (a, b) -> a + b`
+- Lambda functions, defined like this: `🐈 (a, b) -> a + b`
 - Classes, affectionately nicknamed *'clowders'*.
 - A [function composition](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-composition-) operator (`:>`) and a [function application](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-pipes-) operator (`|>`)!
 - `nand` and `nor` operators, for picky boolean expressions.
