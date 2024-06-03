@@ -23,4 +23,4 @@ mew x = true
 "x" if x else "not x"
 
 -- inspect type of value:
-look closely at x
+type of x
