@@ -82,28 +82,28 @@ meow :: Text
 meow = mewlix "meow"
 
 numbers :: Text -> Text
-numbers = mewlix . ("Numbers." <>)
+numbers = mewlix . ("numbers." <>)
 
 boolean :: Text -> Text
-boolean = mewlix . ("Boolean." <>)
+boolean = mewlix . ("boolean." <>)
 
 compare :: Text -> Text
-compare = mewlix . ("Compare." <>)
+compare = mewlix . ("compare." <>)
 
 strings :: Text -> Text
-strings = mewlix . ("Strings." <>)
+strings = mewlix . ("strings." <>)
 
 shelves :: Text -> Text
-shelves = mewlix . ("Shelves." <>)
+shelves = mewlix . ("shelves." <>)
 
 reflection :: Text -> Text
-reflection = mewlix . ("Reflection." <>)
+reflection = mewlix . ("reflection." <>)
 
 boxes :: Text -> Text
-boxes = mewlix . ("Boxes." <>)
+boxes = mewlix . ("boxes." <>)
 
 conversion :: Text -> Text
-conversion = mewlix . ("Conversion." <>)
+conversion = mewlix . ("conversion." <>)
 
 {- Modules: -}
 --------------------------------------------
@@ -133,7 +133,7 @@ greaterThan = comparison "GreaterThan"
 {- Statement Utils: -}
 --------------------------------------------
 internal :: Text -> Text
-internal = mewlix . ("Internal." <>)
+internal = mewlix . ("internal." <>)
 
 canChase :: Text
 canChase = internal "canChase"
