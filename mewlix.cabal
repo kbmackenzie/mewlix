@@ -1,4 +1,4 @@
-cabal-version: 1.12
+cabal-version: 2.2
 
 -- This file has been generated from package.yaml by hpack version 0.36.0.
 --
@@ -13,7 +13,7 @@ bug-reports:    https://github.com/kbmackenzie/mewlix/issues
 author:         kbmackenzie <kelly.a.betty@gmail.com>
 maintainer:     kbmackenzie <kelly.a.betty@gmail.com>
 copyright:      2024 kbmackenzie
-license:        MIT
+license:        GPL-3.0-only
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
@@ -94,6 +94,8 @@ library
       Mewlix.Utils.Yaml
   other-modules:
       Paths_mewlix
+  autogen-modules:
+      Paths_mewlix
   hs-source-dirs:
       src
   ghc-options: -O2 -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
@@ -128,6 +130,8 @@ library
 executable mewlix
   main-is: Main.hs
   other-modules:
+      Paths_mewlix
+  autogen-modules:
       Paths_mewlix
   hs-source-dirs:
       app
@@ -166,6 +170,8 @@ test-suite mewlix-test
   main-is: Spec.hs
   other-modules:
       Test.Compiler
+      Paths_mewlix
+  autogen-modules:
       Paths_mewlix
   hs-source-dirs:
       test
