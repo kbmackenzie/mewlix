@@ -36,7 +36,7 @@ assert 2 == 2
 throw "hello c:"
 
 -- Try/Catch:
-watch attentively
+watch
   throw "!!"
 pounce on error
   meow :3"Caught: [error]!"
