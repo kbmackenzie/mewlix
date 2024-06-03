@@ -140,7 +140,7 @@ catTree = ["cat", "tree"]
 
 -- Expressions:
 typeOf :: WordSequence
-typeOf = ["look", "closely", "at"]
+typeOf = ["type", "of"]
 
 claw :: WordSequence
 claw = ["claw", "at"]
