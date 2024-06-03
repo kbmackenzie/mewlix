@@ -8,7 +8,6 @@ import Mewlix.Keywords.Types
     ( SimpleKeyword(..)
     , LongSymbol(..)
     , WordSequence(..)
-    , SymbolOptions(..)
     )
 import Mewlix.Parser.Utils (lexeme, isKeyChar)
 import qualified Text.Megaparsec as Mega
@@ -29,8 +28,8 @@ instance Keyword LongSymbol where
 instance Keyword WordSequence where
     keyword = Mega.try . mapM_ keyword . unwrapWords
 
-instance Keyword SymbolOptions where
-    keyword = Mega.choice . map keyword . unwrapSymbols
+instance (Keyword a) => Keyword [a] where
+    keyword = Mega.choice . map keyword
 
 anyKeyword :: (Keyword a) => [a] -> Parser ()
 anyKeyword = Mega.choice . map keyword

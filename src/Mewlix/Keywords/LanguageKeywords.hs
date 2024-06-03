@@ -69,7 +69,6 @@ import Mewlix.Keywords.Types
     ( SimpleKeyword(..)
     , LongSymbol(..)
     , WordSequence(..)
-    , SymbolOptions(..)
     )
 import Data.HashSet (HashSet)
 import qualified Data.HashSet as HashSet
@@ -78,7 +77,7 @@ import Prelude hiding (and, or, not, break)
 {- This module should *always* be imported qualified. -}
 
 -- Functions:
-function :: SymbolOptions
+function :: [LongSymbol]
 function = ["=^.x.^=", "🐱", "😺"]
 
 -- Variables:
@@ -151,10 +150,10 @@ is = "is"
 in_ :: SimpleKeyword
 in_ = "in"
 
-box :: SymbolOptions
+box :: [LongSymbol]
 box = ["=^-x-^=", "📦"]
 
-lambda :: SymbolOptions
+lambda :: [LongSymbol]
 lambda = ["=^oxo^=", "🐈"]
 
 lambdaArrow :: LongSymbol
