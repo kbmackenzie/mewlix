@@ -250,8 +250,8 @@ yarnball = ["yarn", "ball"]
 yarnball' :: SimpleKeyword
 yarnball' = "yarnball"
 
-try :: WordSequence
-try = ["watch", "attentively"]
+try :: SimpleKeyword
+try = "watch"
 
 catch :: WordSequence
 catch = ["pounce", "on"]
@@ -298,6 +298,7 @@ reserved = HashSet.fromList
     , takes
     , alias
     , from
+    , try
     , throw
     , rethrow
     , superRef
