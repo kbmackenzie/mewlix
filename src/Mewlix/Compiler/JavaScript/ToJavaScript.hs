@@ -351,7 +351,7 @@ instance ToJavaScript Statement where
                 funcExpr <- transpileJS methodLevel func
                 let bind = if funcName func == wake
                     then "this[" <> Mewlix.wake <> "]"
-                    else "this." <> (getKey . funcName) func
+                    else "this.box()." <> (getKey . funcName) func
                 return $ mconcat [ bind, " = ", funcExpr, ";" ]
 
         methods <- mapM transpileMethod (classMethods clowder)
