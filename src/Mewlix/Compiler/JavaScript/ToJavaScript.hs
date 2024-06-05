@@ -477,7 +477,8 @@ instance ToJavaScript YarnBall where
                 bindings <- mapM makeTuple (findBindings block)
                 let array = (brackets . sepComma) bindings
 
-                let returnStatement = "return " <> instantiate Mewlix.yarnBall [keyString, array] <> ";"
+                let exports = call Mewlix.createYarnBall [keyString, array]
+                let returnStatement = "return " <> exports <> ";"
                 return $ indentLine moduleLevel returnStatement
 
             let header = indentLine topLevel "const yarnball = function yarnball() {"

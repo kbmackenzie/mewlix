@@ -12,6 +12,7 @@ module Mewlix.Compiler.JavaScript.Constants
 , wake
 , catTree
 , yarnBall
+, createYarnBall
 , defaultKey
 -- Operations:
 , meow
@@ -70,8 +71,11 @@ wake = mewlix "wake"
 catTree :: Text
 catTree = mewlix "CatTree"
 
-yarnBall :: Text
-yarnBall = mewlix "YarnBall"
+yarnBall :: Text -> Text
+yarnBall = mewlix . ("YarnBall." <>)
+
+createYarnBall :: Text
+createYarnBall = yarnBall "create"
 
 defaultKey :: Text
 defaultKey = "main"
