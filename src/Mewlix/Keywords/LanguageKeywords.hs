@@ -257,7 +257,7 @@ catch :: WordSequence
 catch = ["pounce", "on"]
 
 throw :: SimpleKeyword
-throw = "throw"
+throw = "explode"
 
 rethrow :: SimpleKeyword
 rethrow = "rethrow"
