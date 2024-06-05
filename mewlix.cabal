@@ -72,6 +72,7 @@ library
       Mewlix.Packager.Modules.StandardLibrary
       Mewlix.Packager.Templates.Constants
       Mewlix.Packager.Templates.Create
+      Mewlix.Packager.Templates.Node
       Mewlix.Packager.Templates.ReadMe
       Mewlix.Parser
       Mewlix.Parser.Expression

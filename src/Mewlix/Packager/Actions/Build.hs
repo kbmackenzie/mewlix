@@ -23,7 +23,7 @@ buildProject projectData = do
 
     -- Template:
     projectLog projectData "Creating template..."
-    createFromTemplate (projectMode projectData)
+    createFromTemplate projectData
 
     -- Modules:
     bundleModules projectData
