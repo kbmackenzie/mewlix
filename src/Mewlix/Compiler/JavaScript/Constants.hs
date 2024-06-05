@@ -10,7 +10,7 @@ module Mewlix.Compiler.JavaScript.Constants
 , createShelf
 , clowder
 , wake
-, enum
+, catTree
 , yarnBall
 , defaultKey
 -- Operations:
@@ -67,8 +67,8 @@ clowder = mewlix "Clowder"
 wake :: Text
 wake = mewlix "wake"
 
-enum :: Text
-enum = mewlix "Enum"
+catTree :: Text
+catTree = mewlix "CatTree"
 
 yarnBall :: Text
 yarnBall = mewlix "YarnBall"

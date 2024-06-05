@@ -432,7 +432,7 @@ instance ToJavaScript MewlixEnum where
         strings <- mapM (toJS . MewlixString . getKey) (enumKeys enum)
         name <- (toJS . MewlixString . getKey . enumName) enum
         let keys = (brackets . sepComma) strings
-        return $ instantiate Mewlix.enum [name, keys]
+        return $ instantiate Mewlix.catTree [name, keys]
 
 {- Block -}
 -----------------------------------------------------------------
