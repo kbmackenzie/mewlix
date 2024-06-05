@@ -7,7 +7,7 @@ import Mewlix.Packager.Folder (outputFolder)
 import Mewlix.Packager.Data.Types (ProjectData(..), ProjectMode(..))
 import Mewlix.Packager.Actions.Build (buildProject)
 import Mewlix.Packager.Actions.Server (serve)
-import Mewlix.Packager.Actions.Node (node)
+import Mewlix.Packager.Actions.Node (runNode)
 import Control.Monad (unless)
 import System.Directory (doesDirectoryExist)
 
@@ -20,4 +20,4 @@ runProject projectData = do
     case projectMode projectData of
         Console -> serve projectData
         Graphic -> serve projectData
-        Library -> node projectData
+        Library -> runNode projectData

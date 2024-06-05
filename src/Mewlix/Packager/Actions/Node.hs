@@ -1,26 +1,28 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE LambdaCase #-}
 
 module Mewlix.Packager.Actions.Node
-( node
+( runNode
 ) where
 
-import Mewlix.Packager.Maker (PackageMaker, throwError)
+import Mewlix.Packager.Maker (PackageMaker, liftIO, throwError)
 import Mewlix.Packager.Folder (outputFolder)
 import Mewlix.Packager.Data.Types (ProjectData(..))
 import Mewlix.Packager.Log (projectLog)
-import System.FilePath ((</>))
+import System.Directory (withCurrentDirectory)
 import System.Process.Typed (runProcess, proc, ExitCode(..))
 
-runNode :: FilePath -> PackageMaker ()
-runNode script = runProcess (proc "node" [script]) >>= \case
-    ExitSuccess     -> return ()
-    (ExitFailure n) -> throwError . mconcat $
-        [ "Process 'node' exited with code ", show n, "!" ]
+node :: FilePath -> IO ExitCode
+node script = runProcess $ proc "node" [script]
 
-node :: ProjectData -> PackageMaker ()
-node projectData = do
+runNode :: ProjectData -> PackageMaker ()
+runNode projectData = do
     projectLog projectData "Running project with 'node':"
 
-    let script = outputFolder </> "auto.js"
-    runNode script
+    let script = "./auto.js"
+    exitCode <- liftIO $
+        withCurrentDirectory outputFolder (node script)
+
+    case exitCode of
+        ExitSuccess     -> return ()
+        (ExitFailure n) -> throwError . mconcat $
+            [ "Process 'node' exited with code ", show n, "!" ]
