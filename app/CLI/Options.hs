@@ -1,4 +1,4 @@
-module Mewlix.CLI.Options
+module CLI.Options
 ( ProjectOptions(..)
 , FlagOptions(..)
 , MewlixOptions(..)

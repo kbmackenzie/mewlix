@@ -1,10 +1,8 @@
 module Mewlix
-( run
-, make
+( make
 , Action(..)
 ) where
 
-import Mewlix.CLI.Main (run)
 import Mewlix.Packager.Make (Action(..), make')
 
 make :: Action -> IO ()

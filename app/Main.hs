@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Mewlix (run)
+import CLI.Run (run)
 
 main :: IO ()
 main = run
