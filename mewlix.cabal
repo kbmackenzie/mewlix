@@ -31,10 +31,14 @@ source-repository head
 library
   exposed-modules:
       Mewlix
+      Mewlix.Compiler
+      Mewlix.Logger
+      Mewlix.Packager
+      Mewlix.Parser
+  other-modules:
       Mewlix.Abstract.AST
       Mewlix.Abstract.Key
       Mewlix.Abstract.Module
-      Mewlix.Compiler
       Mewlix.Compiler.Indentation
       Mewlix.Compiler.JavaScript.Constants
       Mewlix.Compiler.JavaScript.Error
@@ -47,8 +51,6 @@ library
       Mewlix.Compiler.Whitespace
       Mewlix.Keywords.LanguageKeywords
       Mewlix.Keywords.Types
-      Mewlix.Logger
-      Mewlix.Packager
       Mewlix.Packager.Actions.Build
       Mewlix.Packager.Actions.Clean
       Mewlix.Packager.Actions.Create
@@ -72,7 +74,6 @@ library
       Mewlix.Packager.Templates.Create
       Mewlix.Packager.Templates.Node
       Mewlix.Packager.Templates.ReadMe
-      Mewlix.Parser
       Mewlix.Parser.Expression
       Mewlix.Parser.Keyword
       Mewlix.Parser.Module
@@ -91,7 +92,6 @@ library
       Mewlix.Utils.Maybe
       Mewlix.Utils.Show
       Mewlix.Utils.Yaml
-  other-modules:
       Paths_mewlix
   autogen-modules:
       Paths_mewlix

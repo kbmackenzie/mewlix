@@ -55,6 +55,13 @@ data-files:
 
 library:
   source-dirs: src
+  exposed-modules:
+  - Mewlix
+  - Mewlix.Compiler
+  - Mewlix.Logger
+  - Mewlix.Packager
+  - Mewlix.Parser
+  generated-other-modules: Paths_mewlix
 
 executables:
   mewlix:
