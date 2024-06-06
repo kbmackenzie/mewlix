@@ -32,12 +32,12 @@ chase after number in numbers!!!
 -- Assertions:
 assert 2 == 2
 
--- Exceptions:
-throw "hello c:"
+-- Errors:
+explode "hello c:"
 
 -- Try/Catch:
 watch
-  throw "!!"
+  explode "!!"
 pounce on error
   meow :3"Caught: [error]!"
   rethrow
