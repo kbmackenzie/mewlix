@@ -1,12 +1,12 @@
 -- mewlix: function tests
 yarn ball test.functions
 
-😺 sum(a, b)
+🐱 sum(a, b)
   bring a + b
 ~meow
 
 -- Same as:
-😺 sum_(a, b); bring a + b; ~meow
+🐱 sum_(a, b); bring a + b; ~meow
 
 -- Lambdas work too:
 mew sum! = 🐈 (a, b) -> a + b
@@ -38,12 +38,12 @@ mew curried_ = 🐈 (a)
 -- Box binding!
 mew operations = 📦 []
 
-😺 [operations.sum](a, b)
+🐱 [operations.sum](a, b)
   bring a + b
 ~meow
 
 -- Void function:
-😺 void_()
+🐱 void_()
 ~meow
 
 -- Stylish lambdas:
@@ -54,7 +54,7 @@ mew sum2 = 🐈 (a, b)
   -> a + b
 
 -- Early return (no value):
-😺 print_is_even(n)
+🐱 print_is_even(n)
   look if n % 2 == 0
     meow "Number is even"
     run away -- Same as 'bring nothing'!

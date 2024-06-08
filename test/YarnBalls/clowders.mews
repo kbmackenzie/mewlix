@@ -3,18 +3,18 @@ yarn ball test.clowders
 
 -- A simple clowder:
 clowder Cat
-  😺 wake(name)
+  🐱 wake(name)
     home.name = name
   ~meow
 
-  😺 introduction()
+  🐱 introduction()
     bring "meow, i'm " .. home.name
   ~meow
 ~meow
 
 -- A subclowder:
 clowder Charlie is Cat
-  😺 wake()
+  🐱 wake()
     look outside("charlie")
   ~meow
 ~meow
