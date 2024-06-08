@@ -7,11 +7,9 @@ module Test.Compiler
 ) where
 
 import Data.Text (Text)
-import Mewlix.Compiler.Run (compileJS)
-import Mewlix.Compiler.Transpiler (TranspilerContext(..), emptyContext)
-import Mewlix.Packager.Data.Types (ProjectMode(..))
-import Mewlix.Packager.Modules.StandardLibrary (addLibraries)
-import Mewlix.Utils.FileIO (readText)
+import Test.Utils (readText)
+import Mewlix.Compiler (compileJS, TranspilerContext(..), emptyContext)
+import Mewlix.Packager (ProjectMode(..), addLibraries)
 import System.IO (stderr, hPutStrLn)
 import Control.Exception (throwIO, Exception(..))
 import Conduit
