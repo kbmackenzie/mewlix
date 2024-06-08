@@ -36,7 +36,7 @@ mew curried_ = 🐈 (a)
   -> 🐈 (e) -> [a, b, c, d, e]
 
 -- Box binding!
-mew operations = =^-x-^= []
+mew operations = 📦 []
 
 😺 [operations.sum](a, b)
   bring a + b
