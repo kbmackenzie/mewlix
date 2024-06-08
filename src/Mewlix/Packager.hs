@@ -6,6 +6,8 @@ module Mewlix.Packager
 , ProjectFlag(..)
 , ProjectMode(..)
 , Port(..)
+-- Compiler utils:
+, addLibraries
 -- Project utils:
 , ProjectTransform
 , transformProject
@@ -49,3 +51,4 @@ import Mewlix.Packager.Data.Types
     , projectSpecialImportsL
     , projectFlagsL
     )
+import Mewlix.Packager.Modules.StandardLibrary (addLibraries)
