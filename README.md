@@ -8,7 +8,7 @@ As is tradition for all languages, here's a simple `'hello world'` program in Me
 ```mewlix
 meow "Hello world!"
 ```
-*And* how to draw a sprite to the canvas in `graphic` mode:
+*And* here's how to draw a sprite to the canvas in `graphic` mode:
 ```mewlix
 from std.graphic takes load, draw, init
 
@@ -64,6 +64,12 @@ Mewlix's compiler is a self-contained binary executable.
 The installation guide can be found [here](./INSTALL.md).
 
 A guide on how to build Mewlix from source can be found [here](./INSTALL.md#build-from-source).
+
+## Tools
+
+### Vim
+
+A plugin that provides syntax highlighting for `.mews` files can be found [here](https://github.com/kbmackenzie/mewlix.vim)!
 
 ## Special Thanks
 A big special thanks to my friend Jade for helping me stay sane through this project and for letting me talk endlessly about it these past few months. I wouldn't have been able to finish it without you, thank you! ♡
