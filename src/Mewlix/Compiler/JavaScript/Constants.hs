@@ -112,7 +112,7 @@ conversion = mewlix . ("conversion." <>)
 {- Modules: -}
 --------------------------------------------
 modules :: Text -> Text
-modules = mewlix . ("Modules." <>)
+modules = mewlix . ("modules." <>)
 
 addModule :: Text
 addModule = modules "addModule"
