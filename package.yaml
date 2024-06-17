@@ -69,6 +69,7 @@ executables:
     source-dirs:         app
     ghc-options:
     - -threaded
+    - -static
     dependencies:
     - mewlix
     - optparse-applicative >= 0.17 && < 0.18
