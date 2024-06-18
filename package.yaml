@@ -35,7 +35,6 @@ dependencies:
 - http-types >= 0.12 && < 0.13
 - wai-middleware-static >= 0.9 && < 1.0
 - zip >= 2.0 && < 2.1
-- scotty >= 0.12 && < 0.13
 - open-browser >= 0.2 && < 0.3
 - typed-process >= 0.2 && < 0.3
 
