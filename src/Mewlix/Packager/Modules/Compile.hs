@@ -32,13 +32,13 @@ import qualified Data.Text.IO as TextIO
 createContext :: ProjectData -> PackageMaker TranspilerContext
 createContext projectData = do
     let projectLibs = addLibraries (projectMode projectData)
-    let createImportMap = projectLibs . mapKeys Key . projectSpecialImports
+    let createImportMap = projectLibs . mapKeys Key
     let flags = projectFlags projectData
 
     return TranspilerContext
-        { imports = createImportMap projectData
+        { imports = createImportMap mempty
         , noStd   = Set.member NoStd flags
-        , pretty  = Set.member Pretty flags     }
+        , pretty  = Set.member Pretty flags }
 
 -- Compile all yarn balls, writing the compilation output to a handle.
 compileModules :: ProjectData -> Handle -> PackageMaker ()

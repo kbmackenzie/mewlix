@@ -15,7 +15,6 @@ module Mewlix.Packager.Data.Types
 , projectPortL
 , projectSourceFilesL
 , projectAssetsL
-, projectSpecialImportsL
 , projectFlagsL
 -- Project Utils:
 , defaultProject
@@ -79,7 +78,6 @@ data ProjectData = ProjectData
     , projectPort           :: Port
     , projectSourceFiles    :: [FilePath]
     , projectAssets         :: [FilePath]
-    , projectSpecialImports :: HashMap Text Text
     , projectFlags          :: Set ProjectFlag  }
     deriving (Show)
 
@@ -99,7 +97,6 @@ $(makeLensesFor
     , ("projectPort"            , "projectPortL"            )
     , ("projectSourceFiles"     , "projectSourceFilesL"     )
     , ("projectAssets"          , "projectAssetsL"          )
-    , ("projectSpecialImports"  , "projectSpecialImportsL"  )
     , ("projectFlags"           , "projectFlagsL"           ) ] ''ProjectData)
 
 {- Defaults -}
@@ -134,15 +131,14 @@ instance ToJSON ProjectFlag where
 ----------------------------------------------------------------
 instance FromJSON ProjectData where
     parseJSON = withObject "ProjectData" $ \obj -> ProjectData
-        <$> optional defaultName    (obj .:? "name"          )
-        <*> optional mempty         (obj .:? "description"   )
-        <*> optional defaultMode    (obj .:? "mode"          )
-        <*> optional defaultEntry   (obj .:? "entrypoint"    )
-        <*> optional defaultPort    (obj .:? "port"          )
-        <*> optional mempty         (obj .:? "sources"       )
-        <*> optional mempty         (obj .:? "assets"        )
-        <*> optional mempty         (obj .:? "specialImports")
-        <*> optional mempty         (obj .:? "flags"         )
+        <$> optional defaultName    (obj .:? "name"       )
+        <*> optional mempty         (obj .:? "description")
+        <*> optional defaultMode    (obj .:? "mode"       )
+        <*> optional defaultEntry   (obj .:? "entrypoint" )
+        <*> optional defaultPort    (obj .:? "port"       )
+        <*> optional mempty         (obj .:? "sources"    )
+        <*> optional mempty         (obj .:? "assets"     )
+        <*> optional mempty         (obj .:? "flags"      )
         where
             optional :: (Functor f) => a -> f (Maybe a) -> f a
             optional = fmap . fromMaybe
@@ -156,7 +152,6 @@ instance ToJSON ProjectData where
         , "port"            .= projectPort project
         , "sources"         .= projectSourceFiles project
         , "assets"          .= projectAssets project
-        , "specialImports"  .= projectSpecialImports project
         , "flags"           .= projectFlags project ]
 
     toEncoding project = pairs $ mconcat
@@ -167,7 +162,6 @@ instance ToJSON ProjectData where
         , "port"            .= projectPort project
         , "sources"         .= projectSourceFiles project
         , "assets"          .= projectAssets project
-        , "specialImports"  .= projectSpecialImports project
         , "flags"           .= projectFlags project ]
 
 ------------------------------------------------------------------
@@ -235,8 +229,7 @@ defaultProject = ProjectData
     , projectPort           = defaultPort
     , projectSourceFiles    = mempty
     , projectAssets         = mempty
-    , projectSpecialImports = mempty
-    , projectFlags          = mempty            }
+    , projectFlags          = mempty       }
 
 type ProjectTransform = ProjectData -> ProjectData
 
@@ -245,15 +238,14 @@ transformProject = flip (foldr ($))
 
 fieldOrder :: HashMap Text Int
 fieldOrder = HashMap.fromList
-    [ ("name"           , 1)
-    , ("description"    , 2)
-    , ("mode"           , 3)
-    , ("entrypoint"     , 4)
-    , ("port"           , 5)
-    , ("sources"        , 6)
-    , ("assets"         , 7)
-    , ("specialImports" , 8)
-    , ("flags"          , 9) ]
+    [ ("name"        , 1)
+    , ("description" , 2)
+    , ("mode"        , 3)
+    , ("entrypoint"  , 4)
+    , ("port"        , 5)
+    , ("sources"     , 6)
+    , ("assets"      , 7)
+    , ("flags"       , 8) ]
 
 projectFieldOrder :: Text -> Text -> Ordering
 projectFieldOrder = compare `on` (`HashMap.lookup` fieldOrder)

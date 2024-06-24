@@ -24,7 +24,6 @@ module Mewlix.Packager
 , projectPortL
 , projectSourceFilesL
 , projectAssetsL
-, projectSpecialImportsL
 , projectFlagsL
 ) where
 
@@ -48,7 +47,6 @@ import Mewlix.Packager.Data.Types
     , projectPortL
     , projectSourceFilesL
     , projectAssetsL
-    , projectSpecialImportsL
     , projectFlagsL
     )
 import Mewlix.Packager.Modules.StandardLibrary (addLibraries)
