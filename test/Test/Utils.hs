@@ -4,16 +4,11 @@ module Test.Utils
 
 import Prelude hiding (readFile, writeFile)
 import Data.Text (Text)
-import Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
 import qualified Data.Text.Encoding as Encoding
 import Data.Text.Encoding.Error (UnicodeException)
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import Control.Monad ((>=>))
 import Data.Bifunctor (first)
-import System.Directory (removeFile)
-import Control.Exception (throwIO, catch)
-import System.IO.Error (isDoesNotExistError)
 
 readText :: (MonadIO m) => FilePath -> m (Either String Text)
 readText = do
