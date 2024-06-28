@@ -20,4 +20,4 @@ runProject projectData = do
     case projectMode projectData of
         Console -> runServer projectData
         Graphic -> runServer projectData
-        Library -> runNode projectData
+        Node    -> runNode projectData

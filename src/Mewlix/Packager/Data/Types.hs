@@ -55,7 +55,7 @@ import Data.Char (toLower)
 data ProjectMode =
       Console
     | Graphic
-    | Library
+    | Node
     deriving (Eq, Ord, Show, Read, Enum, Bounded)
 
 {- Project Flags -}
@@ -208,7 +208,7 @@ parseMode :: Text -> Maybe ProjectMode
 parseMode key = case key of
     "console" -> return Console
     "graphic" -> return Graphic
-    "library" -> return Library
+    "node"    -> return Node
     _         -> Nothing
 
 readMode :: (MonadFail m) => Text -> m ProjectMode

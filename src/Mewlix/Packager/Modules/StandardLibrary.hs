@@ -29,7 +29,7 @@ templateLibraries = \case
     Graphic -> library
         [ ("std.graphic"        , "mewlix.Graphic"      )
         , ("std.graphic.curry"  , "mewlix.GraphicCurry" ) ]
-    Library -> mempty
+    Node    -> mempty
 
 addLibraries :: ProjectMode -> (Library -> Library)
 addLibraries mode = mappend template . mappend baseLibrary

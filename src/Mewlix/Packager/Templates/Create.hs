@@ -20,5 +20,5 @@ createFromTemplate projectData = do
     liftIO (createDirectoryIfMissing True folder)
     extractDataFile (getTemplate projectTemplate) folder
 
-    when (mode == Library) $
+    when (mode == Node) $
         writePackageData projectData

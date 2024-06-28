@@ -18,4 +18,4 @@ template :: ProjectMode -> Template
 template = \case
     Console -> Template { getTemplate = templatePath "js/console.zip" }
     Graphic -> Template { getTemplate = templatePath "js/graphic.zip" }
-    Library -> Template { getTemplate = templatePath "js/library.zip" }
+    Node    -> Template { getTemplate = templatePath "js/node.zip"    }
