@@ -9,16 +9,26 @@ import Mewlix.Packager.Folder (outputFolder)
 import Mewlix.Packager.Data.Types (ProjectData(..))
 import Mewlix.Packager.Log (projectLog)
 import System.Directory (withCurrentDirectory)
-import System.Process.Typed (runProcess, proc, ExitCode(..))
+import System.Process.Typed
+    ( runProcess
+    , proc
+    , setStdin
+    , byteStringInput
+    , ExitCode(..)
+    )
+import Data.ByteString.Lazy (ByteString);
 
-node :: FilePath -> IO ExitCode
-node script = runProcess $ proc "node" [script]
+node :: ByteString -> IO ExitCode
+node script = do
+    let input = byteStringInput script
+    let args = ["--input-type=module"]
+    runProcess . setStdin input $ proc "node" args
 
 runNode :: ProjectData -> PackageMaker ()
 runNode projectData = do
     projectLog projectData "Running project with 'node':"
 
-    let script = "./auto.js"
+    let script = "import run from './index.js'; run();"
     exitCode <- liftIO $
         withCurrentDirectory outputFolder (node script)
 
