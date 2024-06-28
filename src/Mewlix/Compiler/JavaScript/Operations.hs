@@ -14,9 +14,9 @@ import Mewlix.Abstract.AST (BinaryOp(..), UnaryOp(..))
 
 type OperationBuilder = ([Text] -> Text)
 
-compareTo :: [Text] -> OperationBuilder
-compareTo comparisons = do
-    let comparer = call (Mewlix.compare "compare")
+ordering :: [Text] -> OperationBuilder
+ordering comparisons = do
+    let comparer = call (Mewlix.compare "ordering")
     let isOneOf = ".isOneOf(" <> sepComma comparisons <> ")"
     \args -> comparer args <> isOneOf
 
@@ -34,10 +34,10 @@ binaryOpFunc op = case op of
     Contains        -> call (Mewlix.shelves "contains")
     Equal           -> call (Mewlix.compare "equal")
     NotEqual        -> ("!" <>) . call (Mewlix.compare "equal")
-    LessThan        -> compareTo [Mewlix.lessThan] 
-    GreaterThan     -> compareTo [Mewlix.greaterThan] 
-    LesserOrEqual   -> compareTo [Mewlix.lessThan, Mewlix.equalTo] 
-    GreaterOrEqual  -> compareTo [Mewlix.greaterThan, Mewlix.equalTo]
+    LessThan        -> ordering [Mewlix.lessThan]
+    GreaterThan     -> ordering [Mewlix.greaterThan]
+    LesserOrEqual   -> ordering [Mewlix.lessThan, Mewlix.equalTo]
+    GreaterOrEqual  -> ordering [Mewlix.greaterThan, Mewlix.equalTo]
 
 unaryOpFunc :: UnaryOp -> OperationBuilder
 unaryOpFunc op = case op of
