@@ -75,10 +75,10 @@ projectMode = console <|> graphic <|> library
             <> help "Graphic template" )
 
         library :: Parser ProjectMode
-        library = flag' Library
-             ( long "library"
-            <> short 'l'
-            <> help "Library template" )
+        library = flag' Node
+             ( long "node"
+            <> short 'n'
+            <> help "Node.js template" )
 
 flagOptions :: Parser FlagOptions
 flagOptions = FlagOptions <$> quiet <*> pretty <*> noStd <*> noReadMe
@@ -120,7 +120,7 @@ projectOptions = options
         name :: Parser String
         name = strOption
              ( long "name"
-            <> short 'n'
+            <> short 'o'
             <> metavar "STRING"
             <> help "Project name" )
 
