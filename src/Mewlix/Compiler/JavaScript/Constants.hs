@@ -34,7 +34,7 @@ module Mewlix.Compiler.JavaScript.Constants
 -- Statement utils:
 , canChase
 , pounceError
-, assert
+, assertionFail
 ) where
 
 {- This module should always be imported qualified. -}
@@ -145,5 +145,5 @@ canChase = internal "canChase"
 pounceError :: Text
 pounceError = internal "pounceError"
 
-assert :: Text
-assert = internal "assert"
+assertionFail :: Text
+assertionFail = internal "assertionFail"

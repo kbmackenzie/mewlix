@@ -412,9 +412,10 @@ instance ToJavaScript Statement where
     -- Assert:
     ----------------------------------------------
     transpileJS level   (Assert expr pos) = do
-        value <- toJS expr
-        let assert = call Mewlix.assert [ value, errorInfo pos ] <> ";"
-        indentLine level assert
+        condition <- asBoolean <$> toJS expr
+        let failed = call Mewlix.assertionFail [ errorInfo pos ]
+        indentLine level . terminate . mconcat $
+            [ "void (", condition <> " || " <> failed, ")" ]
 
 {- Function -}
 -----------------------------------------------------------------
