@@ -22,7 +22,7 @@ extra-source-files:
 data-files:
     templates/js/console.zip
     templates/js/graphic.zip
-    templates/js/library.zip
+    templates/js/node.zip
 
 source-repository head
   type: git
