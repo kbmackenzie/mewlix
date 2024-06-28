@@ -32,8 +32,8 @@ binaryOpFunc op = case op of
     ListPush        -> call (Mewlix.shelves "push")
     StringConcat    -> call (Mewlix.strings "concat")
     Contains        -> call (Mewlix.shelves "contains")
-    Equal           -> call (Mewlix.compare "isEqual")
-    NotEqual        -> ("!" <>) . call (Mewlix.compare "isEqual")
+    Equal           -> call (Mewlix.compare "equal")
+    NotEqual        -> ("!" <>) . call (Mewlix.compare "equal")
     LessThan        -> compareTo [Mewlix.lessThan] 
     GreaterThan     -> compareTo [Mewlix.greaterThan] 
     LesserOrEqual   -> compareTo [Mewlix.lessThan, Mewlix.equalTo] 
