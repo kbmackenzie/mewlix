@@ -34,12 +34,10 @@ buildProject projectData = do
 metaData :: ProjectData -> PackageMaker ()
 metaData projectData = do
     let targetPath = coreFolder </> "meta.json"
-    let title = projectName projectData
-    let entrypoint = projectEntrypoint projectData
-
     let json = object
-            [ "title"      .= title
-            , "entrypoint" .= entrypoint ]
+            [ "title"       .= projectName projectData
+            , "entrypoint"  .= projectEntrypoint projectData
+            , "description" .= projectDescription projectData ]
 
     let write :: Value -> PackageMaker ()
         write = liftIO . LB.writeFile targetPath . (<> "\n") . encode
