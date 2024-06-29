@@ -14,4 +14,4 @@ from std takes map, filter, fold
 mew pub = "This is public!"
 
 -- Private fields:
-mew pri = "This is private and won't be exported!"
+mew _priv = "This is private and won't be exported!"
