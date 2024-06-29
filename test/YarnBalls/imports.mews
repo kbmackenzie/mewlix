@@ -9,3 +9,9 @@ takes example as ex
 
 -- Importing fields:
 from std takes map, filter, fold
+
+-- Public fields:
+mew pub = "This is public!"
+
+-- Private fields:
+mew pri = "This is private and won't be exported!"
