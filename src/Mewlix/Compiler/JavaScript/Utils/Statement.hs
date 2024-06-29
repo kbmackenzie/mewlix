@@ -31,6 +31,6 @@ findBindings = do
         collectBindings _                   acc = acc
 
     let isPublic :: Key -> Bool
-        isPublic = Text.isPrefixOf "_" . getKey
+        isPublic = not . Text.isPrefixOf "_" . getKey
 
     filter isPublic . foldr collectBindings [] . getBlock
