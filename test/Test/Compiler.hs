@@ -32,7 +32,7 @@ compileFile :: FilePath -> IO Text
 compileFile path = do
     contents <- either (throwIO . ParseException) return =<< readText path
 
-    let libs = addLibraries Library mempty
+    let libs = addLibraries Node mempty
     let context = emptyContext { imports = libs, pretty = True }
 
     let handleError :: String -> IO a
