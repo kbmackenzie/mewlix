@@ -1,2 +1,2 @@
-resolver: lts-21.21
+resolver: lts-21.25
 extra-deps: []
