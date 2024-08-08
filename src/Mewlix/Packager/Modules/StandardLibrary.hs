@@ -8,27 +8,27 @@ module Mewlix.Packager.Modules.StandardLibrary
 import Mewlix.Packager.Data.Types (ProjectMode(..))
 import Mewlix.Abstract.Key (Key(..))
 import Data.Text (Text)
-import Data.HashMap.Strict (HashMap)
-import qualified Data.HashMap.Strict as HashMap
+import Data.HashSet (HashSet)
+import qualified Data.HashSet as HashSet
 
-type Library = HashMap Key Text
+type Library = HashSet Key
 
-library :: [(Text, Text)] -> Library
-library = HashMap.mapKeys Key . HashMap.fromList
+library :: [Text] -> Library
+library = HashSet.fromList . map Key
 
 baseLibrary :: Library
 baseLibrary = library
-    [ ("std"       , "mewlix.Base"      )
-    , ("std.curry" , "mewlix.BaseCurry" ) ]
+    [ "std"
+    , "std.curry" ]
 
 templateLibraries :: ProjectMode -> Library
 templateLibraries = \case
     Console -> library
-        [ ("std.console"        , "mewlix.Console"      )
-        , ("std.console.curry"  , "mewlix.ConsoleCurry" ) ]
+        [ "std.console"
+        , "std.console.curry" ]
     Graphic -> library
-        [ ("std.graphic"        , "mewlix.Graphic"      )
-        , ("std.graphic.curry"  , "mewlix.GraphicCurry" ) ]
+        [ "std.graphic"
+        , "std.graphic.curry" ]
     Node    -> mempty
 
 addLibraries :: ProjectMode -> (Library -> Library)

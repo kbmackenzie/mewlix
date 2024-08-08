@@ -21,8 +21,6 @@ import Mewlix.Packager.Modules.FileSearch (processSources, validateSources)
 import Mewlix.Packager.Log (projectLog)
 import Mewlix.Utils.Show (showT)
 import Mewlix.Utils.FileIO (readText)
-import Mewlix.Abstract.Key (Key(..))
-import Data.HashMap.Strict (mapKeys)
 import qualified Data.Set as Set
 import System.IO (Handle)
 import Data.Text (Text)
@@ -31,12 +29,11 @@ import qualified Data.Text.IO as TextIO
 -- Creates the transpiler context.
 createContext :: ProjectData -> PackageMaker TranspilerContext
 createContext projectData = do
-    let projectLibs = addLibraries (projectMode projectData)
-    let createImportMap = projectLibs . mapKeys Key
+    let projectLibs = addLibraries (projectMode projectData) mempty
     let flags = projectFlags projectData
 
     return TranspilerContext
-        { imports = createImportMap mempty
+        { library = projectLibs
         , noStd   = Set.member NoStd flags
         , pretty  = Set.member Pretty flags }
 

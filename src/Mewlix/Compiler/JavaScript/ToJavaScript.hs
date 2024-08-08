@@ -48,6 +48,7 @@ import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import Mewlix.Keywords.Types (unwrapKeyword)
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
+import qualified Data.HashSet as HashSet
 import qualified Data.HashMap.Strict as HashMap
 import Control.Monad ((<=<))
 
@@ -300,10 +301,10 @@ instance ToJavaScript Statement where
         importValue <- do
             let key = (Key . joinKey . moduleKey) moduleData
             stringKey <- (toJS . MewlixString . getKey) key
-            special   <- asks imports
-            case HashMap.lookup key special of
-                Nothing      -> return $ call Mewlix.getModule [stringKey]
-                (Just value) -> return value
+            corelib   <- asks library
+            if HashSet.member key corelib
+                then return $ mconcat [ "mewlix.lib[", stringKey, "]" ]
+                else return $ call Mewlix.getModule [stringKey]
         let declaration = mconcat [ "const ", binding, " = ", importValue, ";" ]
         indentLine level declaration
 
@@ -311,10 +312,10 @@ instance ToJavaScript Statement where
         importValue <- do
             let key = (Key . joinKey . moduleKey) moduleData
             stringKey <- (toJS . MewlixString . getKey) key
-            special   <- asks imports
-            case HashMap.lookup key special of
-                Nothing      -> return $ call Mewlix.getModule [stringKey]
-                (Just value) -> return value
+            corelib   <- asks library
+            if HashSet.member key corelib
+                then return $ mconcat [ "mewlix.lib[", stringKey, "]" ]
+                else return $ call Mewlix.getModule [stringKey]
 
         let bind :: Key -> Transpiler Text
             bind key = indentLine level $ do

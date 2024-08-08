@@ -1,4 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE StrictData #-}
 
 module Mewlix.Compiler.Transpiler
 ( TranspilerContext(..)
@@ -12,14 +13,13 @@ module Mewlix.Compiler.Transpiler
 ) where
 
 import Mewlix.Abstract.Key (Key)
-import Data.Text (Text)
-import Data.HashMap.Strict (HashMap)
+import Data.HashSet (HashSet)
 import Control.Monad.Reader (MonadReader, Reader, ask, asks, local, runReader)
 
 data TranspilerContext = TranspilerContext
-    { imports :: HashMap Key Text
+    { library :: HashSet Key
     , noStd   :: Bool            
-    , pretty  :: Bool             }
+    , pretty  :: Bool        }
     deriving (Show);
 
 newtype Transpiler a = Transpiler 
@@ -35,6 +35,6 @@ transpile ctx = flip runReader ctx . runTranspiler;
 
 emptyContext :: TranspilerContext
 emptyContext = TranspilerContext
-    { imports = mempty
+    { library = mempty
     , noStd   = False
     , pretty  = False }
