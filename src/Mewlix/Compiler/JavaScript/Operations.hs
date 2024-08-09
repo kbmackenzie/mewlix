@@ -14,36 +14,36 @@ import Mewlix.Abstract.AST (BinaryOp(..), UnaryOp(..))
 
 type OperationBuilder = ([Text] -> Text)
 
-ordering :: [Text] -> OperationBuilder
-ordering comparisons = do
-    let comparer = call (Mewlix.compare "ordering")
-    let isOneOf = ".isOneOf(" <> sepComma comparisons <> ")"
-    \args -> comparer args <> isOneOf
+ordering :: Text -> OperationBuilder
+ordering comparison = do
+    let orderer  = call (Mewlix.relation "ordering")
+    let comparer = call (Mewlix.compare comparison)
+    \args -> comparer [orderer args]
 
 binaryOpFunc :: BinaryOp -> OperationBuilder
 binaryOpFunc op = case op of 
-    Addition        -> call (Mewlix.numbers "add")
-    Subtraction     -> call (Mewlix.numbers "sub")
-    Multiplication  -> call (Mewlix.numbers "mul")
-    Division        -> call (Mewlix.numbers "div")
-    FloorDivision   -> call (Mewlix.numbers "floordiv")
-    Modulo          -> call (Mewlix.numbers "mod")
-    Power           -> call (Mewlix.numbers "pow")
-    ListPush        -> call (Mewlix.shelves "push")
-    StringConcat    -> call (Mewlix.strings "concat")
-    Contains        -> call (Mewlix.shelves "contains")
-    Equal           -> call (Mewlix.compare "equal")
-    NotEqual        -> ("!" <>) . call (Mewlix.compare "equal")
-    LessThan        -> ordering [Mewlix.lessThan]
-    GreaterThan     -> ordering [Mewlix.greaterThan]
-    LesserOrEqual   -> ordering [Mewlix.lessThan, Mewlix.equalTo]
-    GreaterOrEqual  -> ordering [Mewlix.greaterThan, Mewlix.equalTo]
+    Addition        -> call (Mewlix.numbers  "add"      )
+    Subtraction     -> call (Mewlix.numbers  "sub"      )
+    Multiplication  -> call (Mewlix.numbers  "mul"      )
+    Division        -> call (Mewlix.numbers  "div"      )
+    FloorDivision   -> call (Mewlix.numbers  "floordiv" )
+    Modulo          -> call (Mewlix.numbers  "mod"      )
+    Power           -> call (Mewlix.numbers  "pow"      )
+    ListPush        -> call (Mewlix.shelf    "push"     )
+    StringConcat    -> call (Mewlix.strings  "concat"   )
+    Contains        -> call (Mewlix.shelf    "contains" )
+    Equal           -> call (Mewlix.relation "equal"    )
+    NotEqual        -> ("!" <>) . call (Mewlix.relation "equal")
+    LessThan        -> ordering "less"
+    GreaterThan     -> ordering "greater"
+    LesserOrEqual   -> ordering "lessOrEqual"
+    GreaterOrEqual  -> ordering "greaterOrEqual"
 
 unaryOpFunc :: UnaryOp -> OperationBuilder
 unaryOpFunc op = case op of
     Minus           -> call (Mewlix.numbers "minus" )
     Plus            -> call (Mewlix.numbers "plus"  )
-    ListPop         -> call (Mewlix.shelves "pop"   )
-    ListPeek        -> call (Mewlix.shelves "peek"  )
+    ListPop         -> call (Mewlix.shelf   "pop"   )
+    ListPeek        -> call (Mewlix.shelf   "peek"  )
     BooleanNot      -> call (Mewlix.boolean "not"   )
-    LengthLookup    -> call (Mewlix.shelves "length")
+    LengthLookup    -> call (Mewlix.collections "length")

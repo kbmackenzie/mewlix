@@ -30,4 +30,4 @@ call :: Text -> [Text] -> Text
 call name args = name <> parens (sepComma args)
 
 asBoolean :: Text -> Text
-asBoolean = call (Mewlix.conversion "toBool") . List.singleton
+asBoolean = call (Mewlix.convert "bool") . List.singleton
