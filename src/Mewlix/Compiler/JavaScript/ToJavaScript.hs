@@ -262,7 +262,7 @@ instance ToJavaScript Statement where
             (LookupExpression a b) -> createSetter a b
             (DotExpression a b)    -> createSetter a b
             _                      -> assignment
-        indentLine level (assigner boundFunc)
+        indentLine level . terminate $ assigner boundFunc
 
     -- Assignment statement:
     ----------------------------------------------
