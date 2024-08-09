@@ -24,6 +24,7 @@ module Mewlix.Keywords.LanguageKeywords
 , extends
 , new
 , home
+, outside
 , constructor
 , superCall
 , superRef
@@ -123,6 +124,9 @@ new = "new"
 
 home :: SimpleKeyword
 home = "home"
+
+outside :: SimpleKeyword
+outside = "outside"
 
 constructor :: SimpleKeyword
 constructor = "wake"
