@@ -372,9 +372,9 @@ instance ToJavaScript Statement where
 
         let bindings = maybe methods ((: methods) . return) constructor
         table <- joinLines
-            [ return "{"
+            [ return "() => ({"
             , joinLines bindings
-            , indentLine level "}" ]
+            , indentLine level "})" ]
 
         let creation = call (Mewlix.clowder "create") [name, parent, table]
         indentLine level . mconcat $
