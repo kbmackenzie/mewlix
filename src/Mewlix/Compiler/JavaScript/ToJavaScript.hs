@@ -33,13 +33,7 @@ import Mewlix.Compiler.Indentation
     , indentMany
     )
 import Mewlix.Compiler.Whitespace (joinLines)
-import Mewlix.Compiler.JavaScript.Utils.Expression
-    ( instantiate
-    , wrap
-    , lambda
-    , call
-    , asBoolean
-    )
+import Mewlix.Compiler.JavaScript.Utils.Expression (wrap, lambda, call, asBoolean)
 import Mewlix.Compiler.JavaScript.Error (ErrorCode(..), errorInfo, createError)
 import Mewlix.Compiler.JavaScript.Utils.Statement (terminate, findBindings)
 import Mewlix.Compiler.JavaScript.Operations (binaryOpFunc, unaryOpFunc)
@@ -101,7 +95,7 @@ instance ToJavaScript Expression where
             [ return "{"
             , joinLines items
             , indentLine level "}" ]
-        return $ instantiate (Mewlix.box "create") [ table ]
+        return $ call (Mewlix.box "create") [ table ]
 
     -- Boolean operations:
     ----------------------------------------------
@@ -346,9 +340,10 @@ instance ToJavaScript Statement where
                 else return $ call (Mewlix.modules "get") [stringKey]
 
         let bind :: Key -> Transpiler Text
-            bind key = indentLine level $ do
-                let value = parens importValue <> ".box()." <> getKey key
-                mconcat [ "const ", getKey key, " = ", value, ";" ]
+            bind key = indentLine level =<< do
+                stringKey <- (toJS . MewlixString . getKey) key
+                let value = call (parens importValue <> ".get") [stringKey]
+                return . mconcat $ [ "const ", getKey key, " = ", value, ";" ]
 
         joinLines (map bind keys)
 
