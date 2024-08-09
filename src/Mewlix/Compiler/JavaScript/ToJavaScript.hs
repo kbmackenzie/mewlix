@@ -402,7 +402,7 @@ instance ToJavaScript Statement where
 
         let errorRef = unwrapKeyword Keywords.errorRef
         let defineErrorBox = mconcat
-                [ "const ", errorKey, " = ", call (Mewlix.mewlix "pounce") [errorRef], ";\n" ]
+                [ "const ", errorKey, " = ", call (Mewlix.internal "pounce") [errorRef], ";\n" ]
 
         joinLines
             [ indentLine level ("try " <> tryBlock)
@@ -418,7 +418,7 @@ instance ToJavaScript Statement where
     ----------------------------------------------
     transpileJS level   (Assert expr pos) = do
         condition <- asBoolean <$> toJS expr
-        let failed = call (Mewlix.mewlix "assertionFail") [ errorInfo pos ]
+        let failed = call (Mewlix.internal "assertionFail") [ errorInfo pos ]
         indentLine level . terminate . mconcat $
             [ "void (", condition <> " || " <> failed, ")" ]
 
