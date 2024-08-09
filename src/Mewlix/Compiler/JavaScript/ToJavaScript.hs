@@ -403,9 +403,9 @@ instance ToJavaScript Statement where
             [ "const ", (getKey . className) clowder, " = ", creation, ";" ]
 
     transpileJS level   (SuperCall argExprs) = do
-        let superRef = unwrapKeyword Keywords.superRef
+        let super = "this.parent.bindings[" <> Mewlix.mewlix "wake" <> "]"
         args <- transpileJS level argExprs
-        indentLine level . terminate $ (superRef <> args)
+        indentLine level . terminate $ (super <> args)
 
     -- Enum statement:
     ----------------------------------------------
