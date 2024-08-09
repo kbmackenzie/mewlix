@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Mewlix.Parser.Primitive
-( parsePrim
-, parseKey
-, parseParams
+( prim
 , home
 , outside
+, parseKey
+, parseParams
 ) where
 
 import Mewlix.Abstract.AST (Primitive(..), Params(..))
@@ -27,8 +27,8 @@ import Control.Monad (when, unless)
 
 {- Prims: -}
 ----------------------------------------------------------------
-parsePrim :: Parser Primitive
-parsePrim = Mega.choice
+prim :: Parser Primitive
+prim = Mega.choice
     [ MewlixString  <$> parseStringM
     , MewlixString  <$> parseString
     , MewlixFloat   <$> parseFloat  <?> "number"
@@ -69,6 +69,7 @@ parseParams :: Parser Params
 parseParams = Params <$> parensList parseKey
 
 {- Clowders: -}
+----------------------------------------------------------------
 home :: Parser Primitive
 home = do
     keyword Keywords.home
