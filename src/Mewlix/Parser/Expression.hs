@@ -50,6 +50,7 @@ import qualified Data.List as List
 termL :: Parser Expression
 termL = Mega.choice
     [ home
+    , outside
     , Identifier <$> parseKey ]
 
 termR :: Parser Expression
@@ -178,6 +179,14 @@ home = do
     unless inClass
         (fail "Cannot use clowder keyword outside clowder!")
     return $ PrimitiveExpr MewlixHome
+
+outside :: Parser Expression
+outside = do
+    keyword Keywords.outside
+    inClass <- asks (nested InClass)
+    unless inClass
+        (fail "Cannot use clowder keyword outside clowder!")
+    return $ PrimitiveExpr MewlixOutside
 
 new :: Parser Expression
 new = do
