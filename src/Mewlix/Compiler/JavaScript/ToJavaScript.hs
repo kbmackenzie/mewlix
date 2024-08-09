@@ -236,11 +236,25 @@ instance ToJavaScript Statement where
         indentLine level declaration
 
     transpileJS level   (FunctionAssignment expr func) = do
-        lvalue   <- toJS expr
+        let assignment :: Transpiler (Text -> Text)
+            assignment = do
+                left <- toJS expr
+                return $ \right -> mconcat $ [ left, " = ", right ]
+
+        let createSetter :: Expression -> Expression -> Transpiler (Text -> Text)
+            createSetter a b = do
+                object   <- toJS a
+                property <- toJS b
+                return $ \value -> call (parens object <> ".set") [property, value]
+
         funcExpr <- transpileJS level func
         let boundFunc = "(" <> funcExpr <> ").bind(this)"
-        let assignment = mconcat [ lvalue, " = ", boundFunc, ";" ]
-        indentLine level assignment
+
+        assigner <- case expr of
+            (LookupExpression a b) -> createSetter a b
+            (DotExpression a b)    -> createSetter a b
+            _                      -> assignment
+        indentLine level (assigner boundFunc)
 
     -- Assignment statement:
     ----------------------------------------------
