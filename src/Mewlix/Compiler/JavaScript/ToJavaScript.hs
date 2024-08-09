@@ -76,7 +76,12 @@ instance ToJavaScript Expression where
     -- Lists + boxes:
     ----------------------------------------------
     transpileJS level (ListExpression exprs) = do
-        let items = map (transpileJS (succ level)) exprs
+        let makeItem :: Expression -> Transpiler Text
+            makeItem expr = do
+                value <- transpileJS (succ level) expr
+                indentLine level (value <> ",")
+
+        let items = map makeItem exprs
         array <- joinLines
             [ return "["
             , joinLines items
