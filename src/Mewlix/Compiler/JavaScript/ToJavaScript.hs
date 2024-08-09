@@ -77,7 +77,7 @@ instance ToJavaScript Expression where
     -- Names:
     ----------------------------------------------
     transpileJS _ (Identifier key) = (return . getKey) key
-    transpileJS _ (ObjectProperty key) = (return . getKey) key
+    transpileJS _ (ObjectProperty key) = (toJS . MewlixString . getKey) key
 
     -- Lists + boxes:
     ----------------------------------------------
@@ -139,7 +139,7 @@ instance ToJavaScript Expression where
     transpileJS _ (DotExpression objectExpr propertyExpr) = do
         object   <- toJS objectExpr
         property <- toJS propertyExpr
-        return (object <> ".box()." <> property)
+        return $ call (parens object <> ".get") [property]
 
     -- Lookup expression:
     ----------------------------------------------
@@ -147,7 +147,7 @@ instance ToJavaScript Expression where
         let stringify = call Mewlix.purrify . List.singleton
         object   <- toJS objectExpr
         property <- stringify <$> toJS propertyExpr
-        return (object <> ".box()" <> brackets property)
+        return $ call (parens object <> ".get") [property]
 
     -- Clowder expressions:
     ----------------------------------------------
@@ -217,6 +217,55 @@ instance ToJavaScript Statement where
     transpileJS level   (ExpressionStatement expr) = do
         indentLine level . terminate =<< toJS expr
 
+    -- Bindings:
+    ----------------------------------------------
+    transpileJS level    (Variable key expr) = do
+        value <- toJS expr
+        let declaration = mconcat [ "let ", getKey key, " = ", value, ";" ]
+        indentLine level declaration
+
+    transpileJS level    (Constant key expr) = do
+        value <- toJS expr
+        let declaration = mconcat [ "const ", getKey key, " = ", value, ";" ]
+        indentLine level declaration
+
+    -- Functions:
+    ----------------------------------------------
+    transpileJS level   (FunctionDef func) = do
+        funcExpr <- transpileJS level func
+        let name = (getKey . funcName) func
+        let boundFunc = "(" <> funcExpr <> ").bind(this)"
+        let declaration = mconcat [ "const ", name, " = ", boundFunc, ";" ]
+        indentLine level declaration
+
+    transpileJS level   (FunctionAssignment expr func) = do
+        lvalue   <- toJS expr
+        funcExpr <- transpileJS level func
+        let boundFunc = "(" <> funcExpr <> ").bind(this)"
+        let assignment = mconcat [ lvalue, " = ", boundFunc, ";" ]
+        indentLine level assignment
+
+    -- Assignment statement:
+    ----------------------------------------------
+    transpileJS level (Assignment lvalue rvalue) = do
+        let assignment :: Transpiler Text
+            assignment = do
+                left <- toJS lvalue
+                right <- toJS rvalue
+                return . mconcat $ [ left, " = ", right ]
+
+        let createSetter :: Expression -> Expression -> Transpiler Text
+            createSetter a b = do
+                object   <- toJS a
+                property <- toJS b
+                value    <- toJS rvalue
+                return $ call (parens object <> ".set") [property, value]
+
+        indentLine level . terminate =<< case lvalue of
+            (LookupExpression a b) -> createSetter a b
+            (DotExpression a b)    -> createSetter a b
+            _                      -> assignment
+                
     -- Control flow:
     ----------------------------------------------
     transpileJS level   (IfElse conditionals else_) = do
@@ -258,35 +307,6 @@ instance ToJavaScript Statement where
         let chase  = call (Mewlix.internal "chase") [iterable]
         let header = mconcat [ "for (const ", getKey key, " of ", chase, ") "]
         indentLine level (header <> body)
-
-    -- Bindings:
-    ----------------------------------------------
-    transpileJS level    (Variable key expr) = do
-        value <- toJS expr
-        let declaration = mconcat [ "let ", getKey key, " = ", value, ";" ]
-        indentLine level declaration
-
-    transpileJS level    (Constant key expr) = do
-        value <- toJS expr
-        let declaration = mconcat [ "const ", getKey key, " = ", value, ";" ]
-        indentLine level declaration
-
-    -- Functions:
-    ----------------------------------------------
-    transpileJS level   (FunctionDef func) = do
-        funcExpr <- transpileJS level func
-        let name = (getKey . funcName) func
-        let boundFunc = "(" <> funcExpr <> ").bind(this)"
-        let declaration = mconcat [ "const ", name, " = ", boundFunc, ";" ]
-        indentLine level declaration
-
-    transpileJS level   (FunctionAssignment expr func) = do
-        lvalue   <- toJS expr
-        funcExpr <- transpileJS level func
-        let boundFunc = "(" <> funcExpr <> ").bind(this)"
-        let assignment = mconcat [ lvalue, " = ", boundFunc, ";" ]
-        indentLine level assignment
-
     -- Loop keywords:
     ----------------------------------------------
     transpileJS level   Break = indentLine level "break;"
@@ -329,17 +349,11 @@ instance ToJavaScript Statement where
 
         joinLines (map bind keys)
 
-    -- Assignment statement:
-    ----------------------------------------------
-    transpileJS level (Assignment key expr) = do
-        left  <- toJS key
-        right <- toJS expr
-        indentLine level . terminate $ (left <> " = " <> right)
-
     -- Class statement:
     ----------------------------------------------
     transpileJS level   (ClassDef clowder) = do
-        let parentValue = maybe MewlixNil (MewlixString . getKey) (classExtends clowder)
+        let nil = PrimitiveExpr MewlixNil
+        let parentValue = maybe nil Identifier (classExtends clowder)
         parent <- toJS parentValue
         name   <- (toJS . MewlixString . getKey . className) clowder
 
