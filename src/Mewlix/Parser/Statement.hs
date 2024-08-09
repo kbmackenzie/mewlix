@@ -256,15 +256,11 @@ classDef = do
         methods <- (Mega.many . multiline) (function methodNesting)
         findConstructor methods
     close
-
-    let patchedConstructor = fmap patchConstructor constructor
-    let patchedMethods = maybe methods (: methods) patchedConstructor
-
     (return . ClassDef) MewlixClass
         { className         = name
         , classExtends      = parent
-        , classMethods      = patchedMethods
-        , classConstructor  = patchedConstructor }
+        , classMethods      = methods 
+        , classConstructor  = constructor }
 
 findConstructor :: Methods -> Parser (Maybe Constructor, Methods)
 findConstructor methods = do
@@ -275,12 +271,6 @@ findConstructor methods = do
         ([] , xs) -> return (Nothing, xs)
         ([x], xs) -> return (Just x, xs)
         _         -> fail "Clowder cannot have more than one constructor!"
-
-patchConstructor :: Constructor -> Constructor
-patchConstructor constructor = do
-    let returnHome = Return (PrimitiveExpr MewlixHome)
-    let patch = (<> Block [returnHome])
-    constructor { funcBody = patch (funcBody constructor) }
 
 {- Super -}
 ------------------------------------------------------------------
