@@ -10,6 +10,7 @@ module Mewlix.Compiler.JavaScript.Constants
 , shelf
 , box
 , clowder
+, catTree
 , collections
 , yarnball
 -- Core Functions
@@ -52,6 +53,9 @@ box = mewlix . mappend "box."
 
 clowder :: Text -> Text
 clowder = mewlix . mappend "clowder."
+
+catTree :: Text -> Text
+catTree = mewlix . mappend "catTree."
 
 collections :: Text -> Text
 collections = mewlix . mappend "collections."
