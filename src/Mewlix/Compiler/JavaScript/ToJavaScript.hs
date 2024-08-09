@@ -49,7 +49,6 @@ import Mewlix.Keywords.Types (unwrapKeyword)
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.HashSet as HashSet
-import qualified Data.HashMap.Strict as HashMap
 import Control.Monad ((<=<))
 
 class ToJavaScript a where
@@ -466,8 +465,7 @@ instance ToJavaScript YarnBall where
             noStdBind <- asks noStd
             let stdLibrary = if noStdBind
                 then return mempty
-                else indentLine moduleLevel . mconcat $
-                    [ "const std = ", Mewlix.mewlix "Base", ";" ]
+                else indentLine moduleLevel "const std = mewlix.lib['std'];"
 
             -- The module bindings to be exported:
             moduleBindings <- do
