@@ -4,37 +4,22 @@ module Mewlix.Compiler.JavaScript.Constants
 ( mewlix
 , purrify
 -- Data:
-, box
-, shelfNode
-, shelfBottom
-, createShelf
-, clowder
-, wake
-, catTree
-, yarnBall
-, createYarnBall
-, defaultKey
--- Operations:
-, meow
 , numbers
-, boolean
-, compare
 , strings
-, shelves
+, boolean
+, shelf
+, box
+, clowder
+, collections
+, yarnball
+-- Core Functions
+, modules
+, internal
+-- Core Operations
+, compare
+, relation
 , reflection
-, boxes
-, conversion
--- Modules:
-, addModule
-, getModule
--- Comparison:
-, equalTo
-, lessThan
-, greaterThan
--- Statement utils:
-, canChase
-, pounceError
-, assertionFail
+, convert
 ) where
 
 {- This module should always be imported qualified. -}
@@ -43,107 +28,55 @@ import Prelude hiding (compare)
 import Data.Text (Text)
 
 mewlix :: Text -> Text
-mewlix = ("mewlix." <>)
+mewlix = mappend "mewlix."
 
 purrify :: Text
 purrify = mewlix "purrify"
 
-{- Data -}
+-- Data 
 --------------------------------------------
-box :: Text
-box = mewlix "Box"
-
-shelfNode :: Text
-shelfNode = mewlix "ShelfNode"
-
-shelfBottom :: Text
-shelfBottom = mewlix "ShelfBottom"
-
-createShelf :: Text
-createShelf = mewlix "Shelf.fromArray"
-
-clowder :: Text
-clowder = mewlix "Clowder"
-
-wake :: Text
-wake = mewlix "wake"
-
-catTree :: Text
-catTree = mewlix "CatTree"
-
-yarnBall :: Text -> Text
-yarnBall = mewlix . ("YarnBall." <>)
-
-createYarnBall :: Text
-createYarnBall = yarnBall "create"
-
-defaultKey :: Text
-defaultKey = "main"
-
-{- Operations -}
---------------------------------------------
-meow :: Text
-meow = mewlix "meow"
-
 numbers :: Text -> Text
-numbers = mewlix . ("numbers." <>)
-
-boolean :: Text -> Text
-boolean = mewlix . ("boolean." <>)
-
-compare :: Text -> Text
-compare = mewlix . ("compare." <>)
+numbers = mewlix . mappend "numbers."
 
 strings :: Text -> Text
-strings = mewlix . ("strings." <>)
+strings = mewlix . mappend "strings."
 
-shelves :: Text -> Text
-shelves = mewlix . ("shelves." <>)
+boolean :: Text -> Text
+boolean = mewlix . mappend "boolean."
 
-reflection :: Text -> Text
-reflection = mewlix . ("reflection." <>)
+shelf :: Text -> Text
+shelf = mewlix . mappend "shelf."
 
-boxes :: Text -> Text
-boxes = mewlix . ("boxes." <>)
+box :: Text -> Text
+box = mewlix . mappend "box."
 
-conversion :: Text -> Text
-conversion = mewlix . ("conversion." <>)
+clowder :: Text -> Text
+clowder = mewlix . mappend "clowder."
 
-{- Modules: -}
+collections :: Text -> Text
+collections = mewlix . mappend "collections."
+
+yarnball :: Text -> Text
+yarnball = mewlix . mappend "yarnball."
+
+-- Core Functions
 --------------------------------------------
 modules :: Text -> Text
-modules = mewlix . ("modules." <>)
+modules = mewlix . mappend "modules."
 
-addModule :: Text
-addModule = modules "addModule"
-
-getModule :: Text
-getModule = modules "getModule"
-
-{- Comparisons: -}
---------------------------------------------
-comparison :: Text -> Text
-comparison = mewlix . ("Comparison." <>)
-
-equalTo :: Text
-equalTo = comparison "EqualTo"
-
-lessThan :: Text
-lessThan = comparison "LessThan"
-
-greaterThan :: Text
-greaterThan = comparison "GreaterThan"
-
-{- Statement Utils: -}
---------------------------------------------
 internal :: Text -> Text
-internal = mewlix . ("internal." <>)
+internal = mewlix . mappend "internal."
 
-canChase :: Text
-canChase = internal "canChase"
+-- Core Operations
+--------------------------------------------
+compare :: Text -> Text
+compare = mewlix . mappend "compare."
 
-pounceError :: Text
-pounceError = internal "pounceError"
+relation :: Text -> Text
+relation = mewlix . mappend "relation."
 
-assertionFail :: Text
-assertionFail = internal "assertionFail"
+reflection :: Text -> Text
+reflection = mewlix . mappend "reflection."
+
+convert :: Text -> Text
+convert = mewlix . mappend "convert."
