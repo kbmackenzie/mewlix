@@ -75,9 +75,12 @@ instance ToJavaScript Expression where
 
     -- Lists + boxes:
     ----------------------------------------------
-    transpileJS _     (ListExpression exprs) = do
-        items <- mapM toJS exprs
-        let array = (brackets . sepComma) items
+    transpileJS level (ListExpression exprs) = do
+        let items = map (transpileJS (succ level)) exprs
+        array <- joinLines
+            [ return "["
+            , joinLines items
+            , indentLine level "]" ]
         return $ call (Mewlix.shelf "create") [ array ]
 
     transpileJS level (BoxExpression pairs) = do
