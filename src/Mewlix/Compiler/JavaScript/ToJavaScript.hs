@@ -23,7 +23,7 @@ import Mewlix.Abstract.Key (Key(..))
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Mewlix.String.Escape (escapeString)
-import Mewlix.String.Utils (quotes, parens, braces, brackets, sepComma)
+import Mewlix.String.Utils (quotes, parens, brackets, sepComma)
 import Mewlix.Utils.Show (showT)
 import Mewlix.Compiler.Indentation
     ( Indentation
@@ -94,11 +94,14 @@ instance ToJavaScript Expression where
             makeTuple (key, expr) = do
                 bind  <- makeKey key
                 value <- transpileJS level expr
-                return . mconcat $ [ bind, ": ", value ]
+                indentLine (succ level) . mconcat $ [ bind, ": ", value, "," ]
 
-        items <- mapM makeTuple pairs
-        let array = (braces . sepComma) items
-        return $ instantiate (Mewlix.box "create") [ array ]
+        let items = map makeTuple pairs
+        table <- joinLines
+            [ return "{"
+            , joinLines items
+            , indentLine level "}" ]
+        return $ instantiate (Mewlix.box "create") [ table ]
 
     -- Boolean operations:
     ----------------------------------------------
@@ -250,7 +253,7 @@ instance ToJavaScript Statement where
     transpileJS level (Assignment lvalue rvalue) = do
         let assignment :: Transpiler Text
             assignment = do
-                left <- toJS lvalue
+                left  <- toJS lvalue
                 right <- toJS rvalue
                 return . mconcat $ [ left, " = ", right ]
 
@@ -363,19 +366,22 @@ instance ToJavaScript Statement where
         let makeTuple :: MewlixFunction -> Transpiler Text
             makeTuple func = do
                 bind  <- makeKey (funcName func)
-                value <- transpileJS level func
-                return . mconcat $ [ bind, ": ", value ]
+                value <- transpileJS (succ level) func
+                indentLine (succ level) . mconcat $ [ bind, ": ", value, "," ]
 
-        methods     <- mapM makeTuple (classMethods clowder)
+        let methods = map makeTuple (classMethods clowder)
         constructor <- for (classConstructor clowder) $ \func -> do
             let bind = brackets (Mewlix.mewlix "wake")
-            value <- transpileJS level func
-            return . mconcat $ [ bind, ": ", value ]
+            value <- transpileJS (succ level) func
+            indentLine (succ level) . mconcat $ [ bind, ": ", value, "," ]
 
-        let bindings = maybe methods (: methods) constructor
-        let object   = (braces . sepComma) bindings
+        let bindings = maybe methods ((: methods) . return) constructor
+        table <- joinLines
+            [ return "{"
+            , joinLines bindings
+            , indentLine level "}" ]
 
-        let creation = call (Mewlix.clowder "create") [name, parent, object]
+        let creation = call (Mewlix.clowder "create") [name, parent, table]
         indentLine level . terminate $ creation
 
     transpileJS level   (SuperCall argExprs) = do
