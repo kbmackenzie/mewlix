@@ -274,13 +274,16 @@ instance ToJavaScript Statement where
     ----------------------------------------------
     transpileJS level   (FunctionDef func) = do
         funcExpr <- transpileJS level func
-        let declaration = mconcat [ "const ", (getKey . funcName) func, " = ", funcExpr, ";" ]
+        let name = (getKey . funcName) func
+        let boundFunc = "(" <> funcExpr <> ").bind(this)"
+        let declaration = mconcat [ "const ", name, " = ", boundFunc, ";" ]
         indentLine level declaration
 
     transpileJS level   (FunctionAssignment expr func) = do
         lvalue   <- toJS expr
         funcExpr <- transpileJS level func
-        let assignment = mconcat [ lvalue, " = ", funcExpr, ";" ]
+        let boundFunc = "(" <> funcExpr <> ").bind(this)"
+        let assignment = mconcat [ lvalue, " = ", boundFunc, ";" ]
         indentLine level assignment
 
     -- Loop keywords:
