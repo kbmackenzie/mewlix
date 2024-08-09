@@ -377,7 +377,8 @@ instance ToJavaScript Statement where
             , indentLine level "}" ]
 
         let creation = call (Mewlix.clowder "create") [name, parent, table]
-        indentLine level . terminate $ creation
+        indentLine level . mconcat $
+            [ "const ", (getKey . className) clowder, " = ", creation, ";" ]
 
     transpileJS level   (SuperCall argExprs) = do
         let superRef = unwrapKeyword Keywords.superRef
