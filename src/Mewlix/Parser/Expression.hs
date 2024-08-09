@@ -7,19 +7,13 @@ module Mewlix.Parser.Expression
 ) where
 
 import Mewlix.Abstract.AST
-    ( Primitive(..)
-    , Expression(..)
+    ( Expression(..)
     , BinaryOp(..)
     , UnaryOp(..)
     , Arguments(..)
     , Params(..)
     )
-import Mewlix.Parser.Type
-    ( Parser
-    , asks
-    , nested
-    , NestingFlag(..)
-    )
+import Mewlix.Parser.Type (Parser)
 import Mewlix.Parser.Utils
     ( symbol
     , parens
@@ -33,8 +27,9 @@ import Mewlix.Parser.String (parseYarnString)
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Parser.Primitive
     ( parseKey
+    , home
+    , outside
     , parsePrim
-    , parseKey
     , parseParams
     )
 import Text.Megaparsec ((<?>), label, hidden)
@@ -42,16 +37,15 @@ import Mewlix.Keywords.Types (LongSymbol(..), unwrapKeyword)
 import qualified Mewlix.Keywords.LanguageKeywords as Keywords
 import qualified Text.Megaparsec as Mega
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
-import Control.Monad (unless)
 import qualified Data.List as List
 
 {- Left-hand, Right-hand -}
 ------------------------------------------------------------------------------------
 termL :: Parser Expression
 termL = Mega.choice
-    [ home
-    , outside
-    , Identifier <$> parseKey ]
+    [ PrimitiveExpr <$> home
+    , PrimitiveExpr <$> outside
+    , Identifier <$> parseKey   ]
 
 termR :: Parser Expression
 termR = Mega.choice
@@ -172,22 +166,6 @@ meow = do
 
 {- Clowder -}
 ------------------------------------------------------------------------------------
-home :: Parser Expression
-home = do
-    keyword Keywords.home
-    inClass <- asks (nested InClass)
-    unless inClass
-        (fail "Cannot use clowder keyword outside clowder!")
-    return $ PrimitiveExpr MewlixHome
-
-outside :: Parser Expression
-outside = do
-    keyword Keywords.outside
-    inClass <- asks (nested InClass)
-    unless inClass
-        (fail "Cannot use clowder keyword outside clowder!")
-    return $ PrimitiveExpr MewlixOutside
-
 new :: Parser Expression
 new = do
     keyword Keywords.new
