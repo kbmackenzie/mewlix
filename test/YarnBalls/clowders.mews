@@ -17,6 +17,10 @@ clowder Charlie is Cat
   🐱 wake()
     look outside("charlie")
   ~meow
+
+  =^.x.^= introduction()
+    bring outside.introduction()
+  ~meow
 ~meow
 
 -- Instantiation:
