@@ -27,7 +27,6 @@ module Mewlix.Keywords.LanguageKeywords
 , outside
 , constructor
 , superCall
-, superRef
 , catTree
 , if_
 , elif
@@ -133,9 +132,6 @@ constructor = "wake"
 
 superCall :: WordSequence
 superCall = ["look", "outside"]
-
-superRef :: SimpleKeyword
-superRef = "___super"
 
 -- Cat trees:
 catTree :: WordSequence
@@ -306,7 +302,6 @@ reserved = HashSet.fromList
     , try
     , throw
     , rethrow
-    , superRef
     , errorRef
     -- Internal:
     , "mewlix"
