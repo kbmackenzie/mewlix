@@ -23,7 +23,7 @@ import Mewlix.Abstract.Key (Key(..))
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Mewlix.String.Escape (escapeString)
-import Mewlix.String.Utils (quotes, parens, brackets, sepComma)
+import Mewlix.String.Utils (quotes, parens, braces, brackets, sepComma)
 import Mewlix.Utils.Show (showT)
 import Mewlix.Compiler.Indentation
     ( Indentation
@@ -93,11 +93,11 @@ instance ToJavaScript Expression where
             makeTuple (key, expr) = do
                 bind  <- makeKey key
                 value <- toJS expr
-                (return . brackets) (bind <> ", " <> value)
+                return . mconcat $ [ bind, ": ", value ]
 
         items <- mapM makeTuple pairs
-        let array = (brackets . sepComma) items
-        return $ instantiate Mewlix.box [ array ]
+        let array = (braces . sepComma) items
+        return $ instantiate (Mewlix.box "create") [ array ]
 
     -- Boolean operations:
     ----------------------------------------------
@@ -435,7 +435,7 @@ instance ToJavaScript MewlixEnum where
         strings <- mapM (toJS . MewlixString . getKey) (enumKeys enum)
         name <- (toJS . MewlixString . getKey . enumName) enum
         let keys = (brackets . sepComma) strings
-        return $ instantiate Mewlix.catTree [name, keys]
+        return $ call (Mewlix.catTree "create") [name, keys]
 
 {- Block -}
 -----------------------------------------------------------------
@@ -453,7 +453,7 @@ instance ToJavaScript Block where
 -----------------------------------------------------------------
 instance ToJavaScript YarnBall where
     transpileJS _ yarnball = do
-        let key = maybe Mewlix.defaultKey joinKey (yarnballKey yarnball)
+        let key = maybe "main" joinKey (yarnballKey yarnball)
         let topLevel = toIndent 1
         let moduleLevel = toIndent 2
 
@@ -479,7 +479,7 @@ instance ToJavaScript YarnBall where
                 bindings <- mapM makeTuple (findBindings block)
                 let array = (brackets . sepComma) bindings
 
-                let exports = call Mewlix.createYarnBall [keyString, array]
+                let exports = call (Mewlix.yarnball "bind") [keyString, array]
                 let returnStatement = "return " <> exports <> ";"
                 return $ indentLine moduleLevel returnStatement
 
@@ -501,7 +501,8 @@ instance ToJavaScript YarnBall where
                     else mconcat
                 joinLines . map return $ [ "(function() {" , cat text , "})();" ]
 
-        footer <- indentLine topLevel . terminate $ call Mewlix.addModule [keyString, "yarnball"]
+        footer <- indentLine topLevel . terminate $
+            call (Mewlix.modules "add") [keyString, "yarnball"]
 
         catYarnBall
             [ strictPragma
