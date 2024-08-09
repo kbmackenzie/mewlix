@@ -83,7 +83,7 @@ instance ToJavaScript Expression where
     transpileJS _ (ListExpression exprs) = do
         items <- mapM toJS exprs
         let array = (brackets . sepComma) items
-        return $ call Mewlix.createShelf [ array ]
+        return $ call (Mewlix.shelf "create") [ array ]
 
     transpileJS _ (BoxExpression pairs) = do
         let makeKey :: Key -> Transpiler Text
@@ -153,7 +153,8 @@ instance ToJavaScript Expression where
     transpileJS _ (ClowderCreate clowderExpr argExprs) = do
         clowder <- toJS clowderExpr
         args    <- toJS argExprs
-        wrap $ mconcat ["new ", clowder, "()[", Mewlix.wake, "]", args]
+        let create = call (Mewlix.clowder "instantiate") . List.singleton
+        return $ create clowder <> args
 
     -- Binary operations:
     ----------------------------------------------
@@ -185,14 +186,14 @@ instance ToJavaScript Expression where
     ----------------------------------------------
     transpileJS _ (ClawEntries operand) = do
         arg <- toJS operand
-        return $ call (Mewlix.boxes "pairs") [arg]
+        return $ call (Mewlix.box "pairs") [arg]
 
     -- IO:
     ----------------------------------------------
     transpileJS _ (MeowExpression expr) = do
         let stringify = call Mewlix.purrify . List.singleton
         arg <- stringify <$> toJS expr
-        return $ call Mewlix.meow [arg]
+        return $ call (Mewlix.mewlix "meow") [arg]
 
 {- Params -}
 -----------------------------------------------------------------
@@ -253,7 +254,7 @@ instance ToJavaScript Statement where
         iterable    <- toJS expr
         body        <- transpileJS level block
 
-        let chase  = call Mewlix.canChase [iterable]
+        let chase  = call (Mewlix.internal "chase") [iterable]
         let header = mconcat [ "for (const ", getKey key, " of ", chase, ") "]
         indentLine level (header <> body)
 
@@ -304,7 +305,7 @@ instance ToJavaScript Statement where
             corelib   <- asks library
             if HashSet.member key corelib
                 then return $ mconcat [ "mewlix.lib[", stringKey, "]" ]
-                else return $ call Mewlix.getModule [stringKey]
+                else return $ call (Mewlix.modules "get") [stringKey]
         let declaration = mconcat [ "const ", binding, " = ", importValue, ";" ]
         indentLine level declaration
 
@@ -315,7 +316,7 @@ instance ToJavaScript Statement where
             corelib   <- asks library
             if HashSet.member key corelib
                 then return $ mconcat [ "mewlix.lib[", stringKey, "]" ]
-                else return $ call Mewlix.getModule [stringKey]
+                else return $ call (Mewlix.modules "get") [stringKey]
 
         let bind :: Key -> Transpiler Text
             bind key = indentLine level $ do
@@ -398,7 +399,7 @@ instance ToJavaScript Statement where
 
         let errorRef = unwrapKeyword Keywords.errorRef
         let defineErrorBox = mconcat
-                [ "const ", errorKey, " = ", call Mewlix.pounceError [errorRef], ";\n" ]
+                [ "const ", errorKey, " = ", call (Mewlix.mewlix "pounce") [errorRef], ";\n" ]
 
         joinLines
             [ indentLine level ("try " <> tryBlock)
@@ -414,7 +415,7 @@ instance ToJavaScript Statement where
     ----------------------------------------------
     transpileJS level   (Assert expr pos) = do
         condition <- asBoolean <$> toJS expr
-        let failed = call Mewlix.assertionFail [ errorInfo pos ]
+        let failed = call (Mewlix.mewlix "assertionFail") [ errorInfo pos ]
         indentLine level . terminate . mconcat $
             [ "void (", condition <> " || " <> failed, ")" ]
 
