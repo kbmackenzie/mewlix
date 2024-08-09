@@ -5,6 +5,7 @@ module Mewlix.String.Utils
 , parens
 , quotes
 , brackets
+, braces
 , sepComma
 ) where
 
@@ -22,6 +23,9 @@ quotes = surround '"' '"'
 
 brackets :: Text -> Text
 brackets = surround '[' ']'
+
+braces :: Text -> Text
+braces = surround '{' '}'
 
 sepComma :: [Text] -> Text
 sepComma = Text.intercalate ", "
