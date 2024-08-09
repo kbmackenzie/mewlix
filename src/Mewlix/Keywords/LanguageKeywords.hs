@@ -289,6 +289,7 @@ reserved = HashSet.fromList
     , extends
     , new
     , home
+    , outside
     , is
     , in_
     , not
