@@ -50,6 +50,7 @@ import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.HashSet as HashSet
 import Control.Monad ((<=<))
+import Data.Traversable (for)
 
 class ToJavaScript a where
     transpileJS :: Indentation -> a -> Transpiler Text
@@ -338,39 +339,30 @@ instance ToJavaScript Statement where
     -- Class statement:
     ----------------------------------------------
     transpileJS level   (ClassDef clowder) = do
-        let extends = maybe Mewlix.clowder getKey (classExtends clowder)
-        let binding = (getKey . className) clowder
-        let header = mconcat [ "const ", binding, " = class ", binding, " extends ", extends, " {"]
+        let parentValue = maybe MewlixNil (MewlixString . getKey) (classExtends clowder)
+        parent <- toJS parentValue
+        name   <- (toJS . MewlixString . getKey . className) clowder
 
-        let classLevel  = succ level
-        let methodLevel = succ classLevel
+        let makeKey :: Key -> Transpiler Text
+            makeKey = toJS . MewlixString . getKey
 
-        let wake = Key (unwrapKeyword Keywords.constructor)
+        let makeTuple :: MewlixFunction -> Transpiler Text
+            makeTuple func = do
+                bind  <- makeKey (funcName func)
+                value <- toJS func
+                return . mconcat $ [ bind, ": ", value ]
 
-        let superRef = unwrapKeyword Keywords.superRef
-        let defineSuper = mconcat
-                ["const ", superRef, " = this[", Mewlix.wake, "];"]
+        methods     <- mapM makeTuple (classMethods clowder)
+        constructor <- for (classConstructor clowder) $ \func -> do
+            let bind = brackets (Mewlix.mewlix "wake")
+            value <- toJS func
+            return . mconcat $ [ bind, ": ", value ]
 
-        let transpileMethod :: MewlixFunction -> Transpiler Text
-            transpileMethod func = do
-                funcExpr <- transpileJS methodLevel func
-                let bind = if funcName func == wake
-                    then "this[" <> Mewlix.wake <> "]"
-                    else "this.box()." <> (getKey . funcName) func
-                return $ mconcat [ bind, " = ", funcExpr, ";" ]
+        let bindings = maybe methods (: methods) constructor
+        let object   = (braces . sepComma) bindings
 
-        methods <- mapM transpileMethod (classMethods clowder)
-        let constructor = joinLines
-                [ indentLine classLevel "constructor() {"
-                , indentLine methodLevel "super();"
-                , indentLine methodLevel defineSuper
-                , joinLines (indentMany methodLevel methods)
-                , indentLine classLevel "};"                 ]
-
-        joinLines
-            [ indentLine level header
-            , constructor
-            , indentLine level "};"   ]
+        let creation = call (Mewlix.clowder "create") [name, parent, object]
+        indentLine level . terminate $ creation
 
     transpileJS level   (SuperCall argExprs) = do
         let superRef = unwrapKeyword Keywords.superRef
