@@ -30,6 +30,7 @@ data Primitive =
     | MewlixBool            Bool
     | MewlixNil
     | MewlixHome
+    | MewlixOutside
     deriving (Show)
 
 data Expression =
