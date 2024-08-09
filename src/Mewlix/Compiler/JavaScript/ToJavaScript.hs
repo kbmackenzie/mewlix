@@ -102,98 +102,98 @@ instance ToJavaScript Expression where
 
     -- Boolean operations:
     ----------------------------------------------
-    transpileJS _ (BooleanAnd left right) = do
-        a  <- toJS left
-        fb <- lambda <$> toJS right
+    transpileJS level (BooleanAnd left right) = do
+        a  <- transpileJS level left
+        fb <- lambda <$> transpileJS level right
         return $ call (Mewlix.boolean "and") [ a, fb ]
 
-    transpileJS _ (BooleanOr left right) = do
-        a  <- toJS left
-        fb <- lambda <$> toJS right
+    transpileJS level (BooleanOr left right) = do
+        a  <- transpileJS level left
+        fb <- lambda <$> transpileJS level right
         return $ call (Mewlix.boolean "or") [ a, fb ]
 
     -- Ternary operator:
     ----------------------------------------------
-    transpileJS _ (TernaryOperation conditionExpr left right) = do
+    transpileJS level (TernaryOperation conditionExpr left right) = do
         condition <- toJS conditionExpr
-        fa <- lambda <$> toJS left
-        fb <- lambda <$> toJS right
+        fa <- lambda <$> transpileJS level left
+        fb <- lambda <$> transpileJS level right
         return $ call (Mewlix.boolean "ternary") [ condition, fa, fb ]
 
     -- Lambda function:
     ----------------------------------------------
-    transpileJS _ (LambdaExpression paramExprs bodyExpr) = do
-        body   <- toJS bodyExpr
-        params <- toJS paramExprs
+    transpileJS level (LambdaExpression paramExprs bodyExpr) = do
+        body   <- transpileJS level bodyExpr
+        params <- transpileJS level paramExprs
         wrap (params <> " => " <> body)
 
     -- Function calls:
     ----------------------------------------------
-    transpileJS _ (FunctionCall expr argExprs) = do
-        args <- toJS argExprs
-        func <- toJS expr
+    transpileJS level (FunctionCall expr argExprs) = do
+        args <- transpileJS level argExprs
+        func <- transpileJS level expr
         return (func <> args)
 
     -- Dot expression:
     ----------------------------------------------
-    transpileJS _ (DotExpression objectExpr propertyExpr) = do
-        object   <- toJS objectExpr
-        property <- toJS propertyExpr
+    transpileJS level (DotExpression objectExpr propertyExpr) = do
+        object   <- transpileJS level objectExpr
+        property <- transpileJS level propertyExpr
         return $ call (parens object <> ".get") [property]
 
     -- Lookup expression:
     ----------------------------------------------
-    transpileJS _ (LookupExpression objectExpr propertyExpr) = do
+    transpileJS level (LookupExpression objectExpr propertyExpr) = do
         let stringify = call Mewlix.purrify . List.singleton
-        object   <- toJS objectExpr
-        property <- stringify <$> toJS propertyExpr
+        object   <- transpileJS level objectExpr
+        property <- stringify <$> transpileJS level propertyExpr
         return $ call (parens object <> ".get") [property]
 
     -- Clowder expressions:
     ----------------------------------------------
-    transpileJS _ (ClowderCreate clowderExpr argExprs) = do
-        clowder <- toJS clowderExpr
-        args    <- toJS argExprs
+    transpileJS level (ClowderCreate clowderExpr argExprs) = do
+        clowder <- transpileJS level clowderExpr
+        args    <- transpileJS level argExprs
         let create = call (Mewlix.clowder "instantiate") . List.singleton
         return $ create clowder <> args
 
     -- Binary operations:
     ----------------------------------------------
-    transpileJS _ (BinaryOperation op left right) = do
+    transpileJS level (BinaryOperation op left right) = do
         let func = binaryOpFunc op
-        args <- mapM toJS [left, right]
+        args <- mapM (transpileJS level) [left, right]
         return $ func args
 
     -- Unary operations:
     ----------------------------------------------
-    transpileJS _ (UnaryOperation op operand) = do
+    transpileJS level (UnaryOperation op operand) = do
         let func = unaryOpFunc op
-        arg  <- toJS operand
+        arg  <- transpileJS level operand
         return $ func [arg]
 
     -- 'Paw at' / Type of:
     ----------------------------------------------
-    transpileJS _ (AskType operand) = do
-        arg <- toJS operand
+    transpileJS level (AskType operand) = do
+        arg <- transpileJS level operand
         return $ call (Mewlix.reflection "typeOf") [arg]
 
     -- 'Is' / Instance of:
     ----------------------------------------------
-    transpileJS _ (IsInstance a b) = do
-        args <- mapM toJS [a, b]
+    transpileJS level (IsInstance a b) = do
+        args <- mapM (transpileJS level) [a, b]
         return $ call (Mewlix.reflection "instanceOf") args
 
     -- 'Claw at'/ Box entries:
     ----------------------------------------------
-    transpileJS _ (ClawEntries operand) = do
-        arg <- toJS operand
+    transpileJS level (ClawEntries operand) = do
+        arg <- transpileJS level operand
         return $ call (Mewlix.box "pairs") [arg]
 
     -- IO:
     ----------------------------------------------
-    transpileJS _ (MeowExpression expr) = do
+    transpileJS level (MeowExpression expr) = do
         let stringify = call Mewlix.purrify . List.singleton
-        arg <- stringify <$> toJS expr
+        arg <- stringify <$> transpileJS level expr
         return $ call (Mewlix.mewlix "meow") [arg]
 
 {- Params -}
@@ -215,17 +215,17 @@ instance ToJavaScript Statement where
     -- Expressions:
     ----------------------------------------------
     transpileJS level   (ExpressionStatement expr) = do
-        indentLine level . terminate =<< toJS expr
+        indentLine level . terminate =<< transpileJS level expr
 
     -- Bindings:
     ----------------------------------------------
     transpileJS level    (Variable key expr) = do
-        value <- toJS expr
+        value <- transpileJS level expr
         let declaration = mconcat [ "let ", getKey key, " = ", value, ";" ]
         indentLine level declaration
 
     transpileJS level    (Constant key expr) = do
-        value <- toJS expr
+        value <- transpileJS level expr
         let declaration = mconcat [ "const ", getKey key, " = ", value, ";" ]
         indentLine level declaration
 
@@ -241,13 +241,13 @@ instance ToJavaScript Statement where
     transpileJS level   (FunctionAssignment expr func) = do
         let assignment :: Transpiler (Text -> Text)
             assignment = do
-                left <- toJS expr
+                left <- transpileJS level expr
                 return $ \right -> mconcat $ [ left, " = ", right ]
 
         let createSetter :: Expression -> Expression -> Transpiler (Text -> Text)
             createSetter a b = do
-                object   <- toJS a
-                property <- toJS b
+                object   <- transpileJS level a
+                property <- transpileJS level b
                 return $ \value -> call (parens object <> ".set") [property, value]
 
         funcExpr <- transpileJS level func
@@ -264,15 +264,15 @@ instance ToJavaScript Statement where
     transpileJS level (Assignment lvalue rvalue) = do
         let assignment :: Transpiler Text
             assignment = do
-                left  <- toJS lvalue
-                right <- toJS rvalue
+                left  <- transpileJS level lvalue
+                right <- transpileJS level rvalue
                 return . mconcat $ [ left, " = ", right ]
 
         let createSetter :: Expression -> Expression -> Transpiler Text
             createSetter a b = do
-                object   <- toJS a
-                property <- toJS b
-                value    <- toJS rvalue
+                object   <- transpileJS level a
+                property <- transpileJS level b
+                value    <- transpileJS level rvalue
                 return $ call (parens object <> ".set") [property, value]
 
         indentLine level . terminate =<< case lvalue of
@@ -285,7 +285,7 @@ instance ToJavaScript Statement where
     transpileJS level   (IfElse conditionals else_) = do
         let transpileConditional :: Conditional -> Transpiler Text
             transpileConditional (Conditional expr block) = do
-                condition <- asBoolean <$> toJS expr
+                condition <- asBoolean <$> transpileJS level expr
                 body      <- transpileJS level block
                 let header = mconcat [ "if (", condition, ") " ]
                 return (header <> body)
@@ -307,7 +307,7 @@ instance ToJavaScript Statement where
     -- While loop:
     ----------------------------------------------
     transpileJS level   (WhileLoop expr block) = do
-        condition   <- asBoolean <$> toJS expr
+        condition   <- asBoolean <$> transpileJS level expr
         body        <- transpileJS level block
         let header = mconcat [ "while (", condition, ") " ]
         indentLine level (header <> body)
@@ -315,7 +315,7 @@ instance ToJavaScript Statement where
     -- Foreach loop:
     ----------------------------------------------
     transpileJS level   (ForEachLoop expr key block) = do
-        iterable    <- toJS expr
+        iterable    <- transpileJS level expr
         body        <- transpileJS level block
 
         let chase  = call (Mewlix.internal "chase") [iterable]
@@ -329,7 +329,7 @@ instance ToJavaScript Statement where
     -- Return keyword:
     ----------------------------------------------
     transpileJS level   (Return expr) = do
-        value <- toJS expr
+        value <- transpileJS level expr
         let ret = mconcat [ "return ", value, ";" ]
         indentLine level ret
 
@@ -369,7 +369,7 @@ instance ToJavaScript Statement where
     transpileJS level   (ClassDef clowder) = do
         let nil = PrimitiveExpr MewlixNil
         let parentValue = maybe nil Identifier (classExtends clowder)
-        parent <- toJS parentValue
+        parent <- transpileJS level parentValue
         name   <- (toJS . MewlixString . getKey . className) clowder
 
         let makeKey :: Key -> Transpiler Text
@@ -399,21 +399,21 @@ instance ToJavaScript Statement where
 
     transpileJS level   (SuperCall argExprs) = do
         let superRef = unwrapKeyword Keywords.superRef
-        args <- toJS argExprs
+        args <- transpileJS level argExprs
         indentLine level . terminate $ (superRef <> args)
 
     -- Enum statement:
     ----------------------------------------------
     transpileJS level   (EnumDef enum) = do
         let key = (getKey . enumName) enum
-        enumBox <- toJS enum
+        enumBox <- transpileJS level enum
         indentLine level . mconcat $ [ "const ", key, " = ", enumBox, ";" ]
 
     -- 'Throw' expression:
     ----------------------------------------------
     transpileJS level   (ThrowError expr pos) = do
         let stringify = call Mewlix.purrify . List.singleton
-        arg <- stringify <$> toJS expr
+        arg <- stringify <$> transpileJS level expr
         let err = createError CatOnComputer pos arg
         indentLine level . terminate $ ("throw " <> err)
 
@@ -442,7 +442,7 @@ instance ToJavaScript Statement where
     -- Assert:
     ----------------------------------------------
     transpileJS level   (Assert expr pos) = do
-        condition <- asBoolean <$> toJS expr
+        condition <- asBoolean <$> transpileJS level expr
         let failed = call (Mewlix.internal "assertionFail") [ errorInfo pos ]
         indentLine level . terminate . mconcat $
             [ "void (", condition <> " || " <> failed, ")" ]
@@ -452,7 +452,7 @@ instance ToJavaScript Statement where
 instance ToJavaScript MewlixFunction where
     transpileJS level func = do
         let name = (getKey . funcName) func
-        params  <- toJS (funcParams func)
+        params  <- transpileJS level (funcParams func)
         body    <- transpileJS level (funcBody func)
         return $ mconcat [ "function ", name, params, " ", body ]
 
