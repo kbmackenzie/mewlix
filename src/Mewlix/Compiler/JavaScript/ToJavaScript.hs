@@ -81,19 +81,19 @@ instance ToJavaScript Expression where
 
     -- Lists + boxes:
     ----------------------------------------------
-    transpileJS _ (ListExpression exprs) = do
+    transpileJS _     (ListExpression exprs) = do
         items <- mapM toJS exprs
         let array = (brackets . sepComma) items
         return $ call (Mewlix.shelf "create") [ array ]
 
-    transpileJS _ (BoxExpression pairs) = do
+    transpileJS level (BoxExpression pairs) = do
         let makeKey :: Key -> Transpiler Text
             makeKey = toJS . MewlixString . getKey
 
         let makeTuple :: (Key, Expression) -> Transpiler Text
             makeTuple (key, expr) = do
                 bind  <- makeKey key
-                value <- toJS expr
+                value <- transpileJS level expr
                 return . mconcat $ [ bind, ": ", value ]
 
         items <- mapM makeTuple pairs
@@ -349,13 +349,13 @@ instance ToJavaScript Statement where
         let makeTuple :: MewlixFunction -> Transpiler Text
             makeTuple func = do
                 bind  <- makeKey (funcName func)
-                value <- toJS func
+                value <- transpileJS level func
                 return . mconcat $ [ bind, ": ", value ]
 
         methods     <- mapM makeTuple (classMethods clowder)
         constructor <- for (classConstructor clowder) $ \func -> do
             let bind = brackets (Mewlix.mewlix "wake")
-            value <- toJS func
+            value <- transpileJS level func
             return . mconcat $ [ bind, ": ", value ]
 
         let bindings = maybe methods (: methods) constructor

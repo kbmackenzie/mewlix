@@ -33,7 +33,7 @@ compileFile path = do
     contents <- either (throwIO . ParseException) return =<< readText path
 
     let libs = addLibraries Node mempty
-    let context = emptyContext { imports = libs, pretty = True }
+    let context = emptyContext { library = libs, pretty = True }
 
     let handleError :: String -> IO a
         handleError e = do
