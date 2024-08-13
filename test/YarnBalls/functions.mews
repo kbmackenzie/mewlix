@@ -55,7 +55,7 @@ mew sum2 = 🐈 (a, b)
 
 -- Early return (no value):
 🐱 print_is_even(n)
-  look if n % 2 == 0
+  pounce when n % 2 == 0
     meow "Number is even"
     run away -- Same as 'bring nothing'!
   ~meow
