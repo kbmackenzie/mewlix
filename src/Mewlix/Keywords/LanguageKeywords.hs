@@ -218,13 +218,13 @@ break :: SimpleKeyword
 break = "escape"
 
 if_ :: WordSequence
-if_ = ["look", "if"]
+if_ = ["pounce", "when"]
 
 elif :: WordSequence
-elif = ["or", "if"]
+elif = ["or", "when"]
 
 else_ :: WordSequence
-else_ = ["else", "just"]
+else_ = ["else", "hiss"]
 
 while :: WordSequence
 while = ["stare", "while"]
