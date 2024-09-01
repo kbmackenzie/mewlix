@@ -63,6 +63,7 @@ data ProjectMode =
 data ProjectFlag =
       Quiet
     | Pretty
+    | Rebuild
     | NoStd
     | NoReadMe
     | NoBrowser
@@ -182,6 +183,7 @@ parseFlag :: Text -> Maybe ProjectFlag
 parseFlag key = case parse key of
     "quiet"      -> return Quiet
     "pretty"     -> return Pretty
+    "rebuild"    -> return Rebuild
     "no-std"     -> return NoStd
     "no-readme"  -> return NoReadMe
     "no-browser" -> return NoBrowser
