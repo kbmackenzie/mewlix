@@ -22,6 +22,7 @@ import CLI.Options
     ( ProjectOptions(..)
     , FlagOptions(..)
     , MewlixOptions(..)
+    , RunOptions(..)
     , getOptions
     )
 import Lens.Micro.Platform ((%~), set)
@@ -36,6 +37,9 @@ transform :: Maybe a -> (a -> ProjectTransform) -> ProjectTransform
 transform Nothing  _  = id
 transform (Just a) f  = f a
 
+fromBool :: Bool -> ProjectFlag -> Maybe ProjectFlag
+fromBool bool flag = if bool then Just flag else Nothing
+
 fromOptions :: ProjectOptions -> [ProjectTransform]
 fromOptions ProjectOptions
     { filesOpt = files
@@ -49,15 +53,24 @@ fromOptions ProjectOptions
         , transform entry (set projectEntrypointL . Text.pack)
         , transform mode  (set projectModeL)                    ]
 
+fromRunOptions :: RunOptions -> ProjectTransform
+fromRunOptions RunOptions
+    { portOpt = port
+    , rebuildFlag = rebuild
+    , noBrowserFlag = noBrowser } = do
+        let setPort  = maybe id (set projectPortL) port
+        let flags    = catMaybes
+                [ fromBool rebuild   Rebuild
+                , fromBool noBrowser NoBrowser ]
+        let addFlags = projectFlagsL %~ mappend (Set.fromList flags)
+        setPort . addFlags
+
 fromFlags :: FlagOptions -> ProjectTransform
 fromFlags FlagOptions
     { quietFlag = quiet
     , prettyFlag = pretty
     , noStdFlag = noStd
     , noReadMeFlag = noReadMe } = do
-        let fromBool :: Bool -> ProjectFlag -> Maybe ProjectFlag
-            fromBool bool flag = if bool then Just flag else Nothing
-
         let flagList = catMaybes
                 [ fromBool quiet    Quiet
                 , fromBool pretty   Pretty
@@ -71,12 +84,9 @@ runOption = \case
         let transforms = fromFlags flags : fromOptions options
         make (not standalone) transforms Build
 
-    (RunOpt options flags standalone port noBrowser) -> do
-        let portFunc = maybe id (set projectPortL) port
-        let browser = if noBrowser
-            then projectFlagsL %~ Set.insert NoBrowser
-            else id
-        let transforms = browser : portFunc : fromFlags flags : fromOptions options
+    (RunOpt options flags standalone runOpts) -> do
+        let runTrans = fromRunOptions runOpts
+        let transforms = runTrans : fromFlags flags : fromOptions options
         make (not standalone) transforms Run
 
     (PackageOpt options flags standalone) -> do

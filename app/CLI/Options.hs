@@ -2,6 +2,7 @@ module CLI.Options
 ( ProjectOptions(..)
 , FlagOptions(..)
 , MewlixOptions(..)
+, RunOptions(..)
 , getOptions
 ) where
 
@@ -51,9 +52,15 @@ data FlagOptions = FlagOptions
     , noReadMeFlag :: Bool }
     deriving (Show)
 
+data RunOptions = RunOptions
+    { portOpt       :: Maybe Port
+    , rebuildFlag   :: Bool
+    , noBrowserFlag :: Bool      }
+    deriving (Show)
+
 data MewlixOptions =
       BuildOpt      ProjectOptions FlagOptions Bool
-    | RunOpt        ProjectOptions FlagOptions Bool (Maybe Port) Bool
+    | RunOpt        ProjectOptions FlagOptions Bool RunOptions
     | PackageOpt    ProjectOptions FlagOptions Bool
     | NewOpt        (Maybe String) (Maybe ProjectMode)
     | CleanOpt      Bool
@@ -155,6 +162,18 @@ noBrowser = switch
      ( long "no-browser"
     <> help "Don't launch web browser when running project" )
 
+rebuild :: Parser Bool
+rebuild = switch
+     ( long "rebuild"
+    <> short 'r'
+    <> help "Rebuild project" )
+
+runOptions :: Parser RunOptions
+runOptions = RunOptions
+    <$> optional port
+    <*> rebuild
+    <*> noBrowser
+
 makeInfo :: Parser a -> String -> ParserInfo a
 makeInfo parser desc = info (parser <**> helper) (fullDesc <> progDesc desc)
 
@@ -176,8 +195,7 @@ parseOptions = options
                     <$> projectOptions
                     <*> flagOptions
                     <*> standalone
-                    <*> optional port
-                    <*> noBrowser
+                    <*> runOptions
 
         package :: Mod CommandFields MewlixOptions
         package = command "package" $ makeInfo parser "Package project's build output into a .zip archive"
