@@ -1,3 +1,5 @@
+{-# LANGUAGE StrictData #-}
+
 module CLI.Options
 ( ProjectOptions(..)
 , FlagOptions(..)
