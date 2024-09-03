@@ -12,10 +12,10 @@ newtype Template = Template { getTemplate :: FilePath }
     deriving (Eq, Show)
 
 templatePath :: FilePath -> FilePath
-templatePath = ("templates" </>)
+templatePath = ("static/templates/" </>)
 
 template :: ProjectMode -> Template
 template = \case
-    Console -> Template { getTemplate = templatePath "js/console.zip" }
-    Graphic -> Template { getTemplate = templatePath "js/graphic.zip" }
-    Node    -> Template { getTemplate = templatePath "js/node.zip"    }
+    Console -> Template { getTemplate = templatePath "console.zip" }
+    Graphic -> Template { getTemplate = templatePath "graphic.zip" }
+    Node    -> Template { getTemplate = templatePath "node.zip"    }
