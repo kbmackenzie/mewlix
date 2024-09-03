@@ -51,7 +51,7 @@ ghc-options:
 - -Wredundant-constraints
 
 data-files:
-- templates/js/*.zip
+- static/templates/*.zip
 
 library:
   source-dirs: src

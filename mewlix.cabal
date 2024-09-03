@@ -20,9 +20,9 @@ extra-source-files:
     README.md
     CHANGELOG.md
 data-files:
-    templates/js/console.zip
-    templates/js/graphic.zip
-    templates/js/node.zip
+    static/templates/console.zip
+    static/templates/graphic.zip
+    static/templates/node.zip
 
 source-repository head
   type: git
