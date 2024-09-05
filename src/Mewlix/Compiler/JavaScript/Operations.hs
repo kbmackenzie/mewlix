@@ -8,7 +8,6 @@ module Mewlix.Compiler.JavaScript.Operations
 
 import Data.Text (Text)
 import Mewlix.Compiler.JavaScript.Utils.Expression (call)
-import Mewlix.String.Utils (sepComma)
 import qualified Mewlix.Compiler.JavaScript.Constants as Mewlix
 import Mewlix.Abstract.AST (BinaryOp(..), UnaryOp(..))
 
