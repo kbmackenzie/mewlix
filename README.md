@@ -27,14 +27,15 @@ It has...
 - String interpolation—`:3"like [this]!"`—affectionately nicknamed *'yarn strings'*.
 - Lambda functions, defined like this: `🐈 (a, b) -> a + b`
 - Classes, affectionately nicknamed *'clowders'*.
-- A [function composition](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-composition-) operator (`:>`) and a [function application](https://github.com/kbmackenzie/mewlix/wiki/Operators#function-pipes-) operator (`|>`)!
+- A function composition operator (`:>`) and a function application operator (`|>`)!
 - `nand` and `nor` operators, for picky boolean expressions.
 - Feline-oriented programming capabilities.
 
 ## Documentation
-All of the documentation for Mewlix can be found in the [wiki](https://github.com/kbmackenzie/mewlix/wiki).
 
-If you have any questions, be sure to read the [FAQ](https://github.com/kbmackenzie/mewlix/wiki/FAQ)!
+All of the documentation for Mewlix can be found on [the website](https://kbmackenzie.xyz/projects/mewlix)!
+
+If you have any questions, be sure to read the [FAQ](https://kbmackenzie.xyz/projects/mewlix/faq)!
 
 ![Looping animation of a cartoon cat resting on a shelf.](https://github.com/kbmackenzie/mewlix/wiki/imgs/cat-shelf.webp)
 
