@@ -1,8 +1,8 @@
 <img align="left" width="256" height="256" src="logo.svg" alt="Mewlix logo">
 
-**Mewlix** is a cat-themed [esoteric programming language](https://en.wikipedia.org/wiki/Esoteric_programming_language) that compiles to vanilla JavaScript. It's designed for making little HTML5 games!
+**Mewlix** is a cat-themed [esoteric programming language][5] that compiles to vanilla JavaScript. It's designed for making little HTML5 games!
 
-Mewlix's compiler is written in pure Haskell, and is a self-contained binary executable. It can build projects, run them in a simple HTTP server, and package the build output neatly into a `.zip` file for upload in websites like [itch.io](https://itch.io/).
+Mewlix's compiler is written in pure Haskell, and is a self-contained binary executable. It can build projects, run them in a simple HTTP server, and package the build output neatly into a `.zip` file for upload in websites like [itch.io][6]!
 
 As is tradition for all languages, here's a simple `'hello world'` program in Mewlix:
 ```mewlix
@@ -23,7 +23,7 @@ do init <- draw_cat
 It has...
  
 - Cat-themed syntax!
-- A stack-like, LIFO [persistent data structure](https://en.wikipedia.org/wiki/Persistent_data_structure)—affectionately nicknamed a *'shelf'*.
+- A stack-like, LIFO [persistent data structure][7]—affectionately nicknamed a *'shelf'*.
 - String interpolation—`:3"like [this]!"`—affectionately nicknamed *'yarn strings'*.
 - Lambda functions, defined like this: `🐈 (a, b) -> a + b`
 - Classes, affectionately nicknamed *'clowders'*.
@@ -33,15 +33,15 @@ It has...
 
 ## Documentation
 
-All of the documentation for Mewlix can be found on [the website](https://kbmackenzie.xyz/projects/mewlix)!
+All of the documentation for Mewlix can be found on [the website][1]!
 
-If you have any questions, be sure to read the [FAQ](https://kbmackenzie.xyz/projects/mewlix/faq)!
+If you have any questions, be sure to read the [FAQ][2]
 
 ![Looping animation of a cartoon cat resting on a shelf.](https://github.com/kbmackenzie/mewlix/wiki/imgs/cat-shelf.webp)
 
 ## Examples
 
-An assortment of little example projects written in Mewlix can be found [here](https://github.com/kbmackenzie/mewlix-examples).
+An assortment of little example projects written in Mewlix can be found [here][4]!
 
 <p float="left">
   <a href="https://github.com/kbmackenzie/mewlix-examples/tree/main/08%20-%20snake%20game">
@@ -60,17 +60,32 @@ An assortment of little example projects written in Mewlix can be found [here](h
 
 
 ## Installation
+
 Mewlix's compiler is a self-contained binary executable.
 
 The installation guide can be found [here](./INSTALL.md).
 
 A guide on how to build Mewlix from source can be found [here](./INSTALL.md#build-from-source).
 
+## Related Links
+
+- All the source code for Mewlix's base library and templates can be found [here][3].
+- Example projects can be found [here][4]!
+
 ## Tools
 
-### Vim
+### Vim Plugin
 
-A plugin that provides syntax highlighting for `.mews` files can be found [here](https://github.com/kbmackenzie/mewlix.vim)!
+A plugin that provides syntax highlighting for `.mews` files can be found [here][8].
 
 ## Special Thanks
 A big special thanks to my friend Jade for helping me stay sane through this project and for letting me talk endlessly about it these past few months. I wouldn't have been able to finish it without you, thank you! ♡
+
+[1]: https://kbmackenzie.xyz/projects/mewlix
+[2]: https://kbmackenzie.xyz/projects/mewlix/faq
+[3]: https://github.com/kbmackenzie/mewlix-base
+[4]: https://github.com/kbmackenzie/mewlix-examples
+[5]: https://en.wikipedia.org/wiki/Esoteric_programming_language
+[6]: https://itch.io/
+[7]: https://en.wikipedia.org/wiki/Persistent_data_structure
+[8]: https://github.com/kbmackenzie/mewlix.vim
