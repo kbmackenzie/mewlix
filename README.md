@@ -69,8 +69,9 @@ A guide on how to build Mewlix from source can be found [here](./INSTALL.md#buil
 
 ## Related Links
 
-- All the source code for Mewlix's base library and templates can be found [here][3].
-- Example projects can be found [here][4]!
+All the source code for Mewlix's **base library and templates** can be found [here][3].
+
+**Example projects** can be found [here][4]!
 
 ## Tools
 
@@ -79,6 +80,7 @@ A guide on how to build Mewlix from source can be found [here](./INSTALL.md#buil
 A plugin that provides syntax highlighting for `.mews` files can be found [here][8].
 
 ## Special Thanks
+
 A big special thanks to my friend Jade for helping me stay sane through this project and for letting me talk endlessly about it these past few months. I wouldn't have been able to finish it without you, thank you! ♡
 
 [1]: https://kbmackenzie.xyz/projects/mewlix
