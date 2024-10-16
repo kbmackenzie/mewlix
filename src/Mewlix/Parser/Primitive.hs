@@ -16,7 +16,7 @@ import Mewlix.Parser.String (parseString, parseStringM)
 import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Keywords.Types (SimpleKeyword(..))
-import qualified Mewlix.Keywords.LanguageKeywords as Keywords
+import qualified Mewlix.Keywords.Constants as Keywords
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Text.Megaparsec ((<?>))

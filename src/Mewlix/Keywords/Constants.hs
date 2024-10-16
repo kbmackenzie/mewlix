@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE OverloadedLists #-}
 
-module Mewlix.Keywords.LanguageKeywords
+module Mewlix.Keywords.Constants
 ( function
 , local
 , pipe

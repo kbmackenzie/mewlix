@@ -34,7 +34,7 @@ import Mewlix.Parser.Primitive
     )
 import Text.Megaparsec ((<?>), label, hidden)
 import Mewlix.Keywords.Types (LongSymbol(..), unwrapKeyword)
-import qualified Mewlix.Keywords.LanguageKeywords as Keywords
+import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Text.Megaparsec as Mega
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 import qualified Data.List as List

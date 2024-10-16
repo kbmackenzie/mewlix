@@ -49,7 +49,7 @@ library
       Mewlix.Compiler.Run
       Mewlix.Compiler.Transpiler
       Mewlix.Compiler.Whitespace
-      Mewlix.Keywords.LanguageKeywords
+      Mewlix.Keywords.Constants
       Mewlix.Keywords.Types
       Mewlix.Packager.Actions.Build
       Mewlix.Packager.Actions.Clean

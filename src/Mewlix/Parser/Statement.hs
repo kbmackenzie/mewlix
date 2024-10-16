@@ -44,7 +44,7 @@ import Mewlix.Parser.Utils
 import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Keywords.Types (SimpleKeyword(..))
 import Data.List.NonEmpty (NonEmpty((:|)))
-import qualified Mewlix.Keywords.LanguageKeywords as Keywords
+import qualified Mewlix.Keywords.Constants as Keywords
 import Text.Megaparsec ((<|>), (<?>), label)
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar

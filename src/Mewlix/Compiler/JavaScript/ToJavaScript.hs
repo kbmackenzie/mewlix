@@ -38,7 +38,7 @@ import Mewlix.Compiler.JavaScript.Error (ErrorCode(..), errorInfo, createError)
 import Mewlix.Compiler.JavaScript.Utils.Statement (terminate, findBindings)
 import Mewlix.Compiler.JavaScript.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.JavaScript.Constants as Mewlix
-import qualified Mewlix.Keywords.LanguageKeywords as Keywords
+import qualified Mewlix.Keywords.Constants as Keywords
 import Mewlix.Keywords.Types (unwrapKeyword)
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
