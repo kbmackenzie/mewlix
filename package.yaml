@@ -72,7 +72,7 @@ executables:
     - -static
     dependencies:
     - mewlix
-    - optparse-applicative >= 0.17 && < 0.18
+    - optparse-applicative >= 0.17.1.0 && < 0.18
 
 tests:
   mewlix-test:
