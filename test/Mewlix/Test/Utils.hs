@@ -1,4 +1,4 @@
-module Test.Utils
+module Mewlix.Test.Utils
 ( readText
 ) where
 

@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 
-import Test.Compiler (compileFile, compileTests)
+import Mewlix.Test.Compiler (compileFile, compileTests)
 import System.Environment (getArgs)
 import qualified Data.Text.IO as TextIO
 import Control.Monad ((>=>))

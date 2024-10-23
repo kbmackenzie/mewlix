@@ -1,13 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Compiler 
+module Mewlix.Test.Compiler 
 ( ParseException(..)
 , compileFile
 , compileTests
 ) where
 
 import Data.Text (Text)
-import Test.Utils (readText)
+import Mewlix.Test.Utils (readText)
 import Mewlix.Compiler (compileJS, TranspilerContext(..), emptyContext)
 import Mewlix.Packager (ProjectMode(..), addLibraries)
 import System.IO (stderr, hPutStrLn)
