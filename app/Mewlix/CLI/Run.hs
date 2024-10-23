@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 
-module CLI.Run
+module Mewlix.CLI.Run
 ( run
 ) where
 
@@ -18,7 +18,7 @@ import Mewlix.Packager
     , projectFlagsL
     , projectAssetsL
     )
-import CLI.Options
+import Mewlix.CLI.Options
     ( ProjectOptions(..)
     , FlagOptions(..)
     , MewlixOptions(..)

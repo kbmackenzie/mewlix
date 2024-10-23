@@ -1,6 +1,6 @@
 {-# LANGUAGE StrictData #-}
 
-module CLI.Options
+module Mewlix.CLI.Options
 ( ProjectOptions(..)
 , FlagOptions(..)
 , MewlixOptions(..)
