@@ -3,9 +3,9 @@ module Mewlix.Logger
 , logger
 ) where
 
-import Mewlix.Utils.Logging (hPutUtil)
 import Data.Text (Text)
 import qualified Data.Text as Text
+import qualified Data.Text.IO as TextIO
 import System.IO (Handle, stdout, stderr)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import System.Console.ANSI
@@ -28,27 +28,27 @@ splitMessage message = do
     (x, _) <- Text.uncons message
     if x == '['
         then do
-            i <- succ <$> Text.findIndex (== ']') message
-            Just (Text.splitAt i message)
+            index <- succ <$> Text.findIndex (== ']') message
+            Just (Text.splitAt index message)
         else Nothing
 
-colorPrint :: (MonadIO m) => Handle -> [SGR] -> Text -> m ()
-colorPrint handle sgr message = case splitMessage message of
-    Nothing               -> putLine message
-    (Just (header, body)) -> do
-        supported <- liftIO (hSupportsANSIColor handle)
+colorPrefix :: (MonadIO m) => Handle -> [SGR] -> Text -> m ()
+colorPrefix handle styles message = case splitMessage message of
+    Nothing               -> liftIO $ putLine message
+    (Just (header, body)) -> liftIO $ do
+        supported <- hSupportsANSIColor handle
         if supported
             then do
-                liftIO (hSetSGR handle sgr)
+                hSetSGR handle styles
                 put header
-                liftIO (hSetSGR handle [Reset])
+                hSetSGR handle [Reset]
                 putLine body
             else putLine message
     where
-        put     = hPutUtil False handle
-        putLine = hPutUtil True  handle
+        put     = TextIO.hPutStr   handle
+        putLine = TextIO.hPutStrLn handle
 
 logger :: (MonadIO m) => LogType -> Text -> m ()
 logger logtype = case logtype of
-    Info    -> colorPrint stdout [SetColor Foreground Vivid Yellow]
-    Error   -> colorPrint stderr [SetColor Foreground Vivid Magenta, SetConsoleIntensity BoldIntensity]
+    Info    -> colorPrefix stdout [SetColor Foreground Vivid Yellow]
+    Error   -> colorPrefix stderr [SetColor Foreground Vivid Magenta, SetConsoleIntensity BoldIntensity]
