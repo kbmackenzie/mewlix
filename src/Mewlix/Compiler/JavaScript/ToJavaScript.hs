@@ -247,7 +247,7 @@ instance ToJavaScript Statement where
         let assignment :: Transpiler (Text -> Text)
             assignment = do
                 left <- transpileJS level expr
-                return $ \right -> mconcat $ [ left, " = ", right ]
+                return $ \right -> mconcat [ left, " = ", right ]
 
         let createSetter :: Expression -> Expression -> Transpiler (Text -> Text)
             createSetter a b = do

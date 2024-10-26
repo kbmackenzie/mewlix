@@ -31,7 +31,7 @@ newtype Transpiler a = Transpiler
              )
 
 transpile :: TranspilerContext -> Transpiler a -> a
-transpile ctx = flip runReader ctx . runTranspiler;
+transpile context = flip runReader context . runTranspiler
 
 emptyContext :: TranspilerContext
 emptyContext = TranspilerContext
