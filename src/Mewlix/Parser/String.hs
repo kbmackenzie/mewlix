@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE StrictData #-}
 
 module Mewlix.Parser.String
 ( parseString
@@ -18,6 +19,7 @@ import qualified Data.Text as Text
 import Text.Megaparsec (label)
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char as MChar
+import Data.Foldable (foldl')
 import Control.Monad (void)
 
 {- Escape sequences: -}
@@ -108,8 +110,7 @@ stringToExpr :: Text -> Expression
 stringToExpr = PrimitiveExpr . MewlixString
 
 interpolate :: [Expression] -> Expression
-interpolate = foldl (BinaryOperation StringConcat) emptyString
-    where emptyString = stringToExpr mempty
+interpolate = foldl' (BinaryOperation StringConcat) (stringToExpr mempty)
 
 stringCharY :: (Char -> Bool) -> Parser Char
 stringCharY allowed = Mega.choice
