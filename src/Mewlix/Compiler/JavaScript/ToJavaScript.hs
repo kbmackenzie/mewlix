@@ -78,8 +78,8 @@ instance ToJavaScript Expression where
     transpileJS level (ListExpression exprs) = do
         let makeItem :: Expression -> Transpiler Text
             makeItem expr = do
-                value <- transpileJS (succ level) expr
-                indentLine level (value <> ",")
+                value <- transpileJS ((succ . succ) level) expr
+                indentLine (succ level) (value <> ",")
 
         let items = map makeItem exprs
         array <- joinLines
@@ -95,7 +95,7 @@ instance ToJavaScript Expression where
         let makeTuple :: (Key, Expression) -> Transpiler Text
             makeTuple (key, expr) = do
                 bind  <- makeKey key
-                value <- transpileJS level expr
+                value <- transpileJS (succ level) expr
                 indentLine (succ level) . mconcat $ [ bind, ": ", value, "," ]
 
         let items = map makeTuple pairs
