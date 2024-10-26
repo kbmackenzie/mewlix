@@ -32,18 +32,10 @@ import Mewlix.Abstract.Module (ModuleData(..))
 import Mewlix.Parser.Module (parseModuleKey)
 import Mewlix.Parser.Primitive (parseKey, parseParams)
 import Mewlix.Parser.Expression (expression, lvalue, arguments)
-import Mewlix.Parser.Utils
-    ( linebreak
-    , skipLines
-    , multiline
-    , symbol
-    , brackets
-    , repeatChar
-    , lexeme
-    )
+import Mewlix.Parser.Utils (linebreak, skipLines, multiline, symbol, brackets, repeatChar, lexeme)
 import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Keywords.Types (SimpleKeyword(..))
-import Data.List.NonEmpty (NonEmpty((:|)))
+import Data.List.NonEmpty (NonEmpty((:|)), (<|))
 import qualified Mewlix.Keywords.Constants as Keywords
 import Text.Megaparsec ((<|>), (<?>), label)
 import qualified Text.Megaparsec as Mega
@@ -52,67 +44,44 @@ import Control.Monad (void, unless)
 import Data.Maybe (fromMaybe)
 import qualified Data.List as List
 import Data.Functor ((<&>))
+import Prelude hiding (lines, break)
+import Data.Bifunctor (first)
 
 root :: Parser YarnBall
-root = Mega.between skipLines Mega.eof yarnBall
+root = Mega.between skipLines Mega.eof yarnball
 
-yarnBall :: Parser YarnBall
-yarnBall = do
-    key  <- label "yarn ball" . Mega.optional $ do
-        keyword Keywords.yarnball <|> keyword Keywords.yarnball'
+yarnball :: Parser YarnBall
+yarnball = do
+    key <- label "yarn ball" . Mega.optional $ do
+        Mega.choice
+            [ keyword Keywords.yarnball
+            , keyword Keywords.yarnball' ]
         parseModuleKey <* linebreak
-    body <- Block <$> Mega.many statement
-    return (YarnBall key body)
+    body <- (fmap Block . Mega.many) statement
+    return $ YarnBall key body
 
-{- Parse statements: -}
+{- Parsing Statements -}
 ------------------------------------------------------------------
-statement :: Parser Statement
-statement = choose
-    [ declaration
-    , functionDef
-    , functionAssign
-    , returnKey
-    , earlyReturn
-    , classDef
-    , superCall
-    , enumDef
-    , whileLoop
-    , ifelse
-    , forEach
-    , assert
-    , continueKey
-    , breakKey
-    , importKey
-    , importList
-    , throwException
-    , tryCatch
-    , rethrow
-    , assignment
-    , expressionStm ]
-    <?> "statement"
-    where choose = Mega.choice . map multiline
-
-block :: Maybe (Parser ()) -> Parser Block
-block customStop = do
-    let stopPoint = fromMaybe (keyword Keywords.end) customStop
-    fmap Block . Mega.many $ do
-        Mega.notFollowedBy stopPoint
-        statement
-
 open :: Parser a -> Parser a
 open = (<* linebreak)
 
 close :: Parser ()
-close = Mega.choice
-    [ keyword Keywords.end >> linebreak
-    , fail "possibly unclosed block"    ]
+close = keyword Keywords.end >> linebreak
 
-{- Expression -}
+block :: Parser Block
+block = do
+    let lines :: Parser [Statement]
+        lines = ([] <$ close) <|> do
+            line <- statement <|> fail "possibly unclosed block"
+            (line :) <$> lines
+    Block <$> lines
+
+{- Expressions -}
 ------------------------------------------------------------------
-expressionStm :: Parser Statement
-expressionStm = ExpressionStatement <$> (expression <* linebreak)
+expressionStatement :: Parser Statement
+expressionStatement = ExpressionStatement <$> (expression <* linebreak)
 
-{- Declaration -}
+{- Bindings -}
 ------------------------------------------------------------------
 binding :: Parser (Expression -> Statement)
 binding = do
@@ -126,71 +95,124 @@ declaration = do
     let value :: Parser Expression
         value = Mega.choice
             [ symbol '=' >> (expression <* linebreak)
-            , return $ PrimitiveExpr MewlixNil        ]
+            , return (PrimitiveExpr MewlixNil) ]
     keyword Keywords.local
     binding <*> value
 
-{- Assignment -}
-------------------------------------------------------------------------------------
 assignment :: Parser Statement
 assignment = do
     key <- Mega.try $ do
         key <- lvalue
         lexeme $ do
-            (void . MChar.char) '='
-            Mega.notFollowedBy (MChar.char '=')
+            let equal = MChar.char '='
+            void equal
+            Mega.notFollowedBy equal
         return key
     Assignment key <$> expression
 
-{- While -}
+{- Loops -}
 ------------------------------------------------------------------
 whileLoop :: Parser Statement
 whileLoop = do
     condition <- open $ do
         keyword Keywords.while
         expression
-    body <- local (addNesting InLoop) $ block Nothing
-    close
-    return (WhileLoop condition body)
+    body <- local (addNesting InLoop) block
+    return $ WhileLoop condition body
 
-{- If Else -}
+continue :: Parser Statement
+continue = do
+    keyword Keywords.catnap
+    inLoop <- asks (nested InLoop)
+    unless inLoop
+        (fail "Cannot use loop keyword outside loop!")
+    Continue <$ linebreak
+
+break :: Parser Statement
+break = do
+    keyword Keywords.break
+    inLoop <- asks (nested InLoop)
+    unless inLoop
+        (fail "Cannot use loop keyword outside loop!")
+    Break <$ linebreak
+
+forEach :: Parser Statement
+forEach = do
+    (key, iterator) <- open $ do
+        keyword Keywords.forEach
+        key <- parseKey
+        keyword Keywords.forEachOf
+        iterator <- expression
+        (void . Mega.optional . repeatChar) '!'
+        return (key, iterator)
+    body <- local (addNesting InLoop) block
+    return $ ForEachLoop iterator key body
+
+{- Control Flow -}
 ------------------------------------------------------------------
-ifelse :: Parser Statement
-ifelse = do
-    let stopPoints = Mega.choice
-            [ keyword Keywords.elif
-            , keyword Keywords.else_
-            , keyword Keywords.end   ]
-    lookIf <- do
-        condition <- open $ do
-            keyword Keywords.if_
-            expression
-        body <- block (Just stopPoints)
-        return (Conditional condition body)
-    orIfs <- Mega.many $ do
-        condition <- open $ do
-            keyword Keywords.elif
-            expression
-        body <- block (Just stopPoints)
-        return (Conditional condition body)
-    elseJust <- Mega.optional $ do
-        open (keyword Keywords.else_)
-        block Nothing
-    close
-    let conditionals = lookIf :| orIfs
-    return (IfElse conditionals elseJust)
+type IfElseBuilder = Conditional -> (NonEmpty Conditional, Maybe Block)
+
+ifElse :: Parser Statement
+ifElse = do
+    let parseElse :: Parser IfElseBuilder
+        parseElse = do
+            open (keyword Keywords.else_)
+            body <- block
+            return $ \conditional -> (conditional :| [], Just body)
+
+    let parseEnd :: Parser IfElseBuilder
+        parseEnd = do
+            close
+            return $ \conditional -> (conditional :| [], Nothing)
+
+    let parseElif :: Parser IfElseBuilder
+        parseElif = do
+            condition <- open $ do
+                keyword Keywords.elif
+                expression
+
+            let next :: [Statement] -> Parser IfElseBuilder
+                next lines = do
+                    builder <- parseEnd <|> parseElse
+                    let self = Conditional condition (Block lines)
+                    return $ \conditional -> first (conditional <|) (builder self)
+
+            let parse :: [Statement] -> Parser IfElseBuilder
+                parse lines = next lines <|> do
+                    line <- statement
+                    parse (line : lines)
+            parse []
+
+    let parseIf :: Parser Statement
+        parseIf = do
+            condition <- open $ do
+                keyword Keywords.if_
+                expression
+
+            let next :: [Statement] -> Parser Statement
+                next lines = do
+                    builder <- parseEnd <|> parseElse <|> parseElif
+                    let self = Conditional condition (Block lines)
+                    let (branches, elseblock) = builder self
+                    return $ IfElse branches elseblock
+
+            let parse :: [Statement] -> Parser Statement
+                parse lines = next lines <|> do
+                    line <- statement
+                    parse (line : lines)
+            parse []
+    parseIf
 
 {- Functions -}
 ------------------------------------------------------------------
-functionLike :: Parser () -> Parser k -> (Nesting -> Nesting) -> Parser (k, Params, Block)
-functionLike opener funcKey nesting = do
+functionLike :: Parser () -> Parser key -> (Nesting -> Nesting) -> Parser (key, Params, Block)
+functionLike opener parseKey_ nesting = do
     opener
     (key, params) <- open $ do
-        key    <- funcKey
+        key    <- parseKey_
         params <- parseParams
         return (key, params)
-    body <- local nesting $ block Nothing
-    close
+    body <- local nesting block
     return (key, params, body)
 
 function :: (Nesting -> Nesting) -> Parser MewlixFunction
@@ -210,8 +232,8 @@ functionDef = FunctionDef <$> function nesting
 
 functionAssign :: Parser Statement
 functionAssign = do
-    let key = brackets lvalue
-    let opener = keyword Keywords.function
+    let key     = brackets lvalue
+    let opener  = keyword Keywords.function
     let nesting = defineNesting [InFunction]
     (expr, params, body) <- functionLike opener key nesting
     return . FunctionAssignment expr $ MewlixFunction
@@ -221,8 +243,8 @@ functionAssign = do
 
 {- Return -}
 ------------------------------------------------------------------
-returnKey :: Parser Statement
-returnKey = do
+returnStatement :: Parser Statement
+returnStatement = do
     keyword Keywords.ret
     inFunction <- asks (nested InFunction)
     unless inFunction
@@ -246,14 +268,14 @@ classDef :: Parser Statement
 classDef = do
     (name, parent) <- open $ do
         keyword Keywords.clowder
-        name    <- parseKey
-        parent  <- Mega.optional $ do
+        name   <- parseKey
+        parent <- Mega.optional $ do
             keyword Keywords.extends
             parseKey
         return (name, parent)
     (constructor, methods) <- do
         let methodNesting = defineNesting [InFunction, InClass]
-        methods <- (Mega.many . multiline) (function methodNesting)
+        methods <- Mega.many . multiline $ function methodNesting
         findConstructor methods
     close
     (return . ClassDef) MewlixClass
@@ -272,8 +294,6 @@ findConstructor methods = do
         ([x], xs) -> return (Just x, xs)
         _         -> fail "Clowder cannot have more than one constructor!"
 
-{- Super -}
-------------------------------------------------------------------
 superCall :: Parser Statement
 superCall = do
     args <- do
@@ -284,105 +304,111 @@ superCall = do
         (fail "Cannot call parent constructor outside clowder!")
     SuperCall args <$ linebreak
 
-{- Enums -}
+{- Miscellaneous -}
 ------------------------------------------------------------------
 enumDef :: Parser Statement
 enumDef = do
     name <- open $ do
         keyword Keywords.catTree
         parseKey
-    keys <- do
-        Mega.some $ parseKey <* linebreak
+    keys <- Mega.some (parseKey <* linebreak)
     close
     return . EnumDef $ MewlixEnum
         { enumName = name
         , enumKeys = keys }
 
-{- Assert -}
-------------------------------------------------------------------
 assert :: Parser Statement
 assert = do
     keyword Keywords.assert
-    Assert <$> (expression <* linebreak) <*> Mega.getSourcePos
+    pos  <- Mega.getSourcePos
+    expr <- expression <* linebreak
+    return $ Assert expr pos
 
-{- Continue -}
-------------------------------------------------------------------
-continueKey :: Parser Statement
-continueKey = do
-    keyword Keywords.catnap
-    inLoop <- asks (nested InLoop)
-    unless inLoop
-        (fail "Cannot use loop keyword outside loop!")
-    Continue <$ linebreak
-
-{- Break -}
-------------------------------------------------------------------
-breakKey :: Parser Statement
-breakKey = do
-    keyword Keywords.break
-    inLoop <- asks (nested InLoop)
-    unless inLoop
-        (fail "Cannot use loop keyword outside loop!")
-    Break <$ linebreak
-
-{- For Loop -}
-------------------------------------------------------------------
-forEach :: Parser Statement
-forEach = do
-    (key, iter) <- open $ do
-        keyword Keywords.forEach
-        key  <- parseKey
-        keyword Keywords.forEachOf
-        iter <- expression
-        void . Mega.optional $ repeatChar '!'
-        return (key, iter)
-    body <- local (addNesting InLoop) $ block Nothing
-    close
-    return (ForEachLoop iter key body)
-
-{- Import -}
-------------------------------------------------------------------
-importKey :: Parser Statement
-importKey = do
+importAll :: Parser Statement
+importAll = do
     keyword Keywords.takes
-    path <- parseModuleKey
-    name <- Mega.optional (keyword Keywords.alias >> parseKey)
+    key   <- parseModuleKey
+    alias <- Mega.optional $ keyword Keywords.alias >> parseKey
     linebreak
-    return $ ImportModule (ModuleData path name)
+    return . ImportModule $ ModuleData key alias
 
-importList :: Parser Statement
-importList = do
+importSome :: Parser Statement
+importSome = do
     keyword Keywords.from
-    path <- parseModuleKey
+    key  <- parseModuleKey
     keyword Keywords.takes
-    keys <- Mega.sepBy1 parseKey (symbol ',')
+    list <- Mega.sepBy1 parseKey (symbol ',')
     linebreak
-    return $ ImportList (ModuleData path Nothing) keys
+    return $ ImportList (ModuleData key Nothing) list
 
-{- Errors -}
+{- Error Handling -}
 ------------------------------------------------------------------
-throwException :: Parser Statement
-throwException = do
+throwStatement :: Parser Statement
+throwStatement = do
     keyword Keywords.throw
     pos  <- Mega.getSourcePos
     expr <- expression <* linebreak
-    return (ThrowError expr pos)
-
-tryCatch :: Parser Statement
-tryCatch = do
-    open (keyword Keywords.try)
-    tryBlock <- block (Just $ keyword Keywords.catch)
-    key <- open $ do
-        keyword Keywords.catch
-        Mega.optional parseKey
-    catchBlock <- local (addNesting InCatch) $ block Nothing
-    close
-    return (TryCatch tryBlock key catchBlock)
+    return $ ThrowError expr pos
 
 rethrow :: Parser Statement
 rethrow = do
     keyword Keywords.rethrow
     isCatch <- asks (nested InCatch)
     unless isCatch
-        (fail "Cannot use this statement outside 'pounce' block!")
+        (fail "Cannot use this statement outside error handling statement!")
     Rethrow <$ linebreak
+
+tryCatch :: Parser Statement
+tryCatch = do
+    let parseCatch :: Parser (Block -> Statement)
+        parseCatch = do
+            key <- open $ do
+                keyword Keywords.catch
+                Mega.optional parseKey
+            catchblock <- local (addNesting InCatch) block
+            return $ \tryblock -> TryCatch tryblock key catchblock
+
+    let parseTry :: Parser Statement
+        parseTry = do
+            open (keyword Keywords.try)
+
+            let next :: [Statement] -> Parser Statement
+                next lines = do
+                    builder <- parseCatch
+                    let self = Block lines
+                    return $ builder self
+
+            let parse :: [Statement] -> Parser Statement
+                parse lines = next lines <|> do
+                    line <- statement
+                    parse (line : lines)
+            parse []
+    parseTry
+
+{- All Statements -}
+------------------------------------------------------------------
+statement :: Parser Statement
+statement = choose
+    [ declaration
+    , functionDef
+    , functionAssign
+    , returnStatement
+    , earlyReturn
+    , classDef
+    , superCall
+    , enumDef
+    , whileLoop
+    , ifElse
+    , forEach
+    , assert
+    , continue
+    , break
+    , importAll
+    , importSome
+    , throwStatement
+    , tryCatch
+    , rethrow
+    , assignment
+    , expressionStatement ]
+    <?> "statement"
+    where choose = Mega.choice . map multiline
