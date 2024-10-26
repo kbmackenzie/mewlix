@@ -1,5 +1,8 @@
+{-# LANGUAGE StrictData #-}
+
 module Mewlix.Logger
-( LogType(..)
+( LogData(..)
+, LogType(..)
 , logger
 ) where
 
@@ -17,38 +20,40 @@ import System.Console.ANSI
     , hSetSGR
     , hSupportsANSIColor
     )
+import Prelude hiding (log)
 
-data LogType =
-      Info
-    | Error
-    deriving (Show)
+data LogType = LogInfo | LogError
 
-splitMessage :: Text -> Maybe (Text, Text)
-splitMessage message = do
-    (x, _) <- Text.uncons message
-    if x == '['
+data LogData = LogData
+    { logType    :: LogType
+    , logPrefix  :: Maybe Text
+    , logMessage :: Text       }
+
+getStyles :: LogData -> [SGR]
+getStyles log = case logType log of
+    LogInfo  -> [SetColor Foreground Vivid Magenta]
+    LogError -> [SetColor Foreground Vivid Red, SetConsoleIntensity BoldIntensity]
+
+getHandle :: LogData -> Handle
+getHandle log = case logType log of
+    LogInfo  -> stdout
+    LogError -> stderr
+
+logger :: (MonadIO m) => LogData -> m ()
+logger log = liftIO $ do 
+    let handle = getHandle log
+    let styles = getStyles log
+
+    let putPrefix  = TextIO.hPutStr   handle . (`Text.snoc` ' ')
+    let putMessage = TextIO.hPutStrLn handle
+
+    supported <- hSupportsANSIColor handle
+    if supported
         then do
-            index <- succ <$> Text.findIndex (== ']') message
-            Just (Text.splitAt index message)
-        else Nothing
-
-colorPrefix :: (MonadIO m) => Handle -> [SGR] -> Text -> m ()
-colorPrefix handle styles message = case splitMessage message of
-    Nothing               -> liftIO $ putLine message
-    (Just (header, body)) -> liftIO $ do
-        supported <- hSupportsANSIColor handle
-        if supported
-            then do
-                hSetSGR handle styles
-                put header
-                hSetSGR handle [Reset]
-                putLine body
-            else putLine message
-    where
-        put     = TextIO.hPutStr   handle
-        putLine = TextIO.hPutStrLn handle
-
-logger :: (MonadIO m) => LogType -> Text -> m ()
-logger logtype = case logtype of
-    Info    -> colorPrefix stdout [SetColor Foreground Vivid Yellow]
-    Error   -> colorPrefix stderr [SetColor Foreground Vivid Magenta, SetConsoleIntensity BoldIntensity]
+            hSetSGR handle styles
+            mapM_ putPrefix (logPrefix log)
+            hSetSGR handle [Reset]
+            putMessage (logMessage log)
+        else do
+            mapM_ putPrefix (logPrefix log)
+            putMessage (logMessage log)

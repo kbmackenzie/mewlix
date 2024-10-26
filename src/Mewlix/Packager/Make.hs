@@ -22,7 +22,7 @@ import Mewlix.Packager.Actions.Create (createProject)
 import Mewlix.Packager.Actions.Run (runProject)
 -- Assorted:
 import Mewlix.Packager.Data.Read (readProject)
-import Mewlix.Logger (LogType(..), logger);
+import Mewlix.Logger (LogData(..), LogType(..), logger);
 import qualified Data.Text as Text
 
 data Action =
@@ -53,7 +53,10 @@ make' = make True []
 execute :: Bool -> ActionFunc -> IO ()
 execute useProjectFile actionFunc = do
     packageMake (project >>= actionFunc) >>= \case
-        (Left err) -> logger Error ("[mewlix] " <> Text.pack err)
+        (Left err) -> logger LogData
+            { logType    = LogError
+            , logPrefix  = Just "[mewlix: packager error]"
+            , logMessage = Text.pack err }
         (Right _ ) -> return ()
     where project = if useProjectFile
             then readProject
