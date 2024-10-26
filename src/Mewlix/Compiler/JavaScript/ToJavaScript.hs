@@ -33,9 +33,14 @@ import Mewlix.Compiler.Indentation
     , indentMany
     )
 import Mewlix.Compiler.Whitespace (joinLines)
-import Mewlix.Compiler.JavaScript.Utils.Expression (wrap, lambda, call, asBoolean)
+import Mewlix.Compiler.JavaScript.Utils
+    ( terminate
+    , findBindings
+    , parensAround
+    , lambda
+    , call
+    , boolean )
 import Mewlix.Compiler.JavaScript.Error (ErrorCode(..), errorInfo, createError)
-import Mewlix.Compiler.JavaScript.Utils.Statement (terminate, findBindings)
 import Mewlix.Compiler.JavaScript.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.JavaScript.Constants as Mewlix
 import qualified Mewlix.Keywords.Constants as Keywords
@@ -130,7 +135,7 @@ instance ToJavaScript Expression where
     transpileJS level (LambdaExpression paramExprs bodyExpr) = do
         body   <- transpileJS level bodyExpr
         params <- transpileJS level paramExprs
-        wrap (params <> " => " <> body)
+        parensAround (params <> " => " <> body)
 
     -- Function calls:
     ----------------------------------------------
@@ -204,12 +209,12 @@ instance ToJavaScript Expression where
 {- Params -}
 -----------------------------------------------------------------
 instance ToJavaScript Params where
-    transpileJS _ = wrap . sepComma . map getKey . getParams
+    transpileJS _ = parensAround . sepComma . map getKey . getParams
 
 {- Arguments -}
 -----------------------------------------------------------------
 instance ToJavaScript Arguments where
-    transpileJS _ = wrap . sepComma <=< mapM toJS . getArguments
+    transpileJS _ = parensAround . sepComma <=< mapM toJS . getArguments
 
 {- Statements -}
 -----------------------------------------------------------------
@@ -290,7 +295,7 @@ instance ToJavaScript Statement where
     transpileJS level   (IfElse conditionals else_) = do
         let transpileConditional :: Conditional -> Transpiler Text
             transpileConditional (Conditional expr block) = do
-                condition <- asBoolean <$> transpileJS level expr
+                condition <- boolean <$> transpileJS level expr
                 body      <- transpileJS level block
                 let header = mconcat [ "if (", condition, ") " ]
                 return (header <> body)
@@ -312,7 +317,7 @@ instance ToJavaScript Statement where
     -- While loop:
     ----------------------------------------------
     transpileJS level   (WhileLoop expr block) = do
-        condition   <- asBoolean <$> transpileJS level expr
+        condition   <- boolean <$> transpileJS level expr
         body        <- transpileJS level block
         let header = mconcat [ "while (", condition, ") " ]
         indentLine level (header <> body)
@@ -447,7 +452,7 @@ instance ToJavaScript Statement where
     -- Assert:
     ----------------------------------------------
     transpileJS level   (Assert expr pos) = do
-        condition <- asBoolean <$> transpileJS level expr
+        condition <- boolean <$> transpileJS level expr
         let failed = call (Mewlix.internal "assertionFail") [ errorInfo pos ]
         indentLine level . terminate . mconcat $
             [ "void (", condition <> " || " <> failed, ")" ]

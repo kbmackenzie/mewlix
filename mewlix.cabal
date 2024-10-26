@@ -44,8 +44,7 @@ library
       Mewlix.Compiler.JavaScript.Error
       Mewlix.Compiler.JavaScript.Operations
       Mewlix.Compiler.JavaScript.ToJavaScript
-      Mewlix.Compiler.JavaScript.Utils.Expression
-      Mewlix.Compiler.JavaScript.Utils.Statement
+      Mewlix.Compiler.JavaScript.Utils
       Mewlix.Compiler.Run
       Mewlix.Compiler.Transpiler
       Mewlix.Compiler.Whitespace
