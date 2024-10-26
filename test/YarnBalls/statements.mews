@@ -13,6 +13,21 @@ else hiss
   meow "hello! this is the most common case by a very, very, very big margin!"
 ~meow
 
+-- Nested if/else if/else:
+pounce when x == 2
+  meow "never going to happen."
+  pounce when x == 3
+  or when x == 4
+  else hiss
+  ~meow
+else hiss
+  pounce when x == 0
+    meow "extremely unlikely, but possible."
+  else hiss
+    meow "yay."
+  ~meow
+~meow
+
 -- White loops:
 stare while true 
   meow ":3"
