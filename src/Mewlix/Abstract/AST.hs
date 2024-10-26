@@ -31,7 +31,7 @@ data Primitive =
     | MewlixNil
     | MewlixHome
     | MewlixOutside
-    deriving (Show)
+    deriving (Eq, Show)
 
 data Expression =
       PrimitiveExpr         Primitive
@@ -53,7 +53,7 @@ data Expression =
     | DotExpression         Expression Expression
     | LookupExpression      Expression Expression
     | MeowExpression        Expression
-    deriving (Show)
+    deriving (Eq, Show)
 
 data BinaryOp =
       Addition 
@@ -83,32 +83,32 @@ data UnaryOp =
     | LengthLookup
     deriving (Eq, Ord, Enum, Bounded, Show)
 
-newtype Block     = Block     { getBlock      :: [Statement]  } deriving (Show, Semigroup, Monoid)
-newtype Params    = Params    { getParams     :: [Key]        } deriving (Show, Semigroup, Monoid)
-newtype Arguments = Arguments { getArguments  :: [Expression] } deriving (Show, Semigroup, Monoid)
+newtype Block     = Block     { getBlock      :: [Statement]  } deriving (Eq, Show, Semigroup, Monoid)
+newtype Params    = Params    { getParams     :: [Key]        } deriving (Eq, Show, Semigroup, Monoid)
+newtype Arguments = Arguments { getArguments  :: [Expression] } deriving (Eq, Show, Semigroup, Monoid)
 
 data MewlixFunction = MewlixFunction
     { funcName      :: Key
     , funcParams    :: Params
     , funcBody      :: Block       }
-    deriving (Show)
+    deriving (Eq, Show)
 
 data MewlixClass = MewlixClass
     { className         :: Key
     , classExtends      :: Maybe Key
     , classConstructor  :: Maybe MewlixFunction
     , classMethods      :: [MewlixFunction]      }
-    deriving (Show)
+    deriving (Eq, Show)
 
 data MewlixEnum = MewlixEnum
     { enumName :: Key
     , enumKeys :: [Key] }
-    deriving (Show)
+    deriving (Eq, Show)
 
 data Conditional = Conditional
     { conditionalExpression :: Expression
     , conditionalBlock      :: Block             }
-    deriving (Show)
+    deriving (Eq, Show)
 
 data Statement =
       ExpressionStatement   Expression
@@ -132,9 +132,9 @@ data Statement =
     | Rethrow
     | Break 
     | Continue
-    deriving (Show)
+    deriving (Eq, Show)
 
 data YarnBall = YarnBall
     { yarnballKey   :: Maybe ModuleKey
     , yarnballBlock :: Block          }
-    deriving (Show)
+    deriving (Eq, Show)

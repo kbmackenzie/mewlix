@@ -21,7 +21,7 @@ import Data.Hashable (Hashable)
 data ModuleData = ModuleData
     { moduleKey   :: ModuleKey
     , moduleAlias :: Maybe Key  }
-    deriving (Show)
+    deriving (Eq, Show)
 
 newtype ModuleKey = ModuleKey { getModuleKey :: NonEmpty Text }
     deriving (Eq, Ord, Hashable)
