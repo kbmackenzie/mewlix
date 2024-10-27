@@ -1,7 +1,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Mewlix.Utils.IO
-( readFileBytes
+( safelyRun
+, readFileBytes
 , readFileText
 , readDataFile
 , writeFileBytes
@@ -34,14 +35,18 @@ import System.Directory
 import Control.Exception (IOException, catch)
 import System.IO.Error (isDoesNotExistError)
 
-fileError :: String -> IOException -> String
-fileError message err = concat [message, "| error: ", show err]
+safelyRun :: (MonadIO m, MonadError String m) => IO a -> String -> m a
+safelyRun action context = (liftIO >=> liftEither) $ do
+    fmap Right action `catch` \err -> do
+        let message = concat [context, " | error: ", show (err :: IOException)]
+        return (Left message)
+
+prettyError :: String -> IOException -> String
+prettyError message err = concat [message, "| error: ", show err]
 
 readFileBytes :: (MonadIO m, MonadError String m) => FilePath -> m ByteString
-readFileBytes path = (liftIO >=> liftEither) $ do
-    fmap Right (ByteString.readFile path) `catch` \err -> do
-        let message = "couldn't read file " ++ show path
-        return . Left $ fileError message err
+readFileBytes path = safelyRun (ByteString.readFile path) context
+    where context = "couldn't read file " ++ show path
 
 readFileText :: (MonadIO m, MonadError String m) => FilePath -> m Text
 readFileText path = do
@@ -52,42 +57,34 @@ readFileText path = do
     liftEither . first failContext $ TextEncoding.decodeUtf8' contents
 
 getDataFile :: (MonadIO m, MonadError String m) => FilePath -> m FilePath
-getDataFile path = (liftIO >=> liftEither) $ do
-    fmap Right (getDataFileName path) `catch` \err -> do
-        let message = "couldn't get data file " ++ show path
-        return . Left $ fileError message err
+getDataFile path = safelyRun (getDataFileName path) context
+    where context = "couldn't get data file " ++ show path
 
 readDataFile :: (MonadIO m, MonadError String m) => FilePath -> m ByteString
 readDataFile = getDataFile >=> readFileBytes
 
 writeFileBytes :: (MonadIO m, MonadError String m) => FilePath -> ByteString -> m ()
-writeFileBytes path contents = (liftIO >=> liftEither) $ do
-    fmap Right (ByteString.writeFile path contents) `catch` \err -> do
-        let message = "couldn't write file " ++ show path
-        return . Left $ fileError message err
+writeFileBytes path contents = safelyRun (ByteString.writeFile path contents) context
+    where context = "couldn't write file " ++ show path
 
 writeFileText :: (MonadIO m, MonadError String m) => FilePath -> Text -> m ()
-writeFileText path contents = (liftIO >=> liftEither) $ do
-    fmap Right (TextIO.writeFile path contents) `catch` \err -> do
-        let message = "couldn't write file " ++ show path
-        return . Left $ fileError message err
+writeFileText path contents = safelyRun (TextIO.writeFile path contents) context
+    where context = "couldn't write file " ++ show path
 
 copyFileSafe :: (MonadIO m, MonadError String m) => FilePath -> FilePath -> m ()
-copyFileSafe target destination = (liftIO >=> liftEither) $ do
-    fmap Right (copyFile target destination) `catch` \err -> do
-        let message = concat ["couldn't copy file ", show target, " to destination ", show destination]
-        return . Left $ fileError message err
+copyFileSafe target destination = safelyRun (copyFile target destination) context
+    where context = concat ["couldn't copy file ", show target, " to destination ", show destination]
 
 copyDataFile :: (MonadIO m, MonadError String m) => FilePath -> FilePath -> m ()
 copyDataFile target destination = getDataFile target >>= flip copyDataFile destination
 
 extractZip :: (MonadIO m, MonadError String m) => FilePath -> FilePath -> m ()
-extractZip archive destination = (liftIO >=> liftEither) $ do
-    let extract :: IO ()
-        extract = withArchive archive (unpackInto destination)
-    fmap Right extract `catch` \err -> do
-        let message = concat ["couldn't extract archive ", show archive, " to ", show destination]
-        return . Left $ fileError message err
+extractZip archive destination = safelyRun extract context
+    where extract :: IO ()
+          extract = withArchive archive (unpackInto destination)
+
+          context :: String
+          context = concat ["couldn't extract archive ", show archive, " to ", show destination]
 
 extractZipDataFile :: (MonadIO m, MonadError String m) => FilePath -> FilePath -> m ()
 extractZipDataFile archive destination = getDataFile archive >>= flip extractZip destination
@@ -99,11 +96,9 @@ removeIfExists path = (liftIO >=> liftEither) $ do
             then (return . Right) ()
             else do
                 let message = "couldn't remove file " ++ show path
-                return . Left $ fileError message err
+                return . Left $ prettyError message err
 
 createDirectory :: (MonadIO m, MonadError String m) => Bool -> FilePath -> m ()
-createDirectory recursive path = (liftIO >=> liftEither) $ do
-    fmap Right (createDirectoryIfMissing recursive path) `catch` \err -> do
-        let detail  = if recursive then " recursively" else ""
-        let message = concat ["couldn't create directory", detail, ": ", show path]
-        return . Left $ fileError message err
+createDirectory recursive path = safelyRun (createDirectoryIfMissing recursive path) context
+    where detail  = if recursive then " recursively" else ""
+          context = concat ["couldn't create directory", detail, ": ", show path]
