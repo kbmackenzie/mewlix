@@ -21,7 +21,7 @@ import System.Directory
     , makeRelativeToCurrentDirectory
     , canonicalizePath
     )
-import Mewlix.Packager.Maker (PackageMaker, throwError, liftIO)
+import Mewlix.Packager.Type (Packager, throwError, liftIO)
 
 findSources :: FilePath -> IO [FilePath]
 findSources dir = runConduitRes
@@ -29,25 +29,25 @@ findSources dir = runConduitRes
     .| filterC (isExtensionOf "mews")
     .| sinkList
 
-processSource :: FilePath -> PackageMaker [FilePath]
+processSource :: FilePath -> Packager [FilePath]
 processSource = liftIO . canonicalizePath >=> \path -> do
     isDirectory <- liftIO (doesDirectoryExist path)
     if isDirectory
         then liftIO (findSources path)
         else return [path]
 
-processSources :: [FilePath] -> PackageMaker [FilePath]
+processSources :: [FilePath] -> Packager [FilePath]
 processSources paths = do
     let makeLocal = liftIO . makeRelativeToCurrentDirectory
     sourceBundle <- mapM processSource paths
     sourceFiles  <- mapM makeLocal (concat sourceBundle)
     (return . nubOrd) sourceFiles
 
-validateSource :: FilePath -> PackageMaker ()
+validateSource :: FilePath -> Packager ()
 validateSource path = do
     fileExists <- liftIO (doesFileExist path)
     unless fileExists $
         throwError $ concat [ "Couldn't find file ", show path, "!" ]
 
-validateSources :: [FilePath] -> PackageMaker ()
+validateSources :: [FilePath] -> Packager ()
 validateSources = mapM_ validateSource

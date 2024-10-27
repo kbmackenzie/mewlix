@@ -4,8 +4,8 @@ module Mewlix.Packager.Modules.Compile
 ( compileModules
 ) where
 
-import Mewlix.Packager.Maker
-    ( PackageMaker
+import Mewlix.Packager.Type
+    ( Packager
     , throwError
     , liftIO
     )
@@ -26,7 +26,7 @@ import Data.Text (Text)
 import qualified Data.Text.IO as TextIO
 
 -- Creates the transpiler context.
-createContext :: ProjectData -> PackageMaker TranspilerContext
+createContext :: ProjectData -> Packager TranspilerContext
 createContext projectData = do
     let projectLibs = addLibraries (projectMode projectData) mempty
     let flags = projectFlags projectData
@@ -37,7 +37,7 @@ createContext projectData = do
         , pretty  = Set.member Pretty flags }
 
 -- Compile all yarn balls, writing the compilation output to a handle.
-compileModules :: ProjectData -> Handle -> PackageMaker ()
+compileModules :: ProjectData -> Handle -> Packager ()
 compileModules projectData handle = do
     sources <- processSources (projectSourceFiles projectData)
     validateSources sources
@@ -49,10 +49,10 @@ compileModules projectData handle = do
         , if sourceCount > 1 then " yarn balls!" else " yarn ball!" ]
     context  <- createContext projectData
 
-    let write :: Text -> PackageMaker ()
+    let write :: Text -> Packager ()
         write = liftIO . TextIO.hPutStrLn handle
 
-    let compile :: FilePath -> PackageMaker ()
+    let compile :: FilePath -> Packager ()
         compile path = do
             projectLog projectData ("Compiling yarn ball " <> showT path)
             yarnball <- runCompiler context path
@@ -63,7 +63,7 @@ compileModules projectData handle = do
     write "}\n"
 
 -- Runs compiler on text content read from a file.
-runCompiler :: TranspilerContext -> FilePath -> PackageMaker CompilerOutput
+runCompiler :: TranspilerContext -> FilePath -> Packager CompilerOutput
 runCompiler context path = do
     contents <- readFileText path
     case compileJS context path contents of

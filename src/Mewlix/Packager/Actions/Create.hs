@@ -4,7 +4,7 @@ module Mewlix.Packager.Actions.Create
 ( createProject
 ) where
 
-import Mewlix.Packager.Maker (PackageMaker, throwError, liftIO)
+import Mewlix.Packager.Type (Packager, throwError, liftIO)
 import Mewlix.Packager.Log (projectLog)
 import Mewlix.Packager.Data.Types (ProjectData(..), projectFieldOrder, projectSourceFilesL)
 import Mewlix.Packager.Folder (projectFile, outputFolder)
@@ -19,7 +19,7 @@ import Control.Monad (when)
 includeSrc :: ProjectData -> ProjectData
 includeSrc = projectSourceFilesL %~ ("src/" :)
 
-createProject :: ProjectData -> PackageMaker ()
+createProject :: ProjectData -> Packager ()
 createProject = (. includeSrc) $ \projectData -> do
     -- Log project name + a nice message
     projectLog projectData "Creating project file..."

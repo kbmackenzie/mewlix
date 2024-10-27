@@ -4,7 +4,7 @@ module Mewlix.Packager.Actions.Server
 ( runServer
 ) where
 
-import Mewlix.Packager.Maker (PackageMaker)
+import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Folder (outputFolder)
 import Mewlix.Packager.Data.Types (ProjectData(..), Port(..))
 import Mewlix.Packager.Log (projectLog)
@@ -14,7 +14,7 @@ import Control.Monad (void)
 import Mewlix.Utils.Show (showT)
 import Web.Browser (openBrowser)
 
-runServer :: ProjectData -> PackageMaker ()
+runServer :: ProjectData -> Packager ()
 runServer projectData = do
     let port = projectPort projectData
 

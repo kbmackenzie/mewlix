@@ -64,7 +64,6 @@ library
       Mewlix.Packager.Folder
       Mewlix.Packager.Log
       Mewlix.Packager.Make
-      Mewlix.Packager.Maker
       Mewlix.Packager.Modules.Bundle
       Mewlix.Packager.Modules.Compile
       Mewlix.Packager.Modules.FileSearch
@@ -73,6 +72,7 @@ library
       Mewlix.Packager.Templates.Create
       Mewlix.Packager.Templates.Node
       Mewlix.Packager.Templates.ReadMe
+      Mewlix.Packager.Type
       Mewlix.Parser.Expression
       Mewlix.Parser.Keyword
       Mewlix.Parser.Module

@@ -4,7 +4,7 @@ module Mewlix.Packager.Actions.Clean
 ( cleanProject
 ) where
 
-import Mewlix.Packager.Maker (PackageMaker, liftIO, throwError)
+import Mewlix.Packager.Type (Packager, liftIO, throwError)
 import Mewlix.Packager.Folder (outputFolder)
 import Mewlix.Packager.Data.Types (ProjectData)
 import Mewlix.Packager.Log (projectLog)
@@ -16,11 +16,11 @@ import Control.Monad (when)
 
 -- If removal fails all three times, give up entirely.
 
-cleanProject :: ProjectData -> PackageMaker ()
+cleanProject :: ProjectData -> Packager ()
 cleanProject projectData = do
     let folder = outputFolder
 
-    let clean :: Int -> PackageMaker ()
+    let clean :: Int -> Packager ()
         clean attempt
             | attempt > 3 = throwError "Critical error: Couldn't remove output folder!"
             | otherwise   = do

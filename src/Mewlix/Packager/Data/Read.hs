@@ -2,7 +2,7 @@ module Mewlix.Packager.Data.Read
 ( readProject
 ) where
 
-import Mewlix.Packager.Maker (PackageMaker, liftIO, throwError)
+import Mewlix.Packager.Type (Packager, liftIO, throwError)
 import Mewlix.Packager.Folder (projectFile)
 import Mewlix.Packager.Data.Types (ProjectData(..))
 import Mewlix.Utils.IO (readFileBytes)
@@ -11,7 +11,7 @@ import System.FilePath (takeFileName)
 import System.Directory (doesFileExist)
 import Control.Monad (unless)
 
-readProject :: PackageMaker ProjectData
+readProject :: Packager ProjectData
 readProject = do
     hasProject <- liftIO $ doesFileExist projectFile
     let projectFileName = takeFileName projectFile

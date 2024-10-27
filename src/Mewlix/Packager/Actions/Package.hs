@@ -5,7 +5,7 @@ module Mewlix.Packager.Actions.Package
 ) where
 
 import Mewlix.Packager.Data.Types (ProjectData(..))
-import Mewlix.Packager.Maker (PackageMaker)
+import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Actions.Build (buildProject)
 import Mewlix.Packager.Folder (outputFolder)
 import Mewlix.Packager.Log (projectLog)
@@ -43,7 +43,7 @@ createPackage projectData = do
 
     liftIO $ createArchive packageName (packageFolder outputFolder)
 
-packageProject :: ProjectData -> PackageMaker ()
+packageProject :: ProjectData -> Packager ()
 packageProject projectData = do
     exists <- liftIO (doesDirectoryExist outputFolder)
     unless exists $

@@ -4,7 +4,7 @@ module Mewlix.Packager.Assets.Copy
 
 import Mewlix.Packager.Data.Types (ProjectData(..))
 import Mewlix.Packager.Folder (outputFolder)
-import Mewlix.Packager.Maker (PackageMaker, throwError)
+import Mewlix.Packager.Type (Packager, throwError)
 import Mewlix.Packager.Assets.Find (processAssets, validateAssets)
 import Mewlix.Utils.IO (copyFileSafe, createDirectory)
 import System.FilePath
@@ -13,9 +13,9 @@ import System.FilePath
     , takeDirectory
     )
 
-copyAsset :: FilePath -> PackageMaker ()
+copyAsset :: FilePath -> Packager ()
 copyAsset inputPath = do
-    let prepareDirectory :: FilePath -> PackageMaker ()
+    let prepareDirectory :: FilePath -> Packager ()
         prepareDirectory = createDirectory True . takeDirectory
 
     outputPath <- if isRelative inputPath
@@ -27,7 +27,7 @@ copyAsset inputPath = do
     prepareDirectory outputPath
     copyFileSafe inputPath outputPath
 
-copyAssets :: ProjectData -> PackageMaker ()
+copyAssets :: ProjectData -> Packager ()
 copyAssets projectData = do
     assets <- processAssets (projectAssets projectData)
     validateAssets assets

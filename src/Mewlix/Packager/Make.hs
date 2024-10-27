@@ -7,7 +7,7 @@ module Mewlix.Packager.Make
 , make'
 ) where
 
-import Mewlix.Packager.Maker (PackageMaker(..), packageMake)
+import Mewlix.Packager.Type (Packager(..), packageMake)
 import Mewlix.Packager.Data.Types
     ( ProjectData(..)
     , ProjectTransform
@@ -33,7 +33,7 @@ data Action =
     | Run
     deriving (Eq, Ord, Show, Enum, Bounded)
 
-type ActionFunc  = ProjectData -> PackageMaker ()
+type ActionFunc  = ProjectData -> Packager ()
 
 action :: Action -> ActionFunc
 action Build    = buildProject

@@ -4,7 +4,7 @@ module Mewlix.Packager.Actions.Node
 ( runNode
 ) where
 
-import Mewlix.Packager.Maker (PackageMaker, liftIO, throwError)
+import Mewlix.Packager.Type (Packager, liftIO, throwError)
 import Mewlix.Packager.Folder (outputFolder)
 import Mewlix.Packager.Data.Types (ProjectData(..))
 import Mewlix.Packager.Log (projectLog)
@@ -24,7 +24,7 @@ node script = do
     let args = ["--input-type=module"]
     runProcess . setStdin input $ proc "node" args
 
-runNode :: ProjectData -> PackageMaker ()
+runNode :: ProjectData -> Packager ()
 runNode projectData = do
     projectLog projectData "Running project with 'node':"
 

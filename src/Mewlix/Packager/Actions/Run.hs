@@ -2,7 +2,7 @@ module Mewlix.Packager.Actions.Run
 ( runProject
 ) where
 
-import Mewlix.Packager.Maker (PackageMaker, liftIO)
+import Mewlix.Packager.Type (Packager, liftIO)
 import Mewlix.Packager.Folder (outputFolder)
 import Mewlix.Packager.Data.Types (ProjectData(..), ProjectMode(..), ProjectFlag(..))
 import Mewlix.Packager.Actions.Build (buildProject)
@@ -12,7 +12,7 @@ import Control.Monad (when)
 import System.Directory (doesDirectoryExist)
 import qualified Data.Set as Set
 
-runProject :: ProjectData -> PackageMaker ()
+runProject :: ProjectData -> Packager ()
 runProject projectData = do
     let rebuild = Set.member Rebuild (projectFlags projectData)
     exists <- liftIO (doesDirectoryExist outputFolder)
