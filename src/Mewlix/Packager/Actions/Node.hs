@@ -6,7 +6,7 @@ module Mewlix.Packager.Actions.Node
 
 import Mewlix.Packager.Type (Packager, liftIO, throwError)
 import Mewlix.Packager.Folder (outputFolder)
-import Mewlix.Packager.Config.Types (ProjectData(..))
+import Mewlix.Packager.Config (ProjectData(..))
 import Mewlix.Packager.Log (projectLog)
 import System.Directory (withCurrentDirectory)
 import System.Process.Typed

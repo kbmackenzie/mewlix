@@ -4,7 +4,7 @@ module Mewlix.Packager.Actions.Run
 
 import Mewlix.Packager.Type (Packager, liftIO)
 import Mewlix.Packager.Folder (outputFolder)
-import Mewlix.Packager.Config.Types (ProjectData(..), ProjectMode(..), ProjectFlag(..))
+import Mewlix.Packager.Config (ProjectData(..), ProjectMode(..), ProjectFlag(..))
 import Mewlix.Packager.Actions.Build (buildProject)
 import Mewlix.Packager.Actions.Server (runServer)
 import Mewlix.Packager.Actions.Node (runNode)

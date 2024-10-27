@@ -5,12 +5,11 @@ module Mewlix.Packager.Actions.Build
 ) where
 
 import Mewlix.Packager.Type (Packager, liftIO)
-import Mewlix.Packager.Config.Types (ProjectData(..))
-import Mewlix.Packager.Modules.Bundle (bundleModules)
+import Mewlix.Packager.Config (ProjectData(..))
+import Mewlix.Packager.Modules (bundleModules)
 import Mewlix.Packager.Folder (coreFolder)
-import Mewlix.Packager.Templates.Create (createFromTemplate)
-import Mewlix.Packager.Templates.ReadMe (createReadme)
-import Mewlix.Packager.Assets.Copy (copyAssets)
+import Mewlix.Packager.Templates (createFromTemplate, createReadme)
+import Mewlix.Packager.Assets (copyAssets)
 import Mewlix.Packager.Log (projectLog)
 import System.FilePath ((</>))
 import Data.Aeson (object, (.=), encode, Value)

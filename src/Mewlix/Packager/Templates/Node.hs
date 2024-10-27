@@ -4,7 +4,7 @@ module Mewlix.Packager.Templates.Node
 ( writePackageData
 ) where
 
-import Mewlix.Packager.Config.Types (ProjectData(..))
+import Mewlix.Packager.Config (ProjectData(..))
 import Mewlix.Packager.Folder (outputFolder)
 import Data.Aeson (Value, object, (.=), encode)
 import Control.Monad.IO.Class (MonadIO, liftIO)

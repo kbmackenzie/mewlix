@@ -3,7 +3,7 @@ module Mewlix.Packager.Templates.Create
 ) where
 
 import Mewlix.Packager.Type (Packager, liftIO)
-import Mewlix.Packager.Config.Types (ProjectData(..), ProjectMode(..))
+import Mewlix.Packager.Config (ProjectData(..), ProjectMode(..))
 import Mewlix.Packager.Templates.Constants (getTemplate, template)
 import Mewlix.Packager.Templates.Node (writePackageData)
 import Mewlix.Packager.Folder (outputFolder)

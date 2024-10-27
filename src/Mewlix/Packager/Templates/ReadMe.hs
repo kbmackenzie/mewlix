@@ -5,7 +5,7 @@ module Mewlix.Packager.Templates.ReadMe
 ) where
 
 import Mewlix.Packager.Type (Packager)
-import Mewlix.Packager.Config.Types (ProjectData(..), ProjectFlag(..))
+import Mewlix.Packager.Config (ProjectData(..), ProjectFlag(..))
 import Mewlix.Packager.Folder (outputFolder)
 import Mewlix.Utils.IO (writeFileText)
 import qualified Data.Set as Set

@@ -11,7 +11,7 @@ import Mewlix.Packager.Type
     , throwError
     , catchError
     )
-import Mewlix.Packager.Config.Types (ProjectData(..))
+import Mewlix.Packager.Config (ProjectData(..))
 import Mewlix.Packager.Modules.Compile (compileModules)
 import Mewlix.Packager.Folder (moduleFolder)
 import System.IO (IOMode(..), openFile, hClose)

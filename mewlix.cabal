@@ -50,6 +50,7 @@ library
       Mewlix.Compiler.Whitespace
       Mewlix.Keywords.Constants
       Mewlix.Keywords.Types
+      Mewlix.Packager.Actions
       Mewlix.Packager.Actions.Build
       Mewlix.Packager.Actions.Clean
       Mewlix.Packager.Actions.Create
@@ -57,15 +58,18 @@ library
       Mewlix.Packager.Actions.Package
       Mewlix.Packager.Actions.Run
       Mewlix.Packager.Actions.Server
-      Mewlix.Packager.Assets.Copy
+      Mewlix.Packager.Assets
+      Mewlix.Packager.Config
       Mewlix.Packager.Config.Read
       Mewlix.Packager.Config.Types
       Mewlix.Packager.Folder
       Mewlix.Packager.Log
       Mewlix.Packager.Make
+      Mewlix.Packager.Modules
       Mewlix.Packager.Modules.Bundle
       Mewlix.Packager.Modules.Compile
       Mewlix.Packager.Modules.StandardLibrary
+      Mewlix.Packager.Templates
       Mewlix.Packager.Templates.Constants
       Mewlix.Packager.Templates.Create
       Mewlix.Packager.Templates.Node

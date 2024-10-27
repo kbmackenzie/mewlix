@@ -28,7 +28,7 @@ module Mewlix.Packager
 ) where
 
 import Mewlix.Packager.Make (Action(..), make, make')
-import Mewlix.Packager.Config.Types
+import Mewlix.Packager.Config
     ( ProjectData(..)
     , ProjectMode(..)
     , ProjectFlag(..)
@@ -49,4 +49,4 @@ import Mewlix.Packager.Config.Types
     , projectAssetsL
     , projectFlagsL
     )
-import Mewlix.Packager.Modules.StandardLibrary (addLibraries)
+import Mewlix.Packager.Modules (addLibraries)

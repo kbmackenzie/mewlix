@@ -1,9 +1,9 @@
-module Mewlix.Packager.Assets.Copy
+module Mewlix.Packager.Assets
 ( copyAssets
 ) where
 
 import Mewlix.Packager.Type (Packager, liftIO, throwError)
-import Mewlix.Packager.Config.Types (ProjectData(..))
+import Mewlix.Packager.Config (ProjectData(..))
 import Mewlix.Packager.Folder (outputFolder)
 import Mewlix.Utils.IO (copyFileSafe, createDirectory)
 import System.FilePath
