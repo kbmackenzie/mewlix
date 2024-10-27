@@ -6,8 +6,6 @@ module Mewlix.Packager.Modules.Bundle
 
 import Mewlix.Packager.Type
     ( Packager
-    , liftIO
-    , liftEither
     , throwError
     , catchError
     )
@@ -16,12 +14,10 @@ import Mewlix.Packager.Modules.Compile (compileModules)
 import Mewlix.Packager.Folder (moduleFolder)
 import System.IO (IOMode(..), openFile, hClose)
 import System.FilePath ((</>))
-import Control.Exception (IOException, catch)
-import Mewlix.Utils.IO (createDirectory)
+import Mewlix.Utils.IO (safelyRun, createDirectory)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
-import Control.Monad ((>=>))
 
 metaComment :: Text
 metaComment = Text.intercalate "\n"
@@ -35,18 +31,22 @@ bundleModules projectData = do
     let path = moduleFolder </> "yarnball.js"
     
     createDirectory False moduleFolder
-    handle <- (liftIO >=> liftEither) $ do
-        fmap Right (openFile path WriteMode) `catch` \err -> do
-            let message = concat ["couldn't open file " , show path, ": " , show (err :: IOException)]
-            return (Left message)
+    handle <- do
+        let context = "couldn't open file " ++ show path
+        safelyRun (openFile path WriteMode) context
+
     let write :: Text -> Packager ()
-        write = liftIO . TextIO.hPutStr handle
+        write text = do
+            let context = "couldn't write to file handle for " ++ show path
+            safelyRun (TextIO.hPutStr handle text) context
 
     write metaComment 
     write "\n\n"
 
     let close :: Packager ()
-        close = liftIO (hClose handle)
+        close = do
+            let context = "couldn't close file handle for " ++ show path
+            safelyRun (hClose handle) context
 
     let compile :: Packager () 
         compile = compileModules projectData handle >> close

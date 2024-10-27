@@ -19,7 +19,7 @@ import Mewlix.Packager.Modules.StandardLibrary (addLibraries)
 import System.FilePattern.Directory (getDirectoryFiles)
 import Mewlix.Packager.Log (projectLog)
 import Mewlix.Utils.Show (showT)
-import Mewlix.Utils.IO (readFileText)
+import Mewlix.Utils.IO (safelyRun, readFileText)
 import qualified Data.Set as Set
 import System.IO (Handle)
 import Data.Text (Text)
@@ -37,9 +37,9 @@ createContext projectData = do
         , pretty  = Set.member Pretty flags }
 
 findSources :: ProjectData -> Packager [FilePath]
-findSources projectData = liftIO $ do
+findSources projectData = do
     let patterns = projectSourceFiles projectData
-    getDirectoryFiles "." patterns
+    safelyRun (getDirectoryFiles "." patterns) "couldn't get source files"
 
 -- Compile all yarn balls, writing the compilation output to a handle.
 compileModules :: ProjectData -> Handle -> Packager ()
@@ -54,7 +54,7 @@ compileModules projectData handle = do
     context <- createContext projectData
 
     let write :: Text -> Packager ()
-        write = liftIO . TextIO.hPutStrLn handle
+        write text = safelyRun (TextIO.hPutStrLn handle text) "couldn't write to file handle"
 
     let compile :: FilePath -> Packager ()
         compile path = do

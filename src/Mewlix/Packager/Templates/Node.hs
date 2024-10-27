@@ -5,9 +5,10 @@ module Mewlix.Packager.Templates.Node
 ) where
 
 import Mewlix.Packager.Config (ProjectData(..))
+import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Folder (outputFolder)
+import Mewlix.Utils.IO (safelyRun)
 import Data.Aeson (Value, object, (.=), encode)
-import Control.Monad.IO.Class (MonadIO, liftIO)
 import System.FilePath ((</>))
 import qualified Data.ByteString.Lazy as ByteString
 
@@ -18,9 +19,10 @@ packageData projectData = object
     , "description" .= projectDescription projectData
     , "type"        .= ("module" :: String)           ]
 
-writePackageData :: (MonadIO m) => ProjectData -> m ()
+writePackageData :: ProjectData -> Packager ()
 writePackageData projectData = do
     let package = packageData projectData
     let path = outputFolder </> "package.json"
-    liftIO $ do
-        ByteString.writeFile path (encode package)
+
+    let action = ByteString.writeFile path (encode package)
+    safelyRun action "couldn't write package data"

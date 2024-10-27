@@ -2,10 +2,10 @@ module Mewlix.Packager.Assets
 ( copyAssets
 ) where
 
-import Mewlix.Packager.Type (Packager, liftIO, throwError)
+import Mewlix.Packager.Type (Packager, throwError)
 import Mewlix.Packager.Config (ProjectData(..))
 import Mewlix.Packager.Folder (outputFolder)
-import Mewlix.Utils.IO (copyFileSafe, createDirectory)
+import Mewlix.Utils.IO (safelyRun, copyFileSafe, createDirectory)
 import System.FilePath
     ( (</>)
     , isRelative
@@ -28,9 +28,9 @@ copyAsset inputPath = do
     copyFileSafe inputPath outputPath
 
 findAssets :: ProjectData -> Packager [FilePath]
-findAssets projectData = liftIO $ do
+findAssets projectData = do
     let patterns = projectSourceFiles projectData
-    getDirectoryFiles "." patterns
+    safelyRun (getDirectoryFiles "." patterns) "couldn't get asset files"
 
 copyAssets :: ProjectData -> Packager ()
 copyAssets projectData = do
