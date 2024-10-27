@@ -2,7 +2,7 @@
 
 module Mewlix.Packager.Type
 ( Packager(..)
-, packageMake
+, packager
 -- Re-exports:
 , liftIO
 , liftEither
@@ -22,5 +22,5 @@ newtype Packager a = Packager
              , MonadError String
              )
 
-packageMake :: Packager a -> IO (Either String a)
-packageMake = runExceptT . runPackager
+packager :: Packager a -> IO (Either String a)
+packager = runExceptT . runPackager

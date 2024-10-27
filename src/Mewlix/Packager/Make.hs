@@ -7,7 +7,7 @@ module Mewlix.Packager.Make
 , make'
 ) where
 
-import Mewlix.Packager.Type (Packager(..), packageMake)
+import Mewlix.Packager.Type (Packager(..), packager)
 import Mewlix.Packager.Config.Types
     ( ProjectData(..)
     , ProjectTransform
@@ -52,7 +52,7 @@ make' = make True []
 
 execute :: Bool -> ActionFunc -> IO ()
 execute useProjectFile actionFunc = do
-    packageMake (project >>= actionFunc) >>= \case
+    packager (project >>= actionFunc) >>= \case
         (Left err) -> logger LogData
             { logType    = LogError
             , logPrefix  = Just "[mewlix: packager error]"
