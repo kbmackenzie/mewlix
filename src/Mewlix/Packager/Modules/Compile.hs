@@ -47,7 +47,7 @@ compileModules projectData handle = do
         [ "Compiling "
         , showT sourceCount
         , if sourceCount > 1 then " yarn balls!" else " yarn ball!" ]
-    context  <- createContext projectData
+    context <- createContext projectData
 
     let write :: Text -> Packager ()
         write = liftIO . TextIO.hPutStrLn handle

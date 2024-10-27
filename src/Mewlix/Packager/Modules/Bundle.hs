@@ -6,19 +6,22 @@ module Mewlix.Packager.Modules.Bundle
 
 import Mewlix.Packager.Type
     ( Packager
+    , liftIO
+    , liftEither
     , throwError
     , catchError
-    , liftIO
     )
 import Mewlix.Packager.Config.Types (ProjectData(..))
 import Mewlix.Packager.Modules.Compile (compileModules)
 import Mewlix.Packager.Folder (moduleFolder)
 import System.IO (IOMode(..), openFile, hClose)
 import System.FilePath ((</>))
-import System.Directory (createDirectoryIfMissing)
+import Control.Exception (IOException, catch)
+import Mewlix.Utils.IO (createDirectory)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
+import Control.Monad ((>=>))
 
 metaComment :: Text
 metaComment = Text.intercalate "\n"
@@ -29,12 +32,13 @@ metaComment = Text.intercalate "\n"
 -- It's simpler this way!
 bundleModules :: ProjectData -> Packager ()
 bundleModules projectData = do
-    let outputPath = moduleFolder </> "yarnball.js"
+    let path = moduleFolder </> "yarnball.js"
     
-    handle <- liftIO $ do
-        createDirectoryIfMissing False moduleFolder
-        openFile outputPath WriteMode
-
+    createDirectory False moduleFolder
+    handle <- (liftIO >=> liftEither) $ do
+        fmap Right (openFile path WriteMode) `catch` \err -> do
+            let message = concat ["couldn't open file " , show path, ": " , show (err :: IOException)]
+            return (Left message)
     let write :: Text -> Packager ()
         write = liftIO . TextIO.hPutStr handle
 
