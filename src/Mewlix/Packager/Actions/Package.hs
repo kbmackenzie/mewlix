@@ -12,36 +12,29 @@ import Mewlix.Packager.Log (projectLog)
 import System.Directory (doesDirectoryExist)
 import Codec.Archive.Zip
     ( ZipArchive
-    , sinkEntry
+    , packDirRecur
     , mkEntrySelector
+    , EntrySelector
     , CompressionMethod(Deflate)
     , createArchive
     )
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad (unless)
-import Conduit (sourceFile, sourceDirectoryDeep, runConduitRes, sinkList, (.|))
-import System.FilePath (makeRelative, makeValid, replaceExtension)
+import System.FilePath (makeValid, replaceExtension, (</>))
 import qualified Data.Text as Text
 
-packageFolder :: FilePath -> ZipArchive ()
-packageFolder folder = do
-    let copy :: FilePath -> ZipArchive ()
-        copy filepath = do
-            let name = makeRelative folder filepath
-            selector <- mkEntrySelector name
-            sinkEntry Deflate (sourceFile filepath) selector
-
-    filepaths <- liftIO $ runConduitRes
-         $ sourceDirectoryDeep True folder
-        .| sinkList
-    mapM_ copy filepaths
+packageDirectory :: FilePath -> ZipArchive ()
+packageDirectory directory = do
+    let selector :: FilePath -> ZipArchive EntrySelector
+        selector = mkEntrySelector . (directory </>)
+    packDirRecur Deflate selector directory
 
 createPackage :: (MonadIO m) => ProjectData -> m ()
 createPackage projectData = do
     let name = Text.unpack (projectName projectData)
     let packageName = makeValid name `replaceExtension` ".zip"
 
-    liftIO $ createArchive packageName (packageFolder outputFolder)
+    liftIO $ createArchive packageName (packageDirectory outputFolder)
 
 packageProject :: ProjectData -> Packager ()
 packageProject projectData = do
