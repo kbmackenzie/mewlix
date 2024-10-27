@@ -2,16 +2,16 @@ module Mewlix.Packager.Assets.Copy
 ( copyAssets
 ) where
 
+import Mewlix.Packager.Type (Packager, liftIO, throwError)
 import Mewlix.Packager.Config.Types (ProjectData(..))
 import Mewlix.Packager.Folder (outputFolder)
-import Mewlix.Packager.Type (Packager, throwError)
-import Mewlix.Packager.Assets.Find (processAssets, validateAssets)
 import Mewlix.Utils.IO (copyFileSafe, createDirectory)
 import System.FilePath
     ( (</>)
     , isRelative
     , takeDirectory
     )
+import System.FilePattern.Directory (getDirectoryFiles)
 
 copyAsset :: FilePath -> Packager ()
 copyAsset inputPath = do
@@ -27,8 +27,12 @@ copyAsset inputPath = do
     prepareDirectory outputPath
     copyFileSafe inputPath outputPath
 
+findAssets :: ProjectData -> Packager [FilePath]
+findAssets projectData = liftIO $ do
+    let patterns = projectSourceFiles projectData
+    getDirectoryFiles "." patterns
+
 copyAssets :: ProjectData -> Packager ()
 copyAssets projectData = do
-    assets <- processAssets (projectAssets projectData)
-    validateAssets assets
+    assets <- findAssets projectData
     mapM_ copyAsset assets

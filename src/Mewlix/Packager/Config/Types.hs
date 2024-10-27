@@ -46,6 +46,7 @@ import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe (fromMaybe)
 import Lens.Micro.Platform (makeLensesFor)
 import Data.Aeson.Types (unexpected)
+import System.FilePattern (FilePattern)
 import Data.Function (on)
 import Data.Char (toLower)
 
@@ -76,8 +77,8 @@ data ProjectData = ProjectData
     , projectMode           :: ProjectMode
     , projectEntrypoint     :: Text
     , projectPort           :: Port
-    , projectSourceFiles    :: [FilePath]
-    , projectAssets         :: [FilePath]
+    , projectSourceFiles    :: [FilePattern]
+    , projectAssets         :: [FilePattern]
     , projectFlags          :: Set ProjectFlag  }
     deriving (Show)
 
@@ -227,8 +228,8 @@ type ProjectTransform = ProjectData -> ProjectData
 transformProject :: [ProjectTransform] -> ProjectData -> ProjectData
 transformProject = flip (foldr ($))
 
-fieldOrder :: HashMap Text Int
-fieldOrder = HashMap.fromList
+fieldOrderMap :: HashMap Text Int
+fieldOrderMap = HashMap.fromList
     [ ("name"         , 1)
     , ("description"  , 2)
     , ("mode"         , 3)
@@ -239,4 +240,4 @@ fieldOrder = HashMap.fromList
     , ("flags"        , 8) ]
 
 projectFieldOrder :: Text -> Text -> Ordering
-projectFieldOrder = compare `on` (`HashMap.lookup` fieldOrder)
+projectFieldOrder = compare `on` (`HashMap.lookup` fieldOrderMap)

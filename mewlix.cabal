@@ -58,7 +58,6 @@ library
       Mewlix.Packager.Actions.Run
       Mewlix.Packager.Actions.Server
       Mewlix.Packager.Assets.Copy
-      Mewlix.Packager.Assets.Find
       Mewlix.Packager.Config.Read
       Mewlix.Packager.Config.Types
       Mewlix.Packager.Folder
@@ -66,7 +65,6 @@ library
       Mewlix.Packager.Make
       Mewlix.Packager.Modules.Bundle
       Mewlix.Packager.Modules.Compile
-      Mewlix.Packager.Modules.FileSearch
       Mewlix.Packager.Modules.StandardLibrary
       Mewlix.Packager.Templates.Constants
       Mewlix.Packager.Templates.Create

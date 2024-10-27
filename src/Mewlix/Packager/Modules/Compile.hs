@@ -6,8 +6,8 @@ module Mewlix.Packager.Modules.Compile
 
 import Mewlix.Packager.Type
     ( Packager
-    , throwError
     , liftIO
+    , throwError
     )
 import Mewlix.Compiler
     ( TranspilerContext(..)
@@ -16,7 +16,7 @@ import Mewlix.Compiler
     )
 import Mewlix.Packager.Config.Types (ProjectData(..), ProjectFlag(..))
 import Mewlix.Packager.Modules.StandardLibrary (addLibraries)
-import Mewlix.Packager.Modules.FileSearch (processSources, validateSources)
+import System.FilePattern.Directory (getDirectoryFiles)
 import Mewlix.Packager.Log (projectLog)
 import Mewlix.Utils.Show (showT)
 import Mewlix.Utils.IO (readFileText)
@@ -36,11 +36,15 @@ createContext projectData = do
         , noStd   = Set.member NoStd flags
         , pretty  = Set.member Pretty flags }
 
+findSources :: ProjectData -> Packager [FilePath]
+findSources projectData = liftIO $ do
+    let patterns = projectSourceFiles projectData
+    getDirectoryFiles "." patterns
+
 -- Compile all yarn balls, writing the compilation output to a handle.
 compileModules :: ProjectData -> Handle -> Packager ()
 compileModules projectData handle = do
-    sources <- processSources (projectSourceFiles projectData)
-    validateSources sources
+    sources <- findSources projectData
 
     let sourceCount = length sources
     projectLog projectData $ mconcat
