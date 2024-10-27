@@ -25,16 +25,11 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad ((>=>))
 import Data.Bifunctor (first)
 import Paths_mewlix (getDataFileName)
-import Conduit
-    ( runConduitRes
-    , sourceFile
-    , sinkFile
-    , (.|)
-    )
 import Codec.Archive.Zip (withArchive, unpackInto)
 import System.Directory
     ( createDirectoryIfMissing
     , removeFile
+    , copyFile
     )
 import Control.Exception (IOException, catch)
 import System.IO.Error (isDoesNotExistError)
@@ -79,11 +74,7 @@ writeFileText path contents = (liftIO >=> liftEither) $ do
 
 copyFileSafe :: (MonadIO m, MonadError String m) => FilePath -> FilePath -> m ()
 copyFileSafe target destination = (liftIO >=> liftEither) $ do
-    let copy :: IO ()
-        copy = runConduitRes
-             $ sourceFile target
-            .| sinkFile destination
-    fmap Right copy `catch` \err -> do
+    fmap Right (copyFile target destination) `catch` \err -> do
         let message = concat ["couldn't copy file ", show target, " to destination ", show destination]
         return . Left $ fileError message err
 
