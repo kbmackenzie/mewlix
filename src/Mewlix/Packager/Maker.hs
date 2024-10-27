@@ -9,6 +9,8 @@ module Mewlix.Packager.Maker
 , catchError
 ) where
 
+-- todo: rename PackageMaker to Packager. rename this moduule to just 'Type'.
+
 import Control.Monad.Except (ExceptT, MonadError(throwError, catchError), runExceptT)
 import Control.Monad.IO.Class (MonadIO(liftIO))
 

@@ -9,7 +9,7 @@ import Mewlix.Packager.Log (projectLog)
 import Mewlix.Packager.Data.Types (ProjectData(..), projectFieldOrder, projectSourceFilesL)
 import Mewlix.Packager.Folder (projectFile, outputFolder)
 import Mewlix.Utils.Yaml (prettyYaml)
-import Mewlix.Utils.FileIO (writeBytes)
+import Mewlix.Utils.IO (writeFileBytes)
 import System.Directory (doesFileExist, createDirectoryIfMissing)
 import Lens.Micro.Platform ((%~))
 import System.FilePath (addTrailingPathSeparator)
@@ -31,11 +31,11 @@ createProject = (. includeSrc) $ \projectData -> do
 
     -- Create project file:
     let contents = prettyYaml projectFieldOrder projectData
-    writeBytes projectFile contents
+    writeFileBytes projectFile contents
 
     -- Create 'src' directory:
     liftIO (createDirectoryIfMissing False "./src")
 
     -- Create .gitignore
     let ignorePath = addTrailingPathSeparator outputFolder ++ "\n"
-    writeBytes "./.gitignore" (ByteString.pack ignorePath)
+    writeFileBytes "./.gitignore" (ByteString.pack ignorePath)

@@ -4,10 +4,9 @@ module Mewlix.Packager.Assets.Copy
 
 import Mewlix.Packager.Data.Types (ProjectData(..))
 import Mewlix.Packager.Folder (outputFolder)
-import Mewlix.Packager.Maker (PackageMaker, throwError, liftIO)
+import Mewlix.Packager.Maker (PackageMaker, throwError)
 import Mewlix.Packager.Assets.Find (processAssets, validateAssets)
-import Mewlix.Utils.FileIO (copyFile)
-import System.Directory (createDirectoryIfMissing)
+import Mewlix.Utils.IO (copyFileSafe, createDirectory)
 import System.FilePath
     ( (</>)
     , isRelative
@@ -17,7 +16,7 @@ import System.FilePath
 copyAsset :: FilePath -> PackageMaker ()
 copyAsset inputPath = do
     let prepareDirectory :: FilePath -> PackageMaker ()
-        prepareDirectory = liftIO . createDirectoryIfMissing True . takeDirectory
+        prepareDirectory = createDirectory True . takeDirectory
 
     outputPath <- if isRelative inputPath
         then return (outputFolder </> inputPath)
@@ -25,9 +24,8 @@ copyAsset inputPath = do
             [ "Asset file path cannot be made relative to current directory: "
             , show inputPath
             , "!\nPlease use relative paths without indirections!" ]
-
     prepareDirectory outputPath
-    copyFile inputPath outputPath
+    copyFileSafe inputPath outputPath
 
 copyAssets :: ProjectData -> PackageMaker ()
 copyAssets projectData = do

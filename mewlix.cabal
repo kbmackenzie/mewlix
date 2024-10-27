@@ -85,7 +85,7 @@ library
       Mewlix.Parser.Utils
       Mewlix.String.Escape
       Mewlix.String.Utils
-      Mewlix.Utils.FileIO
+      Mewlix.Utils.IO
       Mewlix.Utils.Json
       Mewlix.Utils.Maybe
       Mewlix.Utils.Server

@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE LambdaCase #-}
 
 module Mewlix.Packager.Modules.Compile
 ( compileModules
@@ -20,7 +19,7 @@ import Mewlix.Packager.Modules.StandardLibrary (addLibraries)
 import Mewlix.Packager.Modules.FileSearch (processSources, validateSources)
 import Mewlix.Packager.Log (projectLog)
 import Mewlix.Utils.Show (showT)
-import Mewlix.Utils.FileIO (readText)
+import Mewlix.Utils.IO (readFileText)
 import qualified Data.Set as Set
 import System.IO (Handle)
 import Data.Text (Text)
@@ -65,8 +64,8 @@ compileModules projectData handle = do
 
 -- Runs compiler on text content read from a file.
 runCompiler :: TranspilerContext -> FilePath -> PackageMaker CompilerOutput
-runCompiler context path = readText path >>= \case
-    (Left err)       -> throwError . concat $ [ "Couldn't read file ", show path, ": ", err ]
-    (Right contents) -> case compileJS context path contents of
+runCompiler context path = do
+    contents <- readFileText path
+    case compileJS context path contents of
         (Left err)       -> throwError . concat $ [ "Mewlix syntax error in file ", show path, ":\n", err ]
         (Right yarnball) -> return yarnball

@@ -19,6 +19,7 @@ import System.Directory
     )
 import Mewlix.Packager.Maker (PackageMaker, throwError, liftIO)
 import Control.Monad.IO.Class (MonadIO)
+import Control.Exception (IOException)
 
 findAssets :: (MonadIO m) => FilePath -> m [FilePath]
 findAssets path = liftIO . runConduitRes
@@ -32,11 +33,15 @@ processAsset = liftIO . canonicalizePath >=> \path -> do
         then liftIO (findAssets path)
         else return [path]
 
-processAssets :: (MonadIO m) => [FilePath] -> m [FilePath]
+processAssets :: [FilePath] -> PackageMaker [FilePath]
 processAssets paths = do
-    let makeLocal = liftIO . makeRelativeToCurrentDirectory
-    assetBundle <- mapM processAsset paths
-    assets      <- mapM makeLocal (concat assetBundle)
+    let getAssets :: IO [FilePath]
+        getAssets = do
+            let makeLocal = liftIO . makeRelativeToCurrentDirectory
+            assetBundle <- mapM processAsset paths
+            mapM makeLocal (concat assetBundle)
+
+    assets <- liftIO getAssets -- todo: error-handle here. >:/ (and everywhere else.)
     (return . nubOrd) assets
 
 validateAsset :: FilePath -> PackageMaker ()

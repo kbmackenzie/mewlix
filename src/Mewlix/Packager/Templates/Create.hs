@@ -7,7 +7,7 @@ import Mewlix.Packager.Data.Types (ProjectData(..), ProjectMode(..))
 import Mewlix.Packager.Templates.Constants (getTemplate, template)
 import Mewlix.Packager.Templates.Node (writePackageData)
 import Mewlix.Packager.Folder (outputFolder)
-import Mewlix.Utils.FileIO (extractDataFile)
+import Mewlix.Utils.IO (extractZipDataFile)
 import System.Directory (createDirectoryIfMissing)
 import Control.Monad (when)
 
@@ -18,7 +18,7 @@ createFromTemplate projectData = do
     let projectTemplate = template mode
 
     liftIO (createDirectoryIfMissing True folder)
-    extractDataFile (getTemplate projectTemplate) folder
+    extractZipDataFile (getTemplate projectTemplate) folder
 
     when (mode == Node) $
         writePackageData projectData
