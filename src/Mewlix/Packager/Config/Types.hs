@@ -35,7 +35,6 @@ import Data.Aeson
     , (.=)
     , (.:?)
     , object
-    , pairs
     , withText
     , Value(..)
     )
@@ -132,14 +131,14 @@ instance ToJSON ProjectFlag where
 ----------------------------------------------------------------
 instance FromJSON ProjectData where
     parseJSON = withObject "ProjectData" $ \obj -> ProjectData
-        <$> optional defaultName    (obj .:? "name"       )
-        <*> optional mempty         (obj .:? "description")
-        <*> optional defaultMode    (obj .:? "mode"       )
-        <*> optional defaultEntry   (obj .:? "entrypoint" )
-        <*> optional defaultPort    (obj .:? "port"       )
-        <*> optional mempty         (obj .:? "sources"    )
-        <*> optional mempty         (obj .:? "assets"     )
-        <*> optional mempty         (obj .:? "flags"      )
+        <$> optional defaultName    (obj .:? "name"        )
+        <*> optional mempty         (obj .:? "description" )
+        <*> optional defaultMode    (obj .:? "mode"        )
+        <*> optional defaultEntry   (obj .:? "entrypoint"  )
+        <*> optional defaultPort    (obj .:? "port"        )
+        <*> optional mempty         (obj .:? "source-files")
+        <*> optional mempty         (obj .:? "assets"      )
+        <*> optional mempty         (obj .:? "flags"       )
         where
             optional :: (Functor f) => a -> f (Maybe a) -> f a
             optional = fmap . fromMaybe
@@ -151,19 +150,9 @@ instance ToJSON ProjectData where
         , "mode"            .= projectMode project
         , "entrypoint"      .= projectEntrypoint project
         , "port"            .= projectPort project
-        , "sources"         .= projectSourceFiles project
+        , "source-files"    .= projectSourceFiles project
         , "assets"          .= projectAssets project
-        , "flags"           .= projectFlags project ]
-
-    toEncoding project = pairs $ mconcat
-        [ "name"            .= projectName project
-        , "description"     .= projectDescription project
-        , "mode"            .= projectMode project
-        , "entrypoint"      .= projectEntrypoint project
-        , "port"            .= projectPort project
-        , "sources"         .= projectSourceFiles project
-        , "assets"          .= projectAssets project
-        , "flags"           .= projectFlags project ]
+        , "flags"           .= projectFlags project         ]
 
 ------------------------------------------------------------------
 instance ToJSON Port where
@@ -240,14 +229,14 @@ transformProject = flip (foldr ($))
 
 fieldOrder :: HashMap Text Int
 fieldOrder = HashMap.fromList
-    [ ("name"        , 1)
-    , ("description" , 2)
-    , ("mode"        , 3)
-    , ("entrypoint"  , 4)
-    , ("port"        , 5)
-    , ("sources"     , 6)
-    , ("assets"      , 7)
-    , ("flags"       , 8) ]
+    [ ("name"         , 1)
+    , ("description"  , 2)
+    , ("mode"         , 3)
+    , ("entrypoint"   , 4)
+    , ("port"         , 5)
+    , ("source-files" , 6)
+    , ("assets"       , 7)
+    , ("flags"        , 8) ]
 
 projectFieldOrder :: Text -> Text -> Ordering
 projectFieldOrder = compare `on` (`HashMap.lookup` fieldOrder)
