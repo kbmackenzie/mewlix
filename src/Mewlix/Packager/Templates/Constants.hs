@@ -5,7 +5,7 @@ module Mewlix.Packager.Templates.Constants
 , template
 ) where
 
-import Mewlix.Packager.Data.Types (ProjectMode(..))
+import Mewlix.Packager.Config.Types (ProjectMode(..))
 import System.FilePath ((</>))
 
 newtype Template = Template { getTemplate :: FilePath }

@@ -14,7 +14,7 @@ import Mewlix.Compiler
     , CompilerOutput
     , compileJS
     )
-import Mewlix.Packager.Data.Types (ProjectData(..), ProjectFlag(..))
+import Mewlix.Packager.Config.Types (ProjectData(..), ProjectFlag(..))
 import Mewlix.Packager.Modules.StandardLibrary (addLibraries)
 import Mewlix.Packager.Modules.FileSearch (processSources, validateSources)
 import Mewlix.Packager.Log (projectLog)

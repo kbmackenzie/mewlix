@@ -5,7 +5,7 @@ module Mewlix.Packager.Modules.StandardLibrary
 ( addLibraries
 ) where
 
-import Mewlix.Packager.Data.Types (ProjectMode(..))
+import Mewlix.Packager.Config.Types (ProjectMode(..))
 import Mewlix.Abstract.Key (Key(..))
 import Data.Text (Text)
 import Data.HashSet (HashSet)

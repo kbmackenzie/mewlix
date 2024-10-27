@@ -3,7 +3,7 @@ module Mewlix.Packager.Log
 , projectLogError
 ) where
 
-import Mewlix.Packager.Data.Types (ProjectData(..), ProjectFlag(..))
+import Mewlix.Packager.Config.Types (ProjectData(..), ProjectFlag(..))
 import Mewlix.Logger (LogData(..), LogType(..), logger);
 import Data.Text (Text)
 import qualified Data.Set as Set

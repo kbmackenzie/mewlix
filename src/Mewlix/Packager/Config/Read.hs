@@ -1,10 +1,10 @@
-module Mewlix.Packager.Data.Read
+module Mewlix.Packager.Config.Read
 ( readProject
 ) where
 
 import Mewlix.Packager.Type (Packager, liftIO, throwError)
 import Mewlix.Packager.Folder (projectFile)
-import Mewlix.Packager.Data.Types (ProjectData(..))
+import Mewlix.Packager.Config.Types (ProjectData(..))
 import Mewlix.Utils.IO (readFileBytes)
 import Mewlix.Utils.Yaml (readYaml)
 import System.FilePath (takeFileName)

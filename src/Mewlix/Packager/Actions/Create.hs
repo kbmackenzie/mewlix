@@ -6,7 +6,7 @@ module Mewlix.Packager.Actions.Create
 
 import Mewlix.Packager.Type (Packager, throwError, liftIO)
 import Mewlix.Packager.Log (projectLog)
-import Mewlix.Packager.Data.Types (ProjectData(..), projectFieldOrder, projectSourceFilesL)
+import Mewlix.Packager.Config.Types (ProjectData(..), projectFieldOrder, projectSourceFilesL)
 import Mewlix.Packager.Folder (projectFile, outputFolder)
 import Mewlix.Utils.Yaml (prettyYaml)
 import Mewlix.Utils.IO (writeFileBytes)

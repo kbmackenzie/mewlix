@@ -2,7 +2,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE StrictData #-}
 
-module Mewlix.Packager.Data.Types
+module Mewlix.Packager.Config.Types
 ( ProjectMode(..)
 , ProjectFlag(..)
 , ProjectData(..)

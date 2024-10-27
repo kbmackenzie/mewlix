@@ -4,7 +4,7 @@ module Mewlix.Packager.Actions.Package
 ( packageProject
 ) where
 
-import Mewlix.Packager.Data.Types (ProjectData(..))
+import Mewlix.Packager.Config.Types (ProjectData(..))
 import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Actions.Build (buildProject)
 import Mewlix.Packager.Folder (outputFolder)

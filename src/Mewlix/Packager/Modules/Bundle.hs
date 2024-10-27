@@ -10,7 +10,7 @@ import Mewlix.Packager.Type
     , catchError
     , liftIO
     )
-import Mewlix.Packager.Data.Types (ProjectData(..))
+import Mewlix.Packager.Config.Types (ProjectData(..))
 import Mewlix.Packager.Modules.Compile (compileModules)
 import Mewlix.Packager.Folder (moduleFolder)
 import System.IO (IOMode(..), openFile, hClose)

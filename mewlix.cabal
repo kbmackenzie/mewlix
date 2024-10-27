@@ -59,8 +59,8 @@ library
       Mewlix.Packager.Actions.Server
       Mewlix.Packager.Assets.Copy
       Mewlix.Packager.Assets.Find
-      Mewlix.Packager.Data.Read
-      Mewlix.Packager.Data.Types
+      Mewlix.Packager.Config.Read
+      Mewlix.Packager.Config.Types
       Mewlix.Packager.Folder
       Mewlix.Packager.Log
       Mewlix.Packager.Make

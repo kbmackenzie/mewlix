@@ -28,7 +28,7 @@ module Mewlix.Packager
 ) where
 
 import Mewlix.Packager.Make (Action(..), make, make')
-import Mewlix.Packager.Data.Types
+import Mewlix.Packager.Config.Types
     ( ProjectData(..)
     , ProjectMode(..)
     , ProjectFlag(..)

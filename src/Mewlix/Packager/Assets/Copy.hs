@@ -2,7 +2,7 @@ module Mewlix.Packager.Assets.Copy
 ( copyAssets
 ) where
 
-import Mewlix.Packager.Data.Types (ProjectData(..))
+import Mewlix.Packager.Config.Types (ProjectData(..))
 import Mewlix.Packager.Folder (outputFolder)
 import Mewlix.Packager.Type (Packager, throwError)
 import Mewlix.Packager.Assets.Find (processAssets, validateAssets)

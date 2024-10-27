@@ -5,7 +5,7 @@ module Mewlix.Packager.Actions.Build
 ) where
 
 import Mewlix.Packager.Type (Packager, liftIO)
-import Mewlix.Packager.Data.Types (ProjectData(..))
+import Mewlix.Packager.Config.Types (ProjectData(..))
 import Mewlix.Packager.Modules.Bundle (bundleModules)
 import Mewlix.Packager.Folder (coreFolder)
 import Mewlix.Packager.Templates.Create (createFromTemplate)

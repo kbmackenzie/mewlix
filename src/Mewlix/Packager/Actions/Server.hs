@@ -6,7 +6,7 @@ module Mewlix.Packager.Actions.Server
 
 import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Folder (outputFolder)
-import Mewlix.Packager.Data.Types (ProjectData(..), Port(..))
+import Mewlix.Packager.Config.Types (ProjectData(..), Port(..))
 import Mewlix.Packager.Log (projectLog)
 import Mewlix.Utils.Server (serve)
 import Control.Monad.IO.Class (liftIO)

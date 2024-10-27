@@ -8,7 +8,7 @@ module Mewlix.Packager.Make
 ) where
 
 import Mewlix.Packager.Type (Packager(..), packageMake)
-import Mewlix.Packager.Data.Types
+import Mewlix.Packager.Config.Types
     ( ProjectData(..)
     , ProjectTransform
     , transformProject
@@ -21,7 +21,7 @@ import Mewlix.Packager.Actions.Package (packageProject)
 import Mewlix.Packager.Actions.Create (createProject)
 import Mewlix.Packager.Actions.Run (runProject)
 -- Assorted:
-import Mewlix.Packager.Data.Read (readProject)
+import Mewlix.Packager.Config.Read (readProject)
 import Mewlix.Logger (LogData(..), LogType(..), logger);
 import qualified Data.Text as Text
 
