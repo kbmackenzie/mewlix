@@ -182,7 +182,7 @@ makeInfo parser desc = info (parser <**> helper) (fullDesc <> progDesc desc)
 parseOptions :: Parser MewlixOptions
 parseOptions = options
     where
-        options = subparser (build <> run <> package <> new <> clean)
+        options = subparser (init_ <> build <> run <> package <> clean)
 
         build :: Mod CommandFields MewlixOptions
         build = command "build" $ makeInfo parser "Build project"
@@ -206,8 +206,8 @@ parseOptions = options
                     <*> flagOptions
                     <*> standalone
 
-        new :: Mod CommandFields MewlixOptions
-        new = command "new" $ makeInfo parser "Create a new project in the current directory"
+        init_ :: Mod CommandFields MewlixOptions
+        init_ = command "init" $ makeInfo parser "Create a new project in the current directory"
             where parser = NewOpt
                     <$> optional (argument str (metavar "NAME"))
                     <*> optional projectMode
