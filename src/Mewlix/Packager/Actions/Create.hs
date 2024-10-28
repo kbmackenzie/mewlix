@@ -17,7 +17,7 @@ import qualified Data.ByteString.Char8 as ByteString
 import Control.Monad (when)
 
 includeSrc :: ProjectData -> ProjectData
-includeSrc = projectSourceFilesL %~ ("src/" :)
+includeSrc = projectSourceFilesL %~ ("src/**/*.mews" :)
 
 createProject :: ProjectData -> Packager ()
 createProject = (. includeSrc) $ \projectData -> do
