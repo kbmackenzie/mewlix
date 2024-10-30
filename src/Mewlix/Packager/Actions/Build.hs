@@ -8,7 +8,7 @@ import Mewlix.Packager.Type (Packager, liftIO)
 import Mewlix.Packager.Config (ProjectData(..))
 import Mewlix.Packager.Modules (bundleModules)
 import Mewlix.Packager.Folder (coreFolder)
-import Mewlix.Packager.Templates (createFromTemplate, createReadme)
+import Mewlix.Packager.Templates (generateTemplate, writeReadMe)
 import Mewlix.Packager.Assets (copyAssets)
 import Mewlix.Packager.Log (projectLog)
 import System.FilePath ((</>))
@@ -22,13 +22,13 @@ buildProject projectData = do
 
     -- Template:
     projectLog projectData "Creating template..."
-    createFromTemplate projectData
+    generateTemplate projectData
 
     -- Modules:
     bundleModules projectData
     copyAssets projectData
     metaData projectData
-    createReadme projectData
+    writeReadMe projectData
 
 metaData :: ProjectData -> Packager ()
 metaData projectData = do

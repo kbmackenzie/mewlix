@@ -71,9 +71,7 @@ library
       Mewlix.Packager.Modules.StandardLibrary
       Mewlix.Packager.Templates
       Mewlix.Packager.Templates.Constants
-      Mewlix.Packager.Templates.Create
-      Mewlix.Packager.Templates.Node
-      Mewlix.Packager.Templates.ReadMe
+      Mewlix.Packager.Templates.Generate
       Mewlix.Packager.Type
       Mewlix.Parser.Expression
       Mewlix.Parser.Keyword

@@ -1,7 +1,6 @@
 module Mewlix.Packager.Templates
-( createFromTemplate
-, createReadme
+( generateTemplate
+, writeReadMe
 ) where
 
-import Mewlix.Packager.Templates.Create (createFromTemplate)
-import Mewlix.Packager.Templates.ReadMe (createReadme)
+import Mewlix.Packager.Templates.Generate (generateTemplate, writeReadMe)
