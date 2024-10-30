@@ -13,6 +13,7 @@ module Mewlix.Utils.IO
 , extractZipDataFile
 , removeIfExists
 , createDirectory
+, getFileModTime
 ) where
 
 import Data.Text (Text)
@@ -31,7 +32,9 @@ import System.Directory
     ( createDirectoryIfMissing
     , removeFile
     , copyFile
+    , getModificationTime
     )
+import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
 import Control.Exception (IOException, catch)
 import System.IO.Error (isDoesNotExistError)
 
@@ -102,3 +105,8 @@ createDirectory :: (MonadIO m, MonadError String m) => Bool -> FilePath -> m ()
 createDirectory recursive path = safelyRun (createDirectoryIfMissing recursive path) context
     where detail  = if recursive then " recursively" else ""
           context = concat ["couldn't create directory", detail, ": ", show path]
+
+getFileModTime :: (MonadIO m, MonadError String m) => FilePath -> m Integer
+getFileModTime path = numberfy <$> safelyRun (getModificationTime path) context
+    where numberfy = round . utcTimeToPOSIXSeconds
+          context  = "couldn't get modification time for file " ++ show path
