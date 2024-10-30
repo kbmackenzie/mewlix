@@ -5,7 +5,7 @@ module Mewlix.Packager.Actions.Clean
 ) where
 
 import Mewlix.Packager.Type (Packager, liftIO, throwError)
-import Mewlix.Packager.Folder (outputFolder)
+import Mewlix.Packager.Folder (mewlixFolder)
 import Mewlix.Packager.Config (ProjectData)
 import Mewlix.Packager.Log (projectLog)
 import System.Directory (removeDirectoryRecursive, doesDirectoryExist)
@@ -18,7 +18,7 @@ import Control.Monad (when)
 
 cleanProject :: ProjectData -> Packager ()
 cleanProject projectData = do
-    let folder = outputFolder
+    let folder = mewlixFolder
 
     let clean :: Int -> Packager ()
         clean attempt

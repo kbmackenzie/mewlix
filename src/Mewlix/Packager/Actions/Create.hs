@@ -7,7 +7,7 @@ module Mewlix.Packager.Actions.Create
 import Mewlix.Packager.Type (Packager, throwError, liftIO)
 import Mewlix.Packager.Log (projectLog)
 import Mewlix.Packager.Config (ProjectData(..), projectFieldOrder, projectSourceFilesL)
-import Mewlix.Packager.Folder (projectFile, outputFolder)
+import Mewlix.Packager.Folder (projectFile, mewlixFolder)
 import Mewlix.Utils.Yaml (prettyYaml)
 import Mewlix.Utils.IO (createDirectory, writeFileBytes)
 import System.Directory (doesFileExist)
@@ -37,5 +37,5 @@ createProject = (. includeSrc) $ \projectData -> do
     createDirectory False "./src"
 
     -- Create .gitignore
-    let ignorePath = addTrailingPathSeparator outputFolder ++ "\n"
+    let ignorePath = addTrailingPathSeparator mewlixFolder ++ "\n"
     writeFileBytes "./.gitignore" (ByteString.pack ignorePath)

@@ -1,5 +1,6 @@
 module Mewlix.Packager.Folder
-( outputFolder
+( mewlixFolder
+, buildFolder
 , coreFolder
 , moduleFolder
 , projectFile
@@ -7,14 +8,17 @@ module Mewlix.Packager.Folder
 
 import System.FilePath ((</>))
 
-outputFolder :: FilePath
-outputFolder = "build"
+mewlixFolder :: FilePath
+mewlixFolder = ".mewlix"
+
+buildFolder :: FilePath
+buildFolder = mewlixFolder </> "build"
 
 coreFolder :: FilePath
-coreFolder = outputFolder </> "core"
+coreFolder = buildFolder </> "core"
 
 moduleFolder :: FilePath
-moduleFolder = outputFolder </> "yarnball"
+moduleFolder = buildFolder </> "yarnball"
 
 projectFile :: FilePath
 projectFile = "./mewlix.yaml"

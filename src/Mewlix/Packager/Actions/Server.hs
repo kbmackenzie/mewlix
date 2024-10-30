@@ -5,7 +5,7 @@ module Mewlix.Packager.Actions.Server
 ) where
 
 import Mewlix.Packager.Type (Packager)
-import Mewlix.Packager.Folder (outputFolder)
+import Mewlix.Packager.Folder (buildFolder)
 import Mewlix.Packager.Config (ProjectData(..), Port(..))
 import Mewlix.Packager.Log (projectLog)
 import Mewlix.Utils.Server (serve)
@@ -30,4 +30,4 @@ runServer projectData = do
 
     -- Run server:
     projectLog projectData "Press (Ctrl + C) to exit."
-    serve outputFolder (getPort port)
+    serve buildFolder (getPort port)

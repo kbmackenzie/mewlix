@@ -7,7 +7,7 @@ module Mewlix.Packager.Actions.Package
 import Mewlix.Packager.Config (ProjectData(..))
 import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Actions.Build (buildProject)
-import Mewlix.Packager.Folder (outputFolder)
+import Mewlix.Packager.Folder (buildFolder)
 import Mewlix.Packager.Log (projectLog)
 import System.Directory (doesDirectoryExist)
 import Codec.Archive.Zip
@@ -34,11 +34,11 @@ createPackage projectData = do
     let name = Text.unpack (projectName projectData)
     let packageName = makeValid name `replaceExtension` ".zip"
 
-    liftIO $ createArchive packageName (packageDirectory outputFolder)
+    liftIO $ createArchive packageName (packageDirectory buildFolder)
 
 packageProject :: ProjectData -> Packager ()
 packageProject projectData = do
-    exists <- liftIO (doesDirectoryExist outputFolder)
+    exists <- liftIO (doesDirectoryExist buildFolder)
     unless exists $
         buildProject projectData
 

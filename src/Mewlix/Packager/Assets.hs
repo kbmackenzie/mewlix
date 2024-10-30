@@ -4,7 +4,7 @@ module Mewlix.Packager.Assets
 
 import Mewlix.Packager.Type (Packager, throwError)
 import Mewlix.Packager.Config (ProjectData(..))
-import Mewlix.Packager.Folder (outputFolder)
+import Mewlix.Packager.Folder (buildFolder)
 import Mewlix.Utils.IO (safelyRun, copyFileSafe, createDirectory)
 import System.FilePath
     ( (</>)
@@ -19,7 +19,7 @@ copyAsset inputPath = do
         prepareDirectory = createDirectory True . takeDirectory
 
     outputPath <- if isRelative inputPath
-        then return (outputFolder </> inputPath)
+        then return (buildFolder </> inputPath)
         else throwError $ concat
             [ "Asset file path cannot be made relative to current directory: "
             , show inputPath

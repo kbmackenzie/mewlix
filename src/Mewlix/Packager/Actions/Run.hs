@@ -3,7 +3,7 @@ module Mewlix.Packager.Actions.Run
 ) where
 
 import Mewlix.Packager.Type (Packager, liftIO)
-import Mewlix.Packager.Folder (outputFolder)
+import Mewlix.Packager.Folder (buildFolder)
 import Mewlix.Packager.Config (ProjectData(..), ProjectMode(..), ProjectFlag(..))
 import Mewlix.Packager.Actions.Build (buildProject)
 import Mewlix.Packager.Actions.Server (runServer)
@@ -15,7 +15,7 @@ import qualified Data.Set as Set
 runProject :: ProjectData -> Packager ()
 runProject projectData = do
     let rebuild = Set.member Rebuild (projectFlags projectData)
-    exists <- liftIO (doesDirectoryExist outputFolder)
+    exists <- liftIO (doesDirectoryExist buildFolder)
 
     when (not exists || rebuild) $
         buildProject projectData

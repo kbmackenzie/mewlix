@@ -5,7 +5,7 @@ module Mewlix.Packager.Actions.Node
 ) where
 
 import Mewlix.Packager.Type (Packager, liftIO, throwError)
-import Mewlix.Packager.Folder (outputFolder)
+import Mewlix.Packager.Folder (buildFolder)
 import Mewlix.Packager.Config (ProjectData(..))
 import Mewlix.Packager.Log (projectLog)
 import System.Directory (withCurrentDirectory)
@@ -30,7 +30,7 @@ runNode projectData = do
 
     let script = "import run from './index.js'; run();"
     exitCode <- liftIO $
-        withCurrentDirectory outputFolder (node script)
+        withCurrentDirectory buildFolder (node script)
 
     case exitCode of
         ExitSuccess     -> return ()

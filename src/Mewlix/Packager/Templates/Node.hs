@@ -6,7 +6,7 @@ module Mewlix.Packager.Templates.Node
 
 import Mewlix.Packager.Config (ProjectData(..))
 import Mewlix.Packager.Type (Packager)
-import Mewlix.Packager.Folder (outputFolder)
+import Mewlix.Packager.Folder (buildFolder)
 import Mewlix.Utils.IO (safelyRun)
 import Data.Aeson (Value, object, (.=), encode)
 import System.FilePath ((</>))
@@ -22,7 +22,7 @@ packageData projectData = object
 writePackageData :: ProjectData -> Packager ()
 writePackageData projectData = do
     let package = packageData projectData
-    let path = outputFolder </> "package.json"
+    let path = buildFolder </> "package.json"
 
     let action = ByteString.writeFile path (encode package)
     safelyRun action "couldn't write package data"

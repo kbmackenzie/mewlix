@@ -6,7 +6,7 @@ module Mewlix.Packager.Templates.ReadMe
 
 import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Config (ProjectData(..), ProjectFlag(..))
-import Mewlix.Packager.Folder (outputFolder)
+import Mewlix.Packager.Folder (buildFolder)
 import Mewlix.Utils.IO (writeFileText)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -20,7 +20,7 @@ createReadme projectData = do
     let noReadMe = Text.null description || Set.member NoReadMe flags
 
     unless noReadMe $ do
-        let path = outputFolder </> "README.md"
+        let path = buildFolder </> "README.md"
         let contents = Text.concat
                 [ "# ", projectName projectData, "\n\n", description, "\n" ]
         writeFileText path contents
