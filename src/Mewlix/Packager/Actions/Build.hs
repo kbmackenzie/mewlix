@@ -11,6 +11,8 @@ import Mewlix.Packager.Folder (coreFolder)
 import Mewlix.Packager.Templates (generateTemplate, writeReadMe)
 import Mewlix.Packager.Assets (copyAssets)
 import Mewlix.Packager.Log (projectLog)
+import Mewlix.Packager.Folder (mewlixFolder)
+import Mewlix.Utils.IO (createDirectory)
 import System.FilePath ((</>))
 import Data.Aeson (object, (.=), encode, Value)
 import qualified Data.ByteString.Lazy as LB
@@ -22,6 +24,7 @@ buildProject projectData = do
 
     -- Template:
     projectLog projectData "Creating template..."
+    createDirectory True mewlixFolder
     generateTemplate projectData
 
     -- Modules:
