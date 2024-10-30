@@ -8,7 +8,7 @@ import Mewlix.Packager.Type (Packager, throwError, liftIO)
 import Mewlix.Packager.Log (projectLog)
 import Mewlix.Packager.Config (ProjectData(..), projectFieldOrder, projectSourceFilesL)
 import Mewlix.Packager.Folder (projectFile, mewlixFolder)
-import Mewlix.Utils.Yaml (prettyYaml)
+import Mewlix.Utils.Yaml (toPrettyYaml)
 import Mewlix.Utils.IO (createDirectory, writeFileBytes)
 import System.Directory (doesFileExist)
 import Lens.Micro.Platform ((%~))
@@ -30,7 +30,7 @@ createProject = (. includeSrc) $ \projectData -> do
         throwError "Cannot create project: There's already a project in this directory!"
 
     -- Create project file:
-    let contents = prettyYaml projectFieldOrder projectData
+    let contents = toPrettyYaml projectFieldOrder projectData
     writeFileBytes projectFile contents
 
     -- Create 'src' directory:
