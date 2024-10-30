@@ -14,6 +14,9 @@ module Mewlix.Utils.IO
 , removeIfExists
 , createDirectory
 , getFileModTime
+, compareFilesModTime
+, EntryTag(..)
+, exists
 ) where
 
 import Data.Text (Text)
@@ -22,7 +25,7 @@ import qualified Data.Text.Encoding as TextEncoding
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
 import Data.Text.Encoding.Error (UnicodeException)
-import Control.Monad.Except (MonadError, liftEither)
+import Control.Monad.Except (MonadError, liftEither, catchError)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad ((>=>))
 import Data.Bifunctor (first)
@@ -33,6 +36,9 @@ import System.Directory
     , removeFile
     , copyFile
     , getModificationTime
+    , doesFileExist
+    , doesDirectoryExist
+    , doesPathExist
     )
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
 import Control.Exception (IOException, catch)
@@ -110,3 +116,19 @@ getFileModTime :: (MonadIO m, MonadError String m) => FilePath -> m Integer
 getFileModTime path = numberfy <$> safelyRun (getModificationTime path) context
     where numberfy = round . utcTimeToPOSIXSeconds
           context  = "couldn't get modification time for file " ++ show path
+
+compareFilesModTime :: (MonadIO m, MonadError String m) => FilePath -> FilePath -> m Ordering
+compareFilesModTime a b = do
+    timeA <- getFileModTime a `catchError` const (return 0)
+    timeB <- getFileModTime b `catchError` const (return 0)
+    return $ timeA `compare` timeB
+
+data EntryTag = Any | File | Directory deriving (Show)
+
+exists :: (MonadIO m, MonadError String m) => EntryTag -> FilePath -> m Bool
+exists tag path = safelyRun (predicate path) context
+    where context = "couldn't check existence of path " ++ show path
+          predicate = case tag of
+                File      -> doesFileExist
+                Directory -> doesDirectoryExist
+                Any       -> doesPathExist
