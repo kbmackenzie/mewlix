@@ -14,7 +14,7 @@ module Mewlix.Utils.IO
 , removeIfExists
 , createDirectory
 , getFileModTime
-, compareFilesModTime
+, compareFileMods
 , EntryTag(..)
 , exists
 ) where
@@ -112,17 +112,6 @@ createDirectory recursive path = safelyRun (createDirectoryIfMissing recursive p
     where detail  = if recursive then " recursively" else ""
           context = concat ["couldn't create directory", detail, ": ", show path]
 
-getFileModTime :: (MonadIO m, MonadError String m) => FilePath -> m Integer
-getFileModTime path = numberfy <$> safelyRun (getModificationTime path) context
-    where numberfy = round . utcTimeToPOSIXSeconds
-          context  = "couldn't get modification time for file " ++ show path
-
-compareFilesModTime :: (MonadIO m, MonadError String m) => FilePath -> FilePath -> m Ordering
-compareFilesModTime a b = do
-    timeA <- getFileModTime a `catchError` const (return 0)
-    timeB <- getFileModTime b `catchError` const (return 0)
-    return $ timeA `compare` timeB
-
 data EntryTag = Any | File | Directory deriving (Show)
 
 exists :: (MonadIO m, MonadError String m) => EntryTag -> FilePath -> m Bool
@@ -132,3 +121,28 @@ exists tag path = safelyRun (predicate path) context
                 File      -> doesFileExist
                 Directory -> doesDirectoryExist
                 Any       -> doesPathExist
+
+getFileModTime :: (MonadIO m, MonadError String m) => FilePath -> m Integer
+getFileModTime path = numberfy <$> safelyRun (getModificationTime path) context
+    where numberfy = round . utcTimeToPOSIXSeconds
+          context  = "couldn't get modification time for file " ++ show path
+
+
+{- Compare two files (if they exist).
+ -
+ - 1. When both files exist, compare their modification dates.
+ - 2. When one or both files don't exist, return Nothing.
+ -
+ - Before this, I was considering returning an Ordering even in cases of non-existence.
+ - However, this could lead to misleading results...
+ - I think abstracting it with a Maybe is the best option. -}
+compareFileMods :: (MonadIO m, MonadError String m) => FilePath -> FilePath -> m (Maybe Ordering)
+compareFileMods a b = do
+    hasA <- exists File a
+    hasB <- exists File b
+    if not hasA || not hasB
+        then return Nothing
+        else do
+            timeA <- getFileModTime a
+            timeB <- getFileModTime b
+            return . Just $ timeA `compare` timeB
