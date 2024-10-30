@@ -1,10 +1,9 @@
 module Mewlix.Utils.Json
-( fromJson
+( parseJson
 ) where
 
 import Data.Aeson (eitherDecodeStrict, FromJSON)
-import qualified Data.ByteString as ByteString
-import Control.Monad.IO.Class (MonadIO, liftIO)
+import Data.ByteString (ByteString)
 
-fromJson :: (MonadIO m, FromJSON a) => FilePath -> m (Either String a)
-fromJson = fmap eitherDecodeStrict . liftIO . ByteString.readFile
+parseJson :: (FromJSON a) => ByteString -> Either String a
+parseJson = eitherDecodeStrict
