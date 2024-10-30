@@ -116,6 +116,7 @@ library
     , open-browser >=0.2.1.0 && <0.3
     , parser-combinators >=1.3.0 && <1.4
     , text >=2.0.2 && <2.1
+    , time >=1.12.2 && <1.13
     , typed-process >=0.2.11.1 && <0.3
     , unordered-containers >=0.2.19.1 && <0.3
     , utf8-string >=1.0.2 && <1.1
@@ -156,6 +157,7 @@ executable mewlix
     , optparse-applicative >=0.17.1.0 && <0.18
     , parser-combinators >=1.3.0 && <1.4
     , text >=2.0.2 && <2.1
+    , time >=1.12.2 && <1.13
     , typed-process >=0.2.11.1 && <0.3
     , unordered-containers >=0.2.19.1 && <0.3
     , utf8-string >=1.0.2 && <1.1
@@ -170,8 +172,6 @@ test-suite mewlix-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Mewlix.Test.Compiler
-      Mewlix.Test.Utils
       Paths_mewlix
   autogen-modules:
       Paths_mewlix
@@ -188,6 +188,7 @@ test-suite mewlix-test
     , filepath >=1.4.2.2 && <1.5
     , filepattern >=0.1.3 && <0.2
     , hashable >=1.4.3.0 && <1.5
+    , hspec >=2.10.10 && <2.11
     , http-types >=0.12.4 && <0.13
     , megaparsec >=9.3.1 && <9.4
     , mewlix
@@ -196,6 +197,7 @@ test-suite mewlix-test
     , open-browser >=0.2.1.0 && <0.3
     , parser-combinators >=1.3.0 && <1.4
     , text >=2.0.2 && <2.1
+    , time >=1.12.2 && <1.13
     , typed-process >=0.2.11.1 && <0.3
     , unordered-containers >=0.2.19.1 && <0.3
     , utf8-string >=1.0.2 && <1.1
