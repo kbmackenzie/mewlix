@@ -9,7 +9,7 @@ import Mewlix.Packager.Type
     , throwError
     , catchError
     )
-import Mewlix.Packager.Config (ProjectData(..))
+import Mewlix.Packager.Config (ProjectConfig(..))
 import Mewlix.Packager.Modules.Compile (compileModules)
 import Mewlix.Packager.Folder (moduleFolder)
 import System.IO (IOMode(..), openFile, hClose)
@@ -26,8 +26,8 @@ metaComment = Text.intercalate "\n"
 
 -- Compile and bundle all modules into a single .js file.
 -- It's simpler this way!
-bundleModules :: ProjectData -> Packager ()
-bundleModules projectData = do
+bundleModules :: ProjectConfig -> Packager ()
+bundleModules config = do
     let path = moduleFolder </> "yarnball.js"
     
     createDirectory False moduleFolder
@@ -49,7 +49,7 @@ bundleModules projectData = do
             safelyRun (hClose handle) context
 
     let compile :: Packager () 
-        compile = compileModules projectData handle >> close
+        compile = compileModules config handle >> close
 
     let closeOnError :: String -> Packager ()
         closeOnError e = close >> throwError e

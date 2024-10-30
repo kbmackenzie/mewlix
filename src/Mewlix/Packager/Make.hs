@@ -9,7 +9,7 @@ module Mewlix.Packager.Make
 
 import Mewlix.Packager.Type (Packager(..), packager)
 import Mewlix.Packager.Config
-    ( ProjectData(..)
+    ( ProjectConfig(..)
     , ProjectTransform
     , transformProject
     , defaultProject
@@ -35,7 +35,7 @@ data Action =
     | Run
     deriving (Eq, Ord, Show, Enum, Bounded)
 
-type ActionFunc  = ProjectData -> Packager ()
+type ActionFunc  = ProjectConfig -> Packager ()
 
 action :: Action -> ActionFunc
 action Build    = buildProject

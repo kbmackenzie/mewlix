@@ -5,41 +5,40 @@ module Mewlix.Packager.Actions.Build
 ) where
 
 import Mewlix.Packager.Type (Packager, liftIO)
-import Mewlix.Packager.Config (ProjectData(..))
+import Mewlix.Packager.Config (ProjectConfig(..))
 import Mewlix.Packager.Modules (bundleModules)
-import Mewlix.Packager.Folder (coreFolder)
 import Mewlix.Packager.Templates (generateTemplate, writeReadMe)
 import Mewlix.Packager.Assets (copyAssets)
 import Mewlix.Packager.Log (projectLog)
-import Mewlix.Packager.Folder (mewlixFolder)
+import Mewlix.Packager.Folder (mewlixFolder, coreFolder)
 import Mewlix.Utils.IO (createDirectory)
 import System.FilePath ((</>))
 import Data.Aeson (object, (.=), encode, Value)
 import qualified Data.ByteString.Lazy as LB
 
-buildProject :: ProjectData -> Packager ()
-buildProject projectData = do
-    projectLog projectData $ mconcat
-        ["Building project '", projectName projectData, "'"]
+buildProject :: ProjectConfig -> Packager ()
+buildProject config = do
+    projectLog config $ mconcat
+        ["Building project '", projectName config, "'"]
 
     -- Template:
-    projectLog projectData "Creating template..."
+    projectLog config "Creating template..."
     createDirectory True mewlixFolder
-    generateTemplate projectData
+    generateTemplate config
 
     -- Modules:
-    bundleModules projectData
-    copyAssets projectData
-    metaData projectData
-    writeReadMe projectData
+    bundleModules config
+    copyAssets config
+    metaData config
+    writeReadMe config
 
-metaData :: ProjectData -> Packager ()
-metaData projectData = do
+metaData :: ProjectConfig -> Packager ()
+metaData config = do
     let targetPath = coreFolder </> "meta.json"
     let json = object
-            [ "title"       .= projectName projectData
-            , "entrypoint"  .= projectEntrypoint projectData
-            , "description" .= projectDescription projectData ]
+            [ "title"       .= projectName config
+            , "entrypoint"  .= projectEntrypoint config
+            , "description" .= projectDescription config ]
 
     let write :: Value -> Packager ()
         write = liftIO . LB.writeFile targetPath . (<> "\n") . encode

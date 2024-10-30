@@ -4,7 +4,7 @@ module Mewlix.Packager.Actions.Package
 ( packageProject
 ) where
 
-import Mewlix.Packager.Config (ProjectData(..))
+import Mewlix.Packager.Config (ProjectConfig(..))
 import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Actions.Build (buildProject)
 import Mewlix.Packager.Folder (buildFolder)
@@ -29,18 +29,18 @@ packageDirectory directory = do
         selector = mkEntrySelector . (directory </>)
     packDirRecur Deflate selector directory
 
-createPackage :: (MonadIO m) => ProjectData -> m ()
-createPackage projectData = do
-    let name = Text.unpack (projectName projectData)
+createPackage :: (MonadIO m) => ProjectConfig -> m ()
+createPackage config = do
+    let name = Text.unpack (projectName config)
     let packageName = makeValid name `replaceExtension` ".zip"
 
     liftIO $ createArchive packageName (packageDirectory buildFolder)
 
-packageProject :: ProjectData -> Packager ()
-packageProject projectData = do
+packageProject :: ProjectConfig -> Packager ()
+packageProject config = do
     exists <- liftIO (doesDirectoryExist buildFolder)
     unless exists $
-        buildProject projectData
+        buildProject config
 
-    projectLog projectData "Packaging project..."
-    createPackage projectData
+    projectLog config "Packaging project..."
+    createPackage config

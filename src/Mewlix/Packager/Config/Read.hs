@@ -4,14 +4,14 @@ module Mewlix.Packager.Config.Read
 
 import Mewlix.Packager.Type (Packager, liftIO, throwError)
 import Mewlix.Packager.Folder (projectFile)
-import Mewlix.Packager.Config.Types (ProjectData(..))
+import Mewlix.Packager.Config.Types (ProjectConfig(..))
 import Mewlix.Utils.IO (readFileBytes)
 import Mewlix.Utils.Yaml (parseYaml)
 import System.FilePath (takeFileName)
 import System.Directory (doesFileExist)
 import Control.Monad (unless)
 
-readProject :: Packager ProjectData
+readProject :: Packager ProjectConfig
 readProject = do
     hasProject <- liftIO $ doesFileExist projectFile
     let projectFileName = takeFileName projectFile

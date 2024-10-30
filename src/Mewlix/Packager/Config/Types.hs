@@ -5,7 +5,7 @@
 module Mewlix.Packager.Config.Types
 ( ProjectMode(..)
 , ProjectFlag(..)
-, ProjectData(..)
+, ProjectConfig(..)
 , Port(..)
 -- Lenses:
 , projectNameL
@@ -71,7 +71,7 @@ data ProjectFlag =
 
 {- Project Data -}
 ----------------------------------------------------------------
-data ProjectData = ProjectData
+data ProjectConfig = ProjectConfig
     { projectName           :: Text
     , projectDescription    :: Text
     , projectMode           :: ProjectMode
@@ -98,7 +98,7 @@ $(makeLensesFor
     , ("projectPort"            , "projectPortL"            )
     , ("projectSourceFiles"     , "projectSourceFilesL"     )
     , ("projectAssets"          , "projectAssetsL"          )
-    , ("projectFlags"           , "projectFlagsL"           ) ] ''ProjectData)
+    , ("projectFlags"           , "projectFlagsL"           ) ] ''ProjectConfig)
 
 {- Defaults -}
 ----------------------------------------------------------------
@@ -130,8 +130,8 @@ instance ToJSON ProjectFlag where
     toJSON = toJSON . flagToString
 
 ----------------------------------------------------------------
-instance FromJSON ProjectData where
-    parseJSON = withObject "ProjectData" $ \obj -> ProjectData
+instance FromJSON ProjectConfig where
+    parseJSON = withObject "ProjectConfig" $ \obj -> ProjectConfig
         <$> optional defaultName    (obj .:? "name"        )
         <*> optional mempty         (obj .:? "description" )
         <*> optional defaultMode    (obj .:? "mode"        )
@@ -144,7 +144,7 @@ instance FromJSON ProjectData where
             optional :: (Functor f) => a -> f (Maybe a) -> f a
             optional = fmap . fromMaybe
 
-instance ToJSON ProjectData where
+instance ToJSON ProjectConfig where
     toJSON project = object
         [ "name"            .= projectName project
         , "description"     .= projectDescription project
@@ -212,8 +212,8 @@ readMode str = case parse str of
 
 {- Project Utils -}
 ----------------------------------------------------------------
-defaultProject :: ProjectData
-defaultProject = ProjectData
+defaultProject :: ProjectConfig
+defaultProject = ProjectConfig
     { projectName           = defaultName
     , projectDescription    = mempty
     , projectMode           = defaultMode
@@ -223,9 +223,9 @@ defaultProject = ProjectData
     , projectAssets         = mempty
     , projectFlags          = mempty       }
 
-type ProjectTransform = ProjectData -> ProjectData
+type ProjectTransform = ProjectConfig -> ProjectConfig
 
-transformProject :: [ProjectTransform] -> ProjectData -> ProjectData
+transformProject :: [ProjectTransform] -> ProjectConfig -> ProjectConfig
 transformProject = flip (foldr ($))
 
 fieldOrderMap :: HashMap Text Int

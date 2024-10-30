@@ -6,7 +6,7 @@ module Mewlix.Packager.Actions.Clean
 
 import Mewlix.Packager.Type (Packager, liftIO, throwError)
 import Mewlix.Packager.Folder (mewlixFolder)
-import Mewlix.Packager.Config (ProjectData)
+import Mewlix.Packager.Config (ProjectConfig)
 import Mewlix.Packager.Log (projectLog)
 import System.Directory (removeDirectoryRecursive, doesDirectoryExist)
 import Control.Monad (when)
@@ -16,8 +16,8 @@ import Control.Monad (when)
 
 -- If removal fails all three times, give up entirely.
 
-cleanProject :: ProjectData -> Packager ()
-cleanProject projectData = do
+cleanProject :: ProjectConfig -> Packager ()
+cleanProject config = do
     let folder = mewlixFolder
 
     let clean :: Int -> Packager ()
@@ -32,5 +32,5 @@ cleanProject projectData = do
 
     exists <- liftIO (doesDirectoryExist folder)
     when exists $ do
-        projectLog projectData "Cleaning output folder..."
+        projectLog config "Cleaning output folder..."
         clean 0

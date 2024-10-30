@@ -6,7 +6,7 @@ module Mewlix.Packager.Actions.Create
 
 import Mewlix.Packager.Type (Packager, throwError, liftIO)
 import Mewlix.Packager.Log (projectLog)
-import Mewlix.Packager.Config (ProjectData(..), projectFieldOrder, projectSourceFilesL)
+import Mewlix.Packager.Config (ProjectConfig(..), projectFieldOrder, projectSourceFilesL)
 import Mewlix.Packager.Folder (projectFile, mewlixFolder)
 import Mewlix.Utils.Yaml (toPrettyYaml)
 import Mewlix.Utils.IO (createDirectory, writeFileBytes)
@@ -16,13 +16,13 @@ import System.FilePath (addTrailingPathSeparator)
 import qualified Data.ByteString.Char8 as ByteString
 import Control.Monad (when)
 
-includeSrc :: ProjectData -> ProjectData
+includeSrc :: ProjectConfig -> ProjectConfig
 includeSrc = projectSourceFilesL %~ ("src/**/*.mews" :)
 
-createProject :: ProjectData -> Packager ()
-createProject = (. includeSrc) $ \projectData -> do
+createProject :: ProjectConfig -> Packager ()
+createProject = (. includeSrc) $ \config -> do
     -- Log project name + a nice message
-    projectLog projectData "Creating project file..."
+    projectLog config "Creating project file..."
 
     -- Check for existing project
     exists <- liftIO (doesFileExist projectFile)
@@ -30,7 +30,7 @@ createProject = (. includeSrc) $ \projectData -> do
         throwError "Cannot create project: There's already a project in this directory!"
 
     -- Create project file:
-    let contents = toPrettyYaml projectFieldOrder projectData
+    let contents = toPrettyYaml projectFieldOrder config
     writeFileBytes projectFile contents
 
     -- Create 'src' directory:

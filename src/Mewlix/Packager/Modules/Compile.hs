@@ -4,17 +4,13 @@ module Mewlix.Packager.Modules.Compile
 ( compileModules
 ) where
 
-import Mewlix.Packager.Type
-    ( Packager
-    , liftIO
-    , throwError
-    )
+import Mewlix.Packager.Type (Packager, throwError)
 import Mewlix.Compiler
     ( TranspilerContext(..)
     , CompilerOutput
     , compileJS
     )
-import Mewlix.Packager.Config (ProjectData(..), ProjectFlag(..))
+import Mewlix.Packager.Config (ProjectConfig(..), ProjectFlag(..))
 import Mewlix.Packager.Modules.StandardLibrary (addLibraries)
 import System.FilePattern.Directory (getDirectoryFiles)
 import Mewlix.Packager.Log (projectLog)
@@ -26,39 +22,39 @@ import Data.Text (Text)
 import qualified Data.Text.IO as TextIO
 
 -- Creates the transpiler context.
-createContext :: ProjectData -> Packager TranspilerContext
-createContext projectData = do
-    let projectLibs = addLibraries (projectMode projectData) mempty
-    let flags = projectFlags projectData
+createContext :: ProjectConfig -> Packager TranspilerContext
+createContext config = do
+    let projectLibs = addLibraries (projectMode config) mempty
+    let flags = projectFlags config
 
     return TranspilerContext
         { library = projectLibs
         , noStd   = Set.member NoStd flags
         , pretty  = Set.member Pretty flags }
 
-findSources :: ProjectData -> Packager [FilePath]
-findSources projectData = do
-    let patterns = projectSourceFiles projectData
+findSources :: ProjectConfig -> Packager [FilePath]
+findSources config = do
+    let patterns = projectSourceFiles config
     safelyRun (getDirectoryFiles "." patterns) "couldn't get source files"
 
 -- Compile all yarn balls, writing the compilation output to a handle.
-compileModules :: ProjectData -> Handle -> Packager ()
-compileModules projectData handle = do
-    sources <- findSources projectData
+compileModules :: ProjectConfig -> Handle -> Packager ()
+compileModules config handle = do
+    sources <- findSources config
 
     let sourceCount = length sources
-    projectLog projectData $ mconcat
+    projectLog config $ mconcat
         [ "Compiling "
         , showT sourceCount
         , if sourceCount > 1 then " yarn balls!" else " yarn ball!" ]
-    context <- createContext projectData
+    context <- createContext config
 
     let write :: Text -> Packager ()
         write text = safelyRun (TextIO.hPutStrLn handle text) "couldn't write to file handle"
 
     let compile :: FilePath -> Packager ()
         compile path = do
-            projectLog projectData ("Compiling yarn ball " <> showT path)
+            projectLog config ("Compiling yarn ball " <> showT path)
             yarnball <- runCompiler context path
             write yarnball
 

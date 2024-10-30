@@ -2,7 +2,7 @@ module Mewlix.Packager
 ( Action(..)
 , make
 , make'
-, ProjectData(..)
+, ProjectConfig(..)
 , ProjectFlag(..)
 , ProjectMode(..)
 , Port(..)
@@ -29,7 +29,7 @@ module Mewlix.Packager
 
 import Mewlix.Packager.Make (Action(..), make, make')
 import Mewlix.Packager.Config
-    ( ProjectData(..)
+    ( ProjectConfig(..)
     , ProjectMode(..)
     , ProjectFlag(..)
     , Port(..)

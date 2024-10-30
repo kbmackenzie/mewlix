@@ -1,7 +1,7 @@
 module Mewlix.Packager.Config
 ( ProjectMode(..)
 , ProjectFlag(..)
-, ProjectData(..)
+, ProjectConfig(..)
 , Port(..)
 -- Lenses:
 , projectNameL
@@ -29,7 +29,7 @@ module Mewlix.Packager.Config
 import Mewlix.Packager.Config.Types
     ( ProjectMode(..)
     , ProjectFlag(..)
-    , ProjectData(..)
+    , ProjectConfig(..)
     , Port(..)
     -- Lenses:
     , projectNameL

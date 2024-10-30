@@ -6,7 +6,7 @@ module Mewlix.Packager.Templates.Generate
 ) where
 
 import Mewlix.Packager.Type (Packager)
-import Mewlix.Packager.Config (ProjectData(..), ProjectMode(..), ProjectFlag(..))
+import Mewlix.Packager.Config (ProjectConfig(..), ProjectMode(..), ProjectFlag(..))
 import Mewlix.Packager.Templates.Constants (getTemplate, template)
 import Mewlix.Packager.Folder (buildFolder)
 import Mewlix.Utils.IO (safelyRun, writeFileText, createDirectory, extractZipDataFile)
@@ -17,9 +17,9 @@ import qualified Data.ByteString.Lazy as ByteString
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 
-generateTemplate :: ProjectData -> Packager ()
-generateTemplate projectData = do
-    let mode = projectMode projectData
+generateTemplate :: ProjectConfig -> Packager ()
+generateTemplate config = do
+    let mode = projectMode config
     let folder = buildFolder
     let projectTemplate = template mode
 
@@ -27,31 +27,31 @@ generateTemplate projectData = do
     extractZipDataFile (getTemplate projectTemplate) folder
 
     when (mode == Node) $
-        writePackageJson projectData
+        writePackageJson config
 
-packageJson :: ProjectData -> Value
-packageJson projectData = object
-    [ "name"        .= projectName projectData
+packageJson :: ProjectConfig -> Value
+packageJson config = object
+    [ "name"        .= projectName config
     , "version"     .= ("1.0.0" :: String)
-    , "description" .= projectDescription projectData
+    , "description" .= projectDescription config
     , "type"        .= ("module" :: String)           ]
 
-writePackageJson :: ProjectData -> Packager ()
-writePackageJson projectData = do
-    let package = packageJson projectData
+writePackageJson :: ProjectConfig -> Packager ()
+writePackageJson config = do
+    let package = packageJson config
     let path = buildFolder </> "package.json"
 
     let action = ByteString.writeFile path (encode package)
     safelyRun action "couldn't write package data"
 
-writeReadMe :: ProjectData -> Packager ()
-writeReadMe projectData = do
-    let description = projectDescription projectData
-    let flags = projectFlags projectData
+writeReadMe :: ProjectConfig -> Packager ()
+writeReadMe config = do
+    let description = projectDescription config
+    let flags = projectFlags config
     let noReadMe = Text.null description || Set.member NoReadMe flags
 
     unless noReadMe $ do
         let path = buildFolder </> "README.md"
         let contents = Text.concat
-                [ "# ", projectName projectData, "\n\n", description, "\n" ]
+                [ "# ", projectName config, "\n\n", description, "\n" ]
         writeFileText path contents
