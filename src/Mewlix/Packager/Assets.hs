@@ -18,8 +18,7 @@ copyAsset inputPath = do
     let outputPath = buildFolder </> inputPath
     prepareDirectory outputPath
 
-    comparison <- compareFileMods inputPath outputPath
-    let shouldCopy = maybe True (== GT) comparison
+    shouldCopy <- maybe True (== GT) <$> compareFileMods inputPath outputPath
     when shouldCopy (copyFileSafe inputPath outputPath)
 
 findAssets :: ProjectConfig -> Packager [FilePath]
