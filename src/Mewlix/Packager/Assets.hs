@@ -4,7 +4,7 @@ module Mewlix.Packager.Assets
 
 import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Config (ProjectConfig(..))
-import Mewlix.Packager.Folder (buildFolder)
+import Mewlix.Packager.Environment (buildFolder)
 import Mewlix.Utils.IO (safelyRun, copyFileSafe, createDirectory, compareFileMods)
 import System.FilePath ((</>), takeDirectory)
 import System.FilePattern.Directory (getDirectoryFiles)

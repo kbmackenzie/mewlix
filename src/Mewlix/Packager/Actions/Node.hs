@@ -5,7 +5,7 @@ module Mewlix.Packager.Actions.Node
 ) where
 
 import Mewlix.Packager.Type (Packager, liftIO, throwError)
-import Mewlix.Packager.Folder (buildFolder)
+import Mewlix.Packager.Environment (buildFolder)
 import Mewlix.Packager.Config (ProjectConfig(..))
 import Mewlix.Packager.Log (projectLog)
 import System.Directory (withCurrentDirectory)

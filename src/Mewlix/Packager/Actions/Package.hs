@@ -7,7 +7,7 @@ module Mewlix.Packager.Actions.Package
 import Mewlix.Packager.Config (ProjectConfig(..))
 import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Actions.Build (buildProject)
-import Mewlix.Packager.Folder (buildFolder)
+import Mewlix.Packager.Environment (buildFolder)
 import Mewlix.Packager.Log (projectLog)
 import System.Directory (doesDirectoryExist)
 import Codec.Archive.Zip

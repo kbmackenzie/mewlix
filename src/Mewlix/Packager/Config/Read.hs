@@ -3,7 +3,7 @@ module Mewlix.Packager.Config.Read
 ) where
 
 import Mewlix.Packager.Type (Packager, liftIO, throwError)
-import Mewlix.Packager.Folder (projectFile)
+import Mewlix.Packager.Environment (projectFile)
 import Mewlix.Packager.Config.Types (ProjectConfig(..))
 import Mewlix.Utils.IO (readFileBytes)
 import Mewlix.Utils.Yaml (parseYaml)

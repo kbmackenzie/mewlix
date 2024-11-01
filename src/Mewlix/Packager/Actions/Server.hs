@@ -5,7 +5,7 @@ module Mewlix.Packager.Actions.Server
 ) where
 
 import Mewlix.Packager.Type (Packager)
-import Mewlix.Packager.Folder (buildFolder)
+import Mewlix.Packager.Environment (buildFolder)
 import Mewlix.Packager.Config (ProjectConfig(..), Port(..))
 import Mewlix.Packager.Log (projectLog)
 import Mewlix.Utils.Server (serve)

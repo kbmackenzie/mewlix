@@ -3,7 +3,7 @@ module Mewlix.Packager.Actions.Run
 ) where
 
 import Mewlix.Packager.Type (Packager, liftIO)
-import Mewlix.Packager.Folder (buildFolder)
+import Mewlix.Packager.Environment (buildFolder)
 import Mewlix.Packager.Config (ProjectConfig(..), ProjectMode(..), ProjectFlag(..))
 import Mewlix.Packager.Actions.Build (buildProject)
 import Mewlix.Packager.Actions.Server (runServer)

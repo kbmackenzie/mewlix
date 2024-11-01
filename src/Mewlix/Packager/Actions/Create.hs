@@ -7,7 +7,7 @@ module Mewlix.Packager.Actions.Create
 import Mewlix.Packager.Type (Packager, throwError, liftIO)
 import Mewlix.Packager.Log (projectLog)
 import Mewlix.Packager.Config (ProjectConfig(..), projectFieldOrder, projectSourceFilesL)
-import Mewlix.Packager.Folder (projectFile, mewlixFolder)
+import Mewlix.Packager.Environment (projectFile, mewlixFolder)
 import Mewlix.Utils.Yaml (toPrettyYaml)
 import Mewlix.Utils.IO (createDirectory, writeFileBytes)
 import System.Directory (doesFileExist)

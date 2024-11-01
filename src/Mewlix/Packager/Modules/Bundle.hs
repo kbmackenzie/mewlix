@@ -11,7 +11,7 @@ import Mewlix.Packager.Type
     )
 import Mewlix.Packager.Config (ProjectConfig(..))
 import Mewlix.Packager.Modules.Compile (compileModules)
-import Mewlix.Packager.Folder (moduleFolder)
+import Mewlix.Packager.Environment (moduleFolder)
 import System.IO (IOMode(..), openFile, hClose)
 import System.FilePath ((</>))
 import Mewlix.Utils.IO (safelyRun, createDirectory)

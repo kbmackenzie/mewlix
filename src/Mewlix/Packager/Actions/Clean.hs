@@ -5,7 +5,7 @@ module Mewlix.Packager.Actions.Clean
 ) where
 
 import Mewlix.Packager.Type (Packager, liftIO, throwError)
-import Mewlix.Packager.Folder (mewlixFolder)
+import Mewlix.Packager.Environment (mewlixFolder)
 import Mewlix.Packager.Config (ProjectConfig)
 import Mewlix.Packager.Log (projectLog)
 import System.Directory (removeDirectoryRecursive, doesDirectoryExist)

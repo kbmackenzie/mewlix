@@ -1,4 +1,4 @@
-module Mewlix.Packager.Folder
+module Mewlix.Packager.Environment
 ( mewlixFolder
 , buildFolder
 , coreFolder

@@ -8,7 +8,7 @@ module Mewlix.Packager.Templates.Generate
 import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Config (ProjectConfig(..), ProjectMode(..), ProjectFlag(..))
 import Mewlix.Packager.Templates.Constants (getTemplate, template)
-import Mewlix.Packager.Folder (buildFolder)
+import Mewlix.Packager.Environment (buildFolder)
 import Mewlix.Utils.IO (safelyRun, writeFileText, createDirectory, extractZipDataFile)
 import Control.Monad (when, unless)
 import Data.Aeson (Value, object, (.=), encode)
