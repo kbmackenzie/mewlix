@@ -4,6 +4,7 @@ module Mewlix.Packager.Environment
 , coreFolder
 , moduleFolder
 , projectFile
+, buildMetafile
 ) where
 
 import System.FilePath ((</>))
@@ -22,3 +23,6 @@ moduleFolder = buildFolder </> "yarnball"
 
 projectFile :: FilePath
 projectFile = "./mewlix.yaml"
+
+buildMetafile :: FilePath
+buildMetafile = buildFolder </> "mewlix-build.json"
