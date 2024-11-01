@@ -1,21 +1,30 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE LambdaCase #-}
 
-module Mewlix.Packager.Templates.Generate
+module Mewlix.Packager.Build.Templates
 ( generateTemplate
-, writeReadMe
 ) where
 
 import Mewlix.Packager.Type (Packager)
-import Mewlix.Packager.Config (ProjectConfig(..), ProjectMode(..), ProjectFlag(..))
-import Mewlix.Packager.Templates.Constants (getTemplate, template)
+import Mewlix.Packager.Config (ProjectConfig(..), ProjectMode(..))
 import Mewlix.Packager.Environment (buildFolder)
-import Mewlix.Utils.IO (safelyRun, writeFileText, createDirectory, extractZipDataFile)
-import Control.Monad (when, unless)
+import Mewlix.Utils.IO (safelyRun, createDirectory, extractZipDataFile)
+import Control.Monad (when)
 import Data.Aeson (Value, object, (.=), encode)
 import System.FilePath ((</>))
 import qualified Data.ByteString.Lazy as ByteString
-import qualified Data.Set as Set
-import qualified Data.Text as Text
+
+newtype Template = Template { getTemplate :: FilePath }
+    deriving (Eq, Show)
+
+templatePath :: FilePath -> FilePath
+templatePath = ("static/templates/" </>)
+
+template :: ProjectMode -> Template
+template = \case
+    Console -> Template { getTemplate = templatePath "console.zip" }
+    Graphic -> Template { getTemplate = templatePath "graphic.zip" }
+    Node    -> Template { getTemplate = templatePath "node.zip"    }
 
 generateTemplate :: ProjectConfig -> Packager ()
 generateTemplate config = do
@@ -43,15 +52,3 @@ writePackageJson config = do
 
     let action = ByteString.writeFile path (encode package)
     safelyRun action "couldn't write package data"
-
-writeReadMe :: ProjectConfig -> Packager ()
-writeReadMe config = do
-    let description = projectDescription config
-    let flags = projectFlags config
-    let noReadMe = Text.null description || Set.member NoReadMe flags
-
-    unless noReadMe $ do
-        let path = buildFolder </> "README.md"
-        let contents = Text.concat
-                [ "# ", projectName config, "\n\n", description, "\n" ]
-        writeFileText path contents

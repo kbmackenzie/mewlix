@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Mewlix.Packager.Modules.StandardLibrary
-( addLibraries
+module Mewlix.Packager.Library
+( getLibrary
 ) where
 
 import Mewlix.Packager.Config (ProjectMode(..))
@@ -31,6 +31,6 @@ templateLibraries = \case
         , "std.graphic.curry" ]
     Node    -> mempty
 
-addLibraries :: ProjectMode -> (Library -> Library)
-addLibraries mode = mappend template . mappend baseLibrary
+getLibrary :: ProjectMode -> Library
+getLibrary mode = mappend template baseLibrary
     where template = templateLibraries mode

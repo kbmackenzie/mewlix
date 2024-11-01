@@ -1,4 +1,4 @@
-module Mewlix.Packager.Assets
+module Mewlix.Packager.Build.Assets
 ( copyAssets
 ) where
 

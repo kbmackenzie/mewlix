@@ -7,7 +7,7 @@ module Mewlix.Packager
 , ProjectMode(..)
 , Port(..)
 -- Compiler utils:
-, addLibraries
+, getLibrary
 -- Project utils:
 , ProjectTransform
 , transformProject
@@ -49,4 +49,4 @@ import Mewlix.Packager.Config
     , projectAssetsL
     , projectFlagsL
     )
-import Mewlix.Packager.Modules (addLibraries)
+import Mewlix.Packager.Library (getLibrary)
