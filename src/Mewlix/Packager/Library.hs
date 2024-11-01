@@ -21,8 +21,8 @@ baseLibrary = library
     [ "std"
     , "std.curry" ]
 
-templateLibraries :: ProjectMode -> Library
-templateLibraries = \case
+getTemplateLibrary :: ProjectMode -> Library
+getTemplateLibrary = \case
     Console -> library
         [ "std.console"
         , "std.console.curry" ]
@@ -32,5 +32,4 @@ templateLibraries = \case
     Node    -> mempty
 
 getLibrary :: ProjectMode -> Library
-getLibrary mode = mappend template baseLibrary
-    where template = templateLibraries mode
+getLibrary = mappend baseLibrary . getTemplateLibrary
