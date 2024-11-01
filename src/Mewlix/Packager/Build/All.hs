@@ -8,7 +8,7 @@ import Mewlix.Packager.Config
     ( ProjectConfig(..)
     , ProjectFlag(..)
     )
-import Mewlix.Packager.Type (Packager)
+import Mewlix.Packager.Type (Packager, liftEither)
 import Mewlix.Packager.Build.Modules (compileModules)
 import Mewlix.Packager.Build.Templates (generateTemplate)
 import Mewlix.Packager.Build.Assets (copyAssets)
@@ -18,15 +18,18 @@ import Mewlix.Packager.Environment
     , buildFolder
     , coreFolder
     , projectFile
-    , buildMetafile
+    , buildMetaData
     )
 import Mewlix.Utils.IO
     ( createDirectory
-    , compareFileMods
+    , exists
+    , EntryTag(..)
+    , getFileModTime
+    , readFileBytes
     , writeFileBytes
     , writeFileText
     )
-import Mewlix.Utils.Json (serializeJson)
+import Mewlix.Utils.Json (serializeJson, parseJson)
 import Mewlix.Utils.Time (getPosixTimeInSeconds)
 import Control.Monad (when, unless)
 import System.FilePath ((</>))
@@ -41,13 +44,13 @@ import Data.Aeson
     , object
     )
 
-newtype BuildMetafile = BuildMetaFile { buildTime :: Integer } deriving (Eq, Show)
+newtype BuildMetaData = BuildMetaData { buildTime :: Integer } deriving (Eq, Show)
 
-instance FromJSON BuildMetafile where
-    parseJSON = withObject "BuildMetafile" $ \obj -> BuildMetaFile
+instance FromJSON BuildMetaData where
+    parseJSON = withObject "BuildMetaData" $ \obj -> BuildMetaData
         <$> (obj .: "timestamp")
 
-instance ToJSON BuildMetafile where
+instance ToJSON BuildMetaData where
     toJSON metafile = object [ "timestamp" .= buildTime metafile ]
 
 prepare :: Packager ()
@@ -63,20 +66,33 @@ build config = do
     writeTemplate  config
     compileModules config
     copyAssets     config
-    writeMetaData  config
+    writeMetaJson  config
     writeReadMe    config
+
+getBuildData :: Packager (Maybe BuildMetaData)
+getBuildData = exists File buildMetaData >>= \hasMetafile -> if hasMetafile
+    then do
+        contents <- readFileBytes buildMetaData
+        case parseJson contents of
+            (Left _)     -> return Nothing
+            (Right data) -> return (Just data)
+    else return Nothing
 
 writeTemplate :: ProjectConfig -> Packager ()
 writeTemplate config = do
-    shouldGenerate <- maybe True (== GT) <$> compareFileMods projectFile buildMetafile
-    when shouldGenerate (generateTemplate config)
+    lastBuild <- fmap buildTime <$> getBuildData
+    configMod <- getFileModTime projectFile
+    let shouldGenerate = maybe True (configMod >) lastBuild
+
+    when shouldGenerate $
+        generateTemplate config
+
     timestamp <- getPosixTimeInSeconds
+    let newBuild = BuildMetaData { buildTime = timestamp }
+    writeFileBytes buildMetaData (serializeJson newBuild)
 
-    let meta = BuildMetaFile { buildTime = timestamp }
-    writeFileBytes buildMetafile (serializeJson meta)
-
-writeMetaData :: ProjectConfig -> Packager ()
-writeMetaData config = do
+writeMetaJson :: ProjectConfig -> Packager ()
+writeMetaJson config = do
     let path = coreFolder </> "meta.json"
     let json = object
             [ "title"       .= projectName config
