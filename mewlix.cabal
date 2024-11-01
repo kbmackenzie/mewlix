@@ -58,20 +58,18 @@ library
       Mewlix.Packager.Actions.Package
       Mewlix.Packager.Actions.Run
       Mewlix.Packager.Actions.Server
-      Mewlix.Packager.Assets
+      Mewlix.Packager.Build
+      Mewlix.Packager.Build.All
+      Mewlix.Packager.Build.Assets
+      Mewlix.Packager.Build.Modules
+      Mewlix.Packager.Build.Templates
       Mewlix.Packager.Config
       Mewlix.Packager.Config.Read
       Mewlix.Packager.Config.Types
-      Mewlix.Packager.Folder
+      Mewlix.Packager.Environment
+      Mewlix.Packager.Library
       Mewlix.Packager.Log
       Mewlix.Packager.Make
-      Mewlix.Packager.Modules
-      Mewlix.Packager.Modules.Bundle
-      Mewlix.Packager.Modules.Compile
-      Mewlix.Packager.Modules.StandardLibrary
-      Mewlix.Packager.Templates
-      Mewlix.Packager.Templates.Constants
-      Mewlix.Packager.Templates.Generate
       Mewlix.Packager.Type
       Mewlix.Parser.Expression
       Mewlix.Parser.Keyword
@@ -90,6 +88,7 @@ library
       Mewlix.Utils.Maybe
       Mewlix.Utils.Server
       Mewlix.Utils.Show
+      Mewlix.Utils.Time
       Mewlix.Utils.Yaml
       Paths_mewlix
   autogen-modules:
