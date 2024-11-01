@@ -2,30 +2,25 @@ module Mewlix.Packager.Assets
 ( copyAssets
 ) where
 
-import Mewlix.Packager.Type (Packager, throwError)
+import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Config (ProjectConfig(..))
 import Mewlix.Packager.Folder (buildFolder)
-import Mewlix.Utils.IO (safelyRun, copyFileSafe, createDirectory)
-import System.FilePath
-    ( (</>)
-    , isRelative
-    , takeDirectory
-    )
+import Mewlix.Utils.IO (safelyRun, copyFileSafe, createDirectory, compareFileMods)
+import System.FilePath ((</>), takeDirectory)
 import System.FilePattern.Directory (getDirectoryFiles)
+import Control.Monad (when)
 
 copyAsset :: FilePath -> Packager ()
 copyAsset inputPath = do
     let prepareDirectory :: FilePath -> Packager ()
         prepareDirectory = createDirectory True . takeDirectory
 
-    outputPath <- if isRelative inputPath
-        then return (buildFolder </> inputPath)
-        else throwError $ concat
-            [ "Asset file path cannot be made relative to current directory: "
-            , show inputPath
-            , "!\nPlease use relative paths without indirections!" ]
+    let outputPath = buildFolder </> inputPath
     prepareDirectory outputPath
-    copyFileSafe inputPath outputPath
+
+    comparison <- compareFileMods inputPath outputPath
+    let shouldCopy = maybe True (== GT) comparison
+    when shouldCopy (copyFileSafe inputPath outputPath)
 
 findAssets :: ProjectConfig -> Packager [FilePath]
 findAssets config = do
