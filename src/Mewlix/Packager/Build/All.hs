@@ -75,7 +75,7 @@ getBuildData = exists File buildMetaData >>= \hasMetafile -> if hasMetafile
         contents <- readFileBytes buildMetaData
         case parseJson contents of
             (Left _)     -> return Nothing
-            (Right data) -> return (Just data)
+            (Right meta) -> return (Just meta)
     else return Nothing
 
 writeTemplate :: ProjectConfig -> Packager ()
