@@ -8,7 +8,7 @@ import Mewlix.Packager.Config
     ( ProjectConfig(..)
     , ProjectFlag(..)
     )
-import Mewlix.Packager.Type (Packager, liftEither)
+import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Build.Modules (compileModules)
 import Mewlix.Packager.Build.Templates (generateTemplate)
 import Mewlix.Packager.Build.Assets (copyAssets)
