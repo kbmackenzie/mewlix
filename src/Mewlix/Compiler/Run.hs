@@ -4,7 +4,6 @@ module Mewlix.Compiler.Run
 , TranspilerContext(..)
 , runCompiler
 , CompilerFunc
-, CompilerOutput
 , compileJS
 ) where
 
@@ -18,8 +17,7 @@ import Mewlix.Compiler.JavaScript.ToJavaScript (ToJavaScript(toJS))
 import Mewlix.Parser (parseMewlix, FileContent, ParseError)
 import Data.Text (Text)
 
-type CompilerFunc = TranspilerContext -> FilePath -> FileContent -> Either ParseError CompilerOutput
-type CompilerOutput = Text
+type CompilerFunc = TranspilerContext -> FilePath -> FileContent -> Either ParseError Text
 type CompilerCallback = YarnBall -> Transpiler Text
 
 runCompiler :: CompilerCallback -> CompilerFunc

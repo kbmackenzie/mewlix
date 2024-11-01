@@ -3,7 +3,6 @@ module Mewlix.Compiler
 , Transpiler
 , CompilerFunc
 , compileJS
-, CompilerOutput
 , emptyContext
 ) where
 
@@ -12,6 +11,5 @@ import Mewlix.Compiler.Run
     , Transpiler
     , CompilerFunc
     , compileJS
-    , CompilerOutput
     )
 import Mewlix.Compiler.Transpiler (emptyContext)

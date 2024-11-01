@@ -13,7 +13,6 @@ import Mewlix.Packager.Type
     )
 import Mewlix.Compiler
     ( TranspilerContext(..)
-    , CompilerOutput
     , compileJS
     )
 import Mewlix.Packager.Config (ProjectConfig(..), ProjectFlag(..))
@@ -62,7 +61,7 @@ compileModules config = do
     context <- createContext config
            
     -- Runs compiler on text content read from a file.
-    let compile :: FilePath -> Packager CompilerOutput
+    let compile :: FilePath -> Packager Text
         compile source = do
             let syntaxError :: String -> String
                 syntaxError err = concat [ "mewlix syntax error in file ", show source, ":\n", err ]
