@@ -16,7 +16,8 @@ cp mewlix ~/.local/bin/
 
 ### Windows
 
-The simplest way to use Mewlix on Windows is: 
+The simplest way to install/use Mewlix on Windows is: 
+
 1. Download the `mewlix.exe` executable.
 2. Place it in a new directory.
 3. Add that directory to your PATH. See [this StackOverflow answer][4] for some help with that.
