@@ -28,7 +28,7 @@ binaryOpFunc op = case op of
     FloorDivision   -> call (Mewlix.numbers  "floordiv" )
     Modulo          -> call (Mewlix.numbers  "mod"      )
     Power           -> call (Mewlix.numbers  "pow"      )
-    ListPush        -> call (Mewlix.shelf    "push"     )
+    ShelfPush       -> call (Mewlix.shelf    "push"     )
     StringConcat    -> call (Mewlix.strings  "concat"   )
     Contains        -> call (Mewlix.shelf    "contains" )
     Equal           -> call (Mewlix.relation "equal"    )
@@ -42,7 +42,7 @@ unaryOpFunc :: UnaryOp -> OperationBuilder
 unaryOpFunc op = case op of
     Minus           -> call (Mewlix.numbers "minus" )
     Plus            -> call (Mewlix.numbers "plus"  )
-    ListPop         -> call (Mewlix.shelf   "pop"   )
-    ListPeek        -> call (Mewlix.shelf   "peek"  )
+    ShelfPop        -> call (Mewlix.shelf   "pop"   )
+    ShelfPeek       -> call (Mewlix.shelf   "peek"  )
     BooleanNot      -> call (Mewlix.boolean "not"   )
     LengthLookup    -> call (Mewlix.collections "length")

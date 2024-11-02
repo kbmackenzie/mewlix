@@ -81,7 +81,7 @@ expression = Mega.choice
 {- Data -}
 ------------------------------------------------------------------------------------
 shelf :: Parser Expression
-shelf = ListExpression <$> bracketList expression
+shelf = ShelfExpression <$> bracketList expression
 
 box :: Parser Expression
 box = do
@@ -220,9 +220,9 @@ operatorsR =
         , InfixL  (IsInstance                       <& keyword Keywords.is          )
         , Prefix  (ClawEntries                      <& keyword Keywords.claw        )
         , Postfix (UnaryOperation LengthLookup      <& keyword (LongSymbol "...?")  )   ] 
-    ,   [ Prefix  (UnaryOperation ListPeek          <& keyword Keywords.peek        )
-        , Prefix  (UnaryOperation ListPop           <& keyword Keywords.pop         )
-        , InfixL  (BinaryOperation ListPush         <& keyword Keywords.push        )   ]
+    ,   [ Prefix  (UnaryOperation ShelfPeek         <& keyword Keywords.peek        )
+        , Prefix  (UnaryOperation ShelfPop          <& keyword Keywords.pop         )
+        , InfixL  (BinaryOperation ShelfPush        <& keyword Keywords.push        )   ]
     ,   [ InfixL  (BinaryOperation StringConcat     <& keyword (LongSymbol "..")    )
         , InfixL  (BinaryOperation Contains         <& keyword Keywords.in_         )   ]
     ,   [ InfixL  (BinaryOperation Power            <& symbol '^'                   )   ]

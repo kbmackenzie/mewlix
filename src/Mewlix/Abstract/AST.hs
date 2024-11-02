@@ -42,7 +42,7 @@ data Expression =
     | BinaryOperation       BinaryOp Expression Expression
     | UnaryOperation        UnaryOp Expression
     | TernaryOperation      Expression Expression Expression
-    | ListExpression        [Expression]
+    | ShelfExpression       [Expression]
     | BoxExpression         [(Key, Expression)]
     | AskType               Expression
     | IsInstance            Expression Expression
@@ -63,7 +63,7 @@ data BinaryOp =
     | FloorDivision
     | Modulo
     | Power
-    | ListPush
+    | ShelfPush
     | StringConcat
     | Contains
     | Equal
@@ -77,8 +77,8 @@ data BinaryOp =
 data UnaryOp =
       Minus
     | Plus
-    | ListPop
-    | ListPeek
+    | ShelfPop
+    | ShelfPeek
     | BooleanNot
     | LengthLookup
     deriving (Eq, Ord, Enum, Bounded, Show)

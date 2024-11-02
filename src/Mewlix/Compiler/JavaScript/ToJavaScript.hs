@@ -80,7 +80,7 @@ instance ToJavaScript Expression where
 
     -- Lists + boxes:
     ----------------------------------------------
-    transpileJS level (ListExpression exprs) = do
+    transpileJS level (ShelfExpression exprs) = do
         let makeItem :: Expression -> Transpiler Text
             makeItem expr = do
                 value <- transpileJS ((succ . succ) level) expr
