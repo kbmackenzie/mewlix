@@ -64,7 +64,7 @@ compileModules config = do
     let compile :: FilePath -> Packager Text
         compile source = do
             let syntaxError :: String -> String
-                syntaxError err = concat [ "mewlix syntax error in file ", show source, ":\n", err ]
+                syntaxError err = concat [ "Syntax error in file ", show source, ":\n", err ]
             contents <- readFileText source
             either (throwError . syntaxError) return (compileJS context source contents)
 
