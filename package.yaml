@@ -62,6 +62,9 @@ library:
   - Mewlix.Logger
   - Mewlix.Packager
   - Mewlix.Parser
+  - Mewlix.Abstract.AST
+  - Mewlix.Abstract.Key
+  - Mewlix.Abstract.Module
   generated-other-modules: Paths_mewlix
 
 executables:

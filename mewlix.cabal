@@ -35,10 +35,10 @@ library
       Mewlix.Logger
       Mewlix.Packager
       Mewlix.Parser
-  other-modules:
       Mewlix.Abstract.AST
       Mewlix.Abstract.Key
       Mewlix.Abstract.Module
+  other-modules:
       Mewlix.Compiler.Indentation
       Mewlix.Compiler.JavaScript.Constants
       Mewlix.Compiler.JavaScript.Error
