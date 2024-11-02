@@ -174,7 +174,7 @@ ifElse = do
             let next :: [Statement] -> Parser IfElseBuilder
                 next lines = do
                     builder <- parseEnd <|> parseElse
-                    let self = Conditional condition (Block lines)
+                    let self = Conditional condition . Block  . reverse $ lines
                     return $ \conditional -> first (conditional <|) (builder self)
 
             let parse :: [Statement] -> Parser IfElseBuilder
@@ -192,7 +192,7 @@ ifElse = do
             let next :: [Statement] -> Parser Statement
                 next lines = do
                     builder <- parseEnd <|> parseElse <|> parseElif
-                    let self = Conditional condition (Block lines)
+                    let self = Conditional condition . Block . reverse $ lines
                     let (branches, elseblock) = builder self
                     return $ IfElse branches elseblock
 
@@ -375,7 +375,7 @@ tryCatch = do
             let next :: [Statement] -> Parser Statement
                 next lines = do
                     builder <- parseCatch
-                    let self = Block lines
+                    let self = Block . reverse $ lines
                     return $ builder self
 
             let parse :: [Statement] -> Parser Statement
