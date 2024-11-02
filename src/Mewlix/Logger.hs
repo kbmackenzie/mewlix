@@ -8,7 +8,6 @@ module Mewlix.Logger
 ) where
 
 import Data.Text (Text)
-import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import System.IO (Handle, stdout, stderr)
 import Control.Monad.IO.Class (MonadIO, liftIO)
