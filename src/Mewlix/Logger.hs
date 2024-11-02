@@ -31,8 +31,8 @@ data LogData = LogData
 
 getStyles :: LogData -> [SGR]
 getStyles log = case logType log of
-    LogInfo  -> [SetColor Foreground Vivid Magenta]
-    LogError -> [SetColor Foreground Vivid Red, SetConsoleIntensity BoldIntensity]
+    LogInfo  -> [SetColor Foreground Vivid Yellow]
+    LogError -> [SetColor Foreground Vivid Magenta, SetConsoleIntensity BoldIntensity]
 
 getHandle :: LogData -> Handle
 getHandle log = case logType log of
