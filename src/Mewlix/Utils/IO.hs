@@ -25,7 +25,7 @@ import qualified Data.Text.Encoding as TextEncoding
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
 import Data.Text.Encoding.Error (UnicodeException)
-import Control.Monad.Except (MonadError, liftEither, catchError)
+import Control.Monad.Except (MonadError, liftEither)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad ((>=>))
 import Data.Bifunctor (first)
