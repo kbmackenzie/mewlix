@@ -57,7 +57,7 @@ execute useProjectFile actionFunc = do
     packager (project >>= actionFunc) >>= \case
         (Left err) -> logger LogData
             { logType    = LogError
-            , logPrefix  = Just "[mewlix: packager error]"
+            , logPrefix  = Just "mewlix: error"
             , logMessage = Text.pack err }
         (Right _ ) -> return ()
     where project = if useProjectFile
