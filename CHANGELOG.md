@@ -4,8 +4,8 @@
 
 - Parser improvements + general clean-up! 🐱💖
 - Config file changes:
-    - Add `source-files` field, accepting POSIX-style glob patterns for matching source files.
-    - Make `assets` field accept POSIX-style glob patterns for matching asset files.
+    - Add `source-files` field, accepting POSIX-like glob patterns for matching source files.
+    - Make `assets` field accept POSIX-like glob patterns for matching asset files.
     - Remove `sources` field.
 - Command-line interface changes:
     - Replace `mewlix new` command with `mewlix init`.
