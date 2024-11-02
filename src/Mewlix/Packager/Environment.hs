@@ -25,4 +25,4 @@ projectFile :: FilePath
 projectFile = "./mewlix.yaml"
 
 buildMetaData :: FilePath
-buildMetaData = buildFolder </> "mewlix-build.json"
+buildMetaData = mewlixFolder </> "mewlix-build.json"
