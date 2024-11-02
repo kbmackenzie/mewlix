@@ -14,20 +14,16 @@ import Codec.Archive.Zip
     ( ZipArchive
     , packDirRecur
     , mkEntrySelector
-    , EntrySelector
     , CompressionMethod(Deflate)
     , createArchive
     )
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad (unless)
-import System.FilePath (makeValid, replaceExtension, (</>))
+import System.FilePath (makeValid, replaceExtension)
 import qualified Data.Text as Text
 
 packageDirectory :: FilePath -> ZipArchive ()
-packageDirectory directory = do
-    let selector :: FilePath -> ZipArchive EntrySelector
-        selector = mkEntrySelector . (directory </>)
-    packDirRecur Deflate selector directory
+packageDirectory = packDirRecur Deflate mkEntrySelector
 
 createPackage :: (MonadIO m) => ProjectConfig -> m ()
 createPackage config = do
