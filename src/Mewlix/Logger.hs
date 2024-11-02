@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StrictData #-}
 
 module Mewlix.Logger
@@ -44,7 +45,10 @@ logger log = liftIO $ do
     let handle = getHandle log
     let styles = getStyles log
 
-    let putPrefix  = TextIO.hPutStr   handle . (`Text.snoc` ' ')
+    let prefix :: Text -> Text
+        prefix name = mconcat ["[", name, "] "]
+
+    let putPrefix  = TextIO.hPutStr   handle . prefix
     let putMessage = TextIO.hPutStrLn handle
 
     supported <- hSupportsANSIColor handle
