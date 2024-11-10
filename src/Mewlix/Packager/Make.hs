@@ -26,6 +26,7 @@ import Mewlix.Packager.Actions
 -- Assorted:
 import Mewlix.Logger (LogData(..), LogType(..), logger);
 import qualified Data.Text as Text
+import System.Exit (exitWith, ExitCode(..))
 
 data Action =
       Build
@@ -55,10 +56,12 @@ make' = make True []
 execute :: Bool -> ActionFunc -> IO ()
 execute useProjectFile actionFunc = do
     packager (project >>= actionFunc) >>= \case
-        (Left err) -> logger LogData
-            { logType    = LogError
-            , logPrefix  = Just "mewlix: error"
-            , logMessage = Text.pack err }
+        (Left err) -> do
+            logger LogData
+                { logType    = LogError
+                , logPrefix  = Just "mewlix: error"
+                , logMessage = Text.pack err }
+            exitWith (ExitFailure 1)
         (Right _ ) -> return ()
     where project = if useProjectFile
             then readProject
