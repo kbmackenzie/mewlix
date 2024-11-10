@@ -1,5 +1,9 @@
 # Changelog for Mewlix
 
+## 1.1.1
+
+- When reporting an error, exit with an appropriate non-zero exit code. 🐱💖
+
 ## 1.1.0
 
 - Parser improvements + general clean-up! 🐱💖
