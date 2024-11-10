@@ -6,8 +6,8 @@ The easiest way to install it is to download the **pre-compiled binaries** avail
 
 ### Linux
 
-1. Download the `mewlix` binary executable.
-2. Copy it to `~/.local/bin`:
+1. Download and extract the `.tar.gz` file from the [latest release][3].
+2. Copy the `mewlix` binary to `~/.local/bin`:
 ```bash
 chmod +x mewlix
 cp mewlix ~/.local/bin/
@@ -18,8 +18,8 @@ cp mewlix ~/.local/bin/
 
 The simplest way to install/use Mewlix on Windows is: 
 
-1. Download the `mewlix.exe` executable.
-2. Place it in a new directory.
+1. Download and extract the `.zip` file from the [latest release][3].
+2. Copy the `mewlix.exe` binary to a new directory.
 3. Add that directory to your PATH. See [this StackOverflow answer][4] for some help with that.
 
 If you wish to temporarily add the directory to your PATH for a running `cmd` instance, you can do:
