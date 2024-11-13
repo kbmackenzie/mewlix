@@ -1,5 +1,9 @@
 # Changelog for Mewlix
 
+## 1.1.2
+
+- Assorted bug fixes in the `graphic` project template.
+
 ## 1.1.1
 
 - When reporting an error, exit with an appropriate non-zero exit code. 🐱💖
