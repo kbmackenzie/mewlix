@@ -5,7 +5,7 @@ cabal-version: 2.2
 -- see: https://github.com/sol/hpack
 
 name:           mewlix
-version:        1.1.2
+version:        1.2.0
 description:    A compiler for Mewlix, a cat-themed esoteric programming language that compiles to vanilla Javascript.
                 Learn more at <https://github.com/kbmackenzie/mewlix/#readme>
 homepage:       https://github.com/kbmackenzie/mewlix#readme
