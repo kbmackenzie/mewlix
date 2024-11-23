@@ -1,5 +1,11 @@
 # Changelog for Mewlix
 
+## 1.2.0
+
+- Standard library changes:
+    - Add [`std.find`](https://kbmackenzie.xyz/projects/mewlix/std#std-find) function.
+    - Assorted bug fixes in a few standard library functions.
+
 ## 1.1.2
 
 - Assorted bug fixes in the `graphic` project template.
