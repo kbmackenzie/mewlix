@@ -42,10 +42,10 @@ fromBool bool flag = if bool then Just flag else Nothing
 
 fromOptions :: ProjectOptions -> [ProjectTransform]
 fromOptions ProjectOptions
-    { filesOpt = files
-    , nameOpt = name
-    , entryOpt = entry
-    , modeOpt = mode
+    { filesOpt  = files
+    , nameOpt   = name
+    , entryOpt  = entry
+    , modeOpt   = mode
     , assetsOpt = assets } =
         [ projectSourceFilesL %~ (files ++)
         , projectAssetsL %~ (assets ++)
@@ -55,9 +55,9 @@ fromOptions ProjectOptions
 
 fromRunOptions :: RunOptions -> ProjectTransform
 fromRunOptions RunOptions
-    { portOpt = port
-    , rebuildFlag = rebuild
-    , noBrowserFlag = noBrowser } = do
+    { runPort      = port
+    , runRebuild   = rebuild
+    , runNoBrowser = noBrowser } = do
         let setPort  = maybe id (set projectPortL) port
         let flags    = catMaybes
                 [ fromBool rebuild   Rebuild
@@ -67,9 +67,9 @@ fromRunOptions RunOptions
 
 fromFlags :: FlagOptions -> ProjectTransform
 fromFlags FlagOptions
-    { quietFlag = quiet
-    , prettyFlag = pretty
-    , noStdFlag = noStd
+    { quietFlag    = quiet
+    , prettyFlag   = pretty
+    , noStdFlag    = noStd
     , noReadMeFlag = noReadMe } = do
         let flagList = catMaybes
                 [ fromBool quiet    Quiet

@@ -55,9 +55,9 @@ data FlagOptions = FlagOptions
     deriving (Show)
 
 data RunOptions = RunOptions
-    { portOpt       :: Maybe Port
-    , rebuildFlag   :: Bool
-    , noBrowserFlag :: Bool      }
+    { runPort       :: Maybe Port
+    , runRebuild    :: Bool
+    , runNoBrowser  :: Bool      }
     deriving (Show)
 
 data MewlixOptions =
