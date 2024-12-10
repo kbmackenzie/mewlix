@@ -2,10 +2,11 @@
 
 module Mewlix.CLI.Options
 ( ProjectOptions(..)
-, FlagOptions(..)
-, MewlixOptions(..)
+, BuildFlags(..)
+, MewlixAction(..)
+, MewlixCommand(..)
 , RunOptions(..)
-, getOptions
+, getCommand
 ) where
 
 import Mewlix.Packager (ProjectMode(..), Port(..))
@@ -47,9 +48,8 @@ data ProjectOptions = ProjectOptions
     , assetsOpt :: [FilePath] }
     deriving (Show)
 
-data FlagOptions = FlagOptions
-    { quietFlag    :: Bool
-    , prettyFlag   :: Bool
+data BuildFlags = BuildFlags
+    { prettyFlag   :: Bool
     , noStdFlag    :: Bool
     , noReadMeFlag :: Bool }
     deriving (Show)
@@ -60,12 +60,18 @@ data RunOptions = RunOptions
     , runNoBrowser  :: Bool      }
     deriving (Show)
 
-data MewlixOptions =
-      BuildOpt      ProjectOptions FlagOptions Bool
-    | RunOpt        ProjectOptions FlagOptions Bool RunOptions
-    | PackageOpt    ProjectOptions FlagOptions Bool
-    | NewOpt        (Maybe String) (Maybe ProjectMode)
-    | CleanOpt      Bool
+data MewlixAction =
+      BuildAction    ProjectOptions BuildFlags
+    | RunAction      ProjectOptions BuildFlags RunOptions
+    | PackageAction  ProjectOptions BuildFlags
+    | NewAction      (Maybe String) (Maybe ProjectMode)
+    | CleanAction
+    deriving (Show)
+
+data MewlixCommand = MewlixCommand
+    { commandAction     :: MewlixAction
+    , commandQuiet      :: Bool
+    , commandStandalone :: Bool }
     deriving (Show)
 
 projectMode :: Parser ProjectMode
@@ -89,15 +95,21 @@ projectMode = console <|> graphic <|> library
             <> short 'n'
             <> help "Node.js template" )
 
-flagOptions :: Parser FlagOptions
-flagOptions = FlagOptions <$> quiet <*> pretty <*> noStd <*> noReadMe
-    where
-        quiet :: Parser Bool
-        quiet = switch
-             ( long "quiet"
-            <> short 'q'
-            <> help "Silence compiler messages" )
+quiet :: Parser Bool
+quiet = switch
+     ( long "quiet"
+    <> short 'q'
+    <> help "Silence compiler messages" )
 
+standalone :: Parser Bool
+standalone = switch
+     ( long "standalone"
+    <> short 's'
+    <> help "Ignore project file, use project defaults" )
+
+buildFlags :: Parser BuildFlags
+buildFlags = BuildFlags <$> pretty <*> noStd <*> noReadMe
+    where
         pretty = switch
              ( long "pretty"
             <> short 'p'
@@ -153,12 +165,6 @@ port = Port <$> option auto
     <> metavar "INT"
     <> help "Port number to use when running project" )
 
-standalone :: Parser Bool
-standalone = switch
-     ( long "standalone"
-    <> short 's'
-    <> help "Ignore project file, use project defaults" )
-
 noBrowser :: Parser Bool
 noBrowser = switch
      ( long "no-browser"
@@ -179,44 +185,38 @@ runOptions = RunOptions
 makeInfo :: Parser a -> String -> ParserInfo a
 makeInfo parser desc = info (parser <**> helper) (fullDesc <> progDesc desc)
 
-parseOptions :: Parser MewlixOptions
-parseOptions = options
+action :: Parser MewlixAction
+action = subparser actions
     where
-        options = subparser (init_ <> build <> run <> package <> clean)
+        actions :: Mod CommandFields MewlixAction
+        actions = mconcat [init_, build, run, package, clean]
 
-        build :: Mod CommandFields MewlixOptions
+        build :: Mod CommandFields MewlixAction
         build = command "build" $ makeInfo parser "Build project"
-            where parser = BuildOpt
-                    <$> projectOptions
-                    <*> flagOptions
-                    <*> standalone
+            where parser = BuildAction <$> projectOptions <*> buildFlags
 
-        run :: Mod CommandFields MewlixOptions
+        run :: Mod CommandFields MewlixAction
         run = command "run" $ makeInfo parser "Run project"
-            where parser = RunOpt
-                    <$> projectOptions
-                    <*> flagOptions
-                    <*> standalone
-                    <*> runOptions
+            where parser = RunAction <$> projectOptions <*> buildFlags <*> runOptions
 
-        package :: Mod CommandFields MewlixOptions
+        package :: Mod CommandFields MewlixAction
         package = command "package" $ makeInfo parser "Package project's build output into a .zip archive"
-            where parser = PackageOpt
-                    <$> projectOptions
-                    <*> flagOptions
-                    <*> standalone
+            where parser = PackageAction <$> projectOptions <*> buildFlags
 
-        init_ :: Mod CommandFields MewlixOptions
+        init_ :: Mod CommandFields MewlixAction
         init_ = command "init" $ makeInfo parser "Create a new project in the current directory"
-            where parser = NewOpt
+            where parser = NewAction
                     <$> optional (argument str (metavar "NAME"))
                     <*> optional projectMode
 
-        clean :: Mod CommandFields MewlixOptions
+        clean :: Mod CommandFields MewlixAction
         clean = command "clean" $ makeInfo parser "Clean project directory, removing build folder"
-            where parser = CleanOpt <$> standalone
+            where parser = pure CleanAction
 
-getOptions :: IO MewlixOptions
-getOptions = execParser $ info (parseOptions <**> helper)
+parseAll :: Parser MewlixCommand
+parseAll = MewlixCommand <$> action <*> quiet <*> standalone
+
+getCommand :: IO MewlixCommand
+getCommand = execParser $ info (parseAll <**> helper)
      ( fullDesc
     <> header "mewlix - a compiler for a cat-oriented programming language" )

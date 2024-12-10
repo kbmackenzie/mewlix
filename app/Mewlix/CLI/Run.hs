@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Mewlix.CLI.Run
 ( run
 ) where
@@ -20,10 +18,11 @@ import Mewlix.Packager
     )
 import Mewlix.CLI.Options
     ( ProjectOptions(..)
-    , FlagOptions(..)
-    , MewlixOptions(..)
+    , BuildFlags(..)
+    , MewlixAction(..)
+    , MewlixCommand(..)
     , RunOptions(..)
-    , getOptions
+    , getCommand
     )
 import Lens.Micro.Platform ((%~), set)
 import qualified Data.Text as Text
@@ -31,7 +30,7 @@ import qualified Data.Set as Set
 import Data.Maybe (catMaybes)
 
 run :: IO ()
-run = getOptions >>= runOption
+run = getCommand >>= runCommand
 
 transform :: Maybe a -> (a -> ProjectTransform) -> ProjectTransform
 transform Nothing  _  = id
@@ -40,8 +39,8 @@ transform (Just a) f  = f a
 fromBool :: Bool -> ProjectFlag -> Maybe ProjectFlag
 fromBool bool flag = if bool then Just flag else Nothing
 
-fromOptions :: ProjectOptions -> [ProjectTransform]
-fromOptions ProjectOptions
+projectOptions :: ProjectOptions -> [ProjectTransform]
+projectOptions ProjectOptions
     { filesOpt  = files
     , nameOpt   = name
     , entryOpt  = entry
@@ -65,39 +64,45 @@ fromRunOptions RunOptions
         let addFlags = projectFlagsL %~ mappend (Set.fromList flags)
         setPort . addFlags
 
-fromFlags :: FlagOptions -> ProjectTransform
-fromFlags FlagOptions
-    { quietFlag    = quiet
-    , prettyFlag   = pretty
+buildFlags :: BuildFlags -> ProjectTransform
+buildFlags BuildFlags
+    { prettyFlag   = pretty
     , noStdFlag    = noStd
     , noReadMeFlag = noReadMe } = do
         let flagList = catMaybes
-                [ fromBool quiet    Quiet
-                , fromBool pretty   Pretty
+                [ fromBool pretty   Pretty
                 , fromBool noStd    NoStd
                 , fromBool noReadMe NoReadMe ]
         projectFlagsL %~ mappend (Set.fromList flagList)
 
-runOption :: MewlixOptions -> IO ()
-runOption = \case
-    (BuildOpt options flags standalone) -> do
-        let transforms = fromFlags flags : fromOptions options
+setQuiet :: Bool -> ProjectTransform
+setQuiet quiet = if quiet
+    then projectFlagsL %~ Set.insert Quiet
+    else id
+
+runCommand :: MewlixCommand-> IO ()
+runCommand (MewlixCommand action quiet standalone) = case action of
+    (BuildAction options flags) -> do
+        let transforms = setQuiet quiet : buildFlags flags : projectOptions options
         make (not standalone) transforms Build
 
-    (RunOpt options flags standalone runOpts) -> do
+    (RunAction options flags runOpts) -> do
         let runTrans = fromRunOptions runOpts
-        let transforms = runTrans : fromFlags flags : fromOptions options
+        let transforms = setQuiet quiet : runTrans : buildFlags flags : projectOptions options
         make (not standalone) transforms Run
 
-    (PackageOpt options flags standalone) -> do
-        let transforms = fromFlags flags : fromOptions options
+    (PackageAction options flags) -> do
+        let transforms = setQuiet quiet : buildFlags flags : projectOptions options
         make (not standalone) transforms Package
 
-    (NewOpt name mode) -> do
+    (NewAction name mode) -> do
         let transforms =
-                [ transform name (set projectNameL . Text.pack)
+                [ setQuiet quiet
+                , transform name (set projectNameL . Text.pack)
                 , transform mode (set projectModeL)             ]
         make False transforms Create
 
-    (CleanOpt standalone) -> do
-        make (not standalone) mempty Clean
+    CleanAction -> do
+        let transforms = [setQuiet quiet]
+        make (not standalone) transforms Clean
+
