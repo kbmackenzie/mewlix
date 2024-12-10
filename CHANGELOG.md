@@ -1,5 +1,13 @@
 # Changelog for Mewlix
 
+## 1.3.0
+
+- Command-line interface:
+    - Fix silly issue with the `--no-browser` flag not being respected. 🐱💖
+    - Add support for the `--quiet` flag for all commands.
+- Standard library changes:
+    - Let `PixelCanvas` methods accept strings as color values.
+
 ## 1.2.0
 
 - Standard library changes:
