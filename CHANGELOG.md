@@ -3,6 +3,7 @@
 ## 1.3.1
 
 - Fix silly mistake when parsing lvalues + the 'new' expression. 🐱💖
+- Fix cat tree bindings not being exported.
 
 ## 1.3.0
 
