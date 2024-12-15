@@ -1,5 +1,9 @@
 # Changelog for Mewlix
 
+## 1.3.1
+
+- Fix silly mistake when parsing lvalues + the 'new' expression. 🐱💖
+
 ## 1.3.0
 
 - Command-line interface:
