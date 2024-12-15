@@ -169,7 +169,7 @@ meow = do
 new :: Parser Expression
 new = do
     keyword Keywords.new
-    ClowderCreate <$> termR <*> Mega.choice
+    ClowderCreate <$> lvalue <*> Mega.choice
         [ Arguments <$> arrowList
         , arguments               ]
 
@@ -194,7 +194,10 @@ call = do
     return (`FunctionCall` args)
 
 postfixes :: Parser (Expression -> Expression)
-postfixes = foldr1 (flip (.)) <$> Mega.some (Mega.choice [ dot, lookup_, call ])
+postfixes  = foldr1 (flip (.)) <$> (Mega.some . Mega.choice) [dot, lookup_, call]
+
+lpostfixes :: Parser (Expression -> Expression)
+lpostfixes = foldr1 (flip (.)) <$> (Mega.some . Mega.choice) [dot, lookup_]
 
 {- Lambda -}
 ------------------------------------------------------------------------------------
@@ -210,7 +213,7 @@ lambda = label "lambda" $ do
 type OperatorTable = [[Operator Parser Expression]]
 
 operatorsL :: OperatorTable
-operatorsL = [[ Postfix postfixes ]]
+operatorsL = [[ Postfix lpostfixes ]]
 
 operatorsR :: OperatorTable
 operatorsR =
