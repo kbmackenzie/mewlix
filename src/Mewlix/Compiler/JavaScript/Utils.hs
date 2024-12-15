@@ -15,6 +15,7 @@ import Mewlix.Abstract.AST
     , Statement(..)
     , MewlixFunction(..)
     , MewlixClass(..)
+    , MewlixEnum(..)
     )
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -36,6 +37,7 @@ findBindings = do
         collectBindings (Constant key _)    acc = key : acc
         collectBindings (FunctionDef func)  acc = funcName func : acc
         collectBindings (ClassDef clowder)  acc = className clowder : acc
+        collectBindings (EnumDef enum)      acc = enumName enum : acc
         collectBindings _                   acc = acc
 
     let isPublic :: Key -> Bool
