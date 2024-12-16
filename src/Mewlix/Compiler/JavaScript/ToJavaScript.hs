@@ -278,17 +278,20 @@ instance ToJavaScript Statement where
                 right <- transpileJS level rvalue
                 return . mconcat $ [ left, " = ", right ]
 
-        let createSetter :: Expression -> Expression -> Transpiler Text
-            createSetter a b = do
-                object   <- transpileJS level a
-                property <- transpileJS level b
+        let stringify :: Text -> Text
+            stringify = call Mewlix.purrify . List.singleton
+
+        let createSetter :: Expression -> Expression -> (Text -> Text) -> Transpiler Text
+            createSetter obj prop coerceToKey = do
+                object   <- transpileJS level obj
+                property <- coerceToKey <$> transpileJS level prop
                 value    <- transpileJS level rvalue
                 return $ call (parens object <> ".set") [property, value]
 
         indentLine level . terminate =<< case lvalue of
-            (LookupExpression a b) -> createSetter a b
-            (DotExpression a b)    -> createSetter a b
-            _                      -> assignment
+            (LookupExpression obj prop) -> createSetter obj prop stringify
+            (DotExpression    obj prop) -> createSetter obj prop id
+            _                           -> assignment
                 
     -- Control flow:
     ----------------------------------------------
