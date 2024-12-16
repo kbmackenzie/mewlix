@@ -9,6 +9,8 @@ pounce when x == 0
   meow "extremely unlikely."
 or when x == 1
   meow "impossible by design."
+or when x == 2
+  meow 'also impossible.'
 else hiss
   meow "hello! this is the most common case by a very, very, very big margin!"
 ~meow
@@ -18,6 +20,8 @@ pounce when x == 2
   meow "never going to happen."
   pounce when x == 3
   or when x == 4
+  or when x == 5
+  or when x == 6
   else hiss
   ~meow
 else hiss
