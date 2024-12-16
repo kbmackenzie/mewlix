@@ -18,7 +18,7 @@ clowder Charlie is Cat
     look outside("charlie")
   ~meow
 
-  =^.x.^= introduction()
+  🐱 introduction()
     bring outside.introduction()
   ~meow
 ~meow
@@ -33,3 +33,7 @@ meow charlie["introduction"]()
 
 -- Instantiation (alternative syntax):
 mew another_cat = new Cat <- "not charlie"
+mew yet_another = new Cat('not charlie')
+
+mew catClowder  = 📦 [ Cat: Cat ]
+mew and_another = new catClowder.Cat('not charlie')
