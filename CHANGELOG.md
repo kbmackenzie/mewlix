@@ -2,8 +2,13 @@
 
 ## 1.3.1
 
-- Fix silly mistake when parsing lvalues + the 'new' expression. 🐱💖
-- Fix cat tree bindings not being exported.
+- Compiler improvements:
+    - Always export cat trees from a yarn ball.
+    - Always coerce box keys to string in lookup expressions (`[]`).
+- Parser improvements:
+    - Let `or when` statements be chained.
+    - Improve parsing of lvalues for assignment. 🐱💖
+    - Improve parsing of clowder instantiation expressions (`new <clowder>`).
 
 ## 1.3.0
 
