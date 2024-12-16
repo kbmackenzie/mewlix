@@ -173,7 +173,7 @@ ifElse = do
 
             let next :: [Statement] -> Parser IfElseBuilder
                 next lines = do
-                    builder <- parseEnd <|> parseElse
+                    builder <- parseEnd <|> parseElse <|> parseElif
                     let self = Conditional condition . Block  . reverse $ lines
                     return $ \conditional -> first (conditional <|) (builder self)
 
