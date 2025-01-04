@@ -477,14 +477,15 @@ instance ToJavaScript MewlixFunction where
                 where transpile = transpileJS (succ level)
 
         let addDeclarations :: [Transpiler Text] -> [Transpiler Text]
-            addDeclarations = maybe id ((:) . return) . declareOperations $ operations
+            addDeclarations = maybe id ((:) . indent) . declareOperations $ operations
+                where indent = indentLine (succ level)
 
-        let name = (getKey . funcName) func
         params <- transpileJS level (funcParams func)
+        let name   = (getKey . funcName) func
         let body   = addDeclarations . transpileBody $ func
         let header = mconcat ["function ", name, params, " {"]
         joinLines
-            [ indentLine level header
+            [ return header
             , joinLines body
             , indentLine level "}" ]
 
@@ -524,8 +525,11 @@ instance ToJavaScript YarnBall where
             let block = yarnballBlock yarnball
 
             -- Declarations of operation-specific shadow variables.
-            let operations   = analyze block
-            let declarations = fromMaybe mempty . declareOperations $ operations
+            let declarations :: Transpiler Text
+                declarations = do
+                    let operations = analyze block
+                    let line       = fromMaybe mempty . declareOperations $ operations
+                    indentLine moduleLevel line
 
             -- The standard library import.
             noStdBind <- asks noStd
@@ -553,7 +557,7 @@ instance ToJavaScript YarnBall where
             joinLines
                 [ header
                 , stdLibrary
-                , return declarations
+                , declarations
                 , joinLines body
                 , moduleBindings
                 , indentLine topLevel "};" ]
