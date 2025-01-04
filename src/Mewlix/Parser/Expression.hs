@@ -33,7 +33,8 @@ import Mewlix.Parser.Primitive
     , parseParams
     )
 import Text.Megaparsec ((<?>), label, hidden)
-import Mewlix.Keywords.Types (LongSymbol(..), unwrapKeyword)
+import Mewlix.Keywords.Shadow (shadow)
+import Mewlix.Keywords.Types (LongSymbol(..))
 import qualified Mewlix.Keywords.Constants as Keywords
 import qualified Text.Megaparsec as Mega
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
@@ -135,9 +136,8 @@ compose = do
     return $ \f g -> do
         let apply :: Expression -> Expression
             apply = funcCall g . funcCall f
-        let x = unwrapKeyword Keywords.composeRef
-
-        LambdaExpression (param x) $ apply (var x)
+        let ref = shadow "compose"
+        LambdaExpression (param ref) $ apply (var ref)
 
 {- Boolean -}
 ------------------------------------------------------------------------------------
