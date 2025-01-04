@@ -15,7 +15,7 @@ import qualified Data.Set as Set
 import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NonEmpty
 
-data Operation = Or | And | Ternary deriving (Eq, Ord, Enum, Bounded)
+data Operation = Or | And deriving (Eq, Ord, Enum, Bounded)
 
 class AnalyzeOperation a where
     analyze :: a -> Set Operation
@@ -24,7 +24,7 @@ instance AnalyzeOperation Expression where
     analyze expr = case expr of
         (BooleanAnd a b)         -> Set.singleton And <> analyze a <> analyze b
         (BooleanOr a b)          -> Set.singleton Or  <> analyze a <> analyze b
-        (TernaryOperation a b c) -> Set.singleton Ternary <> analyze a <> analyze b <> analyze c
+        (TernaryOperation a b c) -> analyze a <> analyze b <> analyze c
         (BinaryOperation _ a b)  -> analyze a <> analyze b
         (UnaryOperation _ a)     -> analyze a
         (ShelfExpression xs)     -> mconcat . map analyze $ xs

@@ -14,9 +14,8 @@ import qualified Data.Text as Text
 
 operation :: Operation -> Text
 operation op = case op of
-    Or      -> shadow "or"
-    And     -> shadow "and"
-    Ternary -> shadow "ternary"
+    Or  -> shadow "or"
+    And -> shadow "and"
 
 declareOperations :: Set Operation -> Maybe Text
 declareOperations operations = do
