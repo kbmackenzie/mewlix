@@ -39,6 +39,7 @@ library
       Mewlix.Abstract.Key
       Mewlix.Abstract.Module
   other-modules:
+      Mewlix.Compiler.Analysis
       Mewlix.Compiler.Indentation
       Mewlix.Compiler.JavaScript.Constants
       Mewlix.Compiler.JavaScript.Error
