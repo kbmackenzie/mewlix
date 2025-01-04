@@ -1,5 +1,5 @@
 module Mewlix.Compiler.Analysis
-( Operations(..)
+( Operation(..)
 , AnalyzeOperation(..)
 ) where
 
@@ -15,10 +15,10 @@ import qualified Data.Set as Set
 import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NonEmpty
 
-data Operations = Or | And | Ternary deriving (Eq, Ord, Enum, Bounded)
+data Operation = Or | And | Ternary deriving (Eq, Ord, Enum, Bounded)
 
 class AnalyzeOperation a where
-    analyze :: a -> Set Operations
+    analyze :: a -> Set Operation
 
 instance AnalyzeOperation Expression where
     analyze expr = case expr of
