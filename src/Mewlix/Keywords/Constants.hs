@@ -70,6 +70,7 @@ import Mewlix.Keywords.Types
     , LongSymbol(..)
     , WordSequence(..)
     )
+import Mewlix.Keywords.Shadow (shadow)
 import Data.HashSet (HashSet)
 import qualified Data.HashSet as HashSet
 import Prelude hiding (and, or, not, break)
@@ -89,7 +90,7 @@ compose :: LongSymbol
 compose = ":>"
 
 composeRef :: SimpleKeyword
-composeRef = "___x"
+composeRef = SimpleKeyword $ shadow "____"
 
 pipe :: LongSymbol
 pipe = "|>"
@@ -263,7 +264,7 @@ rethrow :: SimpleKeyword
 rethrow = "rethrow"
 
 errorRef :: SimpleKeyword
-errorRef = "___error"
+errorRef = SimpleKeyword $ shadow "error"
 
 reserved :: HashSet SimpleKeyword
 {-# INLINE reserved #-}
