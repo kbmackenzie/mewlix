@@ -6,7 +6,6 @@ module Mewlix.Keywords.Constants
 , local
 , pipe
 , compose
-, composeRef
 , commentOpen
 , commentClose
 , true
@@ -61,7 +60,6 @@ module Mewlix.Keywords.Constants
 , throw
 , rethrow
 , assert
-, errorRef
 , reserved
 ) where
 
@@ -70,7 +68,6 @@ import Mewlix.Keywords.Types
     , LongSymbol(..)
     , WordSequence(..)
     )
-import Mewlix.Keywords.Shadow (shadow)
 import Data.HashSet (HashSet)
 import qualified Data.HashSet as HashSet
 import Prelude hiding (and, or, not, break)
@@ -88,9 +85,6 @@ local = "mew"
 -- Composition + Piping
 compose :: LongSymbol
 compose = ":>"
-
-composeRef :: SimpleKeyword
-composeRef = SimpleKeyword $ shadow "____"
 
 pipe :: LongSymbol
 pipe = "|>"
@@ -263,9 +257,6 @@ throw = "explode"
 rethrow :: SimpleKeyword
 rethrow = "rethrow"
 
-errorRef :: SimpleKeyword
-errorRef = SimpleKeyword $ shadow "error"
-
 reserved :: HashSet SimpleKeyword
 {-# INLINE reserved #-}
 reserved = HashSet.fromList
@@ -275,7 +266,6 @@ reserved = HashSet.fromList
     , nil
     , meow
     , do_
-    , composeRef
     , ternIf
     , ternElse
     , end
@@ -303,7 +293,6 @@ reserved = HashSet.fromList
     , try
     , throw
     , rethrow
-    , errorRef
     -- Internal:
     , "mewlix"
     , "yarnball"
