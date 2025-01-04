@@ -17,6 +17,7 @@ import Mewlix.Parser.Keyword (keyword)
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Keywords.Types (SimpleKeyword(..))
 import qualified Mewlix.Keywords.Constants as Keywords
+import Mewlix.Keywords.Shadow (isShadowed)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Text.Megaparsec ((<?>))
@@ -56,12 +57,16 @@ parseBool = Mega.choice
 parseKeyText :: Parser Text
 parseKeyText = lexeme (Mega.takeWhile1P (Just "key") isKeyChar)
 
+isReserved :: Text -> Bool
+isReserved key = isShadowed key || isReservedKeyword key
+    where isReservedKeyword = (`HashSet.member` Keywords.reserved) . SimpleKeyword
+
 {- Parse identifiers (variable names, function names, et cetera).
  - These cannot be reserved keywords. -}
 parseKey :: Parser Key
 parseKey = do
     text <- parseKeyText
-    when (HashSet.member (SimpleKeyword text) Keywords.reserved) 
+    when (isReserved text)
         (fail (Text.unpack text ++ " is a reserved keyword!"))
     return (Key text)
 
