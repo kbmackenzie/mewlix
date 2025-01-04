@@ -21,12 +21,15 @@ module Mewlix.Compiler.JavaScript.Constants
 , relation
 , reflection
 , convert
+-- Shadow Variables
+, errorRef
 ) where
 
 {- This module should always be imported qualified. -}
 
 import Prelude hiding (compare)
 import Data.Text (Text)
+import Mewlix.Keywords.Shadow (shadow)
 
 mewlix :: Text -> Text
 mewlix = mappend "mewlix."
@@ -84,3 +87,8 @@ reflection = mewlix . mappend "reflection."
 
 convert :: Text -> Text
 convert = mewlix . mappend "convert."
+
+-- Shadow Variables
+--------------------------------------------
+errorRef :: Text
+errorRef = shadow "error"

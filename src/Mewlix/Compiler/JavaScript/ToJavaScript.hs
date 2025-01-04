@@ -43,8 +43,6 @@ import Mewlix.Compiler.JavaScript.Utils
 import Mewlix.Compiler.JavaScript.Error (ErrorCode(..), errorInfo, createError)
 import Mewlix.Compiler.JavaScript.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.JavaScript.Constants as Mewlix
-import qualified Mewlix.Keywords.Constants as Keywords
-import Mewlix.Keywords.Types (unwrapKeyword)
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.HashSet as HashSet
@@ -438,19 +436,17 @@ instance ToJavaScript Statement where
         tryBlock   <- transpileJS level watch
         catchBlock <- transpileJS level pounce
 
-        let errorRef = unwrapKeyword Keywords.errorRef
         let defineErrorBox = mconcat
-                [ "const ", errorKey, " = ", call (Mewlix.internal "pounce") [errorRef], ";\n" ]
+                [ "const ", errorKey, " = ", call (Mewlix.internal "pounce") [Mewlix.errorRef], ";\n" ]
 
         joinLines
             [ indentLine level ("try " <> tryBlock)
-            , indentLine level ("catch (" <> errorRef <> ") {")
+            , indentLine level ("catch (" <> Mewlix.errorRef <> ") {")
             -- A dirty little hack, but it works nicely:
             , indentLine (succ level) (defineErrorBox <> Text.tail catchBlock) ]
 
     transpileJS level   Rethrow = do
-        let errorRef = unwrapKeyword Keywords.errorRef
-        indentLine level . terminate $ ("throw " <> errorRef)
+        indentLine level . terminate $ ("throw " <> Mewlix.errorRef)
 
     -- Assert:
     ----------------------------------------------
