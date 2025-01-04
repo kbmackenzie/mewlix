@@ -49,6 +49,7 @@ library
       Mewlix.Compiler.Transpiler
       Mewlix.Compiler.Whitespace
       Mewlix.Keywords.Constants
+      Mewlix.Keywords.Shadow
       Mewlix.Keywords.Types
       Mewlix.Packager.Actions
       Mewlix.Packager.Actions.Build
