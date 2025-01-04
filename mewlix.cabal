@@ -42,6 +42,7 @@ library
       Mewlix.Compiler.Analysis
       Mewlix.Compiler.Indentation
       Mewlix.Compiler.JavaScript.Constants
+      Mewlix.Compiler.JavaScript.Declare
       Mewlix.Compiler.JavaScript.Error
       Mewlix.Compiler.JavaScript.Operations
       Mewlix.Compiler.JavaScript.ToJavaScript
