@@ -20,11 +20,6 @@ import Mewlix.Abstract.AST
 import Mewlix.Compiler.Transpiler (Transpiler, asks, TranspilerContext(..))
 import Mewlix.Abstract.Module (ModuleData(..), joinKey, defaultName)
 import Mewlix.Abstract.Key (Key(..))
-import Data.Text (Text)
-import qualified Data.Text as Text
-import Mewlix.String.Escape (escapeString)
-import Mewlix.String.Utils (quotes, parens, brackets, sepComma)
-import Mewlix.Utils.Show (showT)
 import Mewlix.Compiler.Indentation
     ( Indentation
     , zeroIndent
@@ -32,6 +27,8 @@ import Mewlix.Compiler.Indentation
     , indentLine
     , indentMany
     )
+import Mewlix.Compiler.Analysis (Operation(..), analyze)
+import Mewlix.Compiler.JavaScript.Declare (operation, declareOperations)
 import Mewlix.Compiler.Whitespace (joinLines)
 import Mewlix.Compiler.JavaScript.Utils
     ( terminate
@@ -39,15 +36,22 @@ import Mewlix.Compiler.JavaScript.Utils
     , parensAround
     , lambda
     , call
-    , boolean )
+    , boolean
+    )
 import Mewlix.Compiler.JavaScript.Error (ErrorCode(..), errorInfo, createError)
 import Mewlix.Compiler.JavaScript.Operations (binaryOpFunc, unaryOpFunc)
 import qualified Mewlix.Compiler.JavaScript.Constants as Mewlix
+import Mewlix.String.Escape (escapeString)
+import Mewlix.String.Utils (quotes, parens, brackets, sepComma)
+import Mewlix.Utils.Show (showT)
+import Data.Text (Text)
+import qualified Data.Text as Text
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.HashSet as HashSet
 import Control.Monad ((<=<))
 import Data.Traversable (for)
+import Data.Maybe (fromMaybe)
 
 class ToJavaScript a where
     transpileJS :: Indentation -> a -> Transpiler Text
@@ -111,22 +115,28 @@ instance ToJavaScript Expression where
     -- Boolean operations:
     ----------------------------------------------
     transpileJS level (BooleanAnd left right) = do
-        a  <- transpileJS level left
-        fb <- lambda <$> transpileJS level right
-        return $ call (Mewlix.boolean "and") [ a, fb ]
+        let ref = operation And
+        a <- transpileJS level left
+        b <- transpileJS level right
+        let assignment = parens . mconcat $ [ ref, "=", a ]
+        parensAround . mconcat $
+            [ boolean assignment, "?", b, ":", ref ]
 
     transpileJS level (BooleanOr left right) = do
-        a  <- transpileJS level left
-        fb <- lambda <$> transpileJS level right
-        return $ call (Mewlix.boolean "or") [ a, fb ]
+        let ref = operation Or
+        a <- transpileJS level left
+        b <- transpileJS level right
+        let assignment = parens . mconcat $ [ ref, "=", a ]
+        parensAround . mconcat $
+            [ boolean assignment, "?", ref, ":", b ]
 
     -- Ternary operator:
     ----------------------------------------------
-    transpileJS level (TernaryOperation conditionExpr left right) = do
-        condition <- toJS conditionExpr
-        fa <- lambda <$> transpileJS level left
-        fb <- lambda <$> transpileJS level right
-        return $ call (Mewlix.boolean "ternary") [ condition, fa, fb ]
+    transpileJS level (TernaryOperation condition left right) = do
+        a <- transpileJS level condition
+        b <- transpileJS level left
+        c <- transpileJS level right
+        parensAround . mconcat $ [ boolean a, "?", b, ":", c ]
 
     -- Lambda function:
     ----------------------------------------------
@@ -460,10 +470,23 @@ instance ToJavaScript Statement where
 -----------------------------------------------------------------
 instance ToJavaScript MewlixFunction where
     transpileJS level func = do
+        let operations = analyze (funcBody func)
+
+        let transpileBody :: MewlixFunction -> [Transpiler Text]
+            transpileBody = map transpile . getBlock . funcBody
+                where transpile = transpileJS (succ level)
+
+        let addDeclarations :: [Transpiler Text] -> [Transpiler Text]
+            addDeclarations = maybe id ((:) . return) . declareOperations $ operations
+
         let name = (getKey . funcName) func
-        params  <- transpileJS level (funcParams func)
-        body    <- transpileJS level (funcBody func)
-        return $ mconcat [ "function ", name, params, " ", body ]
+        params <- transpileJS level (funcParams func)
+        let body   = addDeclarations . transpileBody $ func
+        let header = mconcat ["function ", name, params, " {"]
+        joinLines
+            [ indentLine level header
+            , joinLines body
+            , indentLine level "}" ]
 
 {- Function -}
 -----------------------------------------------------------------
@@ -500,6 +523,10 @@ instance ToJavaScript YarnBall where
         moduleFunction <- do
             let block = yarnballBlock yarnball
 
+            -- Declarations of operation-specific shadow variables.
+            let operations   = analyze block
+            let declarations = fromMaybe mempty . declareOperations $ operations
+
             -- The standard library import.
             noStdBind <- asks noStd
             let stdLibrary = if noStdBind
@@ -526,6 +553,7 @@ instance ToJavaScript YarnBall where
             joinLines
                 [ header
                 , stdLibrary
+                , return declarations
                 , joinLines body
                 , moduleBindings
                 , indentLine topLevel "};" ]
