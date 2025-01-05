@@ -140,10 +140,23 @@ instance ToJavaScript Expression where
 
     -- Lambda function:
     ----------------------------------------------
-    transpileJS level (LambdaExpression paramExprs bodyExpr) = do
-        body   <- transpileJS level bodyExpr
-        params <- transpileJS level paramExprs
-        parensAround (params <> " => " <> body)
+    transpileJS level (LambdaExpression lambdaParams lambdaBody) = do
+        let operations = analyze lambdaBody
+
+        let addDeclarations :: [Transpiler Text] -> [Transpiler Text]
+            addDeclarations = maybe id ((:) . indent) . declareOperations $ operations
+                where indent = indentLine (succ level)
+
+        let returns = transpileJS (succ level) (Return lambdaBody)
+        let body    = joinLines . addDeclarations . List.singleton $ returns
+
+        let params  = transpileJS level lambdaParams
+        let header  = params >>= \xs -> return ("function" <> xs <> " {")
+
+        parensAround =<< joinLines
+            [ header
+            , body
+            , indentLine level "}" ]
 
     -- Function calls:
     ----------------------------------------------
