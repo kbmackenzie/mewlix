@@ -235,7 +235,7 @@ instance ToJavaScript Params where
 {- Arguments -}
 -----------------------------------------------------------------
 instance ToJavaScript Arguments where
-    transpileJS _ = parensAround . sepComma <=< mapM toJS . getArguments
+    transpileJS level = parensAround . sepComma <=< mapM (transpileJS level) . getArguments
 
 {- Statements -}
 -----------------------------------------------------------------
