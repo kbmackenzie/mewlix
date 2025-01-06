@@ -45,17 +45,18 @@ action Create   = createProject
 action Package  = packageProject
 action Run      = runProject
 
-make :: Bool -> [ProjectTransform] -> Action -> IO ()
-make readProjectFile transforms actOption = execute
-    readProjectFile
-    (action actOption . transformProject transforms)
+make :: Bool -> Maybe FilePath -> [ProjectTransform] -> Action -> IO ()
+make shouldReadConfig configPath transforms chosenAction = execute
+    shouldReadConfig
+    configPath
+    (action chosenAction . transformProject transforms)
 
 make' :: Action -> IO ()
-make' = make True []
+make' = make True Nothing []
 
-execute :: Bool -> ActionFunc -> IO ()
-execute useProjectFile actionFunc = do
-    packager (project >>= actionFunc) >>= \case
+execute :: Bool -> Maybe FilePath -> ActionFunc -> IO ()
+execute shouldReadConfig configPath runAction = do
+    packager (project >>= runAction) >>= \case
         (Left err) -> do
             logger LogData
                 { logType    = LogError
@@ -63,6 +64,6 @@ execute useProjectFile actionFunc = do
                 , logMessage = Text.pack err }
             exitWith (ExitFailure 1)
         (Right _ ) -> return ()
-    where project = if useProjectFile
-            then readProject
+    where project = if shouldReadConfig
+            then readProject configPath
             else return defaultProject

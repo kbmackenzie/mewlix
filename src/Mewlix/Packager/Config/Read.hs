@@ -10,15 +10,18 @@ import Mewlix.Utils.Yaml (parseYaml)
 import System.FilePath (takeFileName)
 import System.Directory (doesFileExist)
 import Control.Monad (unless)
+import Data.Maybe (fromMaybe)
 
-readProject :: Packager ProjectConfig
-readProject = do
-    hasProject <- liftIO $ doesFileExist projectFile
-    let projectFileName = takeFileName projectFile
+readProject :: Maybe FilePath -> Packager ProjectConfig
+readProject customPath = do
+    let config = fromMaybe projectFile customPath
 
-    unless hasProject $ do
-        throwError $ concat [ "Couldn't find a ", show projectFileName, " file in the current directory!" ]
+    hasConfig <- liftIO $ doesFileExist config
+    let name = takeFileName projectFile
+
+    unless hasConfig $ do
+        throwError $ concat [ "Couldn't find a ", show name, " file in the current directory!" ]
 
     readFileBytes projectFile >>= \contents -> case parseYaml contents of
-        (Left err)  -> (throwError . concat) [ "Couldn't parse ", show projectFileName, " file: ", err ]
+        (Left err)  -> (throwError . concat) [ "Couldn't parse ", show name, " file: ", err ]
         (Right dat) -> return dat
