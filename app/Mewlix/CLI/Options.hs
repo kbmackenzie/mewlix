@@ -104,7 +104,7 @@ standalone :: Parser Bool
 standalone = switch
      ( long "standalone"
     <> short 's'
-    <> help "Ignore project file, use project defaults" )
+    <> help "Ignore config file, use project defaults" )
 
 config :: Parser (Maybe FilePath)
 config = optional . strOption $
@@ -131,7 +131,7 @@ buildFlags = BuildFlags <$> pretty <*> release <*> noStd <*> noReadMe
         noStd :: Parser Bool
         noStd = switch
              ( long "no-std"
-            <> help "Do not include std library binding when compiling" )
+            <> help "Do not implicitly import 'std' in yarn balls" )
 
         noReadMe :: Parser Bool
         noReadMe = switch
@@ -170,7 +170,7 @@ projectOptions = options
              ( long "asset"
             <> short 'a'
             <> metavar "PATH"
-            <> help "Project asset" )
+            <> help "Add project asset" )
 
 port :: Parser Port
 port = Port <$> option auto
