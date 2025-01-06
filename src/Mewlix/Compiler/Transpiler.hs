@@ -17,9 +17,10 @@ import Data.HashSet (HashSet)
 import Control.Monad.Reader (MonadReader, Reader, ask, asks, local, runReader)
 
 data TranspilerContext = TranspilerContext
-    { library :: HashSet Key
-    , noStd   :: Bool            
-    , pretty  :: Bool        }
+    { library :: HashSet Key    -- Special libraries included.
+    , pretty  :: Bool           -- Prettify compiler output.
+    , release :: Bool           -- Enable 'release mode': do not compile assertions.
+    , noStd   :: Bool       }   -- Should the "std" yarn ball be implicitly imported?
     deriving (Show);
 
 newtype Transpiler a = Transpiler 
@@ -36,5 +37,6 @@ transpile context = flip runReader context . runTranspiler
 emptyContext :: TranspilerContext
 emptyContext = TranspilerContext
     { library = mempty
-    , noStd   = False
-    , pretty  = False }
+    , pretty  = False
+    , release = False
+    , noStd   = False }

@@ -38,8 +38,9 @@ createContext config = do
 
     return TranspilerContext
         { library = projectLibs
-        , noStd   = Set.member NoStd flags
-        , pretty  = Set.member Pretty flags }
+        , pretty  = Set.member Pretty flags
+        , release = False
+        , noStd   = Set.member NoStd flags }
 
 findSources :: ProjectConfig -> Packager [FilePath]
 findSources config = do
