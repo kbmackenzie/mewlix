@@ -82,20 +82,17 @@ projectMode = console <|> graphic <|> library
         console :: Parser ProjectMode
         console = flag' Console
              ( long "console"
-            <> short 'l'
-            <> help "Console template" )
+            <> help "Use console template" )
 
         graphic :: Parser ProjectMode
         graphic = flag' Graphic
              ( long "graphic"
-            <> short 'g'
-            <> help "Graphic template" )
+            <> help "Use graphic template" )
 
         library :: Parser ProjectMode
         library = flag' Node
              ( long "node"
-            <> short 'n'
-            <> help "Node.js template" )
+            <> help "Use Node.js template" )
 
 quiet :: Parser Bool
 quiet = switch
@@ -128,6 +125,7 @@ buildFlags = BuildFlags <$> pretty <*> release <*> noStd <*> noReadMe
         release :: Parser Bool
         release = switch
              ( long "release"
+            <> short 'n'
             <> help "Enable release mode" )
 
         noStd :: Parser Bool
