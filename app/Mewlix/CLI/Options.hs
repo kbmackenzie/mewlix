@@ -50,6 +50,7 @@ data ProjectOptions = ProjectOptions
 
 data BuildFlags = BuildFlags
     { prettyFlag   :: Bool
+    , releaseFlag  :: Bool
     , noStdFlag    :: Bool
     , noReadMeFlag :: Bool }
     deriving (Show)
@@ -116,12 +117,18 @@ config = optional . strOption $
     <> help "Path to config file" )
 
 buildFlags :: Parser BuildFlags
-buildFlags = BuildFlags <$> pretty <*> noStd <*> noReadMe
+buildFlags = BuildFlags <$> pretty <*> release <*> noStd <*> noReadMe
     where
+        pretty :: Parser Bool
         pretty = switch
              ( long "pretty"
             <> short 'p'
             <> help "Prettify compiler output" )
+
+        release :: Parser Bool
+        release = switch
+             ( long "release"
+            <> help "Enable release mode" )
 
         noStd :: Parser Bool
         noStd = switch

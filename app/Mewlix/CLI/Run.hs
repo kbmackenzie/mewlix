@@ -67,10 +67,12 @@ fromRunOptions RunOptions
 buildFlags :: BuildFlags -> ProjectTransform
 buildFlags BuildFlags
     { prettyFlag   = pretty
+    , releaseFlag  = release
     , noStdFlag    = noStd
     , noReadMeFlag = noReadMe } = do
         let flagList = catMaybes
                 [ fromBool pretty   Pretty
+                , fromBool release  Release
                 , fromBool noStd    NoStd
                 , fromBool noReadMe NoReadMe ]
         projectFlagsL %~ mappend (Set.fromList flagList)
