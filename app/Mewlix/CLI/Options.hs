@@ -71,7 +71,8 @@ data MewlixAction =
 data MewlixCommand = MewlixCommand
     { commandAction     :: MewlixAction
     , commandQuiet      :: Bool
-    , commandStandalone :: Bool }
+    , commandStandalone :: Bool
+    , commandConfig     :: Maybe FilePath }
     deriving (Show)
 
 projectMode :: Parser ProjectMode
@@ -106,6 +107,11 @@ standalone = switch
      ( long "standalone"
     <> short 's'
     <> help "Ignore project file, use project defaults" )
+
+config :: Parser (Maybe FilePath)
+config = optional . strOption $
+     ( long "config"
+    <> help "Path to config file" )
 
 buildFlags :: Parser BuildFlags
 buildFlags = BuildFlags <$> pretty <*> noStd <*> noReadMe
@@ -214,7 +220,7 @@ action = subparser actions
             where parser = pure CleanAction
 
 parseAll :: Parser MewlixCommand
-parseAll = MewlixCommand <$> action <*> quiet <*> standalone
+parseAll = MewlixCommand <$> action <*> quiet <*> standalone <*> config
 
 getCommand :: IO MewlixCommand
 getCommand = execParser $ info (parseAll <**> helper)

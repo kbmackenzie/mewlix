@@ -81,28 +81,28 @@ setQuiet quiet = if quiet
     else id
 
 runCommand :: MewlixCommand-> IO ()
-runCommand (MewlixCommand action quiet standalone) = case action of
+runCommand (MewlixCommand action quiet standalone configPath) = case action of
     (BuildAction options flags) -> do
         let transforms = setQuiet quiet : buildFlags flags : projectOptions options
-        make (not standalone) transforms Build
+        make (not standalone) configPath transforms Build
 
     (RunAction options flags runOpts) -> do
         let runTrans = fromRunOptions runOpts
         let transforms = setQuiet quiet : runTrans : buildFlags flags : projectOptions options
-        make (not standalone) transforms Run
+        make (not standalone) configPath transforms Run
 
     (PackageAction options flags) -> do
         let transforms = setQuiet quiet : buildFlags flags : projectOptions options
-        make (not standalone) transforms Package
+        make (not standalone) configPath transforms Package
 
     (NewAction name mode) -> do
         let transforms =
                 [ setQuiet quiet
                 , transform name (set projectNameL . Text.pack)
                 , transform mode (set projectModeL)             ]
-        make False transforms Create
+        make False configPath transforms Create
 
     CleanAction -> do
         let transforms = [setQuiet quiet]
-        make (not standalone) transforms Clean
+        make (not standalone) configPath transforms Clean
 
