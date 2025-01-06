@@ -81,7 +81,7 @@ projectMode = console <|> graphic <|> library
         console :: Parser ProjectMode
         console = flag' Console
              ( long "console"
-            <> short 'c'
+            <> short 'l'
             <> help "Console template" )
 
         graphic :: Parser ProjectMode
@@ -111,6 +111,8 @@ standalone = switch
 config :: Parser (Maybe FilePath)
 config = optional . strOption $
      ( long "config"
+    <> short 'c'
+    <> metavar "PATH"
     <> help "Path to config file" )
 
 buildFlags :: Parser BuildFlags
