@@ -153,7 +153,10 @@ instance ToJavaScript Expression where
         let params  = transpileJS level lambdaParams
         let header  = params >>= \xs -> return ("function" <> xs <> " {")
 
-        parensAround =<< joinLines
+        let bindFunction :: Text -> Transpiler Text
+            bindFunction func = return $ "(" <> func <> ").bind(this)"
+
+        bindFunction =<< joinLines
             [ header
             , body
             , indentLine level "}" ]
