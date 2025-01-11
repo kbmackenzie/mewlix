@@ -1,4 +1,14 @@
-# Changelog for Mewlix
+# `mewlix` - Changelog
+
+## 1.4.0
+
+- Transpile boolean expressions more efficiently.
+- When building in **release mode**, do not compile assertions.
+- Command-line interface changes:
+    - Add `--release` build option.
+    - Add `--config` option for specifying a path to your config file.
+    - Add better help messages.
+- Standard library changes:
 
 ## 1.3.1
 
