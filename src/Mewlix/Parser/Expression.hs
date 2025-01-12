@@ -32,13 +32,14 @@ import Mewlix.Parser.Primitive
     , prim
     , parseParams
     )
-import Text.Megaparsec ((<?>), label, hidden)
 import Mewlix.Keywords.Shadow (shadow)
 import Mewlix.Keywords.Types (LongSymbol(..))
 import qualified Mewlix.Keywords.Constants as Keywords
+import Text.Megaparsec ((<?>), label, hidden)
 import qualified Text.Megaparsec as Mega
 import Control.Monad.Combinators.Expr (Operator(..), makeExprParser)
 import qualified Data.List as List
+import Control.Arrow ((>>>))
 
 {- Left-hand, Right-hand -}
 ------------------------------------------------------------------------------------
@@ -130,7 +131,7 @@ compose = do
     let argument = Arguments . List.singleton
 
     let funcCall :: Expression -> Expression -> Expression
-        funcCall = (. argument) . FunctionCall
+        funcCall = (argument >>>) . FunctionCall
 
     keyword Keywords.compose
     return $ \f g -> do
