@@ -12,7 +12,7 @@ import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Build.Modules (compileModules)
 import Mewlix.Packager.Build.Templates (generateTemplate)
 import Mewlix.Packager.Build.Assets (copyAssets)
-import Mewlix.Packager.Log (projectLog)
+import Mewlix.Packager.Log (buildLog)
 import Mewlix.Packager.Environment
     ( mewlixFolder
     , buildFolder
@@ -61,7 +61,7 @@ prepare = do
 
 build :: ProjectConfig -> Packager ()
 build config = do
-    projectLog config $ mconcat ["Building project '", projectName config, "'"]
+    buildLog config
     prepare
     writeTemplate  config
     compileModules config

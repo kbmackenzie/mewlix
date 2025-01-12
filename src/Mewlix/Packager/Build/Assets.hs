@@ -7,7 +7,7 @@ module Mewlix.Packager.Build.Assets
 import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Config (ProjectConfig(..), ProjectMode(..))
 import Mewlix.Packager.Environment (buildFolder)
-import Mewlix.Packager.Log (projectLog, projectLogError)
+import Mewlix.Packager.Log (logMessage)
 import Mewlix.Utils.IO (safelyRun, copyFileSafe, createDirectory, compareFileMods)
 import Mewlix.Utils.Show (showT)
 import System.FilePath ((</>), takeDirectory, normalise, splitPath, equalFilePath)
@@ -40,12 +40,12 @@ copyAsset config asset = do
 
     let mode = projectMode config
     unless (isOkayAssetPath mode asset) $
-        projectLogError config
+        logMessage config
             ("Asset path " <> showT output <> " likely conflicts with core template asset.")
 
     isOutdated <- maybe True (== GT) <$> compareFileMods asset output
     when isOutdated $ do
-        projectLog config ("Copying asset " <> showT asset)
+        logMessage config ("Copying asset " <> showT asset)
         copyFileSafe asset output
 
 findAssets :: ProjectConfig -> Packager [FilePath]

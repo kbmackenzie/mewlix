@@ -7,7 +7,7 @@ module Mewlix.Packager.Actions.Server
 import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Environment (buildFolder)
 import Mewlix.Packager.Config (ProjectConfig(..), Port(..), ProjectFlag(..))
-import Mewlix.Packager.Log (projectLog)
+import Mewlix.Packager.Log (logMessage)
 import Mewlix.Utils.Server (serve)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad (void, unless)
@@ -19,7 +19,7 @@ runServer :: ProjectConfig -> Packager ()
 runServer config = do
     let port = projectPort config
 
-    projectLog config $ mconcat
+    logMessage config $ mconcat
         [ "Running project "
         , (showT . projectName) config
         , " in port "
@@ -32,5 +32,5 @@ runServer config = do
         openBrowser address
 
     -- Run server:
-    projectLog config "Press (Ctrl + C) to exit."
+    logMessage config "Press (Ctrl + C) to exit."
     serve buildFolder (getPort port)

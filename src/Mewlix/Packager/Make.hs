@@ -24,7 +24,7 @@ import Mewlix.Packager.Actions
     , runProject
     )
 -- Assorted:
-import Mewlix.Logger (LogData(..), LogType(..), logger);
+import Mewlix.Logger (LogLevel(..), logger);
 import qualified Data.Text as Text
 import System.Exit (exitWith, ExitCode(..))
 
@@ -58,10 +58,7 @@ execute :: Bool -> Maybe FilePath -> ActionFunc -> IO ()
 execute shouldReadConfig configPath runAction = do
     packager (project >>= runAction) >>= \case
         (Left err) -> do
-            logger LogData
-                { logType    = LogError
-                , logPrefix  = Just "mewlix: error"
-                , logMessage = Text.pack err }
+            logger LogError (Text.pack err)
             exitWith (ExitFailure 1)
         (Right _ ) -> return ()
     where project = if shouldReadConfig

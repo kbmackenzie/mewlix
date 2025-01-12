@@ -5,7 +5,7 @@ module Mewlix.Packager.Actions.Create
 ) where
 
 import Mewlix.Packager.Type (Packager, throwError, liftIO)
-import Mewlix.Packager.Log (projectLog)
+import Mewlix.Packager.Log (initLog)
 import Mewlix.Packager.Config (ProjectConfig(..), projectFieldOrder, projectSourceFilesL)
 import Mewlix.Packager.Environment (projectFile, mewlixFolder)
 import Mewlix.Utils.Yaml (toPrettyYaml)
@@ -21,8 +21,8 @@ includeSrc = projectSourceFilesL %~ ("src/**/*.mews" :)
 
 createProject :: ProjectConfig -> Packager ()
 createProject = (. includeSrc) $ \config -> do
-    -- Log project name + a nice message
-    projectLog config "Creating project file..."
+    -- todo: "(. includeSrc)" should be replaced by an ARROW!!!!!
+    initLog config
 
     -- Check for existing project
     exists <- liftIO (doesFileExist projectFile)

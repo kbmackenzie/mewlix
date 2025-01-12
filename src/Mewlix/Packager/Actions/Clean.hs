@@ -7,7 +7,7 @@ module Mewlix.Packager.Actions.Clean
 import Mewlix.Packager.Type (Packager, liftIO, throwError)
 import Mewlix.Packager.Environment (mewlixFolder)
 import Mewlix.Packager.Config (ProjectConfig)
-import Mewlix.Packager.Log (projectLog)
+import Mewlix.Packager.Log (logMessage)
 import System.Directory (removeDirectoryRecursive, doesDirectoryExist)
 import Control.Monad (when)
 
@@ -32,5 +32,5 @@ cleanProject config = do
 
     exists <- liftIO (doesDirectoryExist folder)
     when exists $ do
-        projectLog config "Cleaning output folder..."
+        logMessage config "Cleaning output folder..."
         clean 0

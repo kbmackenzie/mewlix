@@ -2,14 +2,14 @@
 {-# LANGUAGE StrictData #-}
 
 module Mewlix.Logger
-( LogData(..)
-, LogType(..)
+( LogLevel(..)
 , logger
+, rainbow
 ) where
 
 import Data.Text (Text)
 import qualified Data.Text.IO as TextIO
-import System.IO (Handle, stdout, stderr)
+import System.IO (Handle, stdout, stderr, hPutChar)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import System.Console.ANSI
     ( SGR(..)
@@ -21,42 +21,54 @@ import System.Console.ANSI
     , hSupportsANSIColor
     )
 import Prelude hiding (log)
+import Control.Monad (foldM_)
 
-data LogType = LogInfo | LogError
+data LogLevel = LogInfo | LogWarn | LogError
 
-data LogData = LogData
-    { logType    :: LogType
-    , logPrefix  :: Maybe Text
-    , logMessage :: Text       }
+getStyles :: LogLevel -> [SGR]
+getStyles level = case level of
+    LogInfo  -> []
+    LogWarn  -> [SetColor Foreground Vivid Yellow]
+    LogError -> [SetColor Foreground Vivid Red]
 
-getStyles :: LogData -> [SGR]
-getStyles log = case logType log of
-    LogInfo  -> [SetColor Foreground Vivid Yellow]
-    LogError -> [SetColor Foreground Vivid Magenta, SetConsoleIntensity BoldIntensity]
-
-getHandle :: LogData -> Handle
-getHandle log = case logType log of
+getHandle :: LogLevel -> Handle
+getHandle level = case level of
     LogInfo  -> stdout
+    LogWarn  -> stderr
     LogError -> stderr
 
-logger :: (MonadIO m) => LogData -> m ()
-logger log = liftIO $ do 
-    let handle = getHandle log
-    let styles = getStyles log
+cycleColor :: Color -> Color
+cycleColor color = case color of
+    Red     -> Yellow
+    Yellow  -> Green
+    Green   -> Cyan
+    Cyan    -> Blue
+    Blue    -> Magenta
+    Magenta -> Red
+    _       -> Red
 
-    let prefix :: Text -> Text
-        prefix name = mconcat ["[", name, "] "]
+rainbow :: Handle -> String -> IO ()
+rainbow handle str = liftIO $ do
+    let writeChar :: Color -> Char -> IO Color
+        writeChar color char = do
+            hSetSGR handle [SetColor Foreground Vivid color, SetConsoleIntensity BoldIntensity]
+            hPutChar handle char
+            return (cycleColor color)
 
-    let putPrefix  = TextIO.hPutStr   handle . prefix
-    let putMessage = TextIO.hPutStrLn handle
+    foldM_ writeChar Red str
+    hSetSGR handle [Reset]
+
+logger :: (MonadIO m) => LogLevel -> Text -> m ()
+logger level message = liftIO $ do
+    let handle = getHandle level
+    let styles = getStyles level
+    let put    = TextIO.hPutStrLn handle
 
     supported <- hSupportsANSIColor handle
     if supported
         then do
             hSetSGR handle styles
-            mapM_ putPrefix (logPrefix log)
+            put message
             hSetSGR handle [Reset]
-            putMessage (logMessage log)
         else do
-            mapM_ putPrefix (logPrefix log)
-            putMessage (logMessage log)
+            put message

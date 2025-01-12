@@ -8,7 +8,7 @@ import Mewlix.Packager.Config (ProjectConfig(..))
 import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Actions.Build (buildProject)
 import Mewlix.Packager.Environment (buildFolder)
-import Mewlix.Packager.Log (projectLog)
+import Mewlix.Packager.Log (logMessage)
 import System.Directory (doesDirectoryExist)
 import Codec.Archive.Zip
     ( ZipArchive
@@ -38,5 +38,5 @@ packageProject config = do
     unless exists $
         buildProject config
 
-    projectLog config "Packaging project..."
+    logMessage config "Packaging project..."
     createPackage config

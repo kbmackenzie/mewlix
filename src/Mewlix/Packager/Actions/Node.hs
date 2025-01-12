@@ -7,7 +7,7 @@ module Mewlix.Packager.Actions.Node
 import Mewlix.Packager.Type (Packager, liftIO, throwError)
 import Mewlix.Packager.Environment (buildFolder)
 import Mewlix.Packager.Config (ProjectConfig(..))
-import Mewlix.Packager.Log (projectLog)
+import Mewlix.Packager.Log (logMessage)
 import System.Directory (withCurrentDirectory)
 import System.Process.Typed
     ( runProcess
@@ -26,7 +26,7 @@ node script = do
 
 runNode :: ProjectConfig -> Packager ()
 runNode config = do
-    projectLog config "Running project with 'node':"
+    logMessage config "Running project with 'node':"
 
     let script = "import run from './index.js'; run();"
     exitCode <- liftIO $
