@@ -13,13 +13,14 @@ import Lens.Micro.Platform ((%~))
 import System.FilePath (addTrailingPathSeparator)
 import qualified Data.ByteString.Char8 as ByteString
 import Control.Monad (when)
+import Control.Arrow ((>>>))
 
 includeSrc :: ProjectConfig -> ProjectConfig
 includeSrc = projectSourceFilesL %~ ("src/**/*.mews" :)
 
 initProject :: ProjectConfig -> Packager ()
-initProject = (. includeSrc) $ \config -> do
-    -- todo: "(. includeSrc)" should be replaced by an ARROW!!!!!
+initProject = includeSrc >>> \config -> do
+    -- Project initialization message.
     initLog config
 
     -- Check for existing project
