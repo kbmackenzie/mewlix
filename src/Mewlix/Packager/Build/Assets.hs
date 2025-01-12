@@ -5,25 +5,46 @@ module Mewlix.Packager.Build.Assets
 ) where
 
 import Mewlix.Packager.Type (Packager)
-import Mewlix.Packager.Config (ProjectConfig(..))
+import Mewlix.Packager.Config (ProjectConfig(..), ProjectMode(..))
 import Mewlix.Packager.Environment (buildFolder)
-import Mewlix.Packager.Log (projectLog)
+import Mewlix.Packager.Log (projectLog, projectLogError)
 import Mewlix.Utils.IO (safelyRun, copyFileSafe, createDirectory, compareFileMods)
 import Mewlix.Utils.Show (showT)
-import System.FilePath ((</>), takeDirectory)
+import System.FilePath ((</>), takeDirectory, normalise, splitPath, equalFilePath)
 import System.FilePattern.Directory (getDirectoryFiles)
-import Control.Monad (when)
+import Control.Monad (when, unless)
+import Control.Arrow ((>>>))
+
+reserved :: ProjectMode -> [FilePath]
+reserved mode = case mode of
+    Console -> ["index.html", "style.css", "init.js"]
+    Graphic -> ["index.html", "style.css", "init.js"]
+    Node    -> ["init.js"]
+
+isOkayAssetPath :: ProjectMode -> FilePath -> Bool
+isOkayAssetPath mode = normalise >>> do
+    let isInCore :: FilePath -> Bool
+        isInCore path = case splitPath path of
+            []    -> False
+            (x:_) -> equalFilePath x "core"
+
+    let isReserved :: FilePath -> Bool
+        isReserved path = any (equalFilePath path) (reserved mode)
+
+    \path -> not (isInCore path || isReserved path)
 
 copyAsset :: ProjectConfig -> FilePath -> Packager ()
 copyAsset config asset = do
-    let prepareDirectory :: FilePath -> Packager ()
-        prepareDirectory = createDirectory True . takeDirectory
-
     let output = buildFolder </> asset
-    prepareDirectory output
+    createDirectory True (takeDirectory output)
 
-    shouldCopy <- maybe True (== GT) <$> compareFileMods asset output
-    when shouldCopy $ do
+    let mode = projectMode config
+    unless (isOkayAssetPath mode asset) $
+        projectLogError config
+            ("Asset path " <> showT output <> " likely conflicts with core template asset.")
+
+    isOutdated <- maybe True (== GT) <$> compareFileMods asset output
+    when isOutdated $ do
         projectLog config ("Copying asset " <> showT asset)
         copyFileSafe asset output
 
