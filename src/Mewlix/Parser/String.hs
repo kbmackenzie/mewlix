@@ -102,7 +102,9 @@ stringQuotesM =
 
 parseStringM :: Parser Text
 parseStringM = label "multiline string" . withQuotes stringQuotesM $
-    fmap Text.pack . Mega.many . stringCharM
+    \characterPredicate -> do
+        void (Mega.optional MChar.newline)
+        fmap Text.pack . Mega.many . stringCharM $ characterPredicate
 
 {- String interpolation ('yarn string'): -}
 ----------------------------------------------------------------
