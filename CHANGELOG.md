@@ -4,10 +4,12 @@
 
 - Transpile boolean expressions more efficiently.
 - When building in **release mode**, do not compile assertions.
+- When parsing multiline strings, ignore the first character if it's a newline.
 - Command-line interface changes:
     - Add `--release` build option.
     - Add `--config` option for specifying a path to your config file.
     - Add better help messages.
+    - Improve log messages in general.
 - Standard library changes:
 
 ## 1.3.1
