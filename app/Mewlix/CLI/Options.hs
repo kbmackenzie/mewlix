@@ -65,7 +65,7 @@ data MewlixAction =
       BuildAction    ProjectOptions BuildFlags
     | RunAction      ProjectOptions BuildFlags RunOptions
     | PackageAction  ProjectOptions BuildFlags
-    | NewAction      (Maybe String) (Maybe ProjectMode)
+    | InitAction     (Maybe String) (Maybe ProjectMode)
     | CleanAction
     deriving (Show)
 
@@ -218,7 +218,7 @@ action = subparser actions
 
         init_ :: Mod CommandFields MewlixAction
         init_ = command "init" $ makeInfo parser "Create a new project in the current directory"
-            where parser = NewAction
+            where parser = InitAction
                     <$> optional (argument str (metavar "NAME"))
                     <*> optional projectMode
 

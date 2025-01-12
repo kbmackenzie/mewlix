@@ -97,12 +97,12 @@ runCommand (MewlixCommand action quiet standalone configPath) = case action of
         let transforms = setQuiet quiet : buildFlags flags : projectOptions options
         make (not standalone) configPath transforms Package
 
-    (NewAction name mode) -> do
+    (InitAction name mode) -> do
         let transforms =
                 [ setQuiet quiet
                 , transform name (set projectNameL . Text.pack)
                 , transform mode (set projectModeL)             ]
-        make False configPath transforms Create
+        make False configPath transforms Init
 
     CleanAction -> do
         let transforms = [setQuiet quiet]
