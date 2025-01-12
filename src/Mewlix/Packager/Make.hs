@@ -18,8 +18,8 @@ import Mewlix.Packager.Config
 import Mewlix.Packager.Actions
     ( buildProject
     , cleanProject
+    , initProject
     , packageProject
-    , createProject
     , runProject
     )
 -- Assorted:
@@ -29,7 +29,7 @@ import System.Exit (exitWith, ExitCode(..))
 data Action =
       Build
     | Clean
-    | Create
+    | Init
     | Package
     | Run
     deriving (Eq, Ord, Show, Enum, Bounded)
@@ -39,7 +39,7 @@ type ActionFunc  = ProjectConfig -> Packager ()
 action :: Action -> ActionFunc
 action Build    = buildProject
 action Clean    = cleanProject
-action Create   = createProject
+action Init     = initProject
 action Package  = packageProject
 action Run      = runProject
 

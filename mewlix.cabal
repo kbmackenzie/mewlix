@@ -56,7 +56,7 @@ library
       Mewlix.Packager.Actions
       Mewlix.Packager.Actions.Build
       Mewlix.Packager.Actions.Clean
-      Mewlix.Packager.Actions.Create
+      Mewlix.Packager.Actions.Init
       Mewlix.Packager.Actions.Node
       Mewlix.Packager.Actions.Package
       Mewlix.Packager.Actions.Run

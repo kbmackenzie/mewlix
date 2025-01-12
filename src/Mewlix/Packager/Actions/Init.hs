@@ -1,5 +1,5 @@
-module Mewlix.Packager.Actions.Create
-( createProject
+module Mewlix.Packager.Actions.Init
+( initProject
 ) where
 
 import Mewlix.Packager.Type (Packager, throwError, liftIO)
@@ -17,8 +17,8 @@ import Control.Monad (when)
 includeSrc :: ProjectConfig -> ProjectConfig
 includeSrc = projectSourceFilesL %~ ("src/**/*.mews" :)
 
-createProject :: ProjectConfig -> Packager ()
-createProject = (. includeSrc) $ \config -> do
+initProject :: ProjectConfig -> Packager ()
+initProject = (. includeSrc) $ \config -> do
     -- todo: "(. includeSrc)" should be replaced by an ARROW!!!!!
     initLog config
 
