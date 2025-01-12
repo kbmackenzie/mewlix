@@ -18,7 +18,6 @@ import Mewlix.Compiler
 import Mewlix.Packager.Config (ProjectConfig(..), ProjectFlag(..))
 import Mewlix.Packager.Library (getLibrary)
 import Mewlix.Packager.Log (logMessage)
-import Mewlix.Utils.Show (showT)
 import Mewlix.Utils.IO (safelyRun, readFileText, createDirectory)
 import Mewlix.Packager.Environment (moduleFolder)
 import Control.Monad ((>=>))
@@ -55,9 +54,9 @@ compileModules config = do
     sources <- findSources config
 
     let sourceCount = length sources
-    logMessage config $ mconcat
+    logMessage config . concat $
         [ "Compiling "
-        , showT sourceCount
+        , show sourceCount
         , if sourceCount > 1 then " yarn balls!" else " yarn ball!" ]
     context <- createContext config
            
@@ -77,7 +76,7 @@ compileModules config = do
 
         let compileSource :: FilePath -> Packager ()
             compileSource source = do
-                logMessage config ("Compiling yarn ball " <> showT source)
+                logMessage config ("Compiling yarn ball " ++ show source)
                 compile source >>= write
 
         write metaComment

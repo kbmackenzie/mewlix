@@ -7,9 +7,7 @@ module Mewlix.Logger
 , rainbow
 ) where
 
-import Data.Text (Text)
-import qualified Data.Text.IO as TextIO
-import System.IO (Handle, stdout, stderr, hPutChar)
+import System.IO (Handle, stdout, stderr, hPutChar, hPutStrLn)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import System.Console.ANSI
     ( SGR(..)
@@ -58,11 +56,11 @@ rainbow handle str = liftIO $ do
     foldM_ writeChar Red str
     hSetSGR handle [Reset]
 
-logger :: (MonadIO m) => LogLevel -> Text -> m ()
+logger :: (MonadIO m) => LogLevel -> String -> m ()
 logger level message = liftIO $ do
     let handle = getHandle level
     let styles = getStyles level
-    let put    = TextIO.hPutStrLn handle
+    let put    = hPutStrLn handle
 
     supported <- hSupportsANSIColor handle
     if supported

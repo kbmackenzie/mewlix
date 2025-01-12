@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Mewlix.Packager.Actions.Server
 ( runServer
 ) where
@@ -11,7 +9,6 @@ import Mewlix.Packager.Log (logMessage)
 import Mewlix.Utils.Server (serve)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad (void, unless)
-import Mewlix.Utils.Show (showT)
 import Web.Browser (openBrowser)
 import qualified Data.Set as Set
 
@@ -19,11 +16,11 @@ runServer :: ProjectConfig -> Packager ()
 runServer config = do
     let port = projectPort config
 
-    logMessage config $ mconcat
+    logMessage config . concat $
         [ "Running project "
-        , (showT . projectName) config
+        , (show . projectName) config
         , " in port "
-        , (showT . getPort) port ]
+        , (show . getPort) port ]
 
     -- Open browser:
     let noBrowser = Set.member NoBrowser (projectFlags config)

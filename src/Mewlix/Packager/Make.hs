@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Mewlix.Packager.Make
@@ -25,7 +24,6 @@ import Mewlix.Packager.Actions
     )
 -- Assorted:
 import Mewlix.Logger (LogLevel(..), logger);
-import qualified Data.Text as Text
 import System.Exit (exitWith, ExitCode(..))
 
 data Action =
@@ -58,7 +56,7 @@ execute :: Bool -> Maybe FilePath -> ActionFunc -> IO ()
 execute shouldReadConfig configPath runAction = do
     packager (project >>= runAction) >>= \case
         (Left err) -> do
-            logger LogError (Text.pack err)
+            logger LogError err
             exitWith (ExitFailure 1)
         (Right _ ) -> return ()
     where project = if shouldReadConfig

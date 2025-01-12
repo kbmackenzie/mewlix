@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Mewlix.Packager.Actions.Package
 ( packageProject
 ) where
