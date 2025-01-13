@@ -17,11 +17,11 @@ readProject customPath = do
     let config = fromMaybe projectFile customPath
 
     hasConfig <- liftIO $ doesFileExist config
-    let name = takeFileName projectFile
+    let name = takeFileName config
 
     unless hasConfig $ do
         throwError $ concat [ "Couldn't find a ", show name, " file in the current directory!" ]
 
-    readFileBytes projectFile >>= \contents -> case parseYaml contents of
+    readFileBytes config >>= \contents -> case parseYaml contents of
         (Left err)  -> (throwError . concat) [ "Couldn't parse ", show name, " file: ", err ]
         (Right dat) -> return dat
