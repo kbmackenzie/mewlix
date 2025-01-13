@@ -20,7 +20,7 @@ import Test.Hspec
     , describe
     , shouldBe
     )
-import Prelude hiding (negate, concat, and, or)
+import Prelude hiding (lookup, negate, concat, and, or)
 
 expressions :: [(Text, Expression)] -> Spec
 expressions = describe "parse mewlix expressions" . do
@@ -53,6 +53,12 @@ basicExpressions =
     , ("true == a"          , equal true (variable "a")                                                 )
     , ("a == b == c"        , equal (equal (variable "a") (variable "b")) (variable "c")                )
     , ("a .. b == c"        , equal (concat (variable "a") (variable "b")) (variable "c")               )
+    , ("a == b .. c"        , equal (variable "a") (concat (variable "b") (variable"c"))                )
+    , ("a()()()"            , call (call (call (variable "a")))                                         )
+    , ("a()['b']()"         , call (lookup (call (variable "a")) (str "b"))                             )
+    , ("a['b']()()"         , call (call (lookup (variable "a") (str "b")))                             )
+    , ("a()['b']['c']()()"  , call (call (lookup (lookup (call (variable "a")) (str "b")) (str "c")))   )
+    , ("a['b']()['c']()()"  , call (call (lookup (call (lookup (variable "a") (str "b"))) (str "c")))   )
     ]
     where number   = PrimitiveExpr . MewlixInt
           add      = BinaryOperation Addition
@@ -68,6 +74,9 @@ basicExpressions =
           true     = PrimitiveExpr . MewlixBool $ True
           false    = PrimitiveExpr . MewlixBool $ False
           equal    = BinaryOperation Equal
+          call     = flip FunctionCall mempty
+          lookup   = LookupExpression
+          str      = PrimitiveExpr . MewlixString
 
 test :: Spec
 test = expressions basicExpressions
