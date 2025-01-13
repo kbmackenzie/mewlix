@@ -2,13 +2,16 @@
 
 **Mewlix** is a cat-themed [esoteric programming language][5] that compiles to vanilla JavaScript. It's designed for making little HTML5 games!
 
-Mewlix's compiler is written in pure Haskell, and is a self-contained binary executable. It can build projects, run them in a simple HTTP server, and package the build output neatly into a `.zip` file for upload in websites like [itch.io][6]!
+Mewlix's compiler is written in pure Haskell, and is a self-contained binary executable. It can build projects, run them in a simple HTTP server, and package the build output neatly into a `.zip` file for upload in websites like [itch.io][6].
 
 As is tradition for all languages, here's a simple `'hello world'` program in Mewlix:
+
 ```mewlix
 meow "Hello world!"
 ```
+
 *And* here's how to draw a sprite to the canvas in `graphic` mode:
+
 ```mewlix
 from std.graphic takes load, draw, init
 
@@ -27,14 +30,22 @@ It has...
 - String interpolation—`:3"like [this]!"`—affectionately nicknamed *'yarn strings'*.
 - Lambda functions, defined like this: `🐈 (a, b) -> a + b`
 - Classes, affectionately nicknamed *'clowders'*.
-- A function composition operator (`:>`) and a function application operator (`|>`)!
+- A function composition operator (`:>`) and a function application operator (`|>`).
 - Feline-oriented programming capabilities.
 
 ## Documentation
 
-All of the documentation for Mewlix can be found on [the website][1]!
+All of the documentation for Mewlix can be found on [the website][1].
 
 ![Looping animation of a cartoon cat resting on a shelf.](https://github.com/kbmackenzie/mewlix/wiki/imgs/cat-shelf.webp)
+
+## Installation
+
+Mewlix's compiler is a **self-contained binary executable**.
+
+The installation guide can be found [here](./INSTALL.md).
+
+A guide on how to build Mewlix from source can be found [here](./INSTALL.md#build-from-source).
 
 ## Examples
 
@@ -56,21 +67,11 @@ An assortment of little example projects written in Mewlix can be found [here][4
 </p>
 
 
-## Installation
-
-Mewlix's compiler is a self-contained binary executable.
-
-The installation guide can be found [here](./INSTALL.md).
-
-A guide on how to build Mewlix from source can be found [here](./INSTALL.md#build-from-source).
-
 ## Related Links
 
 All the source code for Mewlix's **base library and templates** can be found [here][3].
 
-**Example projects** can be found [here][4]!
-
-## Tools
+**Example projects** can be found [here][4].
 
 ### Vim Plugin
 
