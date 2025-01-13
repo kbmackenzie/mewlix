@@ -82,6 +82,9 @@ expressions =
     , ("[a, b, c]"          , shelf [variable "a", variable "b", variable "c"]                          ) 
     , ("[\na,\nb,\nc,\n]"   , shelf [variable "a", variable "b", variable "c"]                          )
     , ("[\na,\nb,\nc,\n]"   , shelf [variable "a", variable "b", variable "c"]                          )
+    , ("[[a], [b, c]]"      , shelf [shelf [variable "a"], shelf [variable "b", variable "c"]]          )
+    , ("[[a, [b, [c]]]]"    , shelf [shelf [variable "a", shelf [variable "b", shelf [variable "c"]]]]  )
+    , ("[\n[\na\n]\n]"      , shelf [shelf [variable "a"]]                                              )
     ]
     where number   = PrimitiveExpr . MewlixInt
           add      = BinaryOperation Addition
