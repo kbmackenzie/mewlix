@@ -56,6 +56,7 @@ data ProjectMode =
       Console
     | Graphic
     | Node
+    | Blank
     deriving (Eq, Ord, Show, Read, Enum, Bounded)
 
 {- Project Flags -}
@@ -203,6 +204,7 @@ parseMode key = case key of
     "console" -> return Console
     "graphic" -> return Graphic
     "node"    -> return Node
+    "blank"   -> return Blank
     _         -> Nothing
 
 readMode :: (MonadFail m) => Text -> m ProjectMode

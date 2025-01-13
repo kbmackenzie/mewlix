@@ -25,6 +25,7 @@ template = \case
     Console -> Template { getTemplate = templatePath "console.zip" }
     Graphic -> Template { getTemplate = templatePath "graphic.zip" }
     Node    -> Template { getTemplate = templatePath "node.zip"    }
+    Blank   -> Template { getTemplate = templatePath "blank.zip"   }
 
 generateTemplate :: ProjectConfig -> Packager ()
 generateTemplate config = do

@@ -30,6 +30,7 @@ getTemplateLibrary = \case
         [ "std.graphic"
         , "std.graphic.curry" ]
     Node    -> mempty
+    Blank   -> mempty
 
 getLibrary :: ProjectMode -> Library
 getLibrary = mappend baseLibrary . getTemplateLibrary

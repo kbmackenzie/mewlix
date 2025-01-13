@@ -17,6 +17,7 @@ reserved mode = case mode of
     Console -> ["index.html", "style.css", "init.js"]
     Graphic -> ["index.html", "style.css", "init.js"]
     Node    -> ["init.js"]
+    Blank   -> ["init.js"]
 
 isOkayAssetPath :: ProjectMode -> FilePath -> Bool
 isOkayAssetPath mode = normalise >>> do

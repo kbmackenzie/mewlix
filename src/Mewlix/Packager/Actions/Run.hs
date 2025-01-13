@@ -2,7 +2,7 @@ module Mewlix.Packager.Actions.Run
 ( runProject
 ) where
 
-import Mewlix.Packager.Type (Packager, liftIO)
+import Mewlix.Packager.Type (Packager, liftIO, throwError)
 import Mewlix.Packager.Environment (buildFolder)
 import Mewlix.Packager.Config (ProjectConfig(..), ProjectMode(..), ProjectFlag(..))
 import Mewlix.Packager.Actions.Build (buildProject)
@@ -24,3 +24,4 @@ runProject config = do
         Console -> runServer config
         Graphic -> runServer config
         Node    -> runNode config
+        Blank   -> throwError "Can't run project: Project mode is set to 'blank'!"
