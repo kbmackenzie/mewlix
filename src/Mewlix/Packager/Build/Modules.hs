@@ -11,10 +11,8 @@ import Mewlix.Packager.Type
     , liftEither
     , throwError
     )
-import Mewlix.Compiler
-    ( TranspilerContext(..)
-    , compileJS
-    )
+import Mewlix.Parser (parseMewlix)
+import Mewlix.Compiler (TranspilerContext(..), compileJS)
 import Mewlix.Packager.Config (ProjectConfig(..), ProjectFlag(..))
 import Mewlix.Packager.Library (getLibrary)
 import Mewlix.Packager.Log (logMessage)
@@ -66,7 +64,9 @@ compileModules config = do
             let syntaxError :: String -> String
                 syntaxError err = concat [ "Syntax error in file ", show source, ":\n", err ]
             contents <- readFileText source
-            either (throwError . syntaxError) return (compileJS context source contents)
+            case compileJS context <$> parseMewlix source contents of 
+                (Left  err ) -> (throwError . syntaxError) err
+                (Right text) -> return text
 
     (liftIO >=> liftEither) . withFile target WriteMode $ \handle -> packager $ do
         let write :: Text -> Packager ()

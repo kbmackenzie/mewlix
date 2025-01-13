@@ -1,7 +1,7 @@
 module Mewlix.Compiler
 ( TranspilerContext(..)
 , Transpiler
-, CompilerFunc
+, transpile
 , compileJS
 , emptyContext
 ) where
@@ -9,7 +9,7 @@ module Mewlix.Compiler
 import Mewlix.Compiler.Run
     ( TranspilerContext(..)
     , Transpiler
-    , CompilerFunc
+    , transpile
     , compileJS
     )
 import Mewlix.Compiler.Transpiler (emptyContext)
