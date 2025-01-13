@@ -59,6 +59,10 @@ basicExpressions =
     , ("a['b']()()"         , call (call (lookup (variable "a") (str "b")))                             )
     , ("a()['b']['c']()()"  , call (call (lookup (lookup (call (variable "a")) (str "b")) (str "c")))   )
     , ("a['b']()['c']()()"  , call (call (lookup (call (lookup (variable "a") (str "b"))) (str "c")))   )
+    , ("a.b()['c']"         , lookup (call (dot (variable "a") (prop "b"))) (str "c")                   )
+    , ("a['b'].c()"         , call (dot (lookup (variable "a") (str "b")) (prop "c"))                   )
+    , ("a.b.c.d"            , dot (dot (dot (variable "a") (prop "b")) (prop "c")) (prop "d")           )
+    , ("a().b.c.d"          , dot (dot (dot (call (variable "a")) (prop "b")) (prop "c")) (prop "d")    )
     ]
     where number   = PrimitiveExpr . MewlixInt
           add      = BinaryOperation Addition
@@ -76,7 +80,9 @@ basicExpressions =
           equal    = BinaryOperation Equal
           call     = flip FunctionCall mempty
           lookup   = LookupExpression
+          dot      = DotExpression
           str      = PrimitiveExpr . MewlixString
+          prop     = ObjectProperty . Key
 
 test :: Spec
 test = expressions basicExpressions
