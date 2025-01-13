@@ -8,10 +8,14 @@ import Mewlix.Abstract.AST (Primitive(..))
 import Mewlix.Parser (runParser, primitive)
 import Test.Hspec (Spec, it, shouldBe)
 import Data.Text (Text)
+import Mewlix.Test.Utils (generateDescription)
 
 multiline :: (Text, Text) -> Spec
-multiline (input, expectation) = let parse = runParser primitive "multiline string" in
-    it "should parse multiline string" $
+multiline (input, expectation) = do
+    let description = generateDescription "should parse multiline string " input
+    let parse = runParser primitive "multiline string"
+
+    it description $
         parse input `shouldBe` Right (MewlixString expectation)
 
 testInput :: [(Text, Text)]

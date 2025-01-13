@@ -12,6 +12,7 @@ import Mewlix.Abstract.AST
     )
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Parser (runParser, expression)
+import Mewlix.Test.Utils (generateDescription)
 import Data.Text (Text)
 import Test.Hspec
     ( Spec
@@ -19,17 +20,13 @@ import Test.Hspec
     , describe
     , shouldBe
     )
-import qualified Data.Text as Text
 import Prelude hiding (negate, concat, and, or)
 
 expressions :: [(Text, Expression)] -> Spec
 expressions = describe "parse mewlix expressions" . do
     let parseExpr :: (Text, Expression) -> Spec
         parseExpr (input, expected) = do
-            let preview = if Text.length input >= 50
-                then Text.take 50 input `Text.append` "..."
-                else input
-            let description = "should parse the expression " ++ show preview
+            let description = generateDescription "should parse the expression " input
             let parse = runParser expression "expression"
 
             it description $
@@ -41,6 +38,7 @@ basicExpressions =
     [ ("1 + 2"              , add (number 1) (number 2)                                    )
     , ("-1 + 2"             , add (negate (number 1)) (number 2)                           )
     , ("1 + 2 * 3"          , add (number 1) (multiply (number 2) (number 3))              )
+
     , ("(1 + 2) * 3"        , multiply (add (number 1) (number 2)) (number 3)              )
     , ("a .. b .. c"        , concat (concat (variable "a") (variable "b")) (variable "c") )
     , ("a..b..c"            , concat (concat (variable "a") (variable "b")) (variable "c") )
