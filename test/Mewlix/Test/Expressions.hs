@@ -85,6 +85,8 @@ expressions =
     , ("[[a], [b, c]]"      , shelf [shelf [variable "a"], shelf [variable "b", variable "c"]]          )
     , ("[[a, [b, [c]]]]"    , shelf [shelf [variable "a", shelf [variable "b", shelf [variable "c"]]]]  )
     , ("[\n[\na\n]\n]"      , shelf [shelf [variable "a"]]                                              )
+    , ("paw at [a, b]"      , peek (shelf [variable "a", variable "b"])                                 )
+    , ("knock over [a, b]"  , pop (shelf [variable "a", variable "b"])                                  )
     ]
     where number   = PrimitiveExpr . MewlixInt
           add      = BinaryOperation Addition
@@ -94,6 +96,7 @@ expressions =
           concat   = BinaryOperation StringConcat
           push     = BinaryOperation ShelfPush
           peek     = UnaryOperation ShelfPeek
+          pop      = UnaryOperation ShelfPop
           and      = BooleanAnd
           or       = BooleanOr
           ternary  = TernaryOperation
