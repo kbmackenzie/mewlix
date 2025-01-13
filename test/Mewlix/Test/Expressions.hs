@@ -9,6 +9,7 @@ import Mewlix.Abstract.AST
     , Primitive(..)
     , BinaryOp(..)
     , UnaryOp(..)
+    , Params(..)
     )
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Parser (runParser, expression)
@@ -16,6 +17,7 @@ import Mewlix.Test.Utils (generateDescription)
 import Data.Text (Text)
 import Test.Hspec (Spec, it, shouldBe)
 import Prelude hiding (lookup, negate, concat, and, or)
+import qualified Data.List as List
 
 testExpressions :: [(Text, Expression)] -> Spec
 testExpressions = do
@@ -58,6 +60,10 @@ expressions =
     , ("a['b'].c()"         , call (dot (lookup (variable "a") (str "b")) (prop "c"))                   )
     , ("a.b.c.d"            , dot (dot (dot (variable "a") (prop "b")) (prop "c")) (prop "d")           )
     , ("a().b.c.d"          , dot (dot (dot (call (variable "a")) (prop "b")) (prop "c")) (prop "d")    )
+    , ("=^oxo^= (x) -> x"   , lambda (param "x") (variable "x")                                         )
+    , ("🐈 (x) -> x"        , lambda (param "x") (variable "x")                                         )
+    , ("(🐈 (x) -> x)()"    , call (lambda (param "x") (variable "x"))                                  )
+    , ("🐈 () -> '🐈'"      , lambda mempty (str "🐈")                                                  )
     ]
     where number   = PrimitiveExpr . MewlixInt
           add      = BinaryOperation Addition
@@ -78,6 +84,8 @@ expressions =
           dot      = DotExpression
           str      = PrimitiveExpr . MewlixString
           prop     = ObjectProperty . Key
+          lambda   = LambdaExpression
+          param    = Params . List.singleton . Key
 
 test :: Spec
 test = testExpressions expressions
