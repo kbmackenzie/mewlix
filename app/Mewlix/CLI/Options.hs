@@ -77,7 +77,7 @@ data MewlixCommand = MewlixCommand
     deriving (Show)
 
 projectMode :: Parser ProjectMode
-projectMode = console <|> graphic <|> library
+projectMode = console <|> graphic <|> node <|> blank
     where
         console :: Parser ProjectMode
         console = flag' Console
@@ -89,10 +89,15 @@ projectMode = console <|> graphic <|> library
              ( long "graphic"
             <> help "Use graphic template" )
 
-        library :: Parser ProjectMode
-        library = flag' Node
+        node :: Parser ProjectMode
+        node = flag' Node
              ( long "node"
             <> help "Use Node.js template" )
+
+        blank :: Parser ProjectMode
+        blank = flag' Blank
+             ( long "blank"
+            <> help "Use blank template" )
 
 quiet :: Parser Bool
 quiet = switch
