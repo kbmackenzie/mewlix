@@ -12,8 +12,8 @@
     - Improve log messages in general.
 - Standard library changes:
     - Base library:
-        - Changed [`std.repeat`](kbmackenzie.xyz/projects/mewlix/std#std-repeat) function: it now returns a shelf with the collected values.
-        - Added [`std.sequence`](kbmackenzie.xyz/projects/mewlix/std#std-sequence) function.
+        - Changed `std.repeat` function: it now returns a shelf with the collected values.
+        - Added `std.sequence` function.
         - Fixed `std.all` function.
         - Fixed how *"nothing"* values are handled by `type of`.
         - Fixed serialization for boxes.
