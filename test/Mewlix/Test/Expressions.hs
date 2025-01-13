@@ -14,16 +14,11 @@ import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Parser (runParser, expression)
 import Mewlix.Test.Utils (generateDescription)
 import Data.Text (Text)
-import Test.Hspec
-    ( Spec
-    , it
-    , describe
-    , shouldBe
-    )
+import Test.Hspec (Spec, it, shouldBe)
 import Prelude hiding (lookup, negate, concat, and, or)
 
-expressions :: [(Text, Expression)] -> Spec
-expressions = describe "parse mewlix expressions" . do
+testExpressions :: [(Text, Expression)] -> Spec
+testExpressions = do
     let parseExpr :: (Text, Expression) -> Spec
         parseExpr (input, expected) = do
             let description = generateDescription "should parse the expression " input
@@ -33,8 +28,8 @@ expressions = describe "parse mewlix expressions" . do
                 parse input `shouldBe` Right expected
     mapM_ parseExpr
 
-basicExpressions :: [(Text, Expression)]
-basicExpressions = 
+expressions :: [(Text, Expression)]
+expressions = 
     [ ("1 + 2"              , add (number 1) (number 2)                                                 )
     , ("-1 + 2"             , add (negate (number 1)) (number 2)                                        )
     , ("1 + 2 * 3"          , add (number 1) (multiply (number 2) (number 3))                           )
@@ -85,4 +80,4 @@ basicExpressions =
           prop     = ObjectProperty . Key
 
 test :: Spec
-test = expressions basicExpressions
+test = testExpressions expressions
