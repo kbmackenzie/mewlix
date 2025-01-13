@@ -12,5 +12,5 @@ main = do
     hspec $ do
         describe "basic yarnballs"   (Scripts.test yarnballs)
         describe "expressions"       Expressions.test
-        describe "multiline strigns" Strings.test
         describe "assignments"       Assignment.test
+        describe "strings"           Strings.test
