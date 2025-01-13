@@ -3,6 +3,7 @@ module Mewlix.Test.Scripts
 , getYarnBalls
 ) where
 
+import Mewlix.Parser (parseMewlix)
 import Mewlix.Compiler (compileJS, emptyContext)
 import Data.Text (Text)
 import Test.Hspec
@@ -29,7 +30,7 @@ scripts = do
             let description = "should successfully compile script " ++ show path
             before (readFile path) $
                 it description $ \contents -> do
-                    let compile = compileJS emptyContext path
+                    let compile = fmap (compileJS emptyContext) . parseMewlix path
                     compile contents `shouldSatisfy` isRight
     describe "parse & compile scripts" . do
         mapM_ script
