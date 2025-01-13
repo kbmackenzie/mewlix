@@ -12,6 +12,7 @@ import Mewlix.Packager.Type (Packager)
 import Mewlix.Packager.Build.Modules (compileModules)
 import Mewlix.Packager.Build.Templates (generateTemplate)
 import Mewlix.Packager.Build.Assets (copyAssets)
+import Mewlix.Packager.Build.Clean (clean)
 import Mewlix.Packager.Log (buildLog)
 import Mewlix.Packager.Environment
     ( mewlixFolder
@@ -82,10 +83,10 @@ writeTemplate :: ProjectConfig -> Packager ()
 writeTemplate config = do
     lastBuild <- fmap buildTime <$> getBuildData
     configMod <- getFileModTime projectFile
-    let shouldGenerate = maybe True (configMod >) lastBuild
+    let shouldRegenerate = maybe True (configMod >) lastBuild
 
-    when shouldGenerate $
-        generateTemplate config
+    when shouldRegenerate $
+        clean >> generateTemplate config
 
     timestamp <- getPosixTimeInSeconds
     let newBuild = BuildMetaData { buildTime = timestamp }
