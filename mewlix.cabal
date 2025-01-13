@@ -172,6 +172,10 @@ test-suite mewlix-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Mewlix.Test.Expressions
+      Mewlix.Test.Scripts
+      Mewlix.Test.Strings
+      Mewlix.Test.Utils
       Paths_mewlix
   autogen-modules:
       Paths_mewlix
