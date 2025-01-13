@@ -35,18 +35,24 @@ expressions = describe "parse mewlix expressions" . do
 
 basicExpressions :: [(Text, Expression)]
 basicExpressions = 
-    [ ("1 + 2"              , add (number 1) (number 2)                                    )
-    , ("-1 + 2"             , add (negate (number 1)) (number 2)                           )
-    , ("1 + 2 * 3"          , add (number 1) (multiply (number 2) (number 3))              )
-
-    , ("(1 + 2) * 3"        , multiply (add (number 1) (number 2)) (number 3)              )
-    , ("a .. b .. c"        , concat (concat (variable "a") (variable "b")) (variable "c") )
-    , ("a..b..c"            , concat (concat (variable "a") (variable "b")) (variable "c") )
-    , ("a push b"           , push (variable "a") (variable "b")                           )
-    , ("a push b push c"    , push (push (variable "a") (variable "b")) (variable "c")     )
-    , ("paw at a push b"    , push (peek (variable "a")) (variable "b")                    )
-    , ("a and b or c"       , or (and (variable "a") (variable "b")) (variable "c")        )
-    , ("a or b and c"       , or (variable "a") (and (variable "b") (variable "c"))        )
+    [ ("1 + 2"              , add (number 1) (number 2)                                                 )
+    , ("-1 + 2"             , add (negate (number 1)) (number 2)                                        )
+    , ("1 + 2 * 3"          , add (number 1) (multiply (number 2) (number 3))                           )
+    , ("(1 + 2) * 3"        , multiply (add (number 1) (number 2)) (number 3)                           )
+    , ("a .. b .. c"        , concat (concat (variable "a") (variable "b")) (variable "c")              )
+    , ("a..b..c"            , concat (concat (variable "a") (variable "b")) (variable "c")              )
+    , ("a push b"           , push (variable "a") (variable "b")                                        )
+    , ("a push b push c"    , push (push (variable "a") (variable "b")) (variable "c")                  )
+    , ("paw at a push b"    , push (peek (variable "a")) (variable "b")                                 )
+    , ("a and b or c"       , or (and (variable "a") (variable "b")) (variable "c")                     )
+    , ("a or b and c"       , or (variable "a") (and (variable "b") (variable "c"))                     )
+    , ("a if b else c"      , ternary (variable "b") (variable "a") (variable "c")                      )
+    , ("true or false"      , or true false                                                             )
+    , ("a if b or c else d" , ternary (or (variable "b") (variable "c")) (variable "a") (variable "d")  )
+    , ("a == true"          , equal (variable "a") true                                                 )
+    , ("true == a"          , equal true (variable "a")                                                 )
+    , ("a == b == c"        , equal (equal (variable "a") (variable "b")) (variable "c")                )
+    , ("a .. b == c"        , equal (concat (variable "a") (variable "b")) (variable "c")               )
     ]
     where number   = PrimitiveExpr . MewlixInt
           add      = BinaryOperation Addition
@@ -58,6 +64,10 @@ basicExpressions =
           peek     = UnaryOperation ShelfPeek
           and      = BooleanAnd
           or       = BooleanOr
+          ternary  = TernaryOperation
+          true     = PrimitiveExpr . MewlixBool $ True
+          false    = PrimitiveExpr . MewlixBool $ False
+          equal    = BinaryOperation Equal
 
 test :: Spec
 test = expressions basicExpressions
