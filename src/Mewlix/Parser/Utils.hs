@@ -81,6 +81,7 @@ linebreak :: Parser ()
 linebreak = label "linebreak" . multiline . Mega.choice $
     [ void (MChar.char ';')
     , void MChar.newline
+    , Mega.eof
     , fail "expected linebreak or semicolon!" ]
 
 {- Lists: -}
