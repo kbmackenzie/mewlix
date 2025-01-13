@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Mewlix.Parser.Primitive
-( prim
+( primitive
 , home
 , outside
 , parseKey
@@ -28,8 +28,8 @@ import Control.Monad (when, unless)
 
 {- Prims: -}
 ----------------------------------------------------------------
-prim :: Parser Primitive
-prim = Mega.choice
+primitive :: Parser Primitive
+primitive = Mega.choice
     [ MewlixString  <$> parseStringM
     , MewlixString  <$> parseString
     , MewlixFloat   <$> parseFloat  <?> "number"

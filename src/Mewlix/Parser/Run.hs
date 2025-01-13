@@ -3,30 +3,23 @@ module Mewlix.Parser.Run
 , ParseError
 , FileContent
 , runParser
-, parseRoot
-, parseExpr
+, root
+, expression
+, primitive
 , parseMewlix
 ) where
 
 import Mewlix.Parser.Type (Parser, parse, FileContent, ParseError)
-import Mewlix.Abstract.AST
-    ( Expression
-    , YarnBall
-    )
+import Mewlix.Abstract.AST (YarnBall)
 import Mewlix.Parser.Statement (root)
 import Mewlix.Parser.Expression (expression)
+import Mewlix.Parser.Primitive (primitive)
 
 type ParserFunc a = FilePath -> FileContent -> Either ParseError a
 
 runParser :: Parser a -> ParserFunc a
 runParser parser path contents = parse path contents parser
 
-parseRoot :: ParserFunc YarnBall
-parseRoot = runParser root
-
-parseExpr :: ParserFunc Expression
-parseExpr = runParser expression
-
 -- Alias:
 parseMewlix :: ParserFunc YarnBall
-parseMewlix = parseRoot
+parseMewlix = runParser root

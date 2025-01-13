@@ -29,7 +29,7 @@ import Mewlix.Parser.Primitive
     ( parseKey
     , home
     , outside
-    , prim
+    , primitive
     , parseParams
     )
 import Mewlix.Keywords.Shadow (shadow)
@@ -57,7 +57,7 @@ termR = Mega.choice
     , shelf     <?> "shelf"
     , do_       <?> "do"
     , parseYarnString expression
-    , PrimitiveExpr <$> prim
+    , PrimitiveExpr <$> primitive
     , Identifier    <$> parseKey  ]
 
 lvalue :: Parser Expression
