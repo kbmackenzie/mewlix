@@ -1,6 +1,7 @@
 module Main (main) where
 
 import Mewlix.CLI.Run (run)
+import Main.Utf8 (withUtf8)
 
 main :: IO ()
-main = run
+main = withUtf8 run
