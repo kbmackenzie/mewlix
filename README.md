@@ -73,9 +73,12 @@ All the source code for Mewlix's **base library and templates** can be found [he
 
 **Example projects** can be found [here][4].
 
-### Vim Plugin
+Additionally:
 
-A plugin that provides syntax highlighting for `.mews` files can be found [here][8].
+- A **Vim plugin** that provides Mewlix syntax highlighting can be found [here][8].
+- A [**Highlight.js**][10] syntax highlighter definition for Mewlix can be found [here][9].
+
+### Highlight.js Syntax Definition
 
 ## Special Thanks
 
@@ -89,3 +92,5 @@ A big special thanks to my friend Jade for helping me stay sane through this pro
 [6]: https://itch.io/
 [7]: https://en.wikipedia.org/wiki/Persistent_data_structure
 [8]: https://github.com/kbmackenzie/mewlix.vim
+[9]: https://github.com/kbmackenzie/mewlix-highlight
+[10]: https://github.com/highlightjs/highlight.js
