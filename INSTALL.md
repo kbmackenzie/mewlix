@@ -47,8 +47,13 @@ stack install
 ```
 4. Add `~/.local/bin` to your PATH if it hasn't already been added.
 
+**Note:** You might also need to install [bzip2][6] if you don't already have it installed.
+If you're building on a Debian-based distro, be sure to install the [libbz2-dev][7] package.
+
 [1]: https://github.com/kbmackenzie/mewlix
 [2]: https://docs.haskellstack.org/en/stable/
 [3]: https://github.com/kbmackenzie/mewlix/releases/latest
 [4]: https://stackoverflow.com/a/44272417/19764270
 [5]: https://stackoverflow.com/a/69239861/19764270
+[6]: https://archlinux.org/packages/core/x86_64/bzip2/
+[7]: https://packages.debian.org/buster/libbz2-dev
