@@ -21,4 +21,4 @@ jobs:
           enable-stack: true
 
       - name: Build project, run tests
-        run: stack test --fast --system-ghc
+        run: stack test --system-ghc
