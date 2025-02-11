@@ -23,5 +23,8 @@ jobs:
       - name: Install bzip2
         run: sudo apt-get install -y libbz2-dev
 
-      - name: Build project, run tests
+      - name: Build project
+        run: stack build --fast --system-ghc
+
+      - name: Run tests
         run: stack test --fast --system-ghc
