@@ -20,11 +20,5 @@ jobs:
           ghc-version: '9.4.8'
           enable-stack: true
 
-      - name: Install Dependencies
-        run: stack setup
-
-      - name: Build project
-        run: stack build --fast
-
-      - name: Run tests
-        run: stack test --fast
+      - name: Build project, run tests
+        run: stack test --fast --system-ghc
