@@ -23,6 +23,9 @@ once again, single quotes are okay too!
 :3'Your number is... [std.random_int(0, 10)]!'
 :3'[do std.repeat <- 100, 🐈 () -> meow "... miaou"]'
 
+:3'Yarn strings can contain [:3'Other yarn strings!']'
+:3'Square brackets can be escaped \[like this\].'
+
 -- Escape sequences:
 "In double quotes, you need to escape... double quotes. \"Like this\"!"
 'Similarly, in single quotes, escape single quotes, \'like this\'!'
