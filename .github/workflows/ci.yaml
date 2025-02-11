@@ -20,5 +20,8 @@ jobs:
           ghc-version: '9.6.6'
           enable-stack: true
 
+      - name: Install bzip2
+        run: sudo apt-get install -y libbz2-dev
+
       - name: Build project, run tests
-        run: stack test --system-ghc
+        run: stack test --fast --system-ghc
