@@ -80,7 +80,7 @@ expression = Mega.choice
 (<&) :: a -> Parser b -> Parser a
 (<&) a b = a <$ hidden b
 
-{- Data -}
+{- Literals -}
 ------------------------------------------------------------------------------------
 shelf :: Parser Expression
 shelf = ShelfExpression <$> bracketList expression
@@ -116,7 +116,7 @@ do_ = do
     args <- maybe mempty Arguments <$> Mega.optional arrowList
     return $ FunctionCall key args
 
-{- Composing + Piping -}
+{- Composition + Piping -}
 ------------------------------------------------------------------------------------
 pipe :: Parser (Expression -> Expression -> Expression)
 pipe = do

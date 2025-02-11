@@ -79,14 +79,16 @@ home :: Parser Primitive
 home = do
     keyword Keywords.home
     inClass <- asks (nested InClass)
-    unless inClass
-        (fail "Cannot use clowder keyword outside clowder!")
+    unless inClass $ do
+        let word = (show . unwrapKeyword) Keywords.home
+        fail . concat $ ["Cannot use keyword ", word, " outside clowder!"]
     return MewlixHome
 
 outside :: Parser Primitive
 outside = do
     keyword Keywords.outside
     inClass <- asks (nested InClass)
-    unless inClass
-        (fail "Cannot use clowder keyword outside clowder!")
+    unless inClass $ do
+        let word = (show . unwrapKeyword) Keywords.outside
+        fail . concat $ ["Cannot use keyword ", word, " outside clowder!"]
     return MewlixOutside

@@ -205,29 +205,29 @@ ifElse = do
 
 {- Functions -}
 ------------------------------------------------------------------
-functionLike :: Parser () -> Parser key -> (Nesting -> Nesting) -> Parser (key, Params, Block)
-functionLike opener parseKey_ nesting = do
+parseFunctionLike :: Parser () -> Parser key -> (Nesting -> Nesting) -> Parser (key, Params, Block)
+parseFunctionLike opener bind nesting = do
     opener
     (key, params) <- open $ do
-        key    <- parseKey_
+        key    <- bind
         params <- parseParams
         return (key, params)
     body <- local nesting block
     return (key, params, body)
 
-function :: (Nesting -> Nesting) -> Parser MewlixFunction
-function nesting = do
+parseFunction :: (Nesting -> Nesting) -> Parser MewlixFunction
+parseFunction nesting = do
     let opener = Mega.try $ do
             keyword Keywords.function
             Mega.notFollowedBy (symbol '[')
-    (key, params, body) <- functionLike opener parseKey nesting
+    (key, params, body) <- parseFunctionLike opener parseKey nesting
     return $ MewlixFunction
         { funcName   = key
         , funcBody   = body
         , funcParams = params }
 
 functionDef :: Parser Statement
-functionDef = FunctionDef <$> function nesting
+functionDef = FunctionDef <$> parseFunction nesting
     where nesting = defineNesting [InFunction]
 
 functionAssign :: Parser Statement
@@ -235,7 +235,7 @@ functionAssign = do
     let key     = brackets lvalue
     let opener  = keyword Keywords.function
     let nesting = defineNesting [InFunction]
-    (expr, params, body) <- functionLike opener key nesting
+    (expr, params, body) <- parseFunctionLike opener key nesting
     return . FunctionAssignment expr $ MewlixFunction
         { funcName   = mempty
         , funcBody   = body
@@ -264,6 +264,9 @@ earlyReturn = do
 type Constructor = MewlixFunction
 type Methods     = [MewlixFunction]
 
+isWake :: Key -> Bool
+isWake = (== unwrapKeyword Keywords.constructor) . getKey
+
 classDef :: Parser Statement
 classDef = do
     (name, parent) <- open $ do
@@ -275,7 +278,7 @@ classDef = do
         return (name, parent)
     (constructor, methods) <- do
         let methodNesting = defineNesting [InFunction, InClass]
-        methods <- Mega.many . multiline $ function methodNesting
+        methods <- Mega.many . multiline $ parseFunction methodNesting
         findConstructor methods
     close
     (return . ClassDef) MewlixClass
@@ -286,9 +289,7 @@ classDef = do
 
 findConstructor :: Methods -> Parser (Maybe Constructor, Methods)
 findConstructor methods = do
-    let wake = Key (unwrapKeyword Keywords.constructor)
-    let predicate = (== wake) . funcName
-
+    let predicate = isWake . funcName
     case List.partition predicate methods of
         ([] , xs) -> return (Nothing, xs)
         ([x], xs) -> return (Just x, xs)
@@ -300,8 +301,8 @@ superCall = do
         keyword Keywords.superCall
         fromMaybe mempty <$> Mega.optional arguments
     inClass <- asks (nested InClass)
-    unless inClass
-        (fail "Cannot call parent constructor outside clowder!")
+    unless inClass $
+        fail "Cannot call parent constructor outside clowder!"
     SuperCall args <$ linebreak
 
 {- Miscellaneous -}
