@@ -28,8 +28,9 @@ import Mewlix.Parser.Nesting
 import Data.Text (Text)
 import Data.Void (Void)
 import Data.Bifunctor (first)
+import Control.Monad (MonadPlus)
 import Control.Applicative (Alternative)
-import Control.Monad.Reader (MonadReader, Reader, MonadPlus, runReader, ask, asks, local)
+import Control.Monad.Reader (MonadReader, Reader, runReader, ask, asks, local)
 import Text.Megaparsec (ParsecT, MonadParsec, runParserT, errorBundlePretty)
 
 newtype Parser a = Parser { runParser :: ParsecT Void Text (Reader Nesting) a }
