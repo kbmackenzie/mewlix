@@ -17,7 +17,7 @@ jobs:
       - name: Setup GHC + Stack
         uses: haskell-actions/setup@v2
         with:
-          ghc-version: '9.4.8'
+          ghc-version: '9.6.6'
           enable-stack: true
 
       - name: Build project, run tests
