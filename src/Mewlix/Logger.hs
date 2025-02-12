@@ -65,7 +65,7 @@ catFace handle = do
     encoding <- hGetEncoding handle
     -- A little hack-ish. The Show typeclass implementation for TextEncoding just
     -- returns the name of the encoding, so this is why I'm doing this.
-    if show encoding == show utf8
+    if fmap show encoding == Just (show utf8)
         then putChar '🐱'
         else putStr "=^.x.^="
 
