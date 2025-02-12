@@ -56,7 +56,7 @@ withQuotes quotes parse = do
 stringChar :: (Char -> Bool) -> Parser Char
 stringChar allowed = Mega.choice
     [ MChar.char '\\' >> fmap escapeChar Mega.anySingle
-    , MChar.newline >> fail "Linebreak in string!"
+    , MChar.eol >> fail "Linebreak in string!"
     , Mega.satisfy allowed                              ]
 
 stringQuotes :: [QuoteType]
@@ -103,7 +103,7 @@ stringQuotesM =
 parseStringM :: Parser Text
 parseStringM = label "multiline string" . withQuotes stringQuotesM $
     \characterPredicate -> do
-        void (Mega.optional MChar.newline)
+        void (Mega.optional MChar.eol)
         fmap Text.pack . Mega.many . stringCharM $ characterPredicate
 
 {- String interpolation ('yarn string'): -}
@@ -117,7 +117,7 @@ interpolate = foldl' (BinaryOperation StringConcat) (stringToExpr mempty)
 stringCharY :: (Char -> Bool) -> Parser Char
 stringCharY allowed = Mega.choice
     [ MChar.char '\\' >> fmap escapeChar Mega.anySingle
-    , MChar.newline >> fail "Linebreak in string!"
+    , MChar.eol >> fail "Linebreak in string!"
     , Mega.satisfy allowed                              ]
 
 stringQuotesY :: [QuoteType]

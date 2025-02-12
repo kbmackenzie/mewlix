@@ -43,7 +43,7 @@ blockComment = open >> Mega.skipManyTill Mega.anySingle close
 {- Newlines: -}
 ----------------------------------------------------------------
 escapeNewline :: Parser ()
-escapeNewline = Mega.try (MChar.char '\\' >> void MChar.newline)
+escapeNewline = Mega.try (MChar.char '\\' >> void MChar.eol)
 
 {- Single-line spaces: -}
 ----------------------------------------------------------------
@@ -80,7 +80,7 @@ multiline = Lexer.lexeme skipLines
 linebreak :: Parser ()
 linebreak = label "linebreak" . multiline . Mega.choice $
     [ void (MChar.char ';')
-    , void MChar.newline
+    , void MChar.eol
     , Mega.eof
     , fail "expected linebreak or semicolon!" ]
 
