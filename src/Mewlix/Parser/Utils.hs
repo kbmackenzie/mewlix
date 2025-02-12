@@ -47,32 +47,29 @@ escapeNewline = Mega.try (MChar.char '\\' >> void MChar.eol)
 
 {- Single-line spaces: -}
 ----------------------------------------------------------------
-isNonLineSpace :: Char -> Bool
-isNonLineSpace c = isSpace c && c /= '\n'
-
-spaceChar :: Parser ()
-spaceChar = (void . Mega.choice)
-    [ void (Mega.satisfy isNonLineSpace)
+space :: Parser ()
+space = (void . Mega.choice)
+    [ MChar.hspace1
     , escapeNewline ]
 
 whitespace :: Parser ()
-whitespace = Lexer.space (Mega.skipSome spaceChar) lineComment blockComment
+whitespace = Lexer.space (Mega.skipSome space) lineComment blockComment
 
 lexeme :: Parser a -> Parser a
 lexeme = Lexer.lexeme whitespace
 
 {- Multi-line spaces: -}
 ----------------------------------------------------------------
-isLineSpace :: Char -> Bool
-isLineSpace c = isSpace c || c == ';'
+isMultiLineSpace :: Char -> Bool
+isMultiLineSpace c = isSpace c || c == ';'
 
-parseLineSpace :: Parser ()
-parseLineSpace = (void . Mega.choice)
-    [ void (Mega.satisfy isLineSpace)
+parseMultiLineSpace :: Parser ()
+parseMultiLineSpace = (void . Mega.choice)
+    [ void (Mega.satisfy isMultiLineSpace)
     , escapeNewline ]
 
 skipLines :: Parser ()
-skipLines = Lexer.space (Mega.skipSome parseLineSpace) lineComment blockComment
+skipLines = Lexer.space (Mega.skipSome parseMultiLineSpace) lineComment blockComment
 
 multiline :: Parser a -> Parser a
 multiline = Lexer.lexeme skipLines
