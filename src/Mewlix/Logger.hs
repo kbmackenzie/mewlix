@@ -8,7 +8,7 @@ module Mewlix.Logger
 , catFace
 ) where
 
-import System.IO (Handle, stdout, stderr, hPutChar, hPutStrLn, hGetEncoding, utf8)
+import System.IO (Handle, stdout, stderr, hPutChar, hPutStr, hPutStrLn, hGetEncoding, utf8)
 import System.IO.Utf8 (withTerminalHandle)
 import System.Console.ANSI
     ( SGR(..)
@@ -66,8 +66,8 @@ catFace handle = do
     -- A little hack-ish. The Show typeclass implementation for TextEncoding just
     -- returns the name of the encoding, so this is why I'm doing this.
     if fmap show encoding == Just (show utf8)
-        then putChar '🐱'
-        else putStr "=^.x.^="
+        then hPutChar handle '🐱'
+        else hPutStr handle "=^.x.^="
 
 logger :: LogLevel -> String -> IO ()
 logger level message = do
