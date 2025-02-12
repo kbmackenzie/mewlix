@@ -16,17 +16,21 @@ import qualified Data.Text as Text
 
 initLog :: (MonadIO m) => ProjectConfig -> m ()
 initLog config = liftIO $ do
-    let name = Text.unpack (projectName config)
-    putStr "Initializing project "
-    rainbow stdout name
-    putStrLn "! 🐱"
+    let quiet = Set.member Quiet (projectFlags config)
+    unless quiet $ do
+        let name = Text.unpack (projectName config)
+        putStr "Initializing project "
+        rainbow stdout name
+        putStrLn "! 🐱"
 
 buildLog :: (MonadIO m) => ProjectConfig -> m ()
 buildLog config = liftIO $ do
-    let name = Text.unpack (projectName config)
-    putStr "Building project "
-    rainbow stdout name
-    putStrLn "! 🐱"
+    let quiet = Set.member Quiet (projectFlags config)
+    unless quiet $ do
+        let name = Text.unpack (projectName config)
+        putStr "Building project "
+        rainbow stdout name
+        putStrLn "! 🐱"
 
 logMessage :: (MonadIO m) => ProjectConfig -> String -> m ()
 logMessage config message = do
