@@ -125,6 +125,7 @@ library
     , wai >=3.2.4 && <3.3
     , wai-middleware-static >=0.9.2 && <1.0
     , warp >=3.3.31 && <3.4
+    , with-utf8 >=1.0.2.4 && <1.1
     , yaml >=0.11.11.2 && <0.12
     , zip >=2.0.1 && <2.2
   default-language: Haskell2010
@@ -213,6 +214,7 @@ test-suite mewlix-test
     , wai >=3.2.4 && <3.3
     , wai-middleware-static >=0.9.2 && <1.0
     , warp >=3.3.31 && <3.4
+    , with-utf8 >=1.0.2.4 && <1.1
     , yaml >=0.11.11.2 && <0.12
     , zip >=2.0.1 && <2.2
   default-language: Haskell2010
