@@ -9,7 +9,7 @@ module Mewlix.Logger
 ) where
 
 import System.IO (Handle, stdout, stderr, hPutChar, hPutStrLn, hGetEncoding, utf8)
-import Control.Monad.IO.Class (MonadIO, liftIO)
+import System.IO.Utf8 (withTerminalHandle)
 import System.Console.ANSI
     ( SGR(..)
     , Color(..)
@@ -48,7 +48,7 @@ cycleColor color = case color of
 
 -- Write rainbow text to a handle.
 rainbow :: Handle -> String -> IO ()
-rainbow handle str = liftIO $ do
+rainbow handle str = do
     let writeChar :: Color -> Char -> IO Color
         writeChar color char = do
             hSetSGR handle [SetColor Foreground Vivid color, SetConsoleIntensity BoldIntensity]
@@ -69,17 +69,16 @@ catFace handle = do
         then putChar '🐱'
         else putStr "=^.x.^="
 
-logger :: (MonadIO m) => LogLevel -> String -> m ()
-logger level message = liftIO $ do
+logger :: LogLevel -> String -> IO ()
+logger level message = do
     let handle = getHandle level
     let styles = getStyles level
     let put    = hPutStrLn handle
 
     supported <- hSupportsANSIColor handle
-    if supported
+    withTerminalHandle handle $ if supported
         then do
             hSetSGR handle styles
             put message
             hSetSGR handle [Reset]
-        else do
-            put message
+        else put message
