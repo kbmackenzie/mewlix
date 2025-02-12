@@ -5,9 +5,10 @@ module Mewlix.Logger
 ( LogLevel(..)
 , logger
 , rainbow
+, catFace
 ) where
 
-import System.IO (Handle, stdout, stderr, hPutChar, hPutStrLn)
+import System.IO (Handle, stdout, stderr, hPutChar, hPutStrLn, hGetEncoding, utf8)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import System.Console.ANSI
     ( SGR(..)
@@ -45,6 +46,7 @@ cycleColor color = case color of
     Magenta -> Red
     _       -> Red
 
+-- Write rainbow text to a handle.
 rainbow :: Handle -> String -> IO ()
 rainbow handle str = liftIO $ do
     let writeChar :: Color -> Char -> IO Color
@@ -55,6 +57,17 @@ rainbow handle str = liftIO $ do
 
     foldM_ writeChar Red str
     hSetSGR handle [Reset]
+
+-- Write a cat face to a handle. 🐱
+-- If UTF-8 encoding is supported, write cat emoji. If not, write '=^.x.^='.
+catFace :: Handle -> IO ()
+catFace handle = do
+    encoding <- hGetEncoding handle
+    -- A little hack-ish. The Show typeclass implementation for TextEncoding just
+    -- returns the name of the encoding, so this is why I'm doing this.
+    if show encoding == show utf8
+        then putChar '🐱'
+        else putStr "=^.x.^="
 
 logger :: (MonadIO m) => LogLevel -> String -> m ()
 logger level message = liftIO $ do
