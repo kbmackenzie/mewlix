@@ -446,7 +446,7 @@ instance ToJavaScript Statement where
         enumBox <- transpileJS level enum
         indentLine level . mconcat $ [ "const ", key, " = ", enumBox, ";" ]
 
-    -- 'Throw' expression:
+    -- 'Throw' statement:
     ----------------------------------------------
     transpileJS level   (ThrowError expr pos) = do
         let stringify = call Mewlix.purrify . List.singleton
@@ -510,7 +510,7 @@ instance ToJavaScript MewlixFunction where
             , joinLines body
             , indentLine level "}" ]
 
-{- Function -}
+{- Enums -}
 -----------------------------------------------------------------
 instance ToJavaScript MewlixEnum where
     transpileJS _ enum = do
