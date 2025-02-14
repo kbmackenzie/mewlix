@@ -267,7 +267,7 @@ instance ToJavaScript Statement where
     ----------------------------------------------
     transpileJS level   (FunctionDef func) = do
         funcExpr <- transpileJS level func
-        let name = (getKey . funcName) func
+        let name = (getKey . functionName) func
         let boundFunc = "(" <> funcExpr <> ").bind(this)"
         let declaration = mconcat [ "const ", name, " = ", boundFunc, ";" ]
         indentLine level declaration
@@ -414,7 +414,7 @@ instance ToJavaScript Statement where
 
         let makeTuple :: MewlixFunction -> Transpiler Text
             makeTuple func = do
-                bind  <- makeKey (funcName func)
+                bind  <- makeKey (functionName func)
                 value <- transpileJS (succ level) func
                 indentLine (succ level) . mconcat $ [ bind, ": ", value, "," ]
 
@@ -491,18 +491,18 @@ instance ToJavaScript Statement where
 -----------------------------------------------------------------
 instance ToJavaScript MewlixFunction where
     transpileJS level func = do
-        let operations = analyze (funcBody func)
+        let operations = analyze (functionBody func)
 
         let transpileBody :: MewlixFunction -> [Transpiler Text]
-            transpileBody = map transpile . getBlock . funcBody
+            transpileBody = map transpile . getBlock . functionBody
                 where transpile = transpileJS (succ level)
 
         let addDeclarations :: [Transpiler Text] -> [Transpiler Text]
             addDeclarations = maybe id ((:) . indent) . declareOperations $ operations
                 where indent = indentLine (succ level)
 
-        params <- transpileJS level (funcParams func)
-        let name   = (getKey . funcName) func
+        params <- transpileJS level (functionParams func)
+        let name   = (getKey . functionName) func
         let body   = addDeclarations . transpileBody $ func
         let header = mconcat ["function ", name, params, " {"]
         joinLines

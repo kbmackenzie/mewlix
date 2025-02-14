@@ -222,9 +222,9 @@ parseFunction nesting = do
             Mega.notFollowedBy (symbol '[')
     (key, params, body) <- parseFunctionLike opener parseKey nesting
     return $ MewlixFunction
-        { funcName   = key
-        , funcBody   = body
-        , funcParams = params }
+        { functionName   = key
+        , functionBody   = body
+        , functionParams = params }
 
 functionDef :: Parser Statement
 functionDef = FunctionDef <$> parseFunction nesting
@@ -237,9 +237,9 @@ functionAssign = do
     let nesting = defineNesting [InFunction]
     (expr, params, body) <- parseFunctionLike opener key nesting
     return . FunctionAssignment expr $ MewlixFunction
-        { funcName   = mempty
-        , funcBody   = body
-        , funcParams = params }
+        { functionName   = mempty
+        , functionBody   = body
+        , functionParams = params }
 
 {- Return -}
 ------------------------------------------------------------------
@@ -289,7 +289,7 @@ classDef = do
 
 findConstructor :: Methods -> Parser (Maybe Constructor, Methods)
 findConstructor methods = do
-    let predicate = isWake . funcName
+    let predicate = isWake . functionName
     case List.partition predicate methods of
         ([] , xs) -> return (Nothing, xs)
         ([x], xs) -> return (Just x, xs)

@@ -35,7 +35,7 @@ findBindings = do
     let collectBindings :: Statement -> [Key] -> [Key]
         collectBindings (Variable key _)    acc = key : acc
         collectBindings (Constant key _)    acc = key : acc
-        collectBindings (FunctionDef func)  acc = funcName func : acc
+        collectBindings (FunctionDef func)  acc = functionName func : acc
         collectBindings (ClassDef clowder)  acc = className clowder : acc
         collectBindings (EnumDef enum)      acc = enumName enum : acc
         collectBindings _                   acc = acc

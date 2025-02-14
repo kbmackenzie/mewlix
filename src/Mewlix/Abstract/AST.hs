@@ -88,9 +88,9 @@ newtype Params    = Params    { getParams     :: [Key]        } deriving (Eq, Sh
 newtype Arguments = Arguments { getArguments  :: [Expression] } deriving (Eq, Show, Semigroup, Monoid)
 
 data MewlixFunction = MewlixFunction
-    { funcName      :: Key
-    , funcParams    :: Params
-    , funcBody      :: Block       }
+    { functionName   :: Key
+    , functionParams :: Params
+    , functionBody   :: Block  }
     deriving (Eq, Show)
 
 data MewlixClass = MewlixClass
