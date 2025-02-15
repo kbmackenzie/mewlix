@@ -132,6 +132,11 @@ instance ToJavaScript Expression where
         parensAround . mconcat $
             [ boolean assignment, "?", ref, ":", b ]
 
+    -- String operations:
+    ----------------------------------------------
+    transpileJS level (StringCoerce expr) = do
+        stringify <$> transpileJS level expr
+
     -- Ternary operator:
     ----------------------------------------------
     transpileJS level (TernaryOperation condition left right) = do
@@ -179,11 +184,7 @@ instance ToJavaScript Expression where
 
             (LookupExpression objectExpr propertyExpr) -> do
                 object <- transpileJS level objectExpr
-                -- This is a dirty workaround to guarantee property is stringified. Bluh. c:
-                -- todo: Add string conversion expression to get around this dubious practice.
-                args   <- fmap stringify . transpileJS level $ do
-                    let prop = BinaryOperation StringConcat propertyExpr (PrimitiveExpr (MewlixString ""))
-                    addArgument prop argExprs
+                args   <- transpileJS level (addArgument propertyExpr argExprs)
                 return (object <> ".call" <> args)
 
             other -> do
@@ -202,7 +203,7 @@ instance ToJavaScript Expression where
     ----------------------------------------------
     transpileJS level (LookupExpression objectExpr propertyExpr) = do
         object   <- transpileJS level objectExpr
-        property <- stringify <$> transpileJS level propertyExpr
+        property <- transpileJS level propertyExpr
         return $ call (parens object <> ".get") [property]
 
     -- Clowder expressions:
@@ -248,7 +249,7 @@ instance ToJavaScript Expression where
     -- IO:
     ----------------------------------------------
     transpileJS level (MeowExpression expr) = do
-        arg <- stringify <$> transpileJS level expr
+        arg <- transpileJS level expr
         return $ call (Mewlix.mewlix "meow") [arg]
 
 {- Params -}
@@ -323,16 +324,16 @@ instance ToJavaScript Statement where
                 right <- transpileJS level rvalue
                 return . mconcat $ [ left, " = ", right ]
 
-        let createSetter :: Expression -> Expression -> (Text -> Text) -> Transpiler Text
-            createSetter obj prop coerceToKey = do
+        let createSetter :: Expression -> Expression -> Transpiler Text
+            createSetter obj prop = do
                 object   <- transpileJS level obj
-                property <- coerceToKey <$> transpileJS level prop
+                property <- transpileJS level prop
                 value    <- transpileJS level rvalue
                 return $ call (parens object <> ".set") [property, value]
 
         indentLine level . terminate =<< case lvalue of
-            (LookupExpression obj prop) -> createSetter obj prop stringify
-            (DotExpression    obj prop) -> createSetter obj prop id
+            (LookupExpression obj prop) -> createSetter obj prop
+            (DotExpression    obj prop) -> createSetter obj prop
             _                           -> assignment
                 
     -- Control flow:
@@ -467,7 +468,7 @@ instance ToJavaScript Statement where
     -- 'Throw' statement:
     ----------------------------------------------
     transpileJS level   (ThrowError expr pos) = do
-        arg <- stringify <$> transpileJS level expr
+        arg <- transpileJS level expr
         let err = createError CatOnComputer pos arg
         indentLine level . terminate $ ("throw " <> err)
 
