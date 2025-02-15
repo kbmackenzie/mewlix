@@ -170,27 +170,10 @@ instance ToJavaScript Expression where
 
     -- Function calls:
     ----------------------------------------------
-    transpileJS level (FunctionCall expr argExprs) = do
-        let addArgument :: Expression -> Arguments -> Arguments
-            addArgument arg = Arguments . (arg :) . getArguments
-
-        -- The calling expression has to be analyzed for tiny optimizations.
-        -- Method lookup should become a call to to .call() instead.
-        case expr of 
-            (DotExpression objectExpr propertyExpr) -> do
-                object <- transpileJS level objectExpr
-                args   <- transpileJS level (addArgument propertyExpr argExprs)
-                return (object <> ".call" <> args)
-
-            (LookupExpression objectExpr propertyExpr) -> do
-                object <- transpileJS level objectExpr
-                args   <- transpileJS level (addArgument propertyExpr argExprs)
-                return (object <> ".call" <> args)
-
-            other -> do
-                func <- transpileJS level other
-                args <- transpileJS level argExprs
-                return (func <> args)
+    transpileJS level (FunctionCall funcExpr argExprs) = do
+        func <- transpileJS level funcExpr
+        args <- transpileJS level argExprs
+        return (func <> args)
 
     -- Dot expression:
     ----------------------------------------------
