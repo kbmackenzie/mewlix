@@ -10,6 +10,7 @@ import Mewlix.Abstract.AST
     , Params(..)
     , Arguments(..)
     , Expression(..)
+    , BinaryOp(..)
     , Statement(..)
     , MewlixFunction(..)
     , MewlixClass(..)
@@ -165,9 +166,30 @@ instance ToJavaScript Expression where
     -- Function calls:
     ----------------------------------------------
     transpileJS level (FunctionCall expr argExprs) = do
-        args <- transpileJS level argExprs
-        func <- transpileJS level expr
-        return (func <> args)
+        let addArgument :: Expression -> Arguments -> Arguments
+            addArgument arg = Arguments . (arg :) . getArguments
+
+        -- The calling expression has to be analyzed for tiny optimizations.
+        -- Method lookup should become a call to to .call() instead.
+        case expr of 
+            (DotExpression objectExpr propertyExpr) -> do
+                object <- transpileJS level objectExpr
+                args   <- transpileJS level (addArgument propertyExpr argExprs)
+                return (object <> ".call" <> args)
+
+            (LookupExpression objectExpr propertyExpr) -> do
+                object <- transpileJS level objectExpr
+                -- This is a dirty workaround to guarantee property is stringified. Bluh. c:
+                -- todo: Add string conversion expression to get around this dubious practice.
+                args   <- fmap stringify . transpileJS level $ do
+                    let prop = BinaryOperation StringConcat propertyExpr (PrimitiveExpr (MewlixString ""))
+                    addArgument prop argExprs
+                return (object <> ".call" <> args)
+
+            other -> do
+                func <- transpileJS level other
+                args <- transpileJS level argExprs
+                return (func <> args)
 
     -- Dot expression:
     ----------------------------------------------
