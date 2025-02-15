@@ -180,14 +180,14 @@ instance ToJavaScript Expression where
     transpileJS level (DotExpression objectExpr propertyExpr) = do
         object   <- transpileJS level objectExpr
         property <- transpileJS level propertyExpr
-        return $ call (parens object <> ".get") [property]
+        return $ call (object <> ".get") [property]
 
     -- Lookup expression:
     ----------------------------------------------
     transpileJS level (LookupExpression objectExpr propertyExpr) = do
         object   <- transpileJS level objectExpr
         property <- transpileJS level propertyExpr
-        return $ call (parens object <> ".get") [property]
+        return $ call (object <> ".get") [property]
 
     -- Clowder expressions:
     ----------------------------------------------
@@ -287,7 +287,7 @@ instance ToJavaScript Statement where
             createSetter a b = do
                 object   <- transpileJS level a
                 property <- transpileJS level b
-                return $ \value -> call (parens object <> ".set") [property, value]
+                return $ \value -> call (object <> ".set") [property, value]
 
         funcExpr <- transpileJS level func
         let boundFunc = "(" <> funcExpr <> ").bind(this)"
@@ -312,7 +312,7 @@ instance ToJavaScript Statement where
                 object   <- transpileJS level obj
                 property <- transpileJS level prop
                 value    <- transpileJS level rvalue
-                return $ call (parens object <> ".set") [property, value]
+                return $ call (object <> ".set") [property, value]
 
         indentLine level . terminate =<< case lvalue of
             (LookupExpression obj prop) -> createSetter obj prop
@@ -398,7 +398,7 @@ instance ToJavaScript Statement where
         let bind :: Key -> Transpiler Text
             bind key = indentLine level =<< do
                 stringKey <- (toJS . MewlixString . getKey) key
-                let value = call (parens importValue <> ".get") [stringKey]
+                let value = call (importValue <> ".get") [stringKey]
                 return . mconcat $ [ "const ", getKey key, " = ", value, ";" ]
 
         joinLines (map bind keys)
