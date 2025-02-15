@@ -39,6 +39,7 @@ data Expression =
     | ObjectProperty        Key
     | BooleanAnd            Expression Expression
     | BooleanOr             Expression Expression
+    | StringCoerce          Expression
     | BinaryOperation       BinaryOp Expression Expression
     | UnaryOperation        UnaryOp Expression
     | TernaryOperation      Expression Expression Expression
