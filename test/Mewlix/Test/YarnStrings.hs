@@ -29,26 +29,29 @@ testYarnString = do
 
 yarnStrings :: [(Text, Expression)]
 yarnStrings = 
-    [ (":3'2 + 2 = [2 + 2]'"        , concat (concat' (str "2 + 2 = ")) (add (number 2) (number 2))    )
-    , (":3'[2 + 2] is 2 + 2'"       , concat (concat' (add (number 2) (number 2))) (str " is 2 + 2")   )
-    , (":3\"[2 + 2] is 2 + 2\""     , concat (concat' (add (number 2) (number 2))) (str " is 2 + 2")   )
-    , (":3'hello ['world']'"        , concat (concat' (str "hello ")) (str "world")                    )
-    , (":3'hello [\"world\"]'"      , concat (concat' (str "hello ")) (str "world")                    )
-    , (":3\"hello ['world']\""      , concat (concat' (str "hello ")) (str "world")                    )
-    , (":3\"hello [\"world\"]\""    , concat (concat' (str "hello ")) (str "world")                    )
-    , (":3'hello ['wor' .. 'ld']'"  , concat (concat' (str "hello ")) (concat (str "wor") (str "ld"))  )
-    , (":3'hello [a['b']]'"         , concat (concat' (str "hello ")) (lookup (variable "a") (str "b")))
-    , (":3'hello [[]]'"             , concat (concat' (str "hello ")) (shelf mempty)                   )
-    , (":3'hello [['world']]'"      , concat (concat' (str "hello ")) (shelf [str "world"])            )
+    [ (":3'2 + 2 = [2 + 2]'"        , concat (str "2 + 2 = ") (add (number 2) (number 2))    )
+    , (":3'[2 + 2] is 2 + 2'"       , concat (add (number 2) (number 2)) (str " is 2 + 2")   )
+    , (":3\"[2 + 2] is 2 + 2\""     , concat (add (number 2) (number 2)) (str " is 2 + 2")   )
+    , (":3'hello ['world']'"        , concat (str "hello ") (str "world")                    )
+    , (":3'hello [\"world\"]'"      , concat (str "hello ") (str "world")                    )
+    , (":3\"hello ['world']\""      , concat (str "hello ") (str "world")                    )
+    , (":3\"hello [\"world\"]\""    , concat (str "hello ") (str "world")                    )
+    , (":3'hello ['wor' .. 'ld']'"  , concat (str "hello ") (concat (str "wor") (str "ld"))  )
+    , (":3'hello [a['b']]'"         , concat (str "hello ") (lookup (variable "a") (str "b")))
+    , (":3'hello [[]]'"             , concat (str "hello ") (shelf mempty)                   )
+    , (":3'hello [['world']]'"      , concat (str "hello ") (shelf [str "world"])            )
+    , (":3''"                       , str ""                                                 )
+    , (":3'[2 + 2]'"                , coerce (add (number 2) (number 2))                     )
+    , (":3'[:3'']'"                 , coerce (str "")                                        )
     ]
     where str      = PrimitiveExpr . MewlixString
           concat   = BinaryOperation StringConcat
-          concat'  = BinaryOperation StringConcat (str mempty)
           number   = PrimitiveExpr . MewlixInt
           add      = BinaryOperation Addition
           shelf    = ShelfExpression
           variable = Identifier . Key
-          lookup   = LookupExpression
+          lookup   = (. StringCoerce) . LookupExpression
+          coerce   = StringCoerce
 
 test :: Spec
 test = testYarnString yarnStrings
