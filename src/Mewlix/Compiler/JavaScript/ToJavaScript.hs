@@ -31,12 +31,13 @@ import Mewlix.Compiler.Analysis (Operation(..), analyze)
 import Mewlix.Compiler.JavaScript.Declare (operation, declareOperations)
 import Mewlix.Compiler.Whitespace (joinLines)
 import Mewlix.Compiler.JavaScript.Utils
-    ( terminate
+    ( stringify
+    , boolean
+    , terminate
     , findBindings
     , parensAround
     , lambda
     , call
-    , boolean
     )
 import Mewlix.Compiler.JavaScript.Error (ErrorCode(..), errorInfo, createError)
 import Mewlix.Compiler.JavaScript.Operations (binaryOpFunc, unaryOpFunc)
@@ -178,7 +179,6 @@ instance ToJavaScript Expression where
     -- Lookup expression:
     ----------------------------------------------
     transpileJS level (LookupExpression objectExpr propertyExpr) = do
-        let stringify = call Mewlix.purrify . List.singleton
         object   <- transpileJS level objectExpr
         property <- stringify <$> transpileJS level propertyExpr
         return $ call (parens object <> ".get") [property]
@@ -226,7 +226,6 @@ instance ToJavaScript Expression where
     -- IO:
     ----------------------------------------------
     transpileJS level (MeowExpression expr) = do
-        let stringify = call Mewlix.purrify . List.singleton
         arg <- stringify <$> transpileJS level expr
         return $ call (Mewlix.mewlix "meow") [arg]
 
@@ -301,9 +300,6 @@ instance ToJavaScript Statement where
                 left  <- transpileJS level lvalue
                 right <- transpileJS level rvalue
                 return . mconcat $ [ left, " = ", right ]
-
-        let stringify :: Text -> Text
-            stringify = call Mewlix.purrify . List.singleton
 
         let createSetter :: Expression -> Expression -> (Text -> Text) -> Transpiler Text
             createSetter obj prop coerceToKey = do
@@ -449,7 +445,6 @@ instance ToJavaScript Statement where
     -- 'Throw' statement:
     ----------------------------------------------
     transpileJS level   (ThrowError expr pos) = do
-        let stringify = call Mewlix.purrify . List.singleton
         arg <- stringify <$> transpileJS level expr
         let err = createError CatOnComputer pos arg
         indentLine level . terminate $ ("throw " <> err)

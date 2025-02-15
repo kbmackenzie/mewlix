@@ -1,13 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Mewlix.Compiler.JavaScript.Utils
-( semicolon
+( stringify
+, boolean
+, semicolon
 , terminate
 , findBindings
 , parensAround
 , lambda
 , call
-, boolean
 ) where 
 
 import Mewlix.Abstract.AST
@@ -23,6 +24,12 @@ import Mewlix.Abstract.Key (Key(..))
 import Mewlix.String.Utils (sepComma, parens)
 import qualified Mewlix.Compiler.JavaScript.Constants as Mewlix
 import qualified Data.List as List
+
+stringify :: Text -> Text
+stringify = call Mewlix.purrify . List.singleton
+
+boolean :: Text -> Text
+boolean = call (Mewlix.convert "bool") . List.singleton
 
 semicolon :: Text
 semicolon = ";"
@@ -53,6 +60,3 @@ lambda body = "(() => " <> body <> ")"
 
 call :: Text -> [Text] -> Text
 call name args = name <> parens (sepComma args)
-
-boolean :: Text -> Text
-boolean = call (Mewlix.convert "bool") . List.singleton
