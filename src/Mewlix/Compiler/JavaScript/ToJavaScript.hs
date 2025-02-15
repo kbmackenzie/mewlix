@@ -68,7 +68,7 @@ instance ToJavaScript Primitive where
     transpileJS _ (MewlixBool b)    = (return . Text.toLower . showT) b
     transpileJS _ MewlixNil         = return "null"
     transpileJS _ MewlixHome        = return "this"
-    transpileJS _ MewlixOutside     = return "this.parent"
+    transpileJS _ MewlixOutside     = return "this.outside()"
 
 {- Expression -}
 -----------------------------------------------------------------
@@ -435,7 +435,7 @@ instance ToJavaScript Statement where
             [ "const ", (getKey . className) clowder, " = ", creation, ";" ]
 
     transpileJS level   (SuperCall argExprs) = do
-        let super = "this.parent.bindings[" <> Mewlix.mewlix "wake" <> "]"
+        let super = "this.outside().wake"
         args <- transpileJS level argExprs
         indentLine level . terminate $ (super <> args)
 
