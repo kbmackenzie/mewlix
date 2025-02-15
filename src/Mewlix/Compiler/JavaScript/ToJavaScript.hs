@@ -10,7 +10,6 @@ import Mewlix.Abstract.AST
     , Params(..)
     , Arguments(..)
     , Expression(..)
-    , BinaryOp(..)
     , Statement(..)
     , MewlixFunction(..)
     , MewlixClass(..)
@@ -211,25 +210,25 @@ instance ToJavaScript Expression where
         arg  <- transpileJS level operand
         return $ func [arg]
 
-    -- 'Paw at' / Type of:
+    -- Type of:
     ----------------------------------------------
     transpileJS level (AskType operand) = do
         arg <- transpileJS level operand
         return $ call (Mewlix.reflection "typeOf") [arg]
 
-    -- 'Is' / Instance of:
+    -- 'is' / Instance of:
     ----------------------------------------------
     transpileJS level (IsInstance a b) = do
         args <- mapM (transpileJS level) [a, b]
         return $ call (Mewlix.reflection "instanceOf") args
 
-    -- 'Claw at'/ Box entries:
+    -- 'claw at' / Box entries:
     ----------------------------------------------
     transpileJS level (ClawEntries operand) = do
         arg <- transpileJS level operand
         return $ call (Mewlix.box "pairs") [arg]
 
-    -- IO:
+    -- I/O:
     ----------------------------------------------
     transpileJS level (MeowExpression expr) = do
         arg <- transpileJS level expr
@@ -360,6 +359,7 @@ instance ToJavaScript Statement where
         let chase  = call (Mewlix.internal "chase") [iterable]
         let header = mconcat [ "for (const ", getKey key, " of ", chase, ") "]
         indentLine level (header <> body)
+
     -- Loop keywords:
     ----------------------------------------------
     transpileJS level   Break = indentLine level "break;"
@@ -469,7 +469,7 @@ instance ToJavaScript Statement where
         joinLines
             [ indentLine level ("try " <> tryBlock)
             , indentLine level ("catch (" <> Mewlix.errorRef <> ") {")
-            -- A dirty little hack, but it works nicely:
+            -- A cutesy little hack, but it works nicely. :'>
             , indentLine (succ level) (defineErrorBox <> Text.tail catchBlock) ]
 
     transpileJS level   Rethrow = do
