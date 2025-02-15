@@ -163,7 +163,7 @@ ternary = let op = flip TernaryOperation
 meow :: Parser Expression
 meow = do
     keyword Keywords.meow
-    MeowExpression <$> expression
+    MeowExpression . StringCoerce <$> expression
 
 {- Clowder -}
 ------------------------------------------------------------------------------------
@@ -187,7 +187,7 @@ dot = do
     flip DotExpression <$> property
 
 lookup_ :: Parser (Expression -> Expression)
-lookup_ = flip LookupExpression <$> brackets expression
+lookup_ = flip LookupExpression . StringCoerce <$> brackets expression
 
 call :: Parser (Expression -> Expression)
 call = do
