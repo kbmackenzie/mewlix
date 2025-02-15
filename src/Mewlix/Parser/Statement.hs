@@ -349,7 +349,7 @@ throwStatement = do
     keyword Keywords.throw
     pos  <- Mega.getSourcePos
     expr <- expression <* linebreak
-    return $ ThrowError expr pos
+    return $ ThrowError (StringCoerce expr) pos
 
 rethrow :: Parser Statement
 rethrow = do
