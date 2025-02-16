@@ -7,38 +7,43 @@ module Mewlix.Packager.Log
 ) where
 
 import Mewlix.Packager.Config (ProjectConfig(..), ProjectFlag(..))
-import Mewlix.Logger (LogLevel(..), logger, rainbow);
+import Mewlix.Logger (LogLevel(..), logger, rainbow, catFace);
 import qualified Data.Set as Set
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad (unless)
 import System.IO (stdout)
+import System.IO.Utf8 (withTerminalHandle)
 import qualified Data.Text as Text
 
 initLog :: (MonadIO m) => ProjectConfig -> m ()
 initLog config = liftIO $ do
     let quiet = Set.member Quiet (projectFlags config)
-    unless quiet $ do
+    unless quiet . withTerminalHandle stdout $ do
         let name = Text.unpack (projectName config)
         putStr "Initializing project "
         rainbow stdout name
-        putStrLn "! 🐱"
+        putStr "! "
+        catFace stdout
+        putChar '\n'
 
 buildLog :: (MonadIO m) => ProjectConfig -> m ()
 buildLog config = liftIO $ do
     let quiet = Set.member Quiet (projectFlags config)
-    unless quiet $ do
+    unless quiet . withTerminalHandle stdout $ do
         let name = Text.unpack (projectName config)
         putStr "Building project "
         rainbow stdout name
-        putStrLn "! 🐱"
+        putStr "! "
+        catFace stdout
+        putChar '\n'
 
 logMessage :: (MonadIO m) => ProjectConfig -> String -> m ()
-logMessage config message = do
+logMessage config message = liftIO $ do
     let quiet = Set.member Quiet (projectFlags config)
-    unless quiet (logger LogInfo message)
+    unless quiet $ logger LogInfo message
 
 logError :: (MonadIO m) => String -> m ()
-logError = logger LogError
+logError = liftIO . logger LogError
 
 logWarning :: (MonadIO m) => String -> m ()
-logWarning = logger LogWarn
+logWarning = liftIO . logger LogWarn
