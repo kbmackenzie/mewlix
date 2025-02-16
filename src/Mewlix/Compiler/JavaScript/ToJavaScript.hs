@@ -133,8 +133,10 @@ instance ToJavaScript Expression where
 
     -- String operations:
     ----------------------------------------------
-    transpileJS level (StringCoerce expr) = do
-        stringify <$> transpileJS level expr
+    transpileJS level (StringCoerce expr) = case expr of
+        -- Tiny optimization: Don't call '.purrify()' on string literals.
+        (PrimitiveExpr str@(MewlixString _)) -> toJS str
+        other -> stringify <$> transpileJS level other
 
     -- Ternary operator:
     ----------------------------------------------
