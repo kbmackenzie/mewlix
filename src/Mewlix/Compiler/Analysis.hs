@@ -24,6 +24,7 @@ instance AnalyzeOperation Expression where
     analyze expr = case expr of
         (BooleanAnd a b)         -> Set.singleton And <> analyze a <> analyze b
         (BooleanOr a b)          -> Set.singleton Or  <> analyze a <> analyze b
+        (StringCoerce a)         -> analyze a
         (TernaryOperation a b c) -> analyze a <> analyze b <> analyze c
         (BinaryOperation _ a b)  -> analyze a <> analyze b
         (UnaryOperation _ a)     -> analyze a
