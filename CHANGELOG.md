@@ -1,5 +1,18 @@
 # `mewlix` - Changelog
 
+## 1.5.0
+
+- Transpile **yarn strings** more efficiently! 🐱💖
+- Fix transpilation for `in` operator.
+- Add small optimizations around string coercion.
+- Improve how parser handles linebreaks (support CRLF).
+- Add better I/O support for environments that don't use UTF-8.
+- Standard library changes:
+    - Base library:
+        - Add bitwise operation functions to `std`.
+    - Improve clowders! 🐱
+    - Fix innaccurate error messages.
+
 ## 1.4.0
 
 - Transpile boolean expressions more efficiently. 🐱💖
