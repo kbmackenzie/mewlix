@@ -78,8 +78,6 @@ Additionally:
 - A **Vim plugin** that provides Mewlix syntax highlighting can be found [here][8].
 - A [**Highlight.js**][10] syntax highlighter definition for Mewlix can be found [here][9].
 
-### Highlight.js Syntax Definition
-
 ## Special Thanks
 
 A big special thanks to my friend Jade for helping me stay sane through this project and for letting me talk endlessly about it these past few months. I wouldn't have been able to finish it without you, thank you! ♡
