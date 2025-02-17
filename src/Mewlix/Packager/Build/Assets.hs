@@ -9,27 +9,27 @@ import Mewlix.Packager.Log (logMessage, logWarning)
 import Mewlix.Utils.IO (safelyRun, copyFileSafe, createDirectory, compareFileMods)
 import System.FilePath ((</>), takeDirectory, normalise, splitPath, equalFilePath)
 import System.FilePattern.Directory (getDirectoryFiles)
-import Control.Monad (when, unless)
+import Control.Monad (when)
 import Control.Arrow ((>>>))
 
-reserved :: ProjectMode -> [FilePath]
-reserved mode = case mode of
+templateAssets :: ProjectMode -> [FilePath]
+templateAssets mode = case mode of
     Console -> ["index.html", "style.css", "init.js"]
     Graphic -> ["index.html", "style.css", "init.js"]
     Node    -> ["init.js"]
     Blank   -> ["init.js"]
 
-isOkayAssetPath :: ProjectMode -> FilePath -> Bool
-isOkayAssetPath mode = normalise >>> do
+isReserved :: ProjectMode -> FilePath -> Bool
+isReserved mode = normalise >>> do
     let isInCore :: FilePath -> Bool
         isInCore path = case splitPath path of
             []    -> False
-            (x:_) -> equalFilePath x "core"
+            (x:_) -> any (equalFilePath x) ["core", "yarnball"]
 
-    let isReserved :: FilePath -> Bool
-        isReserved path = any (equalFilePath path) (reserved mode)
+    let isTemplateAsset :: FilePath -> Bool
+        isTemplateAsset path = any (equalFilePath path) (templateAssets mode)
 
-    \path -> not (isInCore path || isReserved path)
+    \path -> isInCore path || isTemplateAsset path
 
 copyAsset :: ProjectConfig -> FilePath -> Packager ()
 copyAsset config asset = do
@@ -37,8 +37,8 @@ copyAsset config asset = do
     createDirectory True (takeDirectory output)
 
     let mode = projectMode config
-    unless (isOkayAssetPath mode asset) . logWarning . concat $
-            ["Asset path ", show output, " likely conflicts with core template asset."]
+    when (isReserved mode asset) . logWarning . concat $
+        ["Asset path ", show output, " likely conflicts with core template asset."]
 
     isOutdated <- maybe True (== GT) <$> compareFileMods asset output
     when isOutdated $ do
