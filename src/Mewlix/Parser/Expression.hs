@@ -8,8 +8,8 @@ module Mewlix.Parser.Expression
 
 import Mewlix.Abstract.AST
     ( Expression(..)
-    , BinaryOp(..)
-    , UnaryOp(..)
+    , BinaryOperationType(..)
+    , UnaryOperationType(..)
     , Arguments(..)
     , Params(..)
     )

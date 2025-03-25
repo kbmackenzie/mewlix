@@ -10,7 +10,7 @@ module Mewlix.Parser.String
 import Mewlix.Parser.Type (Parser)
 import Mewlix.Abstract.AST
     ( Primitive(..)
-    , BinaryOp(..)
+    , BinaryOperationType(..)
     , Expression(..)
     )
 import Mewlix.Parser.Utils (lexeme)

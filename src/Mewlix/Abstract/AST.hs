@@ -8,8 +8,8 @@ module Mewlix.Abstract.AST
 , Arguments(..)
 , Expression(..)
 , Statement(..)
-, BinaryOp(..)
-, UnaryOp(..)
+, BinaryOperationType(..)
+, UnaryOperationType(..)
 , MewlixFunction(..)
 , MewlixClass(..)
 , MewlixEnum(..)
@@ -40,8 +40,8 @@ data Expression =
     | BooleanAnd            Expression Expression
     | BooleanOr             Expression Expression
     | StringCoerce          Expression
-    | BinaryOperation       BinaryOp Expression Expression
-    | UnaryOperation        UnaryOp Expression
+    | BinaryOperation       BinaryOperationType Expression Expression
+    | UnaryOperation        UnaryOperationType Expression
     | TernaryOperation      Expression Expression Expression
     | ShelfExpression       [Expression]
     | BoxExpression         [(Key, Expression)]
@@ -56,7 +56,7 @@ data Expression =
     | MeowExpression        Expression
     deriving (Eq, Show)
 
-data BinaryOp =
+data BinaryOperationType =
       Addition 
     | Subtraction
     | Multiplication
@@ -75,7 +75,7 @@ data BinaryOp =
     | LesserOrEqual
     deriving (Eq, Ord, Enum, Bounded, Show)
 
-data UnaryOp =
+data UnaryOperationType =
       Minus
     | Plus
     | LengthLookup

@@ -10,7 +10,7 @@ import Mewlix.Abstract.AST
     , Params(..)
     , Arguments(..)
     , Expression(..)
-    , BinaryOp(..)
+    , BinaryOperationType(..)
     , Statement(..)
     , MewlixFunction(..)
     , MewlixClass(..)

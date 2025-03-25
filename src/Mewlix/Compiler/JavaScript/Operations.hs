@@ -9,7 +9,7 @@ module Mewlix.Compiler.JavaScript.Operations
 import Data.Text (Text)
 import Mewlix.Compiler.JavaScript.Utils (call)
 import qualified Mewlix.Compiler.JavaScript.Constants as Mewlix
-import Mewlix.Abstract.AST (BinaryOp(..), UnaryOp(..))
+import Mewlix.Abstract.AST (BinaryOperationType(..), UnaryOperationType(..))
 
 type OperationBuilder = ([Text] -> Text)
 
@@ -19,7 +19,7 @@ ordering comparison = do
     let comparer = call (Mewlix.compare comparison)
     \args -> comparer [orderer args]
 
-binaryOpFunc :: BinaryOp -> OperationBuilder
+binaryOpFunc :: BinaryOperationType -> OperationBuilder
 binaryOpFunc op = case op of 
     Addition        -> call (Mewlix.numbers "add"      )
     Subtraction     -> call (Mewlix.numbers "sub"      )
@@ -38,7 +38,7 @@ binaryOpFunc op = case op of
     LesserOrEqual   -> ordering "lessOrEqual"
     GreaterOrEqual  -> ordering "greaterOrEqual"
 
-unaryOpFunc :: UnaryOp -> OperationBuilder
+unaryOpFunc :: UnaryOperationType -> OperationBuilder
 unaryOpFunc op = case op of
     Minus           -> call (Mewlix.numbers "minus" )
     Plus            -> call (Mewlix.numbers "plus"  )
