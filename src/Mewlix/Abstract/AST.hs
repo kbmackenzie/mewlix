@@ -78,10 +78,10 @@ data BinaryOp =
 data UnaryOp =
       Minus
     | Plus
+    | LengthLookup
     | ShelfPop
     | ShelfPeek
     | BooleanNot
-    | LengthLookup
     deriving (Eq, Ord, Enum, Bounded, Show)
 
 newtype Block     = Block     { getBlock      :: [Statement]  } deriving (Eq, Show, Semigroup, Monoid)
