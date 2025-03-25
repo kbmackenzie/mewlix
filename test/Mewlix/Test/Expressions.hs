@@ -7,8 +7,8 @@ module Mewlix.Test.Expressions
 import Mewlix.Abstract.AST
     ( Expression(..)
     , Primitive(..)
-    , BinaryOp(..)
-    , UnaryOp(..)
+    , BinaryOperationType(..)
+    , UnaryOperationType(..)
     , Params(..)
     , Arguments(..)
     )

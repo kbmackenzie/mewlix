@@ -10,7 +10,7 @@ import Mewlix.Abstract.AST
     , Statement(..)
     , YarnBall(..)
     , Block(..)
-    , BinaryOp(..)
+    , BinaryOperationType(..)
     )
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Parser (runParser, root)

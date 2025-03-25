@@ -7,7 +7,7 @@ module Mewlix.Test.YarnStrings
 import Mewlix.Abstract.AST
     ( Expression(..)
     , Primitive(..)
-    , BinaryOp(..)
+    , BinaryOperationType(..)
     )
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Parser (runParser, expression)
