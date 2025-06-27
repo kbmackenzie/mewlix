@@ -10,7 +10,7 @@ import Mewlix.Abstract.AST
     , Params(..)
     , Arguments(..)
     , Expression(..)
-    , BinaryOperationType(..)
+    , NumericOperationType(..)
     , Statement(..)
     , MewlixFunction(..)
     , MewlixClass(..)
@@ -138,10 +138,40 @@ instance ToJavaScript Expression where
         -- Tiny optimization: Don't perform string coercion on an expression that
         -- is already provably going to evaluate to a string.
         -- (e.g. string literals, string concatenation.)
-        (PrimitiveExpression str@(MString _))   -> toJS str
-        str@(StringCoerce _)                   -> transpileJS level str
-        str@(BinaryOperation StringConcat _ _) -> transpileJS level str
-        other                                  -> stringify <$> transpileJS level other
+        (PrimitiveExpression str@(MString _)) -> toJS str
+        str@(StringCoerce _)                  -> transpileJS level str
+        str@(StringConcat _ _)                -> transpileJS level str
+        other                                 -> stringify <$> transpileJS level other
+
+    transpileJS level (StringConcat xa xb) = do
+        a <- transpileJS level xa
+        b <- transpileJS level xb
+        parensAround . mconcat $ [a, "+", b]
+
+    -- Numeric operations:
+    ----------------------------------------------
+    transpileJS level (NumberCoerce expr) = case expr of
+        -- Tiny optimization: Don't perform numeric coercion on an expression that
+        -- is already provably going to evaluate to a number.
+        -- (e.g. numeric literals, numbers).
+        (PrimitiveExpression num@(MInt _))   -> toJS num
+        (PrimitiveExpression num@(MFloat _)) -> toJS num
+        num@(NumberCoerce _)                 -> transpileJS level num
+        num@(NumericOperation _ _ _)         -> transpileJS level num
+        other                                -> coerce <$> transpileJS level other
+        where coerce = call (Mewlix.numbers "coerce") . List.singleton
+
+    transpileJS level (NumericOperation op xa xb) = do
+        a <- transpileJS level xa
+        b <- transpileJS level xb
+        parensAround $ case op of
+            Addition        -> mconcat [a, "+", b]
+            Subtraction     -> mconcat [a, "-", b]
+            Multiplication  -> mconcat [a, "*", b]
+            Division        -> call (Mewlix.numbers "div") [a, b]
+            Modulo          -> call (Mewlix.numbers "mod") [a, b]
+            FloorDivision   -> call (Mewlix.numbers "floordiv") [a, b]
+            Power           -> call (Mewlix.numbers "pow") [a, b]
 
     -- Ternary operator:
     ----------------------------------------------

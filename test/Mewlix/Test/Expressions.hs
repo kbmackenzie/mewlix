@@ -7,6 +7,7 @@ module Mewlix.Test.Expressions
 import Mewlix.Abstract.AST
     ( Expression(..)
     , Primitive(..)
+    , NumericOperationType(..)
     , BinaryOperationType(..)
     , UnaryOperationType(..)
     , Params(..)
@@ -88,31 +89,32 @@ expressions =
     , ("paw at [a, b]"      , peek (shelf [variable "a", variable "b"])                                 )
     , ("knock over [a, b]"  , pop (shelf [variable "a", variable "b"])                                  )
     ]
-    where number   = PrimitiveExpression . MInt
-          add      = BinaryOperation Addition
-          multiply = BinaryOperation Multiplication
-          negate   = UnaryOperation Minus
-          variable = Identifier . Key
-          concat   = BinaryOperation StringConcat
-          push     = BinaryOperation ShelfPush
-          peek     = UnaryOperation ShelfPeek
-          pop      = UnaryOperation ShelfPop
-          and      = BooleanAnd
-          or       = BooleanOr
-          ternary  = TernaryOperation
-          true     = PrimitiveExpression . MBool $ True
-          false    = PrimitiveExpression . MBool $ False
-          equal    = BinaryOperation Equal
-          lookup   = (. StringCoerce) . LookupExpression
-          dot      = DotExpression
-          str      = PrimitiveExpression . MString
-          prop     = ObjectProperty . Key
-          lambda   = LambdaExpression
-          param    = Params . List.singleton . Key
-          args     = Arguments
-          call     = FunctionCall
-          call'    = flip FunctionCall mempty
-          shelf    = ShelfExpression
+    where numOp op a b = NumericOperation op (NumberCoerce a) (NumberCoerce b)
+          concat a b   = StringConcat (StringCoerce a) (StringCoerce b)
+          number       = PrimitiveExpression . MInt
+          add          = numOp Addition
+          multiply     = numOp Multiplication
+          negate       = NumericOperation Subtraction (number 0) . NumberCoerce
+          variable     = Identifier . Key
+          push         = BinaryOperation ShelfPush
+          peek         = UnaryOperation ShelfPeek
+          pop          = UnaryOperation ShelfPop
+          and          = BooleanAnd
+          or           = BooleanOr
+          ternary      = TernaryOperation
+          true         = PrimitiveExpression . MBool $ True
+          false        = PrimitiveExpression . MBool $ False
+          equal        = BinaryOperation Equal
+          lookup       = (. StringCoerce) . LookupExpression
+          dot          = DotExpression
+          str          = PrimitiveExpression . MString
+          prop         = ObjectProperty . Key
+          lambda       = LambdaExpression
+          param        = Params . List.singleton . Key
+          args         = Arguments
+          call         = FunctionCall
+          call'        = flip FunctionCall mempty
+          shelf        = ShelfExpression
 
 test :: Spec
 test = testExpressions expressions

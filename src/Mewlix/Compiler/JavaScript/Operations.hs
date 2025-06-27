@@ -21,17 +21,9 @@ ordering comparison = do
 
 binaryOpFunc :: BinaryOperationType -> OperationBuilder
 binaryOpFunc op = case op of 
-    Addition        -> call (Mewlix.numbers "add"      )
-    Subtraction     -> call (Mewlix.numbers "sub"      )
-    Multiplication  -> call (Mewlix.numbers "mul"      )
-    Division        -> call (Mewlix.numbers "div"      )
-    FloorDivision   -> call (Mewlix.numbers "floordiv" )
-    Modulo          -> call (Mewlix.numbers "mod"      )
-    Power           -> call (Mewlix.numbers "pow"      )
-    ShelfPush       -> call (Mewlix.shelf   "push"     )
-    StringConcat    -> call (Mewlix.strings "concat"   )
+    ShelfPush       -> call (Mewlix.shelf "push")
     Contains        -> call (Mewlix.collections "contains")
-    Equal           -> call (Mewlix.relation    "equal"   )
+    Equal           -> call (Mewlix.relation "equal")
     NotEqual        -> ("!" <>) . call (Mewlix.relation "equal")
     LessThan        -> ordering "less"
     GreaterThan     -> ordering "greater"
@@ -40,9 +32,7 @@ binaryOpFunc op = case op of
 
 unaryOpFunc :: UnaryOperationType -> OperationBuilder
 unaryOpFunc op = case op of
-    Minus           -> call (Mewlix.numbers "minus" )
-    Plus            -> call (Mewlix.numbers "plus"  )
-    ShelfPop        -> call (Mewlix.shelf   "pop"   )
-    ShelfPeek       -> call (Mewlix.shelf   "peek"  )
-    BooleanNot      -> call (Mewlix.boolean "not"   )
+    ShelfPop        -> call (Mewlix.shelf "pop" )
+    ShelfPeek       -> call (Mewlix.shelf "peek")
+    BooleanNot      -> call (Mewlix.boolean "not")
     LengthLookup    -> call (Mewlix.collections "length")

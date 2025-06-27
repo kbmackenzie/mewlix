@@ -7,7 +7,7 @@ module Mewlix.Test.YarnStrings
 import Mewlix.Abstract.AST
     ( Expression(..)
     , Primitive(..)
-    , BinaryOperationType(..)
+    , NumericOperationType(..)
     )
 import Mewlix.Abstract.Key (Key(..))
 import Mewlix.Parser (runParser, expression)
@@ -44,14 +44,14 @@ yarnStrings =
     , (":3'[2 + 2]'"                , coerce (add (number 2) (number 2))                     )
     , (":3'[:3'']'"                 , coerce (str "")                                        )
     ]
-    where str      = PrimitiveExpression . MString
-          concat   = BinaryOperation StringConcat
-          number   = PrimitiveExpression . MInt
-          add      = BinaryOperation Addition
-          shelf    = ShelfExpression
-          variable = Identifier . Key
-          lookup   = (. StringCoerce) . LookupExpression
-          coerce   = StringCoerce
+    where str        = PrimitiveExpression . MString
+          concat a b = StringConcat (StringCoerce a) (StringCoerce b)
+          number     = PrimitiveExpression . MInt
+          add a b    = NumericOperation Addition (NumberCoerce a) (NumberCoerce b)
+          shelf      = ShelfExpression
+          variable   = Identifier . Key
+          lookup     = (. StringCoerce) . LookupExpression
+          coerce     = StringCoerce
 
 test :: Spec
 test = testYarnString yarnStrings

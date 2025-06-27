@@ -10,6 +10,7 @@ import Mewlix.Abstract.AST
     , Statement(..)
     , YarnBall(..)
     , Block(..)
+    , NumericOperationType(..)
     , BinaryOperationType(..)
     )
 import Mewlix.Abstract.Key (Key(..))
@@ -53,7 +54,7 @@ assignments =
           constant = Constant
           nil      = PrimitiveExpression MNil
           number   = PrimitiveExpression . MInt
-          add      = BinaryOperation Addition
+          add a b  = NumericOperation Addition (NumberCoerce a) (NumberCoerce b)
           variable = Identifier . Key
           equal    = BinaryOperation Equal
           call     = flip FunctionCall mempty

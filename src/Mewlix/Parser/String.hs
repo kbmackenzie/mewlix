@@ -8,11 +8,7 @@ module Mewlix.Parser.String
 ) where
 
 import Mewlix.Parser.Type (Parser)
-import Mewlix.Abstract.AST
-    ( Primitive(..)
-    , BinaryOperationType(..)
-    , Expression(..)
-    )
+import Mewlix.Abstract.AST (Primitive(..) , Expression(..))
 import Mewlix.Parser.Utils (lexeme)
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -111,9 +107,8 @@ stringToExpr :: Text -> Expression
 stringToExpr = PrimitiveExpression . MString
 
 interpolate :: [Expression] -> Expression
-interpolate []  = stringToExpr mempty
-interpolate [x] = StringCoerce x
-interpolate xs  = foldl1 (BinaryOperation StringConcat) xs
+interpolate [] = stringToExpr mempty
+interpolate xs = foldl1 StringConcat (map StringCoerce xs)
 
 stringCharY :: (Char -> Bool) -> Parser Char
 stringCharY allowed = Mega.choice

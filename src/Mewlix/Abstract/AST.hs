@@ -7,9 +7,10 @@ module Mewlix.Abstract.AST
 , Params(..)
 , Arguments(..)
 , Expression(..)
-, Statement(..)
+, NumericOperationType(..)
 , BinaryOperationType(..)
 , UnaryOperationType(..)
+, Statement(..)
 , MewlixFunction(..)
 , MewlixClass(..)
 , MewlixEnum(..)
@@ -41,8 +42,12 @@ data Expression =
     -- Boolean Logic
     | BooleanAnd            Expression Expression
     | BooleanOr             Expression Expression
-    -- Coercion
+    -- Strings
     | StringCoerce          Expression
+    | StringConcat          Expression Expression
+    -- Numbers
+    | NumberCoerce          Expression
+    | NumericOperation      NumericOperationType Expression Expression
     -- Basic Operations
     | BinaryOperation       BinaryOperationType Expression Expression
     | UnaryOperation        UnaryOperationType Expression
@@ -66,8 +71,7 @@ data Expression =
     | MeowExpression        Expression
     deriving (Eq, Show)
 
-data BinaryOperationType =
-    -- Numeric
+data NumericOperationType =
       Addition 
     | Subtraction
     | Multiplication
@@ -75,9 +79,11 @@ data BinaryOperationType =
     | FloorDivision
     | Modulo
     | Power
+    deriving (Eq, Ord, Enum, Bounded, Show)
+
+data BinaryOperationType =
     -- Shelf
-    | ShelfPush
-    | StringConcat
+      ShelfPush
     | Contains
     -- Comparison
     | Equal
@@ -89,11 +95,8 @@ data BinaryOperationType =
     deriving (Eq, Ord, Enum, Bounded, Show)
 
 data UnaryOperationType =
-    -- Numeric
-      Minus
-    | Plus
     -- Shelf
-    | LengthLookup
+      LengthLookup
     | ShelfPop
     | ShelfPeek
     -- Boolean

@@ -7,7 +7,9 @@ module Mewlix.Parser.Expression
 ) where
 
 import Mewlix.Abstract.AST
-    ( Expression(..)
+    ( Primitive(..)
+    , Expression(..)
+    , NumericOperationType(..)
     , BinaryOperationType(..)
     , UnaryOperationType(..)
     , Arguments(..)
@@ -73,12 +75,30 @@ expression = Mega.choice
     , rvalue ]
     <?> "expression"
 
-{- Operators -}
+{- Utility -}
 ------------------------------------------------------------------------------------
 -- Operator parsing util; literally just 'a <$ b' but with 'hidden' applied to b.
 -- This keeps error messages from being polluted by operators.
 (<&) :: a -> Parser b -> Parser a
 (<&) a b = a <$ hidden b
+
+{- Strings -}
+------------------------------------------------------------------------------------
+stringCat :: Expression -> Expression -> Expression
+stringCat a b = StringConcat (StringCoerce a) (StringCoerce b)
+
+{- Numeric -}
+------------------------------------------------------------------------------------
+numericOp :: NumericOperationType -> Expression -> Expression -> Expression
+numericOp op a b = NumericOperation op (NumberCoerce a) (NumberCoerce b)
+
+unaryPlus :: Expression -> Expression
+unaryPlus a = NumericOperation Addition zero (NumberCoerce a)
+    where zero = PrimitiveExpression (MInt 0)
+
+unaryMinus :: Expression -> Expression
+unaryMinus a = NumericOperation Subtraction zero (NumberCoerce a)
+    where zero = PrimitiveExpression (MInt 0)
 
 {- Literals -}
 ------------------------------------------------------------------------------------
@@ -219,26 +239,31 @@ operatorsL = [[ Postfix lpostfixes ]]
 operatorsR :: OperatorTable
 operatorsR =
     [
+        -- Lookup
         [ Postfix postfixes                                                             ]
+        -- Reflection
     ,   [ Prefix  (AskType                          <& keyword Keywords.typeOf      )
         , InfixL  (IsInstance                       <& keyword Keywords.is          )
         , Prefix  (ClawEntries                      <& keyword Keywords.claw        )
+        -- Shelf
         , Postfix (UnaryOperation LengthLookup      <& keyword (LongSymbol "...?")  )   ] 
     ,   [ Prefix  (UnaryOperation ShelfPeek         <& keyword Keywords.peek        )
         , Prefix  (UnaryOperation ShelfPop          <& keyword Keywords.pop         )
         , InfixL  (BinaryOperation ShelfPush        <& keyword Keywords.push        )   ]
-    ,   [ InfixL  (BinaryOperation StringConcat     <& keyword (LongSymbol "..")    )
+        -- String
+    ,   [ InfixL  (stringCat                        <& keyword (LongSymbol "..")    )
         , InfixL  (BinaryOperation Contains         <& keyword Keywords.in_         )   ]
-    ,   [ InfixL  (BinaryOperation Power            <& symbol '^'                   )   ]
-    ,   [ Prefix  (UnaryOperation Plus              <& symbol '+'                   )
-        , Prefix  (UnaryOperation Minus             <& symbol '-'                   )
+        -- Numeric (+ Logic)
+    ,   [ InfixL  (numericOp Power                  <& symbol '^'                   )   ]
+    ,   [ Prefix  (unaryPlus                        <& symbol '+'                   )
+        , Prefix  (unaryMinus                       <& symbol '-'                   )
         , Prefix  (UnaryOperation BooleanNot        <& keyword Keywords.not         )   ]
-    ,   [ InfixL  (BinaryOperation Multiplication   <& symbol '*'                   )
-        , InfixL  (BinaryOperation FloorDivision    <& keyword (LongSymbol "//")    )
-        , InfixL  (BinaryOperation Division         <& symbol '/'                   )
-        , InfixL  (BinaryOperation Modulo           <& symbol '%'                   )   ]
-    ,   [ InfixL  (BinaryOperation Addition         <& symbol '+'                   )
-        , InfixL  (BinaryOperation Subtraction      <& symbol '-'                   )   ]
+    ,   [ InfixL  (numericOp Multiplication         <& symbol '*'                   )
+        , InfixL  (numericOp FloorDivision          <& keyword (LongSymbol "//")    )
+        , InfixL  (numericOp Division               <& symbol '/'                   )
+        , InfixL  (numericOp Modulo                 <& symbol '%'                   )   ]
+    ,   [ InfixL  (numericOp Addition               <& symbol '+'                   )
+        , InfixL  (numericOp Subtraction            <& symbol '-'                   )   ]
     ,   [ InfixL  (BinaryOperation LesserOrEqual    <& keyword (LongSymbol "<=")    )
         , InfixL  (BinaryOperation GreaterOrEqual   <& keyword (LongSymbol ">=")    )
         , InfixL  (BinaryOperation LessThan         <& symbol '<'                   )
@@ -250,6 +275,7 @@ operatorsR =
     ,   [ InfixL  nand                                                                  ]
     ,   [ InfixL  nor                                                                   ]
     ,   [ TernR   ternary                                                               ]
+        -- Functions
     ,   [ InfixL  pipe                                                                  ]
     ,   [ InfixL  compose                                                               ]
     ]
