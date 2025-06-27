@@ -34,29 +34,40 @@ data Primitive =
     deriving (Eq, Show)
 
 data Expression =
+    -- Bindings
       PrimitiveExpression   Primitive
     | Identifier            Key
     | ObjectProperty        Key
+    -- Boolean Logic
     | BooleanAnd            Expression Expression
     | BooleanOr             Expression Expression
+    -- Coercion
     | StringCoerce          Expression
+    -- Basic Operations
     | BinaryOperation       BinaryOperationType Expression Expression
     | UnaryOperation        UnaryOperationType Expression
     | TernaryOperation      Expression Expression Expression
+    | ClawEntries           Expression
+    -- Literals
     | ShelfExpression       [Expression]
     | BoxExpression         [(Key, Expression)]
+    -- Reflection
     | AskType               Expression
     | IsInstance            Expression Expression
-    | ClawEntries           Expression
+    -- Functions
     | LambdaExpression      Params Expression
     | FunctionCall          Expression Arguments
+    -- Clowders
     | ClowderCreate         Expression Arguments
+    -- Lookup
     | DotExpression         Expression Expression
     | LookupExpression      Expression Expression
+    -- I/O
     | MeowExpression        Expression
     deriving (Eq, Show)
 
 data BinaryOperationType =
+    -- Numeric
       Addition 
     | Subtraction
     | Multiplication
@@ -64,9 +75,11 @@ data BinaryOperationType =
     | FloorDivision
     | Modulo
     | Power
+    -- Shelf
     | ShelfPush
     | StringConcat
     | Contains
+    -- Comparison
     | Equal
     | LessThan
     | GreaterThan
@@ -76,11 +89,14 @@ data BinaryOperationType =
     deriving (Eq, Ord, Enum, Bounded, Show)
 
 data UnaryOperationType =
+    -- Numeric
       Minus
     | Plus
+    -- Shelf
     | LengthLookup
     | ShelfPop
     | ShelfPeek
+    -- Boolean
     | BooleanNot
     deriving (Eq, Ord, Enum, Bounded, Show)
 
@@ -112,27 +128,34 @@ data Conditional = Conditional
     deriving (Eq, Show)
 
 data Statement =
+    -- Expressions
       ExpressionStatement   Expression
+    -- Control Flow
     | WhileLoop             Expression Block
     | ForEachLoop           Expression Key Block
     | IfElse                (NonEmpty Conditional) (Maybe Block)
+    | Break 
+    | Continue
+    -- Functions
     | FunctionDef           MewlixFunction
     | FunctionAssignment    Expression MewlixFunction
+    | Return                Expression
+    -- Bindings
     | Variable              Key Expression
     | Constant              Key Expression
     | Assignment            Expression Expression
+    -- Collections
     | ClassDef              MewlixClass
     | EnumDef               MewlixEnum
     | SuperCall             Arguments
+    -- Modules
     | ImportModule          ModuleData
     | ImportList            ModuleData [Key]
-    | Return                Expression
+    -- Assorted
     | Assert                Expression SourcePos
     | ThrowError            Expression SourcePos
     | TryCatch              Block (Maybe Key) Block
     | Rethrow
-    | Break 
-    | Continue
     deriving (Eq, Show)
 
 data YarnBall = YarnBall
