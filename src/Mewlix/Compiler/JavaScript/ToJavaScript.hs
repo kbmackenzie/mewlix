@@ -75,7 +75,7 @@ instance ToJavaScript Primitive where
 {- Expression -}
 -----------------------------------------------------------------
 instance ToJavaScript Expression where
-    transpileJS _ (PrimitiveExpr prim) = toJS prim
+    transpileJS _ (PrimitiveExpression prim) = toJS prim
 
     -- Names:
     ----------------------------------------------
@@ -138,7 +138,7 @@ instance ToJavaScript Expression where
         -- Tiny optimization: Don't perform string coercion on an expression that
         -- is already provably going to evaluate to a string.
         -- (e.g. string literals, string concatenation.)
-        (PrimitiveExpr str@(MString _))   -> toJS str
+        (PrimitiveExpression str@(MString _))   -> toJS str
         str@(StringCoerce _)                   -> transpileJS level str
         str@(BinaryOperation StringConcat _ _) -> transpileJS level str
         other                                  -> stringify <$> transpileJS level other
@@ -413,7 +413,7 @@ instance ToJavaScript Statement where
     -- Class statement:
     ----------------------------------------------
     transpileJS level   (ClassDef clowder) = do
-        let nil = PrimitiveExpr MNil
+        let nil = PrimitiveExpression MNil
         let parentValue = maybe nil Identifier (classExtends clowder)
         parent <- transpileJS level parentValue
         name   <- (toJS . MString . getKey . className) clowder

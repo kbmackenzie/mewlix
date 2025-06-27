@@ -34,7 +34,7 @@ data Primitive =
     deriving (Eq, Show)
 
 data Expression =
-      PrimitiveExpr         Primitive
+      PrimitiveExpression   Primitive
     | Identifier            Key
     | ObjectProperty        Key
     | BooleanAnd            Expression Expression

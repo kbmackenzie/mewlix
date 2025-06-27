@@ -95,7 +95,7 @@ declaration = do
     let value :: Parser Expression
         value = Mega.choice
             [ symbol '=' >> (expression <* linebreak)
-            , return (PrimitiveExpr MNil) ]
+            , return (PrimitiveExpression MNil) ]
     keyword Keywords.local
     binding <*> value
 
@@ -257,7 +257,7 @@ earlyReturn = do
     inFunction <- asks (nested InFunction)
     unless inFunction
         (fail "Cannot use function keyword outside function!")
-    Return (PrimitiveExpr MNil) <$ linebreak
+    Return (PrimitiveExpression MNil) <$ linebreak
 
 {- Classes -}
 ------------------------------------------------------------------

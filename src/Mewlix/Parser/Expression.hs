@@ -45,8 +45,8 @@ import Control.Arrow ((>>>))
 ------------------------------------------------------------------------------------
 termL :: Parser Expression
 termL = Mega.choice
-    [ PrimitiveExpr <$> home
-    , PrimitiveExpr <$> outside
+    [ PrimitiveExpression <$> home
+    , PrimitiveExpression <$> outside
     , Identifier <$> parseKey   ]
 
 termR :: Parser Expression
@@ -57,7 +57,7 @@ termR = Mega.choice
     , shelf     <?> "shelf"
     , do_       <?> "do"
     , parseYarnString expression
-    , PrimitiveExpr <$> primitive
+    , PrimitiveExpression <$> primitive
     , Identifier    <$> parseKey  ]
 
 lvalue :: Parser Expression
