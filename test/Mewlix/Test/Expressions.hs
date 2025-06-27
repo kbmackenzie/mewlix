@@ -88,7 +88,7 @@ expressions =
     , ("paw at [a, b]"      , peek (shelf [variable "a", variable "b"])                                 )
     , ("knock over [a, b]"  , pop (shelf [variable "a", variable "b"])                                  )
     ]
-    where number   = PrimitiveExpr . MewlixInt
+    where number   = PrimitiveExpr . MInt
           add      = BinaryOperation Addition
           multiply = BinaryOperation Multiplication
           negate   = UnaryOperation Minus
@@ -100,12 +100,12 @@ expressions =
           and      = BooleanAnd
           or       = BooleanOr
           ternary  = TernaryOperation
-          true     = PrimitiveExpr . MewlixBool $ True
-          false    = PrimitiveExpr . MewlixBool $ False
+          true     = PrimitiveExpr . MBool $ True
+          false    = PrimitiveExpr . MBool $ False
           equal    = BinaryOperation Equal
           lookup   = (. StringCoerce) . LookupExpression
           dot      = DotExpression
-          str      = PrimitiveExpr . MewlixString
+          str      = PrimitiveExpr . MString
           prop     = ObjectProperty . Key
           lambda   = LambdaExpression
           param    = Params . List.singleton . Key

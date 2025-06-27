@@ -16,7 +16,7 @@ testStrings (input, expectation) = do
     let parse = runParser primitive "string"
 
     it description $
-        parse input `shouldBe` Right (MewlixString expectation)
+        parse input `shouldBe` Right (MString expectation)
 
 strings :: [(Text, Text)]
 strings =
@@ -36,7 +36,7 @@ testMultilineStrings (input, expectation) = do
     let parse = runParser primitive "multiline string"
 
     it description $
-        parse input `shouldBe` Right (MewlixString expectation)
+        parse input `shouldBe` Right (MString expectation)
 
 multilineStrings :: [(Text, Text)]
 multilineStrings =
