@@ -52,7 +52,6 @@ data Expression =
     | BinaryOperation       BinaryOperationType Expression Expression
     | UnaryOperation        UnaryOperationType Expression
     | TernaryOperation      Expression Expression Expression
-    | ClawEntries           Expression
     -- Literals
     | ShelfExpression       [Expression]
     | BoxExpression         [(Key, Expression)]
@@ -84,6 +83,7 @@ data NumericOperationType =
 data BinaryOperationType =
     -- Shelf
       ShelfPush
+    -- Boxes
     | Contains
     -- Comparison
     | Equal
@@ -99,6 +99,8 @@ data UnaryOperationType =
       LengthLookup
     | ShelfPop
     | ShelfPeek
+    -- Boxes
+    | AskEntries
     -- Boolean
     | BooleanNot
     deriving (Eq, Ord, Enum, Bounded, Show)

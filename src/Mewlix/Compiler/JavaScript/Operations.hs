@@ -36,3 +36,4 @@ unaryOpFunc op = case op of
     ShelfPeek       -> call (Mewlix.shelf "peek")
     BooleanNot      -> call (Mewlix.boolean "not")
     LengthLookup    -> call (Mewlix.collections "length")
+    AskEntries      -> call (Mewlix.box "pairs")

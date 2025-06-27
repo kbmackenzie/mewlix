@@ -25,14 +25,16 @@ instance AnalyzeOperation Expression where
         (BooleanAnd a b)         -> Set.singleton And <> analyze a <> analyze b
         (BooleanOr a b)          -> Set.singleton Or  <> analyze a <> analyze b
         (StringCoerce a)         -> analyze a
-        (TernaryOperation a b c) -> analyze a <> analyze b <> analyze c
-        (BinaryOperation _ a b)  -> analyze a <> analyze b
+        (StringConcat a b)       -> analyze a <> analyze b
+        (NumberCoerce a)         -> analyze a
+        (NumericOperation _ a b) -> analyze a <> analyze b
         (UnaryOperation _ a)     -> analyze a
+        (BinaryOperation _ a b)  -> analyze a <> analyze b
+        (TernaryOperation a b c) -> analyze a <> analyze b <> analyze c
         (ShelfExpression xs)     -> mconcat . map analyze $ xs
         (BoxExpression xs)       -> mconcat . map (analyze . snd) $ xs
         (AskType a)              -> analyze a
         (IsInstance a b)         -> analyze a <> analyze b
-        (ClawEntries a)          -> analyze a
         (FunctionCall func args) -> analyze func <> analyze args
         (ClowderCreate cl args)  -> analyze cl <> analyze args
         (DotExpression a b)      -> analyze a <> analyze b

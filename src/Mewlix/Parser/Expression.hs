@@ -244,7 +244,7 @@ operatorsR =
         -- Reflection
     ,   [ Prefix  (AskType                          <& keyword Keywords.typeOf      )
         , InfixL  (IsInstance                       <& keyword Keywords.is          )
-        , Prefix  (ClawEntries                      <& keyword Keywords.claw        )
+        , Prefix  (UnaryOperation AskEntries        <& keyword Keywords.claw        )
         -- Shelf
         , Postfix (UnaryOperation LengthLookup      <& keyword (LongSymbol "...?")  )   ] 
     ,   [ Prefix  (UnaryOperation ShelfPeek         <& keyword Keywords.peek        )

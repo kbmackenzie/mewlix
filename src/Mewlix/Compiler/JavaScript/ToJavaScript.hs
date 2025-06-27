@@ -259,12 +259,6 @@ instance ToJavaScript Expression where
         args <- mapM (transpileJS level) [a, b]
         return $ call (Mewlix.reflection "instanceOf") args
 
-    -- 'claw at' / Box entries:
-    ----------------------------------------------
-    transpileJS level (ClawEntries operand) = do
-        arg <- transpileJS level operand
-        return $ call (Mewlix.box "pairs") [arg]
-
     -- I/O:
     ----------------------------------------------
     transpileJS level (MeowExpression expr) = do
