@@ -77,42 +77,10 @@ instance ToJavaScript Primitive where
 instance ToJavaScript Expression where
     transpileJS _ (PrimitiveExpression prim) = toJS prim
 
-    -- Names:
+    -- Bindings:
     ----------------------------------------------
     transpileJS _ (Identifier key) = (return . getKey) key
     transpileJS _ (ObjectProperty key) = (toJS . MString . getKey) key
-
-    -- Lists + boxes:
-    ----------------------------------------------
-    transpileJS level (ShelfExpression exprs) = do
-        let makeItem :: Expression -> Transpiler Text
-            makeItem expr = do
-                value <- transpileJS ((succ . succ) level) expr
-                indentLine (succ level) (value <> ",")
-
-        let items = map makeItem exprs
-        array <- joinLines
-            [ return "["
-            , joinLines items
-            , indentLine level "]" ]
-        return $ call (Mewlix.shelf "create") [ array ]
-
-    transpileJS level (BoxExpression pairs) = do
-        let makeKey :: Key -> Transpiler Text
-            makeKey = toJS . MString . getKey
-
-        let makeTuple :: (Key, Expression) -> Transpiler Text
-            makeTuple (key, expr) = do
-                bind  <- makeKey key
-                value <- transpileJS (succ level) expr
-                indentLine (succ level) . mconcat $ [ bind, ": ", value, "," ]
-
-        let items = map makeTuple pairs
-        table <- joinLines
-            [ return "{"
-            , joinLines items
-            , indentLine level "}" ]
-        return $ call (Mewlix.box "create") [ table ]
 
     -- Boolean operations:
     ----------------------------------------------
@@ -232,6 +200,38 @@ instance ToJavaScript Expression where
         args    <- transpileJS level argExprs
         let create = call (Mewlix.clowder "instantiate") . List.singleton
         return $ create clowder <> args
+
+    -- Lists + boxes:
+    ----------------------------------------------
+    transpileJS level (ShelfExpression exprs) = do
+        let makeItem :: Expression -> Transpiler Text
+            makeItem expr = do
+                value <- transpileJS ((succ . succ) level) expr
+                indentLine (succ level) (value <> ",")
+
+        let items = map makeItem exprs
+        array <- joinLines
+            [ return "["
+            , joinLines items
+            , indentLine level "]" ]
+        return $ call (Mewlix.shelf "create") [ array ]
+
+    transpileJS level (BoxExpression pairs) = do
+        let makeKey :: Key -> Transpiler Text
+            makeKey = toJS . MString . getKey
+
+        let makeTuple :: (Key, Expression) -> Transpiler Text
+            makeTuple (key, expr) = do
+                bind  <- makeKey key
+                value <- transpileJS (succ level) expr
+                indentLine (succ level) . mconcat $ [ bind, ": ", value, "," ]
+
+        let items = map makeTuple pairs
+        table <- joinLines
+            [ return "{"
+            , joinLines items
+            , indentLine level "}" ]
+        return $ call (Mewlix.box "create") [ table ]
 
     -- Binary operations:
     ----------------------------------------------
