@@ -30,12 +30,12 @@ import Control.Monad (when, unless)
 ----------------------------------------------------------------
 primitive :: Parser Primitive
 primitive = Mega.choice
-    [ MewlixString  <$> parseStringM
-    , MewlixString  <$> parseString
-    , MewlixFloat   <$> parseFloat  <?> "number"
-    , MewlixInt     <$> parseInt    <?> "number"
-    , MewlixBool    <$> parseBool   <?> "boolean"
-    , MewlixNil     <$  keyword Keywords.nil  <?> "nothing"
+    [ MString  <$> parseStringM
+    , MString  <$> parseString
+    , MFloat   <$> parseFloat  <?> "number"
+    , MInt     <$> parseInt    <?> "number"
+    , MBool    <$> parseBool   <?> "boolean"
+    , MNil     <$  keyword Keywords.nil  <?> "nothing"
     , home 
     , outside                                               ]
 
@@ -82,7 +82,7 @@ home = do
     unless inClass $ do
         let word = (show . unwrapKeyword) Keywords.home
         fail . concat $ ["Cannot use keyword ", word, " outside clowder!"]
-    return MewlixHome
+    return Home
 
 outside :: Parser Primitive
 outside = do
@@ -91,4 +91,4 @@ outside = do
     unless inClass $ do
         let word = (show . unwrapKeyword) Keywords.outside
         fail . concat $ ["Cannot use keyword ", word, " outside clowder!"]
-    return MewlixOutside
+    return Outside

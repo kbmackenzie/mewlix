@@ -64,13 +64,13 @@ class ToJavaScript a where
 {- Primitives -}
 -----------------------------------------------------------------
 instance ToJavaScript Primitive where
-    transpileJS _ (MewlixInt i)     = (return . showT) i
-    transpileJS _ (MewlixFloat f)   = (return . showT) f
-    transpileJS _ (MewlixString s)  = (return . quotes . escapeString) s
-    transpileJS _ (MewlixBool b)    = (return . Text.toLower . showT) b
-    transpileJS _ MewlixNil         = return "null"
-    transpileJS _ MewlixHome        = return "this"
-    transpileJS _ MewlixOutside     = return "this.outside()"
+    transpileJS _ (MInt i)     = (return . showT) i
+    transpileJS _ (MFloat f)   = (return . showT) f
+    transpileJS _ (MString s)  = (return . quotes . escapeString) s
+    transpileJS _ (MBool b)    = (return . Text.toLower . showT) b
+    transpileJS _ MNil         = return "null"
+    transpileJS _ Home         = return "this"
+    transpileJS _ Outside      = return "this.outside()"
 
 {- Expression -}
 -----------------------------------------------------------------
@@ -80,7 +80,7 @@ instance ToJavaScript Expression where
     -- Names:
     ----------------------------------------------
     transpileJS _ (Identifier key) = (return . getKey) key
-    transpileJS _ (ObjectProperty key) = (toJS . MewlixString . getKey) key
+    transpileJS _ (ObjectProperty key) = (toJS . MString . getKey) key
 
     -- Lists + boxes:
     ----------------------------------------------
@@ -99,7 +99,7 @@ instance ToJavaScript Expression where
 
     transpileJS level (BoxExpression pairs) = do
         let makeKey :: Key -> Transpiler Text
-            makeKey = toJS . MewlixString . getKey
+            makeKey = toJS . MString . getKey
 
         let makeTuple :: (Key, Expression) -> Transpiler Text
             makeTuple (key, expr) = do
@@ -138,7 +138,7 @@ instance ToJavaScript Expression where
         -- Tiny optimization: Don't perform string coercion on an expression that
         -- is already provably going to evaluate to a string.
         -- (e.g. string literals, string concatenation.)
-        (PrimitiveExpr str@(MewlixString _))   -> toJS str
+        (PrimitiveExpr str@(MString _))   -> toJS str
         str@(StringCoerce _)                   -> transpileJS level str
         str@(BinaryOperation StringConcat _ _) -> transpileJS level str
         other                                  -> stringify <$> transpileJS level other
@@ -385,7 +385,7 @@ instance ToJavaScript Statement where
         let binding = maybe (defaultName moduleData) getKey (moduleAlias moduleData)
         importValue <- do
             let key = (Key . joinKey . moduleKey) moduleData
-            stringKey <- (toJS . MewlixString . getKey) key
+            stringKey <- (toJS . MString . getKey) key
             corelib   <- asks library
             if HashSet.member key corelib
                 then return $ mconcat [ "mewlix.lib[", stringKey, "]" ]
@@ -396,7 +396,7 @@ instance ToJavaScript Statement where
     transpileJS level   (ImportList moduleData keys) = do
         importValue <- do
             let key = (Key . joinKey . moduleKey) moduleData
-            stringKey <- (toJS . MewlixString . getKey) key
+            stringKey <- (toJS . MString . getKey) key
             corelib   <- asks library
             if HashSet.member key corelib
                 then return $ mconcat [ "mewlix.lib[", stringKey, "]" ]
@@ -404,7 +404,7 @@ instance ToJavaScript Statement where
 
         let bind :: Key -> Transpiler Text
             bind key = indentLine level =<< do
-                stringKey <- (toJS . MewlixString . getKey) key
+                stringKey <- (toJS . MString . getKey) key
                 let value = call (importValue <> ".get") [stringKey]
                 return . mconcat $ [ "const ", getKey key, " = ", value, ";" ]
 
@@ -413,13 +413,13 @@ instance ToJavaScript Statement where
     -- Class statement:
     ----------------------------------------------
     transpileJS level   (ClassDef clowder) = do
-        let nil = PrimitiveExpr MewlixNil
+        let nil = PrimitiveExpr MNil
         let parentValue = maybe nil Identifier (classExtends clowder)
         parent <- transpileJS level parentValue
-        name   <- (toJS . MewlixString . getKey . className) clowder
+        name   <- (toJS . MString . getKey . className) clowder
 
         let makeKey :: Key -> Transpiler Text
-            makeKey = toJS . MewlixString . getKey
+            makeKey = toJS . MString . getKey
 
         let makeTuple :: MewlixFunction -> Transpiler Text
             makeTuple func = do
@@ -522,8 +522,8 @@ instance ToJavaScript MewlixFunction where
 -----------------------------------------------------------------
 instance ToJavaScript MewlixEnum where
     transpileJS _ enum = do
-        strings <- mapM (toJS . MewlixString . getKey) (enumKeys enum)
-        name <- (toJS . MewlixString . getKey . enumName) enum
+        strings <- mapM (toJS . MString . getKey) (enumKeys enum)
+        name <- (toJS . MString . getKey . enumName) enum
         let keys = (brackets . sepComma) strings
         return $ call (Mewlix.catTree "create") [name, keys]
 
@@ -547,7 +547,7 @@ instance ToJavaScript YarnBall where
         let topLevel = toIndent 1
         let moduleLevel = toIndent 2
 
-        keyString <- toJS (MewlixString key)
+        keyString <- toJS (MString key)
         strictPragma <- indentLine topLevel "'use strict';"
 
         moduleFunction <- do
@@ -570,7 +570,7 @@ instance ToJavaScript YarnBall where
             moduleBindings <- do
                 let makeTuple :: Key -> Transpiler Text
                     makeTuple (Key binding) = do
-                        bindingStr <- toJS (MewlixString binding)
+                        bindingStr <- toJS (MString binding)
                         return $ mconcat [ "[", bindingStr, ", ", lambda binding, "]" ]
 
                 bindings <- mapM makeTuple (findBindings block)

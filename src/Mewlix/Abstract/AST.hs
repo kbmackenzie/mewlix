@@ -24,13 +24,13 @@ import Data.List.NonEmpty (NonEmpty)
 import Text.Megaparsec (SourcePos)
 
 data Primitive =
-      MewlixInt             Int
-    | MewlixString          Text
-    | MewlixFloat           Double
-    | MewlixBool            Bool
-    | MewlixNil
-    | MewlixHome
-    | MewlixOutside
+      MInt Int
+    | MString Text
+    | MFloat Double
+    | MBool Bool
+    | MNil
+    | Home
+    | Outside
     deriving (Eq, Show)
 
 data Expression =

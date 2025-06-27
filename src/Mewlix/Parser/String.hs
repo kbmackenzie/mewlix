@@ -108,7 +108,7 @@ parseStringM = label "multiline string" . withQuotes stringQuotesM $
 {- String interpolation ('yarn string'): -}
 ----------------------------------------------------------------
 stringToExpr :: Text -> Expression
-stringToExpr = PrimitiveExpr . MewlixString
+stringToExpr = PrimitiveExpr . MString
 
 interpolate :: [Expression] -> Expression
 interpolate []  = stringToExpr mempty
