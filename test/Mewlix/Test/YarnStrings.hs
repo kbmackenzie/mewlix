@@ -44,9 +44,9 @@ yarnStrings =
     , (":3'[2 + 2]'"                , coerce (add (number 2) (number 2))                     )
     , (":3'[:3'']'"                 , coerce (str "")                                        )
     ]
-    where str      = PrimitiveExpr . MString
+    where str      = PrimitiveExpression . MString
           concat   = BinaryOperation StringConcat
-          number   = PrimitiveExpr . MInt
+          number   = PrimitiveExpression . MInt
           add      = BinaryOperation Addition
           shelf    = ShelfExpression
           variable = Identifier . Key

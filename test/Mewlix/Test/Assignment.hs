@@ -51,8 +51,8 @@ assignments =
     where assign   = Assignment
           var      = Variable
           constant = Constant
-          nil      = PrimitiveExpr MNil
-          number   = PrimitiveExpr . MInt
+          nil      = PrimitiveExpression MNil
+          number   = PrimitiveExpression . MInt
           add      = BinaryOperation Addition
           variable = Identifier . Key
           equal    = BinaryOperation Equal
@@ -60,7 +60,7 @@ assignments =
           lookup   = (. StringCoerce) . LookupExpression
           dot      = DotExpression
           prop     = ObjectProperty . Key
-          str      = PrimitiveExpr . MString
+          str      = PrimitiveExpression . MString
 
 test :: Spec
 test = testAssignment assignments
